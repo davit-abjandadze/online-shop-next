@@ -1,0 +1,218 @@
+stages:
+  - package_prod
+  - package_preprod
+  - package_test
+  - build_image_prod
+  - build_image_preprod
+  - build_image_test
+  - deploy_prod
+  - deploy_preprod
+  - deploy_test
+
+variables:
+  DEPLOYMENT_TYPE: 'deployment' # Standard stateless deployment. Rolling update only without persistent volume or with shared-filesystem persistent volume.
+  #DEPLOYMENT_TYPE: 'statefulset' # For rolling update use at least 2 replicas! 
+  #REPLICAS: 1 # Configured in project variables, not used if USE_AUTOSCALING is set to true
+  USE_PERSISTENT_VOLUME: 'false'
+  STORAGE_CLASS: 'shared-filesystem'
+  MOUNTPOINT: '/data'
+  VOLUME_SIZE_GB: 7
+  REQUEST_CPU_ML: 50
+  REQUEST_MEM_MB: 128
+  REQUEST_EPHEMER_STOR_GB: 1
+  LIMIT_CPU_ML: 4000
+  LIMIT_MEM_MB: 16384
+  LIMIT_EPHEMER_STOR_GB: 1
+  #USE_AUTOSCALING: 'true' # Configured in project variables
+  SCALEING_CPU_PERCENT: 80
+  SCALEING_MEMORY_PERCENT: 80
+  #MIN_REPLICAS: 1 # Configured in project variables
+  #MAX_REPLICAS: 2 # Configured in project variables
+  USE_INGRESS: 'true'
+  #INGRESS_APP_HOSTNAME: '' # Configured in project variables
+  INGRESS_APP_ROOT: ''
+  INGRESS_TARGET_WORKLOAD_PORT: 3000
+  USE_L4_BALANCER: 'false'
+  L4_BALANCER_PORT: 80
+  L4_BALANCER_PROTOCOL: TCP
+  L4_BALANCER_TARGET_WORKLOAD_PORT: 80
+  LIVENESS_PROBE: 'false'
+  #LIVENESS_PROBE_TYPE: 'tcp'
+  #LIVENESS_PROBE_PORT: $L4_BALANCER_TARGET_WORKLOAD_PORT
+  #LIVENESS_PROBE_TYPE: 'exec_command'
+  #LIVENESS_PROBE_COMMAND: '/bin\/true'
+  LIVENESS_PROBE_TYPE: 'http'
+  LIVENESS_PROBE_PORT: $INGRESS_TARGET_WORKLOAD_PORT
+  LIVENESS_PROBE_PATH: '/api/hc'
+  LIVENESS_PROBE_SCHEME: 'HTTP'
+  LIVENESS_FAILURE_THRESHOLD: 3
+  LIVENESS_DELAY_SECONDS: 60
+  LIVENESS_PERIOD_SECONDS: 2
+  LIVENESS_SUCCESS_THRESHOLD: 1
+  LIVENESS_TIMEOUT_SECONDS: 2
+  #CUSTOM_METRICS_ENDPOINT: '/actuator/prometheus'
+  #CUSTOM_METRICS_PORT: $APP_TARGET_PORT
+  #CUSTOM_METRICS_SCHEMA: 'HTTP'
+  DOMAIN: ci.lemon.do
+  #CHAT_WEBHOOK_URL: 
+  #NAMESPACE_NAME: ''
+  BUILD_CONTEXT: .  # Relative to project dir
+  DOCKERFILE_LOCATION: Dockerfile # Relative to project dir
+  BUILD_ARG: --build-arg ENVIRONMENT --build-arg NEXTAUTH_URL --build-arg NODE_ENV --build-arg NEW_RELIC_SLOW_SQL_ENABLED --build-arg NEW_RELIC_LICENSE_KEY --build-arg NEW_RELIC_APP_NAME --build-arg NODE_OPTIONS --build-arg NEXTAUTH_URL_INTERNAL
+
+# Use template to clone the origin repository.
+
+include:
+  - project: ci_cd/kube_templates
+    ref: main
+    file:
+      - /.kube/ci-includes/lowercase_project_name.yml
+      - /.kube/ci-includes/build_and_push_docker_image.yml
+      - /.kube/ci-includes/deploy_to_kubernetes.yml
+      - /.kube/ci-includes/remove_deployment_from_kubernetes.yml
+
+.build:
+  image: docker-proxy.grena.ge/node:18-slim
+  artifacts:
+    paths:
+      - ./
+    expire_in: 1 week
+
+package_prod:
+  stage: package_prod
+  script:
+    - npm install
+    - npm install newrelic --save 
+    - npm run build
+  extends:
+    - .build
+  environment:
+    name: Production
+  only:
+    refs:
+      - main
+
+build_image_prod:
+  stage: build_image_prod
+  extends: .build_and_push_docker_image
+  environment:
+    name: Production
+  only:
+    refs:
+      - main
+
+deploy_prod:
+  stage: deploy_prod
+  extends: .deploy_to_kubernetes
+  environment:
+    name: Production
+  artifacts:
+    when: on_failure
+    paths:
+      - .kube
+    expire_in: 1 week
+  only:
+    refs:
+      - main
+
+stop_staging_prod:
+  stage: deploy_prod
+  extends: .remove_deployment_from_kubernetes
+  environment:
+    name: Production
+  only:
+    refs:
+      - main
+
+
+package_preprod:
+  stage: package_preprod
+  script:
+    - npm install
+    - npm run build
+  extends:
+    - .build
+  environment:
+    name: Preprod
+  only:
+    refs:
+      - preprod
+
+build_image_preprod:
+  stage: build_image_preprod
+  extends: .build_and_push_docker_image
+  environment:
+    name: Preprod
+  only:
+    refs:
+      - preprod
+
+deploy_preprod:
+  stage: deploy_preprod
+  extends: .deploy_to_kubernetes
+  environment:
+    name: Preprod
+  artifacts:
+    when: on_failure
+    paths:
+      - .kube
+    expire_in: 1 week
+  only:
+    refs:
+      - preprod
+
+stop_staging_preprod:
+  stage: deploy_preprod
+  extends: .remove_deployment_from_kubernetes
+  environment:
+    name: Preprod
+  only:
+    refs:
+      - preprod
+
+
+package_test:
+  stage: package_test
+  script:
+    - npm install
+    - npm run build
+  extends:
+    - .build
+  environment:
+    name: Test
+  only:
+    refs:
+      - test
+
+build_image_test:
+  stage: build_image_test
+  extends: .build_and_push_docker_image
+  environment:
+    name: Test
+  only:
+    refs:
+      - test
+
+deploy_test:
+  stage: deploy_test
+  extends: .deploy_to_kubernetes
+  environment:
+    name: Test
+  artifacts:
+    when: on_failure
+    paths:
+      - ./
+    expire_in: 1 week
+  only:
+    refs:
+      - test
+
+stop_staging_test:
+  stage: deploy_test
+  extends: .remove_deployment_from_kubernetes
+  environment:
+    name: Test
+  only:
+    refs:
+      - test
+

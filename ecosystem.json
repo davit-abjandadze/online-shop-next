@@ -1,0 +1,8 @@
+{
+  "name": "app",
+  "autorestart": true,
+  "watch": false,
+  "max_restarts": 5,
+  "script": "npm",
+  "args": "-- run start"
+}
