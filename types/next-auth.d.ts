@@ -14,7 +14,7 @@ declare module "next-auth" {
   interface Session {
     accessToken?: string;
     user: {
-      id?: string;
+      id?: string; // ← ეს უნდა იყოს!
       name?: string | null;
       email?: string | null;
       role?: string;
@@ -25,6 +25,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     access_token?: string;
+    id?: string; // ← ეს დაამატე!
     role?: string;
   }
 }

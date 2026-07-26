@@ -21,6 +21,13 @@ import { UserAnswer } from '../models';
 export declare const UserAnswerApiAxiosParamCreator: (configuration?: Configuration) => {
     /**
      *
+     * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    userAnswerControllerGetMyVotedQuestions: (options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -40,6 +47,13 @@ export declare const UserAnswerApiAxiosParamCreator: (configuration?: Configurat
  * @export
  */
 export declare const UserAnswerApiFp: (configuration?: Configuration) => {
+    /**
+     *
+     * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    userAnswerControllerGetMyVotedQuestions(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
     /**
      *
      * @param {string} questionId
@@ -63,6 +77,13 @@ export declare const UserAnswerApiFp: (configuration?: Configuration) => {
 export declare const UserAnswerApiFactory: (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) => {
     /**
      *
+     * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    userAnswerControllerGetMyVotedQuestions(options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    /**
+     *
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -84,6 +105,14 @@ export declare const UserAnswerApiFactory: (configuration?: Configuration, baseP
  * @extends {BaseAPI}
  */
 export declare class UserAnswerApi extends BaseAPI {
+    /**
+     *
+     * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserAnswerApi
+     */
+    userAnswerControllerGetMyVotedQuestions(options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
      * @param {string} questionId

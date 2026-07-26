@@ -1,3 +1,6 @@
+"use strict";
+/* tslint:disable */
+/* eslint-disable */
 /**
  * My First Nest API
  * The API description
@@ -9,10 +12,4 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-export * from './apis/answer-api';
-export * from './apis/auth-api';
-export * from './apis/categories-api';
-export * from './apis/questions-api';
-export * from './apis/tasks-api';
-export * from './apis/user-answer-api';
-export * from './apis/users-api';
+Object.defineProperty(exports, "__esModule", { value: true });

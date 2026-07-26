@@ -18,6 +18,14 @@ import { CreateAnswerDto } from './create-answer-dto';
 */
 export interface CreateQuestionDto {
     /**
+     * კატეგორიის ID (optional)
+     *
+     * @type {number}
+     * @memberof CreateQuestionDto
+     * @example 1
+     */
+    categoryId?: number;
+    /**
      * @type {string}
      * @memberof CreateQuestionDto
      */

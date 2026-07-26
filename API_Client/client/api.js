@@ -25,7 +25,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 __exportStar(require("./apis/answer-api"), exports);
 __exportStar(require("./apis/auth-api"), exports);
-__exportStar(require("./apis/question-api"), exports);
+__exportStar(require("./apis/categories-api"), exports);
+__exportStar(require("./apis/questions-api"), exports);
 __exportStar(require("./apis/tasks-api"), exports);
 __exportStar(require("./apis/user-answer-api"), exports);
 __exportStar(require("./apis/users-api"), exports);

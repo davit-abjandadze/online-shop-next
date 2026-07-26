@@ -1,8 +1,8 @@
 import {
   AnswerApi,
-    AuthApi,
+  AuthApi,
+  CategoriesApi,
   Configuration,
-  QuestionApi,
   UserAnswerApi,
 } from "./client";
 import axios from "axios";
@@ -11,6 +11,7 @@ import * as cache from "memory-cache";
 import { getCookie } from "cookies-next";
 import http from "http";
 import https from "https";
+import { QuestionApi } from "./client/apis/question-api";
 
 // axios და OpenAPI კლიენტების კონფიგურაცია
 
@@ -49,13 +50,13 @@ const createAxiosInstance = (acceptLanguage: string, accessToken: string) => {
   });
 
   // Request interceptor for authorization
- axiosInstance.interceptors.request.use((req: any) => {
-  if (accessToken) {
-    req.headers.Authorization = `Bearer ${accessToken}`;
-  }
+  axiosInstance.interceptors.request.use((req: any) => {
+    if (accessToken) {
+      req.headers.Authorization = `Bearer ${accessToken}`;
+    }
 
-  return req;
-});
+    return req;
+  });
 
   // Response interceptor for error handling
   axiosInstance.interceptors.response.use(
@@ -96,6 +97,12 @@ export const UserAnswerAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new UserAnswerApi(ApiConfig, API_URL, axiosInstance);
 };
+
+export const CategoriesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new CategoriesApi(ApiConfig, API_URL, axiosInstance);
+};
+
 
 // პასკალიდან გადაყავს ქემელში
 const toCamelCase = (o: any) => {

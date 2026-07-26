@@ -104,7 +104,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                       <S.UserEmail>{session.user.email}</S.UserEmail>
                     </S.DropdownHeader>
 
-                    <S.DropdownItem onClick={() => router.push("/change-password")}>
+                    {session.user.role?.toLowerCase() === "admin" && (
+                      <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/dashboard"); }}>
+                        📊 დეშბორდი
+                      </S.DropdownItem>
+                    )}
+
+                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/change-password"); }}>
                       🔑 პაროლის შეცვლა
                     </S.DropdownItem>
 

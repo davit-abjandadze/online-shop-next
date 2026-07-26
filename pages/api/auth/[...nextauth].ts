@@ -1,11 +1,19 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import GoogleProvider from "next-auth/providers/google"; // ← ეს
+
 
 export const authOptions: NextAuthOptions = {
   providers: [
+
+     // ← 2. დაამატე Google Provider
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -67,6 +75,40 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || "your-super-secret-key",
 
   callbacks: {
+
+// ⭐ 3. ახალი signIn callback: Google-ით შესვლისას ვუკავშირდებით ბექენდს
+        async signIn({ user, account, profile }) {
+      if (account?.provider === "google") {
+        try {
+          const response = await fetch(`${API_URL}/auth/google`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: user.email,
+              // ⭐ აქ გამოვიყენეთ 'as any' TypeScript-ის ერორის ასაცილებლად
+              firstName: (profile as any)?.given_name || "",
+              lastName: (profile as any)?.family_name || "",
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.access_token) {
+            (user as any).access_token = data.access_token;
+            (user as any).role = data.user.role;
+            (user as any).id = String(data.user.id);
+            return true;
+          }
+          return false;
+        } catch (error) {
+          console.error("Google Sign In Error:", error);
+          return false;
+        }
+      }
+      return true;
+    },
+
+
     async jwt({ token, user }) {
       if (user) {
         token.access_token = (user as any).access_token;
@@ -108,3 +150,7 @@ export default async function handler(req: any, res: any) {
     return originalStatus(500).json({ error: err?.message || String(err) });
   }
 }
+
+
+
+

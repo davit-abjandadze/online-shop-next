@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 import { Answer } from './answer';
+import { Category } from './category';
 /**
 *
 *
@@ -37,6 +38,16 @@ export interface Question {
      * @memberof Question
      */
     answers: Array<Answer>;
+    /**
+     * @type {Category}
+     * @memberof Question
+     */
+    category?: Category;
+    /**
+     * @type {number}
+     * @memberof Question
+     */
+    categoryId?: number;
     /**
      * @type {Date}
      * @memberof Question

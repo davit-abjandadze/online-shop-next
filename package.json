@@ -54,7 +54,7 @@
     "memory-cache": "^0.2.0",
     "moment": "^2.29.4",
     "next": "13.4.16",
-    "next-auth": "^4.22.1",
+    "next-auth": "^4.24.15",
     "next-translate": "^1.6.0",
     "next-translate-routes": "^1.9.2",
     "nprogress": "^0.2.0",

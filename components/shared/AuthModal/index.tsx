@@ -227,6 +227,28 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* 1. LOGIN FORM */}
         {mode === "login" && (
           <S.FormContainer onSubmit={handleLoginSubmit}>
+
+            <button
+  type="button"
+  onClick={() => signIn("google", { callbackUrl: "/" })}
+  style={{
+    width: "100%",
+    padding: "10px",
+    backgroundColor: "#fff",
+    color: "#333",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "15px"
+  }}
+>
+  {/* აქ შეგიძლია Google-ის SVG იკონკა ჩასვა */}
+  <span>🔵</span> Google-ით შესვლა
+</button>
             <S.FormGroup>
               <S.Label>ელფოსტა</S.Label>
               <S.InputWrapper>
