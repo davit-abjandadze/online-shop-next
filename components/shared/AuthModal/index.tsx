@@ -243,12 +243,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     alignItems: "center",
     justifyContent: "center",
     gap: "10px",
-    marginBottom: "15px"
   }}
 >
   {/* აქ შეგიძლია Google-ის SVG იკონკა ჩასვა */}
   <span>🔵</span> Google-ით შესვლა
 </button>
+<button
+  type="button"
+  onClick={() => signIn("facebook", { callbackUrl: "/" })}
+  style={{
+    width: "100%",
+    padding: "10px",
+    backgroundColor: "#1877F2",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+  }}
+>
+  <span>🔵</span> Facebook-ით შესვლა
+</button>
+
             <S.FormGroup>
               <S.Label>ელფოსტა</S.Label>
               <S.InputWrapper>

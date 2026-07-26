@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 import GoogleProvider from "next-auth/providers/google"; // ← ეს
-
+import FacebookProvider from "next-auth/providers/facebook"; // ← ახალი იმპორტი
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,6 +12,16 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+
+     FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: 'email,public_profile', // ← აუცილებელია email-ის მისაღებად
+        },
+      },
     }),
 
     CredentialsProvider({
@@ -78,16 +88,36 @@ export const authOptions: NextAuthOptions = {
 
 // ⭐ 3. ახალი signIn callback: Google-ით შესვლისას ვუკავშირდებით ბექენდს
         async signIn({ user, account, profile }) {
-      if (account?.provider === "google") {
+    // მხოლოდ OAuth პროვაიდერებისთვის (Google, Facebook)
+      if (account?.provider === "google" || account?.provider === "facebook") {
         try {
-          const response = await fetch(`${API_URL}/auth/google`, {
+          // Facebook-ის profile სტრუქტურა განსხვავებულია:
+          // - Google: given_name, family_name
+          // - Facebook: name (სრული სახელი ერთ ველში)
+          let firstName = "";
+          let lastName = "";
+
+          if (account.provider === "google") {
+            firstName = (profile as any)?.given_name || "";
+            lastName = (profile as any)?.family_name || "";
+          } else if (account.provider === "facebook") {
+            // Facebook-ზე name არის "დათა ბერიძე" ფორმატში
+            const fullName = (profile as any)?.name || "";
+            const nameParts = fullName.split(" ");
+            firstName = nameParts[0] || "";
+            lastName = nameParts.slice(1).join(" ") || "";
+          }
+
+          // ვაგზავნით ბექენდზე
+          const endpoint = account.provider === "google" ? "/auth/google" : "/auth/facebook";
+          
+          const response = await fetch(`${API_URL}${endpoint}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               email: user.email,
-              // ⭐ აქ გამოვიყენეთ 'as any' TypeScript-ის ერორის ასაცილებლად
-              firstName: (profile as any)?.given_name || "",
-              lastName: (profile as any)?.family_name || "",
+              firstName,
+              lastName,
             }),
           });
 
@@ -101,12 +131,13 @@ export const authOptions: NextAuthOptions = {
           }
           return false;
         } catch (error) {
-          console.error("Google Sign In Error:", error);
+          console.error(`${account.provider} Sign In Error:`, error);
           return false;
         }
       }
-      return true;
+      return true; // Credentials-ისთვის
     },
+
 
 
     async jwt({ token, user }) {
