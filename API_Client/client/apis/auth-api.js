@@ -149,6 +149,86 @@ exports.AuthApiAxiosParamCreator = function (configuration) {
         },
         /**
          *
+         * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerFacebookLogin: function (options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_a) {
+                    localVarPath = "/auth/facebook";
+                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                    if (configuration) {
+                        baseOptions = configuration.baseOptions;
+                    }
+                    localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
+                    localVarHeaderParameter = {};
+                    localVarQueryParameter = {};
+                    query = new URLSearchParams(localVarUrlObj.search);
+                    for (key in localVarQueryParameter) {
+                        query.set(key, localVarQueryParameter[key]);
+                    }
+                    for (key in options.params) {
+                        query.set(key, options.params[key]);
+                    }
+                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                    return [2 /*return*/, {
+                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                            options: localVarRequestOptions,
+                        }];
+                });
+            });
+        },
+        /**
+         *
+         * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+         * @param {ForgotPasswordDto} body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerForgotPassword: function (body, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions, needsSerialization;
+                return __generator(this, function (_a) {
+                    // verify required parameter 'body' is not null or undefined
+                    if (body === null || body === undefined) {
+                        throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling authControllerForgotPassword.');
+                    }
+                    localVarPath = "/auth/forgot-password";
+                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                    if (configuration) {
+                        baseOptions = configuration.baseOptions;
+                    }
+                    localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
+                    localVarHeaderParameter = {};
+                    localVarQueryParameter = {};
+                    localVarHeaderParameter['Content-Type'] = 'application/json';
+                    query = new URLSearchParams(localVarUrlObj.search);
+                    for (key in localVarQueryParameter) {
+                        query.set(key, localVarQueryParameter[key]);
+                    }
+                    for (key in options.params) {
+                        query.set(key, options.params[key]);
+                    }
+                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                    needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+                    localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+                    return [2 /*return*/, {
+                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                            options: localVarRequestOptions,
+                        }];
+                });
+            });
+        },
+        /**
+         *
          * @summary მხოლოდ ადმინისტრატორის პანელი
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -257,6 +337,42 @@ exports.AuthApiAxiosParamCreator = function (configuration) {
         },
         /**
          *
+         * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerGoogleLogin: function (options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_a) {
+                    localVarPath = "/auth/google";
+                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                    if (configuration) {
+                        baseOptions = configuration.baseOptions;
+                    }
+                    localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
+                    localVarHeaderParameter = {};
+                    localVarQueryParameter = {};
+                    query = new URLSearchParams(localVarUrlObj.search);
+                    for (key in localVarQueryParameter) {
+                        query.set(key, localVarQueryParameter[key]);
+                    }
+                    for (key in options.params) {
+                        query.set(key, options.params[key]);
+                    }
+                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                    return [2 /*return*/, {
+                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                            options: localVarRequestOptions,
+                        }];
+                });
+            });
+        },
+        /**
+         *
          * @summary მომხმარებლის ავტორიზაცია
          * @param {LoginDto} body
          * @param {*} [options] Override http request option.
@@ -343,6 +459,50 @@ exports.AuthApiAxiosParamCreator = function (configuration) {
                 });
             });
         },
+        /**
+         *
+         * @summary პაროლის აღდგენა token-ით
+         * @param {ResetPasswordDto} body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerResetPassword: function (body, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions, needsSerialization;
+                return __generator(this, function (_a) {
+                    // verify required parameter 'body' is not null or undefined
+                    if (body === null || body === undefined) {
+                        throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling authControllerResetPassword.');
+                    }
+                    localVarPath = "/auth/reset-password";
+                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                    if (configuration) {
+                        baseOptions = configuration.baseOptions;
+                    }
+                    localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
+                    localVarHeaderParameter = {};
+                    localVarQueryParameter = {};
+                    localVarHeaderParameter['Content-Type'] = 'application/json';
+                    query = new URLSearchParams(localVarUrlObj.search);
+                    for (key in localVarQueryParameter) {
+                        query.set(key, localVarQueryParameter[key]);
+                    }
+                    for (key in options.params) {
+                        query.set(key, options.params[key]);
+                    }
+                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                    needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+                    localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+                    return [2 /*return*/, {
+                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                            options: localVarRequestOptions,
+                        }];
+                });
+            });
+        },
     };
 };
 /**
@@ -364,6 +524,55 @@ exports.AuthApiFp = function (configuration) {
                 return __generator(this, function (_a) {
                     switch (_a.label) {
                         case 0: return [4 /*yield*/, exports.AuthApiAxiosParamCreator(configuration).authControllerChangePassword(body, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerFacebookLogin: function (options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.AuthApiAxiosParamCreator(configuration).authControllerFacebookLogin(options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+         * @param {ForgotPasswordDto} body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerForgotPassword: function (body, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.AuthApiAxiosParamCreator(configuration).authControllerForgotPassword(body, options)];
                         case 1:
                             localVarAxiosArgs = _a.sent();
                             return [2 /*return*/, function (axios, basePath) {
@@ -426,6 +635,30 @@ exports.AuthApiFp = function (configuration) {
         },
         /**
          *
+         * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerGoogleLogin: function (options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.AuthApiAxiosParamCreator(configuration).authControllerGoogleLogin(options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
          * @summary მომხმარებლის ავტორიზაცია
          * @param {LoginDto} body
          * @param {*} [options] Override http request option.
@@ -474,6 +707,31 @@ exports.AuthApiFp = function (configuration) {
                 });
             });
         },
+        /**
+         *
+         * @summary პაროლის აღდგენა token-ით
+         * @param {ResetPasswordDto} body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerResetPassword: function (body, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.AuthApiAxiosParamCreator(configuration).authControllerResetPassword(body, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
     };
 };
 /**
@@ -493,6 +751,33 @@ exports.AuthApiFactory = function (configuration, basePath, axios) {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     return [2 /*return*/, exports.AuthApiFp(configuration).authControllerChangePassword(body, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerFacebookLogin: function (options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.AuthApiFp(configuration).authControllerFacebookLogin(options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+         * @param {ForgotPasswordDto} body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerForgotPassword: function (body, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.AuthApiFp(configuration).authControllerForgotPassword(body, options).then(function (request) { return request(axios, basePath); })];
                 });
             });
         },
@@ -524,6 +809,19 @@ exports.AuthApiFactory = function (configuration, basePath, axios) {
         },
         /**
          *
+         * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerGoogleLogin: function (options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.AuthApiFp(configuration).authControllerGoogleLogin(options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
          * @summary მომხმარებლის ავტორიზაცია
          * @param {LoginDto} body
          * @param {*} [options] Override http request option.
@@ -547,6 +845,20 @@ exports.AuthApiFactory = function (configuration, basePath, axios) {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
                     return [2 /*return*/, exports.AuthApiFp(configuration).authControllerRegister(body, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary პაროლის აღდგენა token-ით
+         * @param {ResetPasswordDto} body
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        authControllerResetPassword: function (body, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.AuthApiFp(configuration).authControllerResetPassword(body, options).then(function (request) { return request(axios, basePath); })];
                 });
             });
         },
@@ -576,6 +888,37 @@ var AuthApi = /** @class */ (function (_super) {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, exports.AuthApiFp(this.configuration).authControllerChangePassword(body, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    AuthApi.prototype.authControllerFacebookLogin = function (options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.AuthApiFp(this.configuration).authControllerFacebookLogin(options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+     * @param {ForgotPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    AuthApi.prototype.authControllerForgotPassword = function (body, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.AuthApiFp(this.configuration).authControllerForgotPassword(body, options).then(function (request) { return request(_this.axios, _this.basePath); })];
             });
         });
     };
@@ -611,6 +954,21 @@ var AuthApi = /** @class */ (function (_super) {
     };
     /**
      *
+     * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    AuthApi.prototype.authControllerGoogleLogin = function (options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.AuthApiFp(this.configuration).authControllerGoogleLogin(options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
      * @summary მომხმარებლის ავტორიზაცია
      * @param {LoginDto} body
      * @param {*} [options] Override http request option.
@@ -638,6 +996,22 @@ var AuthApi = /** @class */ (function (_super) {
             var _this = this;
             return __generator(this, function (_a) {
                 return [2 /*return*/, exports.AuthApiFp(this.configuration).authControllerRegister(body, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary პაროლის აღდგენა token-ით
+     * @param {ResetPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    AuthApi.prototype.authControllerResetPassword = function (body, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.AuthApiFp(this.configuration).authControllerResetPassword(body, options).then(function (request) { return request(_this.axios, _this.basePath); })];
             });
         });
     };

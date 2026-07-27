@@ -20,6 +20,11 @@ export interface UpdateUserDto {
      * @type {string}
      * @memberof UpdateUserDto
      */
+    role?: UpdateUserDtoRoleEnum;
+    /**
+     * @type {string}
+     * @memberof UpdateUserDto
+     */
     firstName?: string;
     /**
      * @type {string}
@@ -36,4 +41,12 @@ export interface UpdateUserDto {
      * @memberof UpdateUserDto
      */
     email?: string;
+}
+/**
+ * @export
+ * @enum {string}
+ */
+export declare enum UpdateUserDtoRoleEnum {
+    Admin = "admin",
+    User = "user"
 }

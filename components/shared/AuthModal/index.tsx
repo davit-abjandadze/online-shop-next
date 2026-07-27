@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import axios from "axios";
 import * as S from "./style";
+import { AuthAPI } from "@/API_Client";
+import useTranslation from "next-translate/useTranslation";
 
 export type AuthMode = "login" | "register" | "forgot";
 
@@ -38,6 +40,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const { lang } = useTranslation("common");
+  const session = useSession();
 
   useEffect(() => {
     setMode(initialMode);
@@ -148,11 +153,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   // 3. FORGOT PASSWORD HANDLER
-  const handleForgotSubmit = async (e: React.FormEvent) => {
+  // const handleForgotSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError(null);
+  //   setSuccess(null);
+
+  //   if (!forgotEmail || !forgotEmail.includes("@")) {
+  //     setError("გთხოვთ მიუთითოთ ვალიდური ელფოსტა");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+
+  //   try {
+  //     const response = await axios.post("/api/auth/forgot-password", {
+  //       email: forgotEmail,
+  //     });
+
+  //     setLoading(false);
+  //     setSuccess(
+  //       response.data.message ||
+  //         "პაროლის აღდგენის ინსტრუქცია გაიგზავნა თქვენს ელფოსტაზე"
+  //     );
+  //   } catch (err: any) {
+  //     setLoading(false);
+  //     const msg =
+  //       err?.response?.data?.message || "შეცდომა პაროლის აღდგენისას";
+  //     setError(msg);
+  //   }
+  // };
+
+   const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
+    
     if (!forgotEmail || !forgotEmail.includes("@")) {
       setError("გთხოვთ მიუთითოთ ვალიდური ელფოსტა");
       return;
@@ -160,14 +195,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
 
-    try {
-      const response = await axios.post("/api/auth/forgot-password", {
+      const resp = await (
+        await AuthAPI(
+          lang,
+          session.data?.accessToken ?? ""
+        ).authControllerForgotPassword({
         email: forgotEmail,
-      });
+        })
+      ).data;
+
+      
+    try {
+    
 
       setLoading(false);
       setSuccess(
-        response.data.message ||
+        (resp as any)?.message ||
           "პაროლის აღდგენის ინსტრუქცია გაიგზავნა თქვენს ელფოსტაზე"
       );
     } catch (err: any) {
@@ -176,7 +219,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         err?.response?.data?.message || "შეცდომა პაროლის აღდგენისას";
       setError(msg);
     }
-  };
+  
+      // return resp;
+    };
 
   return (
     <S.Overlay

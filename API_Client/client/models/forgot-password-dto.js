@@ -13,13 +13,3 @@
  * Do not edit the class manually.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateUserDtoRoleEnum = void 0;
-/**
- * @export
- * @enum {string}
- */
-var CreateUserDtoRoleEnum;
-(function (CreateUserDtoRoleEnum) {
-    CreateUserDtoRoleEnum["Admin"] = "admin";
-    CreateUserDtoRoleEnum["User"] = "user";
-})(CreateUserDtoRoleEnum = exports.CreateUserDtoRoleEnum || (exports.CreateUserDtoRoleEnum = {}));

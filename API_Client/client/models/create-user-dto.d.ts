@@ -20,6 +20,11 @@ export interface CreateUserDto {
      * @type {string}
      * @memberof CreateUserDto
      */
+    role?: CreateUserDtoRoleEnum;
+    /**
+     * @type {string}
+     * @memberof CreateUserDto
+     */
     firstName: string;
     /**
      * @type {string}
@@ -36,4 +41,12 @@ export interface CreateUserDto {
      * @memberof CreateUserDto
      */
     email: string;
+}
+/**
+ * @export
+ * @enum {string}
+ */
+export declare enum CreateUserDtoRoleEnum {
+    Admin = "admin",
+    User = "user"
 }

@@ -14,10 +14,12 @@ import { Configuration } from '../configuration';
 import { RequestArgs, BaseAPI } from '../base';
 import { ChangePasswordDto } from '../models';
 import { ChangePasswordResponseDto } from '../models';
+import { ForgotPasswordDto } from '../models';
 import { LoginDto } from '../models';
 import { LoginResponseDto } from '../models';
 import { RegisterDto } from '../models';
 import { RegisterResponseDto } from '../models';
+import { ResetPasswordDto } from '../models';
 /**
  * AuthApi - axios parameter creator
  * @export
@@ -31,6 +33,21 @@ export declare const AuthApiAxiosParamCreator: (configuration?: Configuration) =
      * @throws {RequiredError}
      */
     authControllerChangePassword: (body: ChangePasswordDto, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
+     * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerFacebookLogin: (options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
+     * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+     * @param {ForgotPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerForgotPassword: (body: ForgotPasswordDto, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
      * @summary მხოლოდ ადმინისტრატორის პანელი
@@ -47,6 +64,13 @@ export declare const AuthApiAxiosParamCreator: (configuration?: Configuration) =
     authControllerGetProfile: (options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
+     * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerGoogleLogin: (options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
      * @summary მომხმარებლის ავტორიზაცია
      * @param {LoginDto} body
      * @param {*} [options] Override http request option.
@@ -61,6 +85,14 @@ export declare const AuthApiAxiosParamCreator: (configuration?: Configuration) =
      * @throws {RequiredError}
      */
     authControllerRegister: (body: RegisterDto, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
+     * @summary პაროლის აღდგენა token-ით
+     * @param {ResetPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerResetPassword: (body: ResetPasswordDto, options?: AxiosRequestConfig) => Promise<RequestArgs>;
 };
 /**
  * AuthApi - functional programming interface
@@ -77,6 +109,21 @@ export declare const AuthApiFp: (configuration?: Configuration) => {
     authControllerChangePassword(body: ChangePasswordDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<ChangePasswordResponseDto>>>;
     /**
      *
+     * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerFacebookLogin(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<LoginResponseDto>>>;
+    /**
+     *
+     * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+     * @param {ForgotPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerForgotPassword(body: ForgotPasswordDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
+    /**
+     *
      * @summary მხოლოდ ადმინისტრატორის პანელი
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -89,6 +136,13 @@ export declare const AuthApiFp: (configuration?: Configuration) => {
      * @throws {RequiredError}
      */
     authControllerGetProfile(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
+    /**
+     *
+     * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerGoogleLogin(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<LoginResponseDto>>>;
     /**
      *
      * @summary მომხმარებლის ავტორიზაცია
@@ -105,6 +159,14 @@ export declare const AuthApiFp: (configuration?: Configuration) => {
      * @throws {RequiredError}
      */
     authControllerRegister(body: RegisterDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<RegisterResponseDto>>>;
+    /**
+     *
+     * @summary პაროლის აღდგენა token-ით
+     * @param {ResetPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerResetPassword(body: ResetPasswordDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
 };
 /**
  * AuthApi - factory interface
@@ -121,6 +183,21 @@ export declare const AuthApiFactory: (configuration?: Configuration, basePath?: 
     authControllerChangePassword(body: ChangePasswordDto, options?: AxiosRequestConfig): Promise<AxiosResponse<ChangePasswordResponseDto>>;
     /**
      *
+     * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerFacebookLogin(options?: AxiosRequestConfig): Promise<AxiosResponse<LoginResponseDto>>;
+    /**
+     *
+     * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+     * @param {ForgotPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerForgotPassword(body: ForgotPasswordDto, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    /**
+     *
      * @summary მხოლოდ ადმინისტრატორის პანელი
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -133,6 +210,13 @@ export declare const AuthApiFactory: (configuration?: Configuration, basePath?: 
      * @throws {RequiredError}
      */
     authControllerGetProfile(options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    /**
+     *
+     * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerGoogleLogin(options?: AxiosRequestConfig): Promise<AxiosResponse<LoginResponseDto>>;
     /**
      *
      * @summary მომხმარებლის ავტორიზაცია
@@ -149,6 +233,14 @@ export declare const AuthApiFactory: (configuration?: Configuration, basePath?: 
      * @throws {RequiredError}
      */
     authControllerRegister(body: RegisterDto, options?: AxiosRequestConfig): Promise<AxiosResponse<RegisterResponseDto>>;
+    /**
+     *
+     * @summary პაროლის აღდგენა token-ით
+     * @param {ResetPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    authControllerResetPassword(body: ResetPasswordDto, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
 };
 /**
  * AuthApi - object-oriented interface
@@ -168,6 +260,23 @@ export declare class AuthApi extends BaseAPI {
     authControllerChangePassword(body: ChangePasswordDto, options?: AxiosRequestConfig): Promise<AxiosResponse<ChangePasswordResponseDto>>;
     /**
      *
+     * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    authControllerFacebookLogin(options?: AxiosRequestConfig): Promise<AxiosResponse<LoginResponseDto>>;
+    /**
+     *
+     * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
+     * @param {ForgotPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    authControllerForgotPassword(body: ForgotPasswordDto, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    /**
+     *
      * @summary მხოლოდ ადმინისტრატორის პანელი
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -182,6 +291,14 @@ export declare class AuthApi extends BaseAPI {
      * @memberof AuthApi
      */
     authControllerGetProfile(options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    /**
+     *
+     * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    authControllerGoogleLogin(options?: AxiosRequestConfig): Promise<AxiosResponse<LoginResponseDto>>;
     /**
      *
      * @summary მომხმარებლის ავტორიზაცია
@@ -200,4 +317,13 @@ export declare class AuthApi extends BaseAPI {
      * @memberof AuthApi
      */
     authControllerRegister(body: RegisterDto, options?: AxiosRequestConfig): Promise<AxiosResponse<RegisterResponseDto>>;
+    /**
+     *
+     * @summary პაროლის აღდგენა token-ით
+     * @param {ResetPasswordDto} body
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof AuthApi
+     */
+    authControllerResetPassword(body: ResetPasswordDto, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
 }
