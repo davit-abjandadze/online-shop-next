@@ -17,6 +17,13 @@
 */
 export interface RegisterDto {
     /**
+     * მომხმარებლის სქესი
+     *
+     * @type {string}
+     * @memberof RegisterDto
+     */
+    gender?: RegisterDtoGenderEnum;
+    /**
      * @type {string}
      * @memberof RegisterDto
      */
@@ -36,4 +43,12 @@ export interface RegisterDto {
      * @memberof RegisterDto
      */
     password: string;
+}
+/**
+ * @export
+ * @enum {string}
+ */
+export declare enum RegisterDtoGenderEnum {
+    Male = "male",
+    Female = "female"
 }

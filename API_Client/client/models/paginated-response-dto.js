@@ -13,13 +13,3 @@
  * Do not edit the class manually.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.RegisterDtoGenderEnum = void 0;
-/**
- * @export
- * @enum {string}
- */
-var RegisterDtoGenderEnum;
-(function (RegisterDtoGenderEnum) {
-    RegisterDtoGenderEnum["Male"] = "male";
-    RegisterDtoGenderEnum["Female"] = "female";
-})(RegisterDtoGenderEnum = exports.RegisterDtoGenderEnum || (exports.RegisterDtoGenderEnum = {}));

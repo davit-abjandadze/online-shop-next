@@ -87,6 +87,48 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
     return {
         /**
          *
+         * @summary კითხვის გააქტიურება
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerActivate: function (id, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_a) {
+                    // verify required parameter 'id' is not null or undefined
+                    if (id === null || id === undefined) {
+                        throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerActivate.');
+                    }
+                    localVarPath = "/questions/{id}/activate"
+                        .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                    if (configuration) {
+                        baseOptions = configuration.baseOptions;
+                    }
+                    localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
+                    localVarHeaderParameter = {};
+                    localVarQueryParameter = {};
+                    query = new URLSearchParams(localVarUrlObj.search);
+                    for (key in localVarQueryParameter) {
+                        query.set(key, localVarQueryParameter[key]);
+                    }
+                    for (key in options.params) {
+                        query.set(key, options.params[key]);
+                    }
+                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                    return [2 /*return*/, {
+                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                            options: localVarRequestOptions,
+                        }];
+                });
+            });
+        },
+        /**
+         *
          * @param {CreateQuestionDto} body
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -130,11 +172,59 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
         },
         /**
          *
-         * @summary ყველა კითხვა (ფილტრით)
+         * @summary კითხვის დეაქტივაცია
+         * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        questionControllerFindAll: function (options) {
+        questionControllerDeactivate: function (id, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_a) {
+                    // verify required parameter 'id' is not null or undefined
+                    if (id === null || id === undefined) {
+                        throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerDeactivate.');
+                    }
+                    localVarPath = "/questions/{id}/deactivate"
+                        .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                    if (configuration) {
+                        baseOptions = configuration.baseOptions;
+                    }
+                    localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
+                    localVarHeaderParameter = {};
+                    localVarQueryParameter = {};
+                    query = new URLSearchParams(localVarUrlObj.search);
+                    for (key in localVarQueryParameter) {
+                        query.set(key, localVarQueryParameter[key]);
+                    }
+                    for (key in options.params) {
+                        query.set(key, options.params[key]);
+                    }
+                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                    return [2 /*return*/, {
+                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                            options: localVarRequestOptions,
+                        }];
+                });
+            });
+        },
+        /**
+         *
+         * @summary ყველა კითხვა (pagination, ფილტრით)
+         * @param {number} [page] გვერდის ნომერი
+         * @param {number} [limit] ჩანაწერები გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {string} [order] მიმართულება
+         * @param {number} [category] კატეგორიის ID
+         * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerFindAll: function (page, limit, sortBy, order, category, status, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
                 var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
@@ -147,6 +237,24 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
                     localVarRequestOptions = __assign(__assign({ method: 'GET' }, baseOptions), options);
                     localVarHeaderParameter = {};
                     localVarQueryParameter = {};
+                    if (page !== undefined) {
+                        localVarQueryParameter['page'] = page;
+                    }
+                    if (limit !== undefined) {
+                        localVarQueryParameter['limit'] = limit;
+                    }
+                    if (sortBy !== undefined) {
+                        localVarQueryParameter['sortBy'] = sortBy;
+                    }
+                    if (order !== undefined) {
+                        localVarQueryParameter['order'] = order;
+                    }
+                    if (category !== undefined) {
+                        localVarQueryParameter['category'] = category;
+                    }
+                    if (status !== undefined) {
+                        localVarQueryParameter['status'] = status;
+                    }
                     query = new URLSearchParams(localVarUrlObj.search);
                     for (key in localVarQueryParameter) {
                         query.set(key, localVarQueryParameter[key]);
@@ -305,6 +413,31 @@ exports.QuestionsApiFp = function (configuration) {
     return {
         /**
          *
+         * @summary კითხვის გააქტიურება
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerActivate: function (id, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerActivate(id, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
          * @param {CreateQuestionDto} body
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -329,16 +462,47 @@ exports.QuestionsApiFp = function (configuration) {
         },
         /**
          *
-         * @summary ყველა კითხვა (ფილტრით)
+         * @summary კითხვის დეაქტივაცია
+         * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        questionControllerFindAll: function (options) {
+        questionControllerDeactivate: function (id, options) {
             return __awaiter(this, void 0, void 0, function () {
                 var localVarAxiosArgs;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerFindAll(options)];
+                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerDeactivate(id, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary ყველა კითხვა (pagination, ფილტრით)
+         * @param {number} [page] გვერდის ნომერი
+         * @param {number} [limit] ჩანაწერები გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {string} [order] მიმართულება
+         * @param {number} [category] კატეგორიის ID
+         * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerFindAll: function (page, limit, sortBy, order, category, status, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, options)];
                         case 1:
                             localVarAxiosArgs = _a.sent();
                             return [2 /*return*/, function (axios, basePath) {
@@ -434,6 +598,20 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
     return {
         /**
          *
+         * @summary კითხვის გააქტიურება
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerActivate: function (id, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerActivate(id, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
          * @param {CreateQuestionDto} body
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -447,14 +625,34 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
         },
         /**
          *
-         * @summary ყველა კითხვა (ფილტრით)
+         * @summary კითხვის დეაქტივაცია
+         * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        questionControllerFindAll: function (options) {
+        questionControllerDeactivate: function (id, options) {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
-                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerFindAll(options).then(function (request) { return request(axios, basePath); })];
+                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerDeactivate(id, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary ყველა კითხვა (pagination, ფილტრით)
+         * @param {number} [page] გვერდის ნომერი
+         * @param {number} [limit] ჩანაწერები გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {string} [order] მიმართულება
+         * @param {number} [category] კატეგორიის ID
+         * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerFindAll: function (page, limit, sortBy, order, category, status, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, options).then(function (request) { return request(axios, basePath); })];
                 });
             });
         },
@@ -513,6 +711,22 @@ var QuestionsApi = /** @class */ (function (_super) {
     }
     /**
      *
+     * @summary კითხვის გააქტიურება
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    QuestionsApi.prototype.questionControllerActivate = function (id, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerActivate(id, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -528,16 +742,38 @@ var QuestionsApi = /** @class */ (function (_super) {
     };
     /**
      *
-     * @summary ყველა კითხვა (ფილტრით)
+     * @summary კითხვის დეაქტივაცია
+     * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QuestionsApi
      */
-    QuestionsApi.prototype.questionControllerFindAll = function (options) {
+    QuestionsApi.prototype.questionControllerDeactivate = function (id, options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerFindAll(options).then(function (request) { return request(_this.axios, _this.basePath); })];
+                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerDeactivate(id, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary ყველა კითხვა (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი
+     * @param {number} [limit] ჩანაწერები გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    QuestionsApi.prototype.questionControllerFindAll = function (page, limit, sortBy, order, category, status, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, options).then(function (request) { return request(_this.axios, _this.basePath); })];
             });
         });
     };

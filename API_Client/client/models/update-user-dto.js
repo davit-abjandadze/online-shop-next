@@ -13,7 +13,7 @@
  * Do not edit the class manually.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateUserDtoRoleEnum = void 0;
+exports.UpdateUserDtoGenderEnum = exports.UpdateUserDtoRoleEnum = void 0;
 /**
  * @export
  * @enum {string}
@@ -23,3 +23,12 @@ var UpdateUserDtoRoleEnum;
     UpdateUserDtoRoleEnum["Admin"] = "admin";
     UpdateUserDtoRoleEnum["User"] = "user";
 })(UpdateUserDtoRoleEnum = exports.UpdateUserDtoRoleEnum || (exports.UpdateUserDtoRoleEnum = {}));
+/**
+ * @export
+ * @enum {string}
+ */
+var UpdateUserDtoGenderEnum;
+(function (UpdateUserDtoGenderEnum) {
+    UpdateUserDtoGenderEnum["Male"] = "male";
+    UpdateUserDtoGenderEnum["Female"] = "female";
+})(UpdateUserDtoGenderEnum = exports.UpdateUserDtoGenderEnum || (exports.UpdateUserDtoGenderEnum = {}));

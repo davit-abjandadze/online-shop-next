@@ -9,7 +9,7 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const { firstName, lastName, email, password } = req.body;
+  const { firstName, lastName, email, password, gender } = req.body;
 
   if (!firstName || !lastName || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
@@ -32,6 +32,7 @@ export default async function handler(
       lastName,
       email,
       password,
+      gender,
     });
 
     return res.status(201).json({ message: "Registration successful" });

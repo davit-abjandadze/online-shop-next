@@ -143,6 +143,51 @@ export const Input = styled.input`
   }
 `;
 
+export const GenderSwitch = styled.div`
+  display: flex;
+  background: #f8fafc;
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+`;
+
+export const GenderOption = styled.button<{ active: boolean }>`
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  background: ${({ active }) => (active ? "#ffffff" : "transparent")};
+  color: ${({ active }) => (active ? "#0f172a" : "#64748b")};
+  font-weight: ${({ active }) => (active ? "600" : "500")};
+  font-size: 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: ${({ active }) =>
+    active ? "0 2px 8px rgba(0, 0, 0, 0.06)" : "none"};
+
+  &:hover {
+    color: #0f172a;
+  }
+`;
+
+export const Select = styled.select`
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  color: #0f172a;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+  }
+`;
+
 export const TogglePasswordBtn = styled.button`
   position: absolute;
   right: 12px;

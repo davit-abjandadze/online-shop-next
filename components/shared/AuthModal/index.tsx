@@ -3,7 +3,9 @@ import { signIn, useSession } from "next-auth/react";
 import axios from "axios";
 import * as S from "./style";
 import { AuthAPI } from "@/API_Client";
+import { RegisterDtoGenderEnum } from "@/API_Client/client";
 import useTranslation from "next-translate/useTranslation";
+import { useRouter } from 'next/navigation';
 
 export type AuthMode = "login" | "register" | "forgot";
 
@@ -19,7 +21,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   initialMode = "login",
 }) => {
   const [mode, setMode] = useState<AuthMode>(initialMode);
-  
+  const router = useRouter();
   // Login fields
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -32,6 +34,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regPassword, setRegPassword] = useState("");
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
+  const [regGender, setRegGender] = useState<RegisterDtoGenderEnum | "">(RegisterDtoGenderEnum.Male);
 
   // Forgot Password fields
   const [forgotEmail, setForgotEmail] = useState("");
@@ -84,7 +87,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         setError("არასწორი ელფოსტა ან პაროლი");
       } else {
         onClose();
-        window.location.reload(); // Refresh session
+        router.push('/');
       }
     } catch (err: any) {
       setLoading(false);
@@ -121,6 +124,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         lastName: regLastName,
         email: regEmail,
         password: regPassword,
+        gender: regGender || undefined,
       });
 
       if (response.status === 201 || response.status === 200) {
@@ -395,6 +399,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 onChange={(e) => setRegEmail(e.target.value)}
                 required
               />
+            </S.FormGroup>
+
+            <S.FormGroup>
+              <S.Label>სქესი</S.Label>
+              <S.GenderSwitch>
+                <S.GenderOption
+                  type="button"
+                  active={regGender === RegisterDtoGenderEnum.Male}
+                  onClick={() => setRegGender(RegisterDtoGenderEnum.Male)}
+                >
+                  კაცი
+                </S.GenderOption>
+                <S.GenderOption
+                  type="button"
+                  active={regGender === RegisterDtoGenderEnum.Female}
+                  onClick={() => setRegGender(RegisterDtoGenderEnum.Female)}
+                >
+                  ქალი
+                </S.GenderOption>
+              </S.GenderSwitch>
             </S.FormGroup>
 
             <S.FormGroup>

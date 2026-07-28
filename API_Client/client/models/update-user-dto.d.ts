@@ -22,6 +22,13 @@ export interface UpdateUserDto {
      */
     role?: UpdateUserDtoRoleEnum;
     /**
+     * მომხმარებლის სქესი
+     *
+     * @type {string}
+     * @memberof UpdateUserDto
+     */
+    gender?: UpdateUserDtoGenderEnum;
+    /**
      * @type {string}
      * @memberof UpdateUserDto
      */
@@ -49,4 +56,12 @@ export interface UpdateUserDto {
 export declare enum UpdateUserDtoRoleEnum {
     Admin = "admin",
     User = "user"
+}
+/**
+ * @export
+ * @enum {string}
+ */
+export declare enum UpdateUserDtoGenderEnum {
+    Male = "male",
+    Female = "female"
 }

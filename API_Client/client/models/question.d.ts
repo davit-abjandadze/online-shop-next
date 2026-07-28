@@ -49,6 +49,16 @@ export interface Question {
      */
     categoryId?: number;
     /**
+     * @type {boolean}
+     * @memberof Question
+     */
+    isActive: boolean;
+    /**
+     * @type {Date}
+     * @memberof Question
+     */
+    endDate?: Date | null;
+    /**
      * @type {Date}
      * @memberof Question
      */

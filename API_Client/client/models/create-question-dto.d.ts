@@ -26,6 +26,22 @@ export interface CreateQuestionDto {
      */
     categoryId?: number;
     /**
+     * აქტიურია თუ არა კითხვა
+     *
+     * @type {boolean}
+     * @memberof CreateQuestionDto
+     * @example true
+     */
+    isActive?: boolean;
+    /**
+     * დასრულების თარიღი (ISO ფორმატი). ვადის გასვლის შემდეგ კითხვა ავტომატურად გადავა დეაქტივირებულ სიაში
+     *
+     * @type {string}
+     * @memberof CreateQuestionDto
+     * @example 2026-12-31T23:59:59.000Z
+     */
+    endDate?: string;
+    /**
      * @type {string}
      * @memberof CreateQuestionDto
      */

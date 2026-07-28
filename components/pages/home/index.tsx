@@ -4,15 +4,14 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import AuthModal from "@/components/shared/AuthModal";
-import { CategoriesAPI, QuestionAPI, UserAnswerAPI } from "@/API_Client";
-import { Category, Question } from "@/API_Client/client/models";
+import { QuestionCard } from "@/components/shared/QuestionCard";
+import { CategoriesAPI, FavoritesAPI, QuestionAPI, UserAnswerAPI } from "@/API_Client";
+import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
+import { getPaginationRange } from "@/utils/getPaginationRange";
+import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
 import * as S from "./style";
 
-interface ParsedResult {
-  totalUsers: number;
-  answerCounts: Record<number, number>;
-  answerPercentages: Record<number, number>;
-}
+const QUESTIONS_PAGE_SIZE = 6;
 
 export const HomeComponent: React.FC = () => {
   const { data: session, status } = useSession();
@@ -20,6 +19,8 @@ export const HomeComponent: React.FC = () => {
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const [questionsMeta, setQuestionsMeta] = useState<PaginationMetaDto | null>(null);
 
   // Selected answer IDs per questionId: { [questionId]: number[] }
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number[]>>({});
@@ -40,89 +41,12 @@ export const HomeComponent: React.FC = () => {
   // Categories for filter
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
-  // Parse backend results into total votes and percentage breakdown
-  const parseResultsData = (data: any, question: Question): ParsedResult => {
-    const answerCounts: Record<number, number> = {};
-    const answerPercentages: Record<number, number> = {};
-    (question.answers || []).forEach((ans) => {
-      answerCounts[ans.id] = 0;
-      answerPercentages[ans.id] = 0;
-    });
 
-    // Log raw API response for debugging
-    console.log(`[parseResultsData] question ${question.id} raw data:`, JSON.stringify(data, null, 2));
-
-    let totalUsers = 0;
-
-    if (!data) {
-      return { totalUsers: 0, answerCounts, answerPercentages };
-    }
-
-    if (Array.isArray(data)) {
-      // Count unique users (a user may have multiple UserAnswer rows for multiple-choice)
-      const uniqueUserIds = new Set<number | string>();
-      data.forEach((item: any) => {
-        // Count answer occurrences
-        const aId = item.answer?.id ?? item.answerId;
-        if (aId != null && answerCounts[aId] !== undefined) {
-          answerCounts[aId] += 1;
-        }
-        // Track unique users
-        const uId = item.user?.id ?? item.userId;
-        if (uId != null) uniqueUserIds.add(uId);
-      });
-      // totalUsers = unique voters; fallback to array length
-      totalUsers = uniqueUserIds.size > 0 ? uniqueUserIds.size : data.length;
-    } else if (typeof data === "object") {
-      totalUsers = data.totalUsers || data.totalVotes || data.total || 0;
-      if (Array.isArray(data.answers)) {
-        data.answers.forEach((ans: any) => {
-          const aId = ans.id || ans.answerId;
-          if (aId != null) {
-            answerCounts[aId] = ans.count ?? ans.votes ?? 0;
-          }
-        });
-      } else if (data.answerCounts && typeof data.answerCounts === "object") {
-        Object.entries(data.answerCounts).forEach(([aIdStr, count]) => {
-          const aId = Number(aIdStr);
-          if (answerCounts[aId] !== undefined) {
-            answerCounts[aId] = Number(count);
-          }
-        });
-      } else if (data.results && Array.isArray(data.results)) {
-        data.results.forEach((r: any) => {
-          const aId = r.answerId ?? r.answer?.id ?? r.id;
-          if (aId != null) {
-            answerCounts[aId] = r.count ?? r.votes ?? 0;
-          }
-        });
-      }
-    }
-
-    // Calculate percentages based on total answer submissions (sum of counts)
-    let totalVotesCount = 0;
-    Object.values(answerCounts).forEach((c) => (totalVotesCount += c));
-
-    // Use unique users if available, else sum of votes as base for %
-    const percentageBase = totalUsers > 0 ? totalUsers : totalVotesCount;
-    const divisor = percentageBase > 0 ? percentageBase : 1;
-
-    (question.answers || []).forEach((ans) => {
-      const cnt = answerCounts[ans.id] || 0;
-      answerPercentages[ans.id] = percentageBase > 0 ? Math.min(100, Math.round((cnt / divisor) * 100)) : 0;
-    });
-
-    console.log(`[parseResultsData] question ${question.id} parsed:`, { totalUsers: totalUsers > 0 ? totalUsers : totalVotesCount, answerCounts, answerPercentages });
-
-    return {
-      totalUsers: totalUsers > 0 ? totalUsers : totalVotesCount,
-      answerCounts,
-      answerPercentages,
-    };
-  };
+  // Favorite question IDs and per-question loading state during toggle
+  const [favoriteQuestionIds, setFavoriteQuestionIds] = useState<Set<number>>(new Set());
+  const [favoritingId, setFavoritingId] = useState<number | null>(null);
 
   // Fetch results for a single question
-  // ეს ფუნქცია უცვლელი რჩება, უბრალოდ დარწმუნდი რომ session?.user?.id-ს იყენებს
   const fetchSingleResults = async (q: Question) => {
     try {
       const res = await UserAnswerAPI(
@@ -132,58 +56,77 @@ export const HomeComponent: React.FC = () => {
 
       const parsed = parseResultsData(res.data, q);
       setQuestionResults((prev) => ({ ...prev, [q.id]: parsed }));
-
     } catch (err: any) {
       console.log(`Could not fetch results for question ${q.id}:`, err);
     }
   };
 
-  // ⭐ განახლებული useEffect: ველოდებით სტატუსს
   useEffect(() => {
-    // თუ სესია ჯერ კიდევ იტვირთება, არაფერს ვაკეთებთ (ვჩვენებთ ლოადერს)
     if (status === "loading") return;
-
     fetchQuestions();
-    // დამოკიდებულებაში ვამატებთ status-ს, რომ რეფრეშისას სწორად რეაგირებდეს
-  }, [status, session]);
+    fetchCategories();
+  }, [status, session?.accessToken, page]);
 
   // Fetch questions
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      // 1. ჩავტვირთოთ კითხვები
       const res = await QuestionAPI(
         router.locale || "ka",
         session?.accessToken || ""
-      ).questionControllerFindAll();
+      ).questionControllerFindAll(page, QUESTIONS_PAGE_SIZE);
 
-      const qList = Array.isArray(res.data) ? res.data : [];
+      const qList = Array.isArray(res.data?.data) ? res.data.data : [];
       setQuestions(qList);
+      setQuestionsMeta(res.data?.meta || null);
 
-      // 2. ჩავტვირთოთ შედეგები თითოეული კითხვისთვის
       qList.forEach((q: any) => {
         fetchSingleResults(q);
       });
 
-      // ⭐ 3. ახალი ლოგიკა: ჩავტვირთოთ კითხვები, რომლებზეც უკვე აქვს ხმა მიცემული
       if (status === "authenticated" && session?.accessToken) {
         try {
           const votedRes = await UserAnswerAPI(
             router.locale || "ka",
             session.accessToken
-          ).userAnswerControllerGetMyVotedQuestions(); // ← ახალი მეთოდი
+          ).userAnswerControllerGetMyVotedQuestions();
 
           const votedIds: number[] = Array.isArray(votedRes.data) ? votedRes.data : [];
 
           if (votedIds.length > 0) {
             setVotedQuestionIds(new Set(votedIds));
-            // ავტომატურად ვაჩვენოთ შედეგები ამ კითხვებზე
             const newViewResults: Record<number, boolean> = {};
-            votedIds.forEach(id => { newViewResults[id] = true; });
-            setViewResultsSet(prev => ({ ...prev, ...newViewResults }));
+            votedIds.forEach((id) => { newViewResults[id] = true; });
+            setViewResultsSet((prev) => ({ ...prev, ...newViewResults }));
           }
         } catch (err) {
           console.log("Could not fetch voted questions:", err);
+        }
+
+        try {
+          // Backend caps `limit` at 100, so page through all favorites to collect every id
+          const favoriteIds: number[] = [];
+          let favPage = 1;
+          let hasNext = true;
+          while (hasNext) {
+            const favoritesRes = await FavoritesAPI(
+              router.locale || "ka",
+              session.accessToken
+            ).favoriteControllerFindMyFavorites(favPage, 100);
+
+            const data = favoritesRes.data as any;
+            const favoritesData = data?.data;
+            if (Array.isArray(favoritesData)) {
+              favoriteIds.push(...favoritesData.map((q: any) => q.id).filter((id: any) => id != null));
+            }
+
+            hasNext = !!data?.meta?.hasNext;
+            favPage += 1;
+          }
+
+          setFavoriteQuestionIds(new Set(favoriteIds));
+        } catch (err) {
+          console.log("Could not fetch favorite questions:", err);
         }
       }
     } catch (err: any) {
@@ -193,6 +136,7 @@ export const HomeComponent: React.FC = () => {
       setLoading(false);
     }
   };
+
   const fetchCategories = async () => {
     try {
       const res = await CategoriesAPI(router.locale || "ka", session?.accessToken || "").categoryControllerFindAll();
@@ -203,10 +147,6 @@ export const HomeComponent: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    fetchQuestions();
-    fetchCategories();
-  }, [session]);
 
   // Handle Option Click
   const handleSelectOption = (questionId: number, answerId: number, isMultiple: boolean) => {
@@ -234,17 +174,14 @@ export const HomeComponent: React.FC = () => {
 
   // Handle Voting Submit
   const handleVote = async (q: Question) => {
-    // 1. შემოწმება: არის თუ არა მომხმარებელი ავტორიზებული
     if (status !== "authenticated" || !session?.accessToken) {
       toast.info("ხმის მისაცემად გთხოვთ გაიაროთ ავტორიზაცია");
       setAuthModalOpen(true);
       return;
     }
 
-    // 2. ⭐ ეს ხაზი აუცილებელია! იღებს არჩეულ პასუხებს კონკრეტული კითხვისთვის
     const chosen = selectedAnswers[q.id] || [];
 
-    // 3. შემოწმება: არის თუ არა არჩეული რამე
     if (chosen.length === 0) {
       toast.warning("გთხოვთ აირჩიოთ მინიმუმ ერთი პასუხი");
       return;
@@ -252,7 +189,6 @@ export const HomeComponent: React.FC = () => {
 
     setSubmittingId(q.id);
     try {
-      // 4. API-ს გამოძახება (აქ უკვე 'chosen' განსაზღვრულია)
       await UserAnswerAPI(
         router.locale || "ka",
         session.accessToken
@@ -260,18 +196,64 @@ export const HomeComponent: React.FC = () => {
 
       toast.success("თქვენი ხმა წარმატებით დარეგისტრირდა!");
 
-      // 5. დავამატოთ ეს კითხვა უკვე ხმა მიცემულების სიაში
       setVotedQuestionIds((prev) => new Set(prev).add(q.id));
 
-      // 6. განვაახლოთ შედეგები და გადართოს შედეგების რეჟიმზე
       await fetchSingleResults(q);
       setViewResultsSet((prev) => ({ ...prev, [q.id]: true }));
-
     } catch (err: any) {
       console.error("Error submitting vote:", err);
       toast.error(err?.response?.data?.message || "ხმის მიცემა ვერ მოხერხდა");
     } finally {
       setSubmittingId(null);
+    }
+  };
+
+  // Toggle Favorite
+  const handleToggleFavorite = async (q: Question) => {
+    if (status !== "authenticated" || !session?.accessToken) {
+      toast.info("ფავორიტებში დასამატებლად გთხოვთ გაიაროთ ავტორიზაცია");
+      setAuthModalOpen(true);
+      return;
+    }
+
+    const isFavorite = favoriteQuestionIds.has(q.id);
+    setFavoritingId(q.id);
+    try {
+      if (isFavorite) {
+        await FavoritesAPI(
+          router.locale || "ka",
+          session.accessToken
+        ).favoriteControllerRemoveFavorite(String(q.id));
+
+        setFavoriteQuestionIds((prev) => {
+          const next = new Set(prev);
+          next.delete(q.id);
+          return next;
+        });
+      } else {
+        await FavoritesAPI(
+          router.locale || "ka",
+          session.accessToken
+        ).favoriteControllerAddFavorite(String(q.id));
+
+        setFavoriteQuestionIds((prev) => new Set(prev).add(q.id));
+      }
+    } catch (err: any) {
+      // Local state was stale (e.g. already favorited server-side) — resync instead of erroring
+      if (err?.response?.status === 409) {
+        setFavoriteQuestionIds((prev) => new Set(prev).add(q.id));
+      } else if (err?.response?.status === 404 && isFavorite) {
+        setFavoriteQuestionIds((prev) => {
+          const next = new Set(prev);
+          next.delete(q.id);
+          return next;
+        });
+      } else {
+        console.error("Error toggling favorite:", err);
+        toast.error(err?.response?.data?.message || "ფავორიტების განახლება ვერ მოხერხდა");
+      }
+    } finally {
+      setFavoritingId(null);
     }
   };
 
@@ -286,10 +268,6 @@ export const HomeComponent: React.FC = () => {
     });
   };
 
-
-  useEffect(() => {
-    console.log(questionResults)
-  }, [questionResults])
   return (
     <>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
@@ -358,130 +336,66 @@ export const HomeComponent: React.FC = () => {
           }
 
           return (
-          <S.QuestionsGrid>
-            {filteredQuestions.map((q) => {
-              const hasVoted = votedQuestionIds.has(q.id);
-              // თუ უკვე აქვს მიცემული, ან მომხმარებელმა დააჭირა "შედეგების ნახვას"
-              const isShowingResults = hasVoted || !!viewResultsSet[q.id];
+            <S.QuestionsGrid>
+              {filteredQuestions.map((q) => {
+                const hasVoted = votedQuestionIds.has(q.id);
+                const isShowingResults = hasVoted || !!viewResultsSet[q.id];
 
-              const results = questionResults[q.id];
-              const isMultiple = q.type === "multiple";
-              const chosenIds = selectedAnswers[q.id] || [];
-
-              const maxPct = results
-                ? Math.max(...Object.values(results.answerPercentages), 0)
-                : 0;
-
-              return (
-                <S.QuestionCard key={q.id}>
-                  <S.CardTop>
-                    <div>
-                      <S.QuestionText>{q.text}</S.QuestionText>
-                      <S.Badge variant={isMultiple ? "multiple" : "single"}>
-                        {isMultiple ? "☑️ მრავალარჩევიანი" : "🔘 ერთარჩევიანი"}
-                      </S.Badge>
-                      {/* ⭐ ახალი ბეიჯი, თუ უკვე აქვს მიცემული */}
-                      {hasVoted && (
-                        <S.Badge variant="single" style={{ marginTop: "8px", display: "inline-block" }}>
-                          ✅ თქვენ უკვე მიეცით ხმა
-                        </S.Badge>
-                      )}
-                    </div>
-                  </S.CardTop>
-
-                  {!isShowingResults ? (
-                    /* VOTING MODE (ჩანს მხოლოდ თუ არ აქვს მიცემული ხმა) */
-                    <>
-                      <S.OptionsList>
-                        {q.answers?.map((ans) => {
-                          const selected = chosenIds.includes(ans.id);
-                          return (
-                            <S.OptionItem
-                              key={ans.id}
-                              selected={selected}
-                              onClick={() => handleSelectOption(q.id, ans.id, isMultiple)}
-                            >
-                              <S.CheckIndicator
-                                selected={selected}
-                                type={isMultiple ? "multiple" : "single"}
-                              />
-                              <S.OptionText>{ans.text}</S.OptionText>
-                            </S.OptionItem>
-                          );
-                        })}
-                      </S.OptionsList>
-
-                      <S.CardFooter>
-                        <S.ActionButton
-                          variant="primary"
-                          onClick={() => handleVote(q)}
-                          disabled={submittingId === q.id}
-                        >
-                          {submittingId === q.id ? "იგზავნება..." : "🗳️ ხმის მიცემა"}
-                        </S.ActionButton>
-
-                        <S.ActionButton
-                          variant="secondary"
-                          onClick={() => toggleResultsView(q)}
-                        >
-                          📊 შედეგების ნახვა
-                        </S.ActionButton>
-                      </S.CardFooter>
-                    </>
-                  ) : (
-                    /* RESULTS MODE */
-                    <>
-                      <S.ResultsContainer>
-                        <S.ResultsHeader>
-                          <S.TotalVotesText>
-                            <span>👥</span> სულ მიღებულია {results?.totalUsers || 0} ხმა
-                          </S.TotalVotesText>
-                        </S.ResultsHeader>
-
-                        {q.answers?.map((ans) => {
-                          const count = results?.answerCounts[ans.id] || 0;
-                          const pct = results?.answerPercentages[ans.id] || 0;
-                          const isTop = pct > 0 && pct === maxPct;
-
-                          return (
-                            <S.ResultRow key={ans.id}>
-                              <S.ResultInfo>
-                                <S.ResultOptionText>{ans.text}</S.ResultOptionText>
-                                <S.ResultPercentageText>
-                                  {pct}% ({count} ხმა)
-                                </S.ResultPercentageText>
-                              </S.ResultInfo>
-                              <S.ProgressBarTrack>
-                                <S.ProgressBarFill percentage={pct} isTop={isTop} />
-                              </S.ProgressBarTrack>
-                            </S.ResultRow>
-                          );
-                        })}
-                      </S.ResultsContainer>
-
-                      <S.CardFooter>
-                        {/* ⭐ თუ უკვე აქვს მიცემული, ღილაკი არის დისაბლეიდებული, რადგან ბექენდი კრძალავს ხელახლა მიცემას */}
-                        {hasVoted ? (
-                          <S.ActionButton variant="outline" disabled style={{ opacity: 0.6, cursor: "not-allowed" }}>
-                            🔒 ხმის შეცვლა შეუძლებელია
-                          </S.ActionButton>
-                        ) : (
-                          <S.ActionButton
-                            variant="outline"
-                            onClick={() => toggleResultsView(q)}
-                          >
-                            ↩️ ხმის მიცემის ფორმაზე დაბრუნება
-                          </S.ActionButton>
-                        )}
-                      </S.CardFooter>
-                    </>
-                  )}
-                </S.QuestionCard>
-              );
-            })}
-          </S.QuestionsGrid>
+                return (
+                  <QuestionCard
+                    key={q.id}
+                    question={q}
+                    hasVoted={hasVoted}
+                    isShowingResults={isShowingResults}
+                    results={questionResults[q.id]}
+                    chosenIds={selectedAnswers[q.id] || []}
+                    submitting={submittingId === q.id}
+                    isFavorite={favoriteQuestionIds.has(q.id)}
+                    favoriting={favoritingId === q.id}
+                    onSelectOption={(answerId, isMultiple) => handleSelectOption(q.id, answerId, isMultiple)}
+                    onVote={() => handleVote(q)}
+                    onToggleResults={() => toggleResultsView(q)}
+                    onToggleFavorite={() => handleToggleFavorite(q)}
+                  />
+                );
+              })}
+            </S.QuestionsGrid>
           );
         })()}
+
+        {questionsMeta && questionsMeta.totalPages > 1 && (
+          <S.PaginationBar>
+            <S.PageButton
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={!questionsMeta.hasPrevious}
+            >
+              ← წინა
+            </S.PageButton>
+
+            <S.PageNumbers>
+              {getPaginationRange(questionsMeta.page, questionsMeta.totalPages).map((item, idx) =>
+                item === "..." ? (
+                  <S.PageEllipsis key={`ellipsis-${idx}`}>...</S.PageEllipsis>
+                ) : (
+                  <S.PageNumberButton
+                    key={item}
+                    active={item === questionsMeta.page}
+                    onClick={() => setPage(item)}
+                  >
+                    {item}
+                  </S.PageNumberButton>
+                )
+              )}
+            </S.PageNumbers>
+
+            <S.PageButton
+              onClick={() => setPage((p) => p + 1)}
+              disabled={!questionsMeta.hasNext}
+            >
+              შემდეგი →
+            </S.PageButton>
+          </S.PaginationBar>
+        )}
       </S.Container>
 
       <AuthModal

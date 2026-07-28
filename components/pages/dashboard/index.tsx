@@ -4,10 +4,12 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import { AnswerAPI, CategoriesAPI, QuestionAPI } from "@/API_Client";
-import { Category, Question } from "@/API_Client/client/models";
+import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
+import { getPaginationRange } from "@/utils/getPaginationRange";
 import * as S from "./style";
 
 type DashboardTab = "questions" | "categories";
+const QUESTIONS_PAGE_SIZE = 10;
 
 export const DashboardComponent: React.FC = () => {
   const { data: session, status } = useSession();
@@ -18,12 +20,15 @@ export const DashboardComponent: React.FC = () => {
   // ─── Questions State ─────────────────────────────────────────────────────────
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loadingQ, setLoadingQ] = useState<boolean>(true);
+  const [questionsPage, setQuestionsPage] = useState<number>(1);
+  const [questionsMeta, setQuestionsMeta] = useState<PaginationMetaDto | null>(null);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [newQuestionText, setNewQuestionText] = useState<string>("");
   const [newQuestionType, setNewQuestionType] = useState<"single" | "multiple">("single");
   const [newQuestionCategoryId, setNewQuestionCategoryId] = useState<number | "">("");
   const [newAnswers, setNewAnswers] = useState<string[]>(["", ""]);
+  const [newEndDate, setNewEndDate] = useState<string>("");
   const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
 
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
@@ -53,8 +58,9 @@ export const DashboardComponent: React.FC = () => {
     if (!session?.accessToken) return;
     setLoadingQ(true);
     try {
-      const res = await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerFindAll();
-      setQuestions(Array.isArray(res.data) ? res.data : []);
+      const res = await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerFindAll(questionsPage, QUESTIONS_PAGE_SIZE);
+      setQuestions(Array.isArray(res.data?.data) ? res.data.data : []);
+      setQuestionsMeta(res.data?.meta || null);
     } catch {
       toast.error("კითხვების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -81,7 +87,7 @@ export const DashboardComponent: React.FC = () => {
       fetchQuestions();
       fetchCategories();
     }
-  }, [status, session]);
+  }, [status, session, questionsPage]);
 
   // ─── Auth Guard ───────────────────────────────────────────────────────────────
   if (status === "loading") {
@@ -135,10 +141,11 @@ export const DashboardComponent: React.FC = () => {
         type: newQuestionType as any,
         categoryId: newQuestionCategoryId !== "" ? Number(newQuestionCategoryId) : undefined,
         answers: validAnswers.map((text) => ({ text })),
+        endDate: newEndDate ? new Date(newEndDate).toISOString() : undefined,
       });
       toast.success("კითხვა წარმატებით დაემატა!");
       setIsCreateModalOpen(false);
-      setNewQuestionText(""); setNewQuestionType("single"); setNewAnswers(["", ""]); setNewQuestionCategoryId("");
+      setNewQuestionText(""); setNewQuestionType("single"); setNewAnswers(["", ""]); setNewQuestionCategoryId(""); setNewEndDate("");
       fetchQuestions();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "კითხვის დამატება ვერ მოხერხდა");
@@ -203,6 +210,22 @@ export const DashboardComponent: React.FC = () => {
       toast.error(err?.response?.data?.message || "კითხვის განახლება ვერ მოხერხდა");
     } finally {
       setEditSubmitting(false);
+    }
+  };
+
+  const handleToggleActive = async (q: Question) => {
+    try {
+      const qApi = QuestionAPI(router.locale || "ka", session?.accessToken || "");
+      if (q.isActive) {
+        await qApi.questionControllerDeactivate(String(q.id));
+        toast.success("კითხვა დეაქტივირებულია!");
+      } else {
+        await qApi.questionControllerActivate(String(q.id));
+        toast.success("კითხვა გააქტიურებულია!");
+      }
+      fetchQuestions();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "სტატუსის შეცვლა ვერ მოხერხდა");
     }
   };
 
@@ -358,15 +381,27 @@ export const DashboardComponent: React.FC = () => {
                             <S.Badge variant={q.type === "multiple" ? "multiple" : "single"}>
                               {q.type === "multiple" ? "☑️ მრავალარჩევიანი" : "🔘 ერთარჩევიანი"}
                             </S.Badge>
+                            <S.Badge variant={q.isActive ? "active" : "inactive"}>
+                              {q.isActive ? "🟢 აქტიური" : "⚪ არააქტიური"}
+                            </S.Badge>
                             {q.category && (
                               <S.Badge variant="date">🏷️ {q.category.name}</S.Badge>
                             )}
                             {q.createdAt && (
                               <S.Badge variant="date">📅 {new Date(q.createdAt).toLocaleDateString("ka-GE")}</S.Badge>
                             )}
+                            {q.endDate && (
+                              <S.Badge variant="date">⏳ {new Date(q.endDate).toLocaleDateString("ka-GE")}</S.Badge>
+                            )}
                           </S.BadgeGroup>
                         </div>
                         <S.CardActions>
+                          <S.ActionButton
+                            variant={q.isActive ? "secondary" : "success"}
+                            onClick={() => handleToggleActive(q)}
+                          >
+                            {q.isActive ? "⏸️ დეაქტივაცია" : "▶️ აქტივაცია"}
+                          </S.ActionButton>
                           <S.ActionButton variant="outline" onClick={() => handleOpenEdit(q)}>
                             ✏️ რედაქტირება
                           </S.ActionButton>
@@ -393,6 +428,40 @@ export const DashboardComponent: React.FC = () => {
                     </S.QuestionCard>
                   ))}
                 </S.QuestionsList>
+              )}
+
+              {questionsMeta && questionsMeta.totalPages > 1 && (
+                <S.PaginationBar>
+                  <S.PageButton
+                    onClick={() => setQuestionsPage((p) => Math.max(1, p - 1))}
+                    disabled={!questionsMeta.hasPrevious}
+                  >
+                    ← წინა
+                  </S.PageButton>
+
+                  <S.PageNumbers>
+                    {getPaginationRange(questionsMeta.page, questionsMeta.totalPages).map((item, idx) =>
+                      item === "..." ? (
+                        <S.PageEllipsis key={`ellipsis-${idx}`}>...</S.PageEllipsis>
+                      ) : (
+                        <S.PageNumberButton
+                          key={item}
+                          active={item === questionsMeta.page}
+                          onClick={() => setQuestionsPage(item)}
+                        >
+                          {item}
+                        </S.PageNumberButton>
+                      )
+                    )}
+                  </S.PageNumbers>
+
+                  <S.PageButton
+                    onClick={() => setQuestionsPage((p) => p + 1)}
+                    disabled={!questionsMeta.hasNext}
+                  >
+                    შემდეგი →
+                  </S.PageButton>
+                </S.PaginationBar>
               )}
             </>
           )}
@@ -484,6 +553,15 @@ export const DashboardComponent: React.FC = () => {
                   <option value="single">ერთარჩევიანი (Single Choice)</option>
                   <option value="multiple">მრავალარჩევიანი (Multiple Choice)</option>
                 </S.Select>
+              </S.FormGroup>
+
+              <S.FormGroup>
+                <S.Label>დამთავრების თარიღი (არასავალდებულო)</S.Label>
+                <S.Input
+                  type="date"
+                  value={newEndDate}
+                  onChange={(e) => setNewEndDate(e.target.value)}
+                />
               </S.FormGroup>
 
               <S.FormGroup>

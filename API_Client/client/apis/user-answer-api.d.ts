@@ -13,12 +13,24 @@ import { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Configuration } from '../configuration';
 import { RequestArgs, BaseAPI } from '../base';
 import { SubmitAnswerDto } from '../models';
-import { UserAnswer } from '../models';
 /**
  * UserAnswerApi - axios parameter creator
  * @export
  */
 export declare const UserAnswerApiAxiosParamCreator: (configuration?: Configuration) => {
+    /**
+     *
+     * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    userAnswerControllerGetMyActivities: (page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
@@ -28,6 +40,7 @@ export declare const UserAnswerApiAxiosParamCreator: (configuration?: Configurat
     userAnswerControllerGetMyVotedQuestions: (options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
+     * @summary კითხვის შედეგების ნახვა
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -35,6 +48,7 @@ export declare const UserAnswerApiAxiosParamCreator: (configuration?: Configurat
     userAnswerControllerGetResults: (questionId: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
+     * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
      * @param {SubmitAnswerDto} body
      * @param {string} questionId
      * @param {*} [options] Override http request option.
@@ -49,6 +63,19 @@ export declare const UserAnswerApiAxiosParamCreator: (configuration?: Configurat
 export declare const UserAnswerApiFp: (configuration?: Configuration) => {
     /**
      *
+     * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
+    /**
+     *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -56,6 +83,7 @@ export declare const UserAnswerApiFp: (configuration?: Configuration) => {
     userAnswerControllerGetMyVotedQuestions(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
     /**
      *
+     * @summary კითხვის შედეგების ნახვა
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -63,18 +91,32 @@ export declare const UserAnswerApiFp: (configuration?: Configuration) => {
     userAnswerControllerGetResults(questionId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
     /**
      *
+     * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
      * @param {SubmitAnswerDto} body
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    userAnswerControllerSubmitAnswer(body: SubmitAnswerDto, questionId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<UserAnswer>>>>;
+    userAnswerControllerSubmitAnswer(body: SubmitAnswerDto, questionId: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
 };
 /**
  * UserAnswerApi - factory interface
  * @export
  */
 export declare const UserAnswerApiFactory: (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) => {
+    /**
+     *
+     * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
@@ -84,6 +126,7 @@ export declare const UserAnswerApiFactory: (configuration?: Configuration, baseP
     userAnswerControllerGetMyVotedQuestions(options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
+     * @summary კითხვის შედეგების ნახვა
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -91,12 +134,13 @@ export declare const UserAnswerApiFactory: (configuration?: Configuration, baseP
     userAnswerControllerGetResults(questionId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
+     * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
      * @param {SubmitAnswerDto} body
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    userAnswerControllerSubmitAnswer(body: SubmitAnswerDto, questionId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<UserAnswer>>>;
+    userAnswerControllerSubmitAnswer(body: SubmitAnswerDto, questionId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
 };
 /**
  * UserAnswerApi - object-oriented interface
@@ -107,6 +151,20 @@ export declare const UserAnswerApiFactory: (configuration?: Configuration, baseP
 export declare class UserAnswerApi extends BaseAPI {
     /**
      *
+     * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof UserAnswerApi
+     */
+    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    /**
+     *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -115,6 +173,7 @@ export declare class UserAnswerApi extends BaseAPI {
     userAnswerControllerGetMyVotedQuestions(options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
+     * @summary კითხვის შედეგების ნახვა
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -123,11 +182,12 @@ export declare class UserAnswerApi extends BaseAPI {
     userAnswerControllerGetResults(questionId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
+     * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
      * @param {SubmitAnswerDto} body
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserAnswerApi
      */
-    userAnswerControllerSubmitAnswer(body: SubmitAnswerDto, questionId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Array<UserAnswer>>>;
+    userAnswerControllerSubmitAnswer(body: SubmitAnswerDto, questionId: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
 }

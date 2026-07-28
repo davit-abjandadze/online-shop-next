@@ -3,7 +3,10 @@ import {
   AuthApi,
   CategoriesApi,
   Configuration,
+  FavoritesApi,
+  QuestionsApi,
   UserAnswerApi,
+  UsersApi,
 } from "./client";
 import axios from "axios";
 import { API_URL, SSR } from "../constants";
@@ -11,7 +14,6 @@ import * as cache from "memory-cache";
 import { getCookie } from "cookies-next";
 import http from "http";
 import https from "https";
-import { QuestionApi } from "./client/apis/question-api";
 
 // axios და OpenAPI კლიენტების კონფიგურაცია
 
@@ -85,7 +87,7 @@ export const AuthAPI = (acceptLanguage: string, accessToken: string) => {
 
 export const QuestionAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
-  return new QuestionApi(ApiConfig, API_URL, axiosInstance);
+  return new QuestionsApi(ApiConfig, API_URL, axiosInstance);
 };
 
 export const AnswerAPI = (acceptLanguage: string, accessToken: string) => {
@@ -101,6 +103,16 @@ export const UserAnswerAPI = (acceptLanguage: string, accessToken: string) => {
 export const CategoriesAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new CategoriesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const FavoritesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new FavoritesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const UserAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new UsersApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

@@ -45,6 +45,11 @@ export interface User {
      * @type {string}
      * @memberof User
      */
+    gender?: UserGenderEnum;
+    /**
+     * @type {string}
+     * @memberof User
+     */
     password: string;
     /**
      * @type {Date}
@@ -59,4 +64,12 @@ export interface User {
 export declare enum UserRoleEnum {
     Admin = "admin",
     User = "user"
+}
+/**
+ * @export
+ * @enum {string}
+ */
+export declare enum UserGenderEnum {
+    Male = "male",
+    Female = "female"
 }

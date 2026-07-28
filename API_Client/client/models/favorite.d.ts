@@ -9,39 +9,33 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Answer } from './answer';
 import { Question } from './question';
 import { User } from './user';
 /**
 *
 *
 * @export
-* @interface UserAnswer
+* @interface Favorite
 */
-export interface UserAnswer {
+export interface Favorite {
     /**
      * @type {number}
-     * @memberof UserAnswer
+     * @memberof Favorite
      */
     id: number;
     /**
      * @type {User}
-     * @memberof UserAnswer
+     * @memberof Favorite
      */
     user: User;
     /**
      * @type {Question}
-     * @memberof UserAnswer
+     * @memberof Favorite
      */
     question: Question;
     /**
-     * @type {Answer}
-     * @memberof UserAnswer
-     */
-    answer: Answer;
-    /**
      * @type {Date}
-     * @memberof UserAnswer
+     * @memberof Favorite
      */
     createdAt: Date;
 }

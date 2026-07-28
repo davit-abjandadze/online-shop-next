@@ -73,38 +73,96 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserAnswerApi = exports.UserAnswerApiFactory = exports.UserAnswerApiFp = exports.UserAnswerApiAxiosParamCreator = void 0;
+exports.FavoritesApi = exports.FavoritesApiFactory = exports.FavoritesApiFp = exports.FavoritesApiAxiosParamCreator = void 0;
 var axios_1 = require("axios");
 // Some imports not used depending on template conditions
 // @ts-ignore
 var base_1 = require("../base");
 /**
- * UserAnswerApi - axios parameter creator
+ * FavoritesApi - axios parameter creator
  * @export
  */
-exports.UserAnswerApiAxiosParamCreator = function (configuration) {
+exports.FavoritesApiAxiosParamCreator = function (configuration) {
     var _this = this;
     return {
         /**
          *
-         * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
-         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
-         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
-         * @param {string} [sortBy] დალაგების ველი
-         * @param {string} [order] დალაგების მიმართულება
-         * @param {number} [category] კატეგორიის ID
-         * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @summary კითხვის დამატება ფავორიტებში
+         * @param {string} questionId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, options) {
+        favoriteControllerAddFavorite: function (questionId, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
                 var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
                 return __generator(this, function (_b) {
                     switch (_b.label) {
                         case 0:
-                            localVarPath = "/user-answers/my-activities";
+                            // verify required parameter 'questionId' is not null or undefined
+                            if (questionId === null || questionId === undefined) {
+                                throw new base_1.RequiredError('questionId', 'Required parameter questionId was null or undefined when calling favoriteControllerAddFavorite.');
+                            }
+                            localVarPath = "/favorites/{questionId}"
+                                .replace("{" + "questionId" + "}", encodeURIComponent(String(questionId)));
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary ჩემი ფავორიტი კითხვები (pagination-ით)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {string} [order] დალაგების მიმართულება
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        favoriteControllerFindMyFavorites: function (page, limit, sortBy, order, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            localVarPath = "/favorites";
                             localVarUrlObj = new URL(localVarPath, 'https://example.com');
                             if (configuration) {
                                 baseOptions = configuration.baseOptions;
@@ -139,12 +197,6 @@ exports.UserAnswerApiAxiosParamCreator = function (configuration) {
                             if (order !== undefined) {
                                 localVarQueryParameter['order'] = order;
                             }
-                            if (category !== undefined) {
-                                localVarQueryParameter['category'] = category;
-                            }
-                            if (status !== undefined) {
-                                localVarQueryParameter['status'] = status;
-                            }
                             query = new URLSearchParams(localVarUrlObj.search);
                             for (key in localVarQueryParameter) {
                                 query.set(key, localVarQueryParameter[key]);
@@ -165,130 +217,29 @@ exports.UserAnswerApiAxiosParamCreator = function (configuration) {
         },
         /**
          *
-         * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
+         * @summary კითხვის წაშლა ფავორიტებიდან
+         * @param {string} questionId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetMyVotedQuestions: function (options) {
+        favoriteControllerRemoveFavorite: function (questionId, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
                 var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
                 return __generator(this, function (_b) {
                     switch (_b.label) {
                         case 0:
-                            localVarPath = "/user-answers/my-voted-questions";
-                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
-                            if (configuration) {
-                                baseOptions = configuration.baseOptions;
-                            }
-                            localVarRequestOptions = __assign(__assign({ method: 'GET' }, baseOptions), options);
-                            localVarHeaderParameter = {};
-                            localVarQueryParameter = {};
-                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
-                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
-                            return [4 /*yield*/, configuration.accessToken()];
-                        case 1:
-                            _a = _b.sent();
-                            return [3 /*break*/, 4];
-                        case 2: return [4 /*yield*/, configuration.accessToken];
-                        case 3:
-                            _a = _b.sent();
-                            _b.label = 4;
-                        case 4:
-                            accessToken = _a;
-                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
-                            _b.label = 5;
-                        case 5:
-                            query = new URLSearchParams(localVarUrlObj.search);
-                            for (key in localVarQueryParameter) {
-                                query.set(key, localVarQueryParameter[key]);
-                            }
-                            for (key in options.params) {
-                                query.set(key, options.params[key]);
-                            }
-                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
-                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                            return [2 /*return*/, {
-                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                                    options: localVarRequestOptions,
-                                }];
-                    }
-                });
-            });
-        },
-        /**
-         *
-         * @summary კითხვის შედეგების ნახვა
-         * @param {string} questionId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        userAnswerControllerGetResults: function (questionId, options) {
-            if (options === void 0) { options = {}; }
-            return __awaiter(_this, void 0, void 0, function () {
-                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
-                return __generator(this, function (_a) {
-                    // verify required parameter 'questionId' is not null or undefined
-                    if (questionId === null || questionId === undefined) {
-                        throw new base_1.RequiredError('questionId', 'Required parameter questionId was null or undefined when calling userAnswerControllerGetResults.');
-                    }
-                    localVarPath = "/user-answers/question/{questionId}/results"
-                        .replace("{" + "questionId" + "}", encodeURIComponent(String(questionId)));
-                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
-                    if (configuration) {
-                        baseOptions = configuration.baseOptions;
-                    }
-                    localVarRequestOptions = __assign(__assign({ method: 'GET' }, baseOptions), options);
-                    localVarHeaderParameter = {};
-                    localVarQueryParameter = {};
-                    query = new URLSearchParams(localVarUrlObj.search);
-                    for (key in localVarQueryParameter) {
-                        query.set(key, localVarQueryParameter[key]);
-                    }
-                    for (key in options.params) {
-                        query.set(key, options.params[key]);
-                    }
-                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
-                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                    return [2 /*return*/, {
-                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                            options: localVarRequestOptions,
-                        }];
-                });
-            });
-        },
-        /**
-         *
-         * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
-         * @param {SubmitAnswerDto} body
-         * @param {string} questionId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        userAnswerControllerSubmitAnswer: function (body, questionId, options) {
-            if (options === void 0) { options = {}; }
-            return __awaiter(_this, void 0, void 0, function () {
-                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions, needsSerialization;
-                return __generator(this, function (_b) {
-                    switch (_b.label) {
-                        case 0:
-                            // verify required parameter 'body' is not null or undefined
-                            if (body === null || body === undefined) {
-                                throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling userAnswerControllerSubmitAnswer.');
-                            }
                             // verify required parameter 'questionId' is not null or undefined
                             if (questionId === null || questionId === undefined) {
-                                throw new base_1.RequiredError('questionId', 'Required parameter questionId was null or undefined when calling userAnswerControllerSubmitAnswer.');
+                                throw new base_1.RequiredError('questionId', 'Required parameter questionId was null or undefined when calling favoriteControllerRemoveFavorite.');
                             }
-                            localVarPath = "/user-answers/question/{questionId}"
+                            localVarPath = "/favorites/{questionId}"
                                 .replace("{" + "questionId" + "}", encodeURIComponent(String(questionId)));
                             localVarUrlObj = new URL(localVarPath, 'https://example.com');
                             if (configuration) {
                                 baseOptions = configuration.baseOptions;
                             }
-                            localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
+                            localVarRequestOptions = __assign(__assign({ method: 'DELETE' }, baseOptions), options);
                             localVarHeaderParameter = {};
                             localVarQueryParameter = {};
                             if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
@@ -306,7 +257,6 @@ exports.UserAnswerApiAxiosParamCreator = function (configuration) {
                             localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
                             _b.label = 5;
                         case 5:
-                            localVarHeaderParameter['Content-Type'] = 'application/json';
                             query = new URLSearchParams(localVarUrlObj.search);
                             for (key in localVarQueryParameter) {
                                 query.set(key, localVarQueryParameter[key]);
@@ -317,8 +267,6 @@ exports.UserAnswerApiAxiosParamCreator = function (configuration) {
                             localVarUrlObj.search = (new URLSearchParams(query)).toString();
                             headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
                             localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                            needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-                            localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
                             return [2 /*return*/, {
                                     url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
                                     options: localVarRequestOptions,
@@ -330,29 +278,52 @@ exports.UserAnswerApiAxiosParamCreator = function (configuration) {
     };
 };
 /**
- * UserAnswerApi - functional programming interface
+ * FavoritesApi - functional programming interface
  * @export
  */
-exports.UserAnswerApiFp = function (configuration) {
+exports.FavoritesApiFp = function (configuration) {
     return {
         /**
          *
-         * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
+         * @summary კითხვის დამატება ფავორიტებში
+         * @param {string} questionId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        favoriteControllerAddFavorite: function (questionId, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.FavoritesApiAxiosParamCreator(configuration).favoriteControllerAddFavorite(questionId, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary ჩემი ფავორიტი კითხვები (pagination-ით)
          * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
          * @param {string} [order] დალაგების მიმართულება
-         * @param {number} [category] კატეგორიის ID
-         * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, options) {
+        favoriteControllerFindMyFavorites: function (page, limit, sortBy, order, options) {
             return __awaiter(this, void 0, void 0, function () {
                 var localVarAxiosArgs;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.UserAnswerApiAxiosParamCreator(configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, options)];
+                        case 0: return [4 /*yield*/, exports.FavoritesApiAxiosParamCreator(configuration).favoriteControllerFindMyFavorites(page, limit, sortBy, order, options)];
                         case 1:
                             localVarAxiosArgs = _a.sent();
                             return [2 /*return*/, function (axios, basePath) {
@@ -367,67 +338,17 @@ exports.UserAnswerApiFp = function (configuration) {
         },
         /**
          *
-         * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        userAnswerControllerGetMyVotedQuestions: function (options) {
-            return __awaiter(this, void 0, void 0, function () {
-                var localVarAxiosArgs;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.UserAnswerApiAxiosParamCreator(configuration).userAnswerControllerGetMyVotedQuestions(options)];
-                        case 1:
-                            localVarAxiosArgs = _a.sent();
-                            return [2 /*return*/, function (axios, basePath) {
-                                    if (axios === void 0) { axios = axios_1.default; }
-                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
-                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
-                                    return axios.request(axiosRequestArgs);
-                                }];
-                    }
-                });
-            });
-        },
-        /**
-         *
-         * @summary კითხვის შედეგების ნახვა
+         * @summary კითხვის წაშლა ფავორიტებიდან
          * @param {string} questionId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetResults: function (questionId, options) {
+        favoriteControllerRemoveFavorite: function (questionId, options) {
             return __awaiter(this, void 0, void 0, function () {
                 var localVarAxiosArgs;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.UserAnswerApiAxiosParamCreator(configuration).userAnswerControllerGetResults(questionId, options)];
-                        case 1:
-                            localVarAxiosArgs = _a.sent();
-                            return [2 /*return*/, function (axios, basePath) {
-                                    if (axios === void 0) { axios = axios_1.default; }
-                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
-                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
-                                    return axios.request(axiosRequestArgs);
-                                }];
-                    }
-                });
-            });
-        },
-        /**
-         *
-         * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
-         * @param {SubmitAnswerDto} body
-         * @param {string} questionId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        userAnswerControllerSubmitAnswer: function (body, questionId, options) {
-            return __awaiter(this, void 0, void 0, function () {
-                var localVarAxiosArgs;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.UserAnswerApiAxiosParamCreator(configuration).userAnswerControllerSubmitAnswer(body, questionId, options)];
+                        case 0: return [4 /*yield*/, exports.FavoritesApiAxiosParamCreator(configuration).favoriteControllerRemoveFavorite(questionId, options)];
                         case 1:
                             localVarAxiosArgs = _a.sent();
                             return [2 /*return*/, function (axios, basePath) {
@@ -443,154 +364,120 @@ exports.UserAnswerApiFp = function (configuration) {
     };
 };
 /**
- * UserAnswerApi - factory interface
+ * FavoritesApi - factory interface
  * @export
  */
-exports.UserAnswerApiFactory = function (configuration, basePath, axios) {
+exports.FavoritesApiFactory = function (configuration, basePath, axios) {
     return {
         /**
          *
-         * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
+         * @summary კითხვის დამატება ფავორიტებში
+         * @param {string} questionId
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        favoriteControllerAddFavorite: function (questionId, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.FavoritesApiFp(configuration).favoriteControllerAddFavorite(questionId, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary ჩემი ფავორიტი კითხვები (pagination-ით)
          * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
          * @param {string} [order] დალაგების მიმართულება
-         * @param {number} [category] კატეგორიის ID
-         * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, options) {
+        favoriteControllerFindMyFavorites: function (page, limit, sortBy, order, options) {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
-                    return [2 /*return*/, exports.UserAnswerApiFp(configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, options).then(function (request) { return request(axios, basePath); })];
+                    return [2 /*return*/, exports.FavoritesApiFp(configuration).favoriteControllerFindMyFavorites(page, limit, sortBy, order, options).then(function (request) { return request(axios, basePath); })];
                 });
             });
         },
         /**
          *
-         * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        userAnswerControllerGetMyVotedQuestions: function (options) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, exports.UserAnswerApiFp(configuration).userAnswerControllerGetMyVotedQuestions(options).then(function (request) { return request(axios, basePath); })];
-                });
-            });
-        },
-        /**
-         *
-         * @summary კითხვის შედეგების ნახვა
+         * @summary კითხვის წაშლა ფავორიტებიდან
          * @param {string} questionId
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetResults: function (questionId, options) {
+        favoriteControllerRemoveFavorite: function (questionId, options) {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
-                    return [2 /*return*/, exports.UserAnswerApiFp(configuration).userAnswerControllerGetResults(questionId, options).then(function (request) { return request(axios, basePath); })];
-                });
-            });
-        },
-        /**
-         *
-         * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
-         * @param {SubmitAnswerDto} body
-         * @param {string} questionId
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        userAnswerControllerSubmitAnswer: function (body, questionId, options) {
-            return __awaiter(this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
-                    return [2 /*return*/, exports.UserAnswerApiFp(configuration).userAnswerControllerSubmitAnswer(body, questionId, options).then(function (request) { return request(axios, basePath); })];
+                    return [2 /*return*/, exports.FavoritesApiFp(configuration).favoriteControllerRemoveFavorite(questionId, options).then(function (request) { return request(axios, basePath); })];
                 });
             });
         },
     };
 };
 /**
- * UserAnswerApi - object-oriented interface
+ * FavoritesApi - object-oriented interface
  * @export
- * @class UserAnswerApi
+ * @class FavoritesApi
  * @extends {BaseAPI}
  */
-var UserAnswerApi = /** @class */ (function (_super) {
-    __extends(UserAnswerApi, _super);
-    function UserAnswerApi() {
+var FavoritesApi = /** @class */ (function (_super) {
+    __extends(FavoritesApi, _super);
+    function FavoritesApi() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
     /**
      *
-     * @summary პროფილის \"აქტივობები\" - ხმა მიცემული კითხვები (pagination, ფილტრით)
+     * @summary კითხვის დამატება ფავორიტებში
+     * @param {string} questionId
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof FavoritesApi
+     */
+    FavoritesApi.prototype.favoriteControllerAddFavorite = function (questionId, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.FavoritesApiFp(this.configuration).favoriteControllerAddFavorite(questionId, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary ჩემი ფავორიტი კითხვები (pagination-ით)
      * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
      * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
      * @param {string} [sortBy] დალაგების ველი
      * @param {string} [order] დალაგების მიმართულება
-     * @param {number} [category] კატეგორიის ID
-     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof UserAnswerApi
+     * @memberof FavoritesApi
      */
-    UserAnswerApi.prototype.userAnswerControllerGetMyActivities = function (page, limit, sortBy, order, category, status, options) {
+    FavoritesApi.prototype.favoriteControllerFindMyFavorites = function (page, limit, sortBy, order, options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, exports.UserAnswerApiFp(this.configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+                return [2 /*return*/, exports.FavoritesApiFp(this.configuration).favoriteControllerFindMyFavorites(page, limit, sortBy, order, options).then(function (request) { return request(_this.axios, _this.basePath); })];
             });
         });
     };
     /**
      *
-     * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UserAnswerApi
-     */
-    UserAnswerApi.prototype.userAnswerControllerGetMyVotedQuestions = function (options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                return [2 /*return*/, exports.UserAnswerApiFp(this.configuration).userAnswerControllerGetMyVotedQuestions(options).then(function (request) { return request(_this.axios, _this.basePath); })];
-            });
-        });
-    };
-    /**
-     *
-     * @summary კითხვის შედეგების ნახვა
+     * @summary კითხვის წაშლა ფავორიტებიდან
      * @param {string} questionId
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof UserAnswerApi
+     * @memberof FavoritesApi
      */
-    UserAnswerApi.prototype.userAnswerControllerGetResults = function (questionId, options) {
+    FavoritesApi.prototype.favoriteControllerRemoveFavorite = function (questionId, options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, exports.UserAnswerApiFp(this.configuration).userAnswerControllerGetResults(questionId, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+                return [2 /*return*/, exports.FavoritesApiFp(this.configuration).favoriteControllerRemoveFavorite(questionId, options).then(function (request) { return request(_this.axios, _this.basePath); })];
             });
         });
     };
-    /**
-     *
-     * @summary ხმის მიცემა კითხვაზე (IP ტრექინგით)
-     * @param {SubmitAnswerDto} body
-     * @param {string} questionId
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof UserAnswerApi
-     */
-    UserAnswerApi.prototype.userAnswerControllerSubmitAnswer = function (body, questionId, options) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                return [2 /*return*/, exports.UserAnswerApiFp(this.configuration).userAnswerControllerSubmitAnswer(body, questionId, options).then(function (request) { return request(_this.axios, _this.basePath); })];
-            });
-        });
-    };
-    return UserAnswerApi;
+    return FavoritesApi;
 }(base_1.BaseAPI));
-exports.UserAnswerApi = UserAnswerApi;
+exports.FavoritesApi = FavoritesApi;

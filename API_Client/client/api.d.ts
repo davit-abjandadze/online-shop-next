@@ -12,6 +12,7 @@
 export * from './apis/answer-api';
 export * from './apis/auth-api';
 export * from './apis/categories-api';
+export * from './apis/favorites-api';
 export * from './apis/questions-api';
 export * from './apis/tasks-api';
 export * from './apis/user-answer-api';

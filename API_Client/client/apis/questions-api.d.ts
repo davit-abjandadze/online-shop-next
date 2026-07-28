@@ -13,6 +13,7 @@ import { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Configuration } from '../configuration';
 import { RequestArgs, BaseAPI } from '../base';
 import { CreateQuestionDto } from '../models';
+import { PaginatedResponseDto } from '../models';
 import { Question } from '../models';
 import { UpdateQuestionDto } from '../models';
 /**
@@ -22,6 +23,14 @@ import { UpdateQuestionDto } from '../models';
 export declare const QuestionsApiAxiosParamCreator: (configuration?: Configuration) => {
     /**
      *
+     * @summary კითხვის გააქტიურება
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerActivate: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -29,11 +38,25 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
     questionControllerCreate: (body: CreateQuestionDto, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
-     * @summary ყველა კითხვა (ფილტრით)
+     * @summary კითხვის დეაქტივაცია
+     * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerFindAll: (options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    questionControllerDeactivate: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
+     * @summary ყველა კითხვა (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი
+     * @param {number} [limit] ჩანაწერები გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerFindAll: (page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
      * @param {string} id
@@ -64,6 +87,14 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
 export declare const QuestionsApiFp: (configuration?: Configuration) => {
     /**
      *
+     * @summary კითხვის გააქტიურება
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
+    /**
+     *
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -71,11 +102,25 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
     questionControllerCreate(body: CreateQuestionDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
     /**
      *
-     * @summary ყველა კითხვა (ფილტრით)
+     * @summary კითხვის დეაქტივაცია
+     * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerFindAll(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Array<Question>>>>;
+    questionControllerDeactivate(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
+    /**
+     *
+     * @summary ყველა კითხვა (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი
+     * @param {number} [limit] ჩანაწერები გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<PaginatedResponseDto>>>;
     /**
      *
      * @param {string} id
@@ -106,6 +151,14 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
 export declare const QuestionsApiFactory: (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) => {
     /**
      *
+     * @summary კითხვის გააქტიურება
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -113,11 +166,25 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
     questionControllerCreate(body: CreateQuestionDto, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
-     * @summary ყველა კითხვა (ფილტრით)
+     * @summary კითხვის დეაქტივაცია
+     * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerFindAll(options?: AxiosRequestConfig): Promise<AxiosResponse<Array<Question>>>;
+    questionControllerDeactivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
+     * @summary ყველა კითხვა (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი
+     * @param {number} [limit] ჩანაწერები გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaginatedResponseDto>>;
     /**
      *
      * @param {string} id
@@ -150,6 +217,15 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
 export declare class QuestionsApi extends BaseAPI {
     /**
      *
+     * @summary კითხვის გააქტიურება
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -158,12 +234,27 @@ export declare class QuestionsApi extends BaseAPI {
     questionControllerCreate(body: CreateQuestionDto, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
-     * @summary ყველა კითხვა (ფილტრით)
+     * @summary კითხვის დეაქტივაცია
+     * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QuestionsApi
      */
-    questionControllerFindAll(options?: AxiosRequestConfig): Promise<AxiosResponse<Array<Question>>>;
+    questionControllerDeactivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
+     * @summary ყველა კითხვა (pagination, ფილტრით)
+     * @param {number} [page] გვერდის ნომერი
+     * @param {number} [limit] ჩანაწერები გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] მიმართულება
+     * @param {number} [category] კატეგორიის ID
+     * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaginatedResponseDto>>;
     /**
      *
      * @param {string} id

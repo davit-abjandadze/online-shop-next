@@ -70,7 +70,7 @@ export const PageSubtitle = styled("p")`
   margin: 0;
 `;
 
-export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | "secondary" | "outline" }>`
+export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | "secondary" | "outline" | "success" }>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -95,6 +95,12 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | 
           background-color: #f1f5f9;
           color: #334155;
           &:hover { background-color: #e2e8f0; }
+        `;
+      case "success":
+        return `
+          background-color: #16a34a;
+          color: #ffffff;
+          &:hover { background-color: #15803d; }
         `;
       case "outline":
         return `
@@ -204,18 +210,24 @@ export const BadgeGroup = styled("div")`
   flex-wrap: wrap;
 `;
 
-export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" }>`
+export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" }>`
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  
+
   ${({ variant }) => {
     if (variant === "multiple") {
       return "background: #fef3c7; color: #b45309;";
     }
     if (variant === "date") {
       return "background: #f1f5f9; color: #64748b; font-weight: 400;";
+    }
+    if (variant === "active") {
+      return "background: #dcfce7; color: #16a34a;";
+    }
+    if (variant === "inactive") {
+      return "background: #fee2e2; color: #dc2626;";
     }
     return "background: #dbeafe; color: #1d4ed8;";
   }}
@@ -258,6 +270,70 @@ export const CardActions = styled("div")`
   display: flex;
   gap: 10px;
   align-items: center;
+`;
+
+export const PaginationBar = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+`;
+
+export const PageButton = styled("button")`
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #2563eb;
+
+  &:hover:not(:disabled) {
+    background-color: #eff6ff;
+    border-color: #2563eb;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+export const PageNumbers = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const PageNumberButton = styled("button")<{ active?: boolean }>`
+  min-width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid ${({ active }) => (active ? "#2563eb" : "#cbd5e1")};
+  background-color: ${({ active }) => (active ? "#2563eb" : "#ffffff")};
+  color: ${({ active }) => (active ? "#ffffff" : "#334155")};
+
+  &:hover:not(:disabled) {
+    ${({ active }) => (active ? "" : "background-color: #eff6ff; border-color: #2563eb;")}
+  }
+`;
+
+export const PageEllipsis = styled("span")`
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-weight: 600;
 `;
 
 export const EmptyState = styled("div")`
