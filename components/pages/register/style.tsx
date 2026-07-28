@@ -14,7 +14,7 @@ export const Card = styled("div")`
   width: 100%;
   max-width: 440px;
   background: ${({ theme }) => theme.colors.base._0};
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 40px;
   box-shadow: 0 4px 24px rgba(0, 9, 28, 0.08);
 

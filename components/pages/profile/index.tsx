@@ -216,7 +216,7 @@ export const ProfileComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>იტვირთება...</p>
+            <p style={{ fontSize: "16px", color: "#65676B" }}>იტვირთება...</p>
           </S.Container>
         </S.PageWrapper>
       </>
@@ -390,7 +390,7 @@ export const ProfileComponent: React.FC = () => {
 
                   {loadingUser ? (
                     <div style={{ textAlign: "center", padding: "40px" }}>
-                      <p style={{ color: "#64748b" }}>იტვირთება...</p>
+                      <p style={{ color: "#65676B" }}>იტვირთება...</p>
                     </div>
                   ) : (
                     <form onSubmit={handleSaveUser}>
@@ -455,7 +455,7 @@ export const ProfileComponent: React.FC = () => {
 
                   {loadingFavorites ? (
                     <div style={{ textAlign: "center", padding: "40px" }}>
-                      <p style={{ color: "#64748b" }}>იტვირთება...</p>
+                      <p style={{ color: "#65676B" }}>იტვირთება...</p>
                     </div>
                   ) : favorites.length === 0 ? (
                     <S.EmptyState>
@@ -536,7 +536,7 @@ export const ProfileComponent: React.FC = () => {
 
                   {loadingActivities ? (
                     <div style={{ textAlign: "center", padding: "40px" }}>
-                      <p style={{ color: "#64748b" }}>იტვირთება...</p>
+                      <p style={{ color: "#65676B" }}>იტვირთება...</p>
                     </div>
                   ) : activities.length === 0 ? (
                     <S.EmptyState>

@@ -10,7 +10,7 @@ import useTranslation from "next-translate/useTranslation";
 
 const Container = styled.div`
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: #F7F8FA;
 `;
 
 const Content = styled.div`
@@ -24,19 +24,19 @@ const Card = styled.div`
   border-radius: 20px;
   padding: 32px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #E4E6EB;
 `;
 
 const Title = styled.h1`
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0 0 8px 0;
 `;
 
 const Subtitle = styled.p`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin: 0 0 24px 0;
 `;
 
@@ -50,7 +50,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: #050505;
 `;
 
 const InputWrapper = styled.div`
@@ -62,15 +62,15 @@ const InputWrapper = styled.div`
 const Input = styled.input`
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #e2e8f0;
+  border: 1.5px solid #E4E6EB;
   border-radius: 12px;
   font-size: 14px;
-  color: #0f172a;
+  color: #050505;
   outline: none;
   transition: all 0.2s ease;
 
   &:focus {
-    border-color: #3b82f6;
+    border-color: #1877F2;
     box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
   }
 `;
@@ -80,22 +80,22 @@ const ToggleBtn = styled.button`
   right: 12px;
   background: none;
   border: none;
-  color: #64748b;
+  color: #65676B;
   cursor: pointer;
   font-size: 12px;
   padding: 4px 8px;
   border-radius: 6px;
 
   &:hover {
-    color: #0f172a;
-    background: #f1f5f9;
+    color: #050505;
+    background: #F0F2F5;
   }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #1877F2 0%, #166FE5 100%);
   color: #ffffff;
   border: none;
   border-radius: 12px;
@@ -106,12 +106,12 @@ const SubmitButton = styled.button`
   margin-top: 8px;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #166FE5 0%, #0C44AE 100%);
     box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
   }
 
   &:disabled {
-    background: #94a3b8;
+    background: #8A8D91;
     cursor: not-allowed;
   }
 `;

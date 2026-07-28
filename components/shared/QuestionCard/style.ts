@@ -2,14 +2,14 @@ import styled from "styled-components";
 
 export const QuestionCardWrapper = styled("div")`
   background: #ffffff;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  border: 1px solid #CED0D4;
+  transition: box-shadow 0.15s ease;
 
   &:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
   }
 `;
 
@@ -18,7 +18,7 @@ export const CardTop = styled("div")`
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 `;
 
 export const FavoriteButton = styled("button")<{ active?: boolean }>`
@@ -34,11 +34,11 @@ export const FavoriteButton = styled("button")<{ active?: boolean }>`
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
-  color: ${({ active }) => (active ? "#f59e0b" : "#94a3b8")};
+  color: ${({ active }) => (active ? "#f59e0b" : "#8A8D91")};
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: #f1f5f9;
+    background-color: #F0F2F5;
     color: #f59e0b;
   }
 
@@ -51,7 +51,7 @@ export const FavoriteButton = styled("button")<{ active?: boolean }>`
 export const QuestionText = styled("h3")`
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0 0 8px 0;
   line-height: 1.4;
 `;
@@ -73,9 +73,9 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "countdo
       case "expired":
         return "background: #fee2e2; color: #dc2626;";
       case "category":
-        return "background: #f1f5f9; color: #64748b;";
+        return "background: #F0F2F5; color: #65676B;";
       default:
-        return "background: #dbeafe; color: #1d4ed8;";
+        return "background: #E7F3FF; color: #166FE5;";
     }
   }}
 `;
@@ -91,16 +91,16 @@ export const OptionsList = styled("div")`
 export const OptionItem = styled("div")<{ selected?: boolean }>`
   display: flex;
   align-items: center;
-  padding: 14px 18px;
-  border-radius: 12px;
-  border: 2px solid ${({ selected }) => (selected ? "#2563eb" : "#e2e8f0")};
-  background-color: ${({ selected }) => (selected ? "#eff6ff" : "#f8fafc")};
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid ${({ selected }) => (selected ? "#1877F2" : "#CED0D4")};
+  background-color: ${({ selected }) => (selected ? "#E7F3FF" : "#F7F8FA")};
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 
   &:hover {
-    border-color: #2563eb;
-    background-color: #eff6ff;
+    border-color: #1877F2;
+    background-color: #E7F3FF;
   }
 `;
 
@@ -108,8 +108,8 @@ export const CheckIndicator = styled("div")<{ selected?: boolean; type?: "single
   width: 20px;
   height: 20px;
   border-radius: ${({ type }) => (type === "multiple" ? "6px" : "50%")};
-  border: 2px solid ${({ selected }) => (selected ? "#2563eb" : "#cbd5e1")};
-  background-color: ${({ selected }) => (selected ? "#2563eb" : "#ffffff")};
+  border: 2px solid ${({ selected }) => (selected ? "#1877F2" : "#CED0D4")};
+  background-color: ${({ selected }) => (selected ? "#1877F2" : "#ffffff")};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -132,7 +132,7 @@ export const CheckIndicator = styled("div")<{ selected?: boolean; type?: "single
 export const OptionText = styled("span")`
   font-size: 15px;
   font-weight: 500;
-  color: #334155;
+  color: #050505;
 `;
 
 /* Results Bar Styles */
@@ -140,11 +140,11 @@ export const ResultsContainer = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 24px;
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 20px;
-  border: 1px solid #e2e8f0;
+  margin-bottom: 20px;
+  background: #F7F8FA;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #E4E6EB;
 `;
 
 export const ResultsHeader = styled("div")`
@@ -157,7 +157,7 @@ export const ResultsHeader = styled("div")`
 export const TotalVotesText = styled("div")`
   font-size: 14px;
   font-weight: 600;
-  color: #475569;
+  color: #65676B;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -174,19 +174,19 @@ export const ResultInfo = styled("div")`
   justify-content: space-between;
   font-size: 14px;
   font-weight: 600;
-  color: #0f172a;
+  color: #050505;
 `;
 
 export const ResultOptionText = styled("span")``;
 
 export const ResultPercentageText = styled("span")`
-  color: #2563eb;
+  color: #1877F2;
 `;
 
 export const ProgressBarTrack = styled("div")`
   width: 100%;
   height: 12px;
-  background-color: #e2e8f0;
+  background-color: #E4E6EB;
   border-radius: 6px;
   overflow: hidden;
   position: relative;
@@ -197,8 +197,8 @@ export const ProgressBarFill = styled("div")<{ percentage: number; isTop?: boole
   width: ${({ percentage }) => percentage}%;
   background: ${({ isTop }) =>
     isTop
-      ? "linear-gradient(90deg, #2563eb 0%, #3b82f6 100%)"
-      : "linear-gradient(90deg, #64748b 0%, #94a3b8 100%)"};
+      ? "linear-gradient(90deg, #1877F2 0%, #1877F2 100%)"
+      : "linear-gradient(90deg, #65676B 0%, #8A8D91 100%)"};
   border-radius: 6px;
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 `;
@@ -207,17 +207,18 @@ export const CardFooter = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid #E4E6EB;
 `;
 
 export const ActionButton = styled("button")<{ variant?: "primary" | "secondary" | "outline" }>`
-  padding: 10px 20px;
-  border-radius: 10px;
+  padding: 8px 16px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease;
   border: none;
   display: inline-flex;
   align-items: center;
@@ -228,22 +229,21 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "secondary"
       case "outline":
         return `
           background-color: transparent;
-          color: #2563eb;
-          border: 1px solid #cbd5e1;
-          &:hover { background-color: #eff6ff; border-color: #2563eb; }
+          color: #65676B;
+          &:hover { background-color: #F0F2F5; }
         `;
       case "secondary":
         return `
-          background-color: #f1f5f9;
-          color: #475569;
-          &:hover { background-color: #e2e8f0; }
+          background-color: transparent;
+          color: #65676B;
+          &:hover { background-color: #F0F2F5; }
         `;
       case "primary":
       default:
         return `
-          background-color: #2563eb;
+          background-color: #1877F2;
           color: #ffffff;
-          &:hover { background-color: #1d4ed8; }
+          &:hover { background-color: #166FE5; }
         `;
     }
   }}

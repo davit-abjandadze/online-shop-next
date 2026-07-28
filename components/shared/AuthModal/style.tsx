@@ -25,8 +25,8 @@ export const ModalContainer = styled(motion.div)`
   background: #ffffff;
   width: 100%;
   max-width: 440px;
-  border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   position: relative;
   animation: ${fadeIn} 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -37,19 +37,19 @@ export const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #F0F2F5;
 `;
 
 export const Title = styled.h3`
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0;
   font-family: inherit;
 `;
 
 export const CloseButton = styled.button`
-  background: #f8fafc;
+  background: #F7F8FA;
   border: none;
   width: 36px;
   height: 36px;
@@ -58,23 +58,23 @@ export const CloseButton = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #64748b;
+  color: #65676B;
   font-size: 18px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: #F0F2F5;
+    color: #050505;
     transform: rotate(90deg);
   }
 `;
 
 export const TabBar = styled.div`
   display: flex;
-  background: #f8fafc;
+  background: #F7F8FA;
   padding: 4px;
   margin: 16px 28px 0;
-  border-radius: 14px;
+  border-radius: 8px;
   gap: 4px;
 `;
 
@@ -83,17 +83,17 @@ export const TabButton = styled.button<{ active: boolean }>`
   padding: 10px 14px;
   border: none;
   background: ${({ active }) => (active ? "#ffffff" : "transparent")};
-  color: ${({ active }) => (active ? "#0f172a" : "#64748b")};
+  color: ${({ active }) => (active ? "#050505" : "#65676B")};
   font-weight: ${({ active }) => (active ? "600" : "500")};
   font-size: 14px;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: ${({ active }) =>
     active ? "0 2px 8px rgba(0, 0, 0, 0.06)" : "none"};
 
   &:hover {
-    color: #0f172a;
+    color: #050505;
   }
 `;
 
@@ -113,7 +113,7 @@ export const FormGroup = styled.div`
 export const Label = styled.label`
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: #050505;
 `;
 
 export const InputWrapper = styled.div`
@@ -125,29 +125,29 @@ export const InputWrapper = styled.div`
 export const Input = styled.input`
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1.5px solid #E4E6EB;
+  border-radius: 6px;
   font-size: 14px;
-  color: #0f172a;
+  color: #050505;
   outline: none;
   transition: all 0.2s ease;
   background: #ffffff;
 
   &:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    border-color: #1877F2;
+    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
   }
 
   &::placeholder {
-    color: #94a3b8;
+    color: #8A8D91;
   }
 `;
 
 export const GenderSwitch = styled.div`
   display: flex;
-  background: #f8fafc;
+  background: #F7F8FA;
   padding: 4px;
-  border-radius: 12px;
+  border-radius: 8px;
   gap: 4px;
 `;
 
@@ -156,35 +156,35 @@ export const GenderOption = styled.button<{ active: boolean }>`
   padding: 10px 14px;
   border: none;
   background: ${({ active }) => (active ? "#ffffff" : "transparent")};
-  color: ${({ active }) => (active ? "#0f172a" : "#64748b")};
+  color: ${({ active }) => (active ? "#050505" : "#65676B")};
   font-weight: ${({ active }) => (active ? "600" : "500")};
   font-size: 14px;
-  border-radius: 10px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: ${({ active }) =>
     active ? "0 2px 8px rgba(0, 0, 0, 0.06)" : "none"};
 
   &:hover {
-    color: #0f172a;
+    color: #050505;
   }
 `;
 
 export const Select = styled.select`
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
+  border: 1.5px solid #E4E6EB;
+  border-radius: 6px;
   font-size: 14px;
-  color: #0f172a;
+  color: #050505;
   outline: none;
   cursor: pointer;
   transition: all 0.2s ease;
   background: #ffffff;
 
   &:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    border-color: #1877F2;
+    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
   }
 `;
 
@@ -193,42 +193,33 @@ export const TogglePasswordBtn = styled.button`
   right: 12px;
   background: none;
   border: none;
-  color: #64748b;
+  color: #65676B;
   cursor: pointer;
   font-size: 13px;
   padding: 4px 8px;
   border-radius: 6px;
 
   &:hover {
-    color: #0f172a;
-    background: #f1f5f9;
+    color: #050505;
+    background: #F0F2F5;
   }
 `;
 
 export const SubmitButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
-  padding: 14px;
-  background: ${({ disabled }) =>
-    disabled ? "#94a3b8" : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)"};
+  padding: 12px;
+  background: ${({ disabled }) => (disabled ? "#8A8D91" : "#1877F2")};
   color: #ffffff;
   border: none;
-  border-radius: 12px;
+  border-radius: 6px;
   font-size: 15px;
   font-weight: 600;
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
-  transition: all 0.2s ease;
-  box-shadow: ${({ disabled }) =>
-    disabled ? "none" : "0 4px 12px rgba(37, 99, 235, 0.25)"};
+  transition: background 0.15s ease;
   margin-top: 8px;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(0);
+    background: #166FE5;
   }
 `;
 
@@ -237,7 +228,7 @@ export const ErrorAlert = styled.div`
   border: 1px solid #fecaca;
   color: #dc2626;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   display: flex;
@@ -250,7 +241,7 @@ export const SuccessAlert = styled.div`
   border: 1px solid #bbf7d0;
   color: #16a34a;
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   display: flex;
@@ -269,7 +260,7 @@ export const FooterLinks = styled.div`
 export const LinkBtn = styled.button`
   background: none;
   border: none;
-  color: #2563eb;
+  color: #1877F2;
   font-weight: 600;
   cursor: pointer;
   padding: 0;
@@ -277,6 +268,6 @@ export const LinkBtn = styled.button`
 
   &:hover {
     text-decoration: underline;
-    color: #1d4ed8;
+    color: #166FE5;
   }
 `;

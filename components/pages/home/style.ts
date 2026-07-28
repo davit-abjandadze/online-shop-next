@@ -10,70 +10,69 @@ export const FilterBar = styled("div")`
 export const FilterChip = styled("button")<{ active?: boolean }>`
   padding: 6px 16px;
   border-radius: 999px;
-  border: 2px solid ${({ active }) => (active ? "#2563eb" : "#e2e8f0")};
-  background-color: ${({ active }) => (active ? "#2563eb" : "#ffffff")};
-  color: ${({ active }) => (active ? "#ffffff" : "#475569")};
+  border: 2px solid ${({ active }) => (active ? "#1877F2" : "#E4E6EB")};
+  background-color: ${({ active }) => (active ? "#1877F2" : "#ffffff")};
+  color: ${({ active }) => (active ? "#ffffff" : "#65676B")};
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #2563eb;
-    color: ${({ active }) => (active ? "#ffffff" : "#2563eb")};
+    border-color: #1877F2;
+    color: ${({ active }) => (active ? "#ffffff" : "#1877F2")};
   }
 `;
 
 export const HeroSection = styled("section")`
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  background: #1877F2;
   color: #ffffff;
-  padding: 64px 24px;
+  padding: 40px 24px;
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #E4E6EB;
 `;
 
 export const HeroTitle = styled("h1")`
-  font-size: 36px;
+  font-size: 28px;
   font-weight: 800;
-  margin: 0 0 12px 0;
-  background: linear-gradient(90deg, #60a5fa 0%, #a78bfa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  margin: 0 0 8px 0;
+  color: #ffffff;
 
   @media (max-width: 640px) {
-    font-size: 28px;
+    font-size: 22px;
   }
 `;
 
 export const HeroSubtitle = styled("p")`
-  font-size: 16px;
-  color: #94a3b8;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.85);
   max-width: 600px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.5;
 `;
 
 export const PopularSection = styled("section")`
-  max-width: 1100px;
-  margin: 0 auto 40px auto;
-  padding: 0 24px;
+  max-width: 900px;
+  margin: 0 auto 24px auto;
+  padding: 0 16px;
 
   .swiper {
     padding: 4px 4px 44px 4px;
   }
 
   .swiper-pagination-bullet {
-    background: #cbd5e1;
+    background: #CED0D4;
     opacity: 1;
   }
 
   .swiper-pagination-bullet-active {
-    background: #2563eb;
+    background: #1877F2;
   }
 
   .swiper-button-next,
   .swiper-button-prev {
-    color: #2563eb;
+    color: #1877F2;
     background: #ffffff;
     width: 36px;
     height: 36px;
@@ -97,7 +96,7 @@ export const PopularSectionHeader = styled("div")`
 export const PopularSectionTitle = styled("h2")`
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0;
   display: flex;
   align-items: center;
@@ -106,20 +105,19 @@ export const PopularSectionTitle = styled("h2")`
 
 export const PopularCard = styled("div")`
   background: #ffffff;
-  border-radius: 16px;
-  padding: 22px;
+  border-radius: 8px;
+  padding: 16px;
   height: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  border: 1px solid #CED0D4;
   display: flex;
   flex-direction: column;
   gap: 14px;
   cursor: pointer;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition: box-shadow 0.15s ease;
 
   &:hover {
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
   }
 `;
 
@@ -134,7 +132,7 @@ export const PopularRankBadge = styled("div")`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  background: #1877F2;
   color: #ffffff;
   font-size: 14px;
   font-weight: 700;
@@ -146,7 +144,7 @@ export const PopularRankBadge = styled("div")`
 export const PopularCardText = styled("div")`
   font-size: 15px;
   font-weight: 600;
-  color: #0f172a;
+  color: #050505;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -161,22 +159,22 @@ export const PopularCardFooter = styled("div")`
   gap: 8px;
   margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid #F0F2F5;
 `;
 
 export const PopularVotesBadge = styled("div")`
   font-size: 13px;
   font-weight: 700;
-  color: #2563eb;
+  color: #1877F2;
   display: flex;
   align-items: center;
   gap: 6px;
 `;
 
 export const Container = styled("div")`
-  max-width: 900px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 0 24px 64px 24px;
+  padding: 0 16px 64px 16px;
 `;
 
 export const SectionHeader = styled("div")`
@@ -189,7 +187,7 @@ export const SectionHeader = styled("div")`
 export const SectionTitle = styled("h2")`
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0;
   display: flex;
   align-items: center;
@@ -199,7 +197,7 @@ export const SectionTitle = styled("h2")`
 export const QuestionsGrid = styled("div")`
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 16px;
 `;
 
 export const PaginationBar = styled("div")`
@@ -217,13 +215,13 @@ export const PageButton = styled("button")`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CED0D4;
   background-color: #ffffff;
-  color: #2563eb;
+  color: #1877F2;
 
   &:hover:not(:disabled) {
-    background-color: #eff6ff;
-    border-color: #2563eb;
+    background-color: #E7F3FF;
+    border-color: #1877F2;
   }
 
   &:disabled {
@@ -247,12 +245,12 @@ export const PageNumberButton = styled("button")<{ active?: boolean }>`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid ${({ active }) => (active ? "#2563eb" : "#cbd5e1")};
-  background-color: ${({ active }) => (active ? "#2563eb" : "#ffffff")};
-  color: ${({ active }) => (active ? "#ffffff" : "#334155")};
+  border: 1px solid ${({ active }) => (active ? "#1877F2" : "#CED0D4")};
+  background-color: ${({ active }) => (active ? "#1877F2" : "#ffffff")};
+  color: ${({ active }) => (active ? "#ffffff" : "#050505")};
 
   &:hover:not(:disabled) {
-    ${({ active }) => (active ? "" : "background-color: #eff6ff; border-color: #2563eb;")}
+    ${({ active }) => (active ? "" : "background-color: #E7F3FF; border-color: #1877F2;")}
   }
 `;
 
@@ -262,15 +260,15 @@ export const PageEllipsis = styled("span")`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: #8A8D91;
   font-weight: 600;
 `;
 
 export const EmptyState = styled("div")`
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 64px 24px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px dashed #cbd5e1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  border: 1px solid #CED0D4;
 `;

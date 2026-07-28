@@ -2,20 +2,19 @@ import styled from "styled-components";
 
 export const HeaderWrapper = styled.header`
   width: 100%;
-  height: 72px;
+  height: 56px;
   background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
 `;
 
 export const Container = styled.div`
   max-width: 1280px;
   height: 100%;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -38,17 +37,20 @@ export const LogoLink = styled.a`
 export const LogoBadge = styled.div`
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  border-radius: 12px;
+  background: #1877F2;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
   font-weight: 800;
   font-size: 20px;
+  overflow: hidden;
 
-  img{
-  width:50px
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 `;
 
@@ -65,53 +67,48 @@ export const LoginBtn = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  padding: 8px 16px;
+  background: #1877F2;
   color: #ffffff;
   border: none;
-  border-radius: 12px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transition: background 0.15s ease;
 
   &:hover {
-    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    background: #166FE5;
   }
 `;
 
 export const ProfileTrigger = styled.button`
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 6px 14px 6px 6px;
-  border-radius: 30px;
+  gap: 8px;
+  background: #F0F2F5;
+  border: none;
+  padding: 4px 12px 4px 4px;
+  border-radius: 999px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease;
 
   &:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
+    background: #E4E6EB;
   }
 `;
 
 export const AvatarCircle = styled.div`
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  background: #1877F2;
   color: #ffffff;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
   overflow: hidden;
 
   img {
@@ -124,7 +121,7 @@ export const AvatarCircle = styled.div`
 export const ProfileName = styled.span`
   font-size: 14px;
   font-weight: 600;
-  color: #0f172a;
+  color: #050505;
 `;
 
 export const DropdownMenu = styled.div`
@@ -133,8 +130,8 @@ export const DropdownMenu = styled.div`
   left: 0;
   width: 240px;
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 8px;
   z-index: 100;
   animation: fadeIn 0.2s ease;
@@ -147,13 +144,13 @@ export const DropdownMenu = styled.div`
 
 export const DropdownHeader = styled.div`
   padding: 12px 14px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #F0F2F5;
   margin-bottom: 4px;
 `;
 
 export const UserEmail = styled.div`
   font-size: 12px;
-  color: #64748b;
+  color: #65676B;
   word-break: break-all;
 `;
 
@@ -165,16 +162,16 @@ export const DropdownItem = styled.button<{ danger?: boolean }>`
   padding: 10px 14px;
   background: none;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 500;
-  color: ${({ danger }) => (danger ? "#dc2626" : "#334155")};
+  color: ${({ danger }) => (danger ? "#dc2626" : "#050505")};
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ danger }) => (danger ? "#fef2f2" : "#f8fafc")};
-    color: ${({ danger }) => (danger ? "#dc2626" : "#0f172a")};
+    background: ${({ danger }) => (danger ? "#fef2f2" : "#F7F8FA")};
+    color: ${({ danger }) => (danger ? "#dc2626" : "#050505")};
   }
 `;

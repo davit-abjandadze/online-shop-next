@@ -373,7 +373,7 @@ export const HomeComponent: React.FC = () => {
                   </S.PopularCardTop>
                   <S.PopularCardFooter>
                     <S.PopularVotesBadge>🗳️ {pq.votes} ხმა</S.PopularVotesBadge>
-                    {pq.categoryName && <span style={{ fontSize: "12px", color: "#94a3b8" }}>🏷️ {pq.categoryName}</span>}
+                    {pq.categoryName && <span style={{ fontSize: "12px", color: "#8A8D91" }}>🏷️ {pq.categoryName}</span>}
                   </S.PopularCardFooter>
                 </S.PopularCard>
               </SwiperSlide>
@@ -409,15 +409,15 @@ export const HomeComponent: React.FC = () => {
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "100px 0" }}>
-            <p style={{ fontSize: "18px", color: "#64748b" }}>იტვირთება...</p>
+            <p style={{ fontSize: "18px", color: "#65676B" }}>იტვირთება...</p>
           </div>
         ) : questions.length === 0 ? (
           <S.EmptyState>
             <span style={{ fontSize: "48px" }}>🗳️</span>
-            <h3 style={{ fontSize: "18px", color: "#334155", marginTop: "16px" }}>
+            <h3 style={{ fontSize: "18px", color: "#050505", marginTop: "16px" }}>
               ამ ეტაპზე აქტიური კითხვები არ არის
             </h3>
-            <p style={{ fontSize: "14px", color: "#64748b" }}>
+            <p style={{ fontSize: "14px", color: "#65676B" }}>
               გთხოვთ მოგვიანებით შეამოწმოთ.
             </p>
           </S.EmptyState>
@@ -430,7 +430,7 @@ export const HomeComponent: React.FC = () => {
             return (
               <S.EmptyState>
                 <span style={{ fontSize: "48px" }}>🔍</span>
-                <h3 style={{ fontSize: "18px", color: "#334155", marginTop: "16px" }}>
+                <h3 style={{ fontSize: "18px", color: "#050505", marginTop: "16px" }}>
                   ამ კატეგორიაში კითხვები არ არის
                 </h3>
               </S.EmptyState>

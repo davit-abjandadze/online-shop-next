@@ -48,6 +48,7 @@ body {
   margin: 0;
   padding: 0;
   -webkit-overflow-scrolling: touch;
+  background-color: #f0f2f5;
 }
 
 .mobile-details {
@@ -70,7 +71,7 @@ main {
 }
 
 * {
-  font-family: "Helvetica Neue";
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   box-sizing: border-box;
 }
 

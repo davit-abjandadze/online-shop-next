@@ -165,7 +165,7 @@ export const Button = styled("button")<StyledButtonProps>`
     `
       padding-left: 12px;
     `}
-  border-radius: ${({ rounded }) => (rounded ? "100px" : "8px")};
+  border-radius: ${({ rounded }) => (rounded ? "100px" : "6px")};
   border: ${({ variant, theme }) =>
     variant == "outline" ? `1px solid ${theme.colors.base._20}` : "none"};
   cursor: pointer;

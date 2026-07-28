@@ -3,8 +3,8 @@ import styled from "styled-components";
 export const TabBar = styled("div")`
   display: flex;
   gap: 4px;
-  background: #f1f5f9;
-  border-radius: 12px;
+  background: #F0F2F5;
+  border-radius: 8px;
   padding: 4px;
   margin-bottom: 28px;
 `;
@@ -19,17 +19,17 @@ export const Tab = styled("button")<{ active?: boolean }>`
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: ${({ active }) => (active ? "#ffffff" : "transparent")};
-  color: ${({ active }) => (active ? "#0f172a" : "#64748b")};
+  color: ${({ active }) => (active ? "#050505" : "#65676B")};
   box-shadow: ${({ active }) => (active ? "0 1px 4px rgba(0,0,0,0.08)" : "none")};
 
   &:hover {
-    color: #0f172a;
+    color: #050505;
   }
 `;
 
 export const PageWrapper = styled("div")`
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: #F7F8FA;
   padding: 32px 24px 64px 24px;
 `;
 
@@ -57,7 +57,7 @@ export const TitleGroup = styled("div")``;
 export const PageTitle = styled("h1")`
   font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0 0 6px 0;
   display: flex;
   align-items: center;
@@ -66,7 +66,7 @@ export const PageTitle = styled("h1")`
 
 export const PageSubtitle = styled("p")`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin: 0;
 `;
 
@@ -92,9 +92,9 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | 
         `;
       case "secondary":
         return `
-          background-color: #f1f5f9;
-          color: #334155;
-          &:hover { background-color: #e2e8f0; }
+          background-color: #F0F2F5;
+          color: #050505;
+          &:hover { background-color: #E4E6EB; }
         `;
       case "success":
         return `
@@ -105,16 +105,16 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | 
       case "outline":
         return `
           background-color: transparent;
-          color: #2563eb;
-          border: 1px solid #cbd5e1;
-          &:hover { background-color: #eff6ff; border-color: #2563eb; }
+          color: #1877F2;
+          border: 1px solid #CED0D4;
+          &:hover { background-color: #E7F3FF; border-color: #1877F2; }
         `;
       case "primary":
       default:
         return `
-          background-color: #2563eb;
+          background-color: #1877F2;
           color: #ffffff;
-          &:hover { background-color: #1d4ed8; }
+          &:hover { background-color: #166FE5; }
         `;
     }
   }}
@@ -134,10 +134,10 @@ export const StatsGrid = styled("div")`
 
 export const StatCard = styled("div")`
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #E4E6EB;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -147,8 +147,8 @@ export const StatIcon = styled("div")`
   width: 48px;
   height: 48px;
   border-radius: 10px;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #E7F3FF;
+  color: #1877F2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,12 +160,12 @@ export const StatInfo = styled("div")``;
 export const StatValue = styled("div")`
   font-size: 24px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
 `;
 
 export const StatLabel = styled("div")`
   font-size: 13px;
-  color: #64748b;
+  color: #65676B;
 `;
 
 export const QuestionsList = styled("div")`
@@ -176,10 +176,10 @@ export const QuestionsList = styled("div")`
 
 export const QuestionCard = styled("div")`
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #E4E6EB;
   transition: box-shadow 0.2s ease;
 
   &:hover {
@@ -198,7 +198,7 @@ export const CardHeader = styled("div")`
 export const QuestionText = styled("h3")`
   font-size: 18px;
   font-weight: 600;
-  color: #0f172a;
+  color: #050505;
   margin: 0 0 8px 0;
   line-height: 1.4;
 `;
@@ -212,7 +212,7 @@ export const BadgeGroup = styled("div")`
 
 export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" }>`
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
 
@@ -221,7 +221,7 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" |
       return "background: #fef3c7; color: #b45309;";
     }
     if (variant === "date") {
-      return "background: #f1f5f9; color: #64748b; font-weight: 400;";
+      return "background: #F0F2F5; color: #65676B; font-weight: 400;";
     }
     if (variant === "active") {
       return "background: #dcfce7; color: #16a34a;";
@@ -229,20 +229,20 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" |
     if (variant === "inactive") {
       return "background: #fee2e2; color: #dc2626;";
     }
-    return "background: #dbeafe; color: #1d4ed8;";
+    return "background: #E7F3FF; color: #166FE5;";
   }}
 `;
 
 export const AnswersSection = styled("div")`
   margin-top: 16px;
   padding-top: 16px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid #F0F2F5;
 `;
 
 export const AnswersTitle = styled("div")`
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: #65676B;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 12px;
@@ -255,12 +255,12 @@ export const AnswersGrid = styled("div")`
 `;
 
 export const AnswerPill = styled("div")`
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
+  background: #F7F8FA;
+  border: 1px solid #CED0D4;
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 14px;
-  color: #334155;
+  color: #050505;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -287,13 +287,13 @@ export const PageButton = styled("button")`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CED0D4;
   background-color: #ffffff;
-  color: #2563eb;
+  color: #1877F2;
 
   &:hover:not(:disabled) {
-    background-color: #eff6ff;
-    border-color: #2563eb;
+    background-color: #E7F3FF;
+    border-color: #1877F2;
   }
 
   &:disabled {
@@ -317,12 +317,12 @@ export const PageNumberButton = styled("button")<{ active?: boolean }>`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid ${({ active }) => (active ? "#2563eb" : "#cbd5e1")};
-  background-color: ${({ active }) => (active ? "#2563eb" : "#ffffff")};
-  color: ${({ active }) => (active ? "#ffffff" : "#334155")};
+  border: 1px solid ${({ active }) => (active ? "#1877F2" : "#CED0D4")};
+  background-color: ${({ active }) => (active ? "#1877F2" : "#ffffff")};
+  color: ${({ active }) => (active ? "#ffffff" : "#050505")};
 
   &:hover:not(:disabled) {
-    ${({ active }) => (active ? "" : "background-color: #eff6ff; border-color: #2563eb;")}
+    ${({ active }) => (active ? "" : "background-color: #E7F3FF; border-color: #1877F2;")}
   }
 `;
 
@@ -332,28 +332,28 @@ export const PageEllipsis = styled("span")`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: #8A8D91;
   font-weight: 600;
 `;
 
 export const EmptyState = styled("div")`
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 48px 24px;
   text-align: center;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed #CED0D4;
 `;
 
 export const EmptyTitle = styled("h3")`
   font-size: 18px;
   font-weight: 600;
-  color: #334155;
+  color: #050505;
   margin: 0 0 8px 0;
 `;
 
 export const EmptyText = styled("p")`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin: 0 0 20px 0;
 `;
 
@@ -375,7 +375,7 @@ export const ModalOverlay = styled("div")`
 
 export const ModalContent = styled("div")`
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 8px;
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
@@ -390,13 +390,13 @@ export const ModalHeader = styled("div")`
   align-items: center;
   margin-bottom: 24px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #F0F2F5;
 `;
 
 export const ModalTitle = styled("h2")`
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0;
 `;
 
@@ -404,14 +404,14 @@ export const CloseButton = styled("button")`
   background: transparent;
   border: none;
   font-size: 22px;
-  color: #64748b;
+  color: #65676B;
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 6px;
 
   &:hover {
-    background: #f1f5f9;
-    color: #0f172a;
+    background: #F0F2F5;
+    color: #050505;
   }
 `;
 
@@ -425,20 +425,20 @@ export const FormGroup = styled("div")`
 export const Label = styled("label")`
   font-size: 14px;
   font-weight: 600;
-  color: #334155;
+  color: #050505;
 `;
 
 export const Input = styled("input")`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CED0D4;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: #2563eb;
+    border-color: #1877F2;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 `;
@@ -447,14 +447,14 @@ export const Select = styled("select")`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CED0D4;
   font-size: 14px;
   outline: none;
   background: #ffffff;
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: #2563eb;
+    border-color: #1877F2;
   }
 `;
 
@@ -471,7 +471,7 @@ export const ModalFooter = styled("div")`
   gap: 12px;
   margin-top: 28px;
   padding-top: 20px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid #F0F2F5;
 `;
 
 export const ChartsGrid = styled("div")`
@@ -483,10 +483,10 @@ export const ChartsGrid = styled("div")`
 
 export const ChartCard = styled("div")`
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #E4E6EB;
 `;
 
 export const ChartCardTitle = styled("div")`
@@ -501,7 +501,7 @@ export const ChartCardTitle = styled("div")`
 export const ChartTitleText = styled("h3")`
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0;
 `;
 
@@ -513,7 +513,7 @@ export const ChartCanvasWrapper = styled("div")`
 export const PeriodSelector = styled("div")`
   display: flex;
   gap: 4px;
-  background: #f1f5f9;
+  background: #F0F2F5;
   border-radius: 8px;
   padding: 3px;
 `;
@@ -527,7 +527,7 @@ export const PeriodButton = styled("button")<{ active?: boolean }>`
   cursor: pointer;
   transition: all 0.2s ease;
   background-color: ${({ active }) => (active ? "#ffffff" : "transparent")};
-  color: ${({ active }) => (active ? "#0f172a" : "#64748b")};
+  color: ${({ active }) => (active ? "#050505" : "#65676B")};
   box-shadow: ${({ active }) => (active ? "0 1px 4px rgba(0,0,0,0.08)" : "none")};
 `;
 
@@ -542,8 +542,8 @@ export const PopularQuestionRow = styled("div")`
   align-items: center;
   gap: 14px;
   padding: 14px 16px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #F7F8FA;
+  border: 1px solid #E4E6EB;
   border-radius: 10px;
 `;
 
@@ -552,8 +552,8 @@ export const PopularRank = styled("div")`
   height: 28px;
   min-width: 28px;
   border-radius: 50%;
-  background: #eff6ff;
-  color: #2563eb;
+  background: #E7F3FF;
+  color: #1877F2;
   font-size: 13px;
   font-weight: 700;
   display: flex;
@@ -569,7 +569,7 @@ export const PopularQuestionInfo = styled("div")`
 export const PopularQuestionText = styled("div")`
   font-size: 14px;
   font-weight: 600;
-  color: #0f172a;
+  color: #050505;
   margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -578,13 +578,13 @@ export const PopularQuestionText = styled("div")`
 
 export const PopularQuestionMeta = styled("div")`
   font-size: 12px;
-  color: #64748b;
+  color: #65676B;
 `;
 
 export const PopularQuestionVotes = styled("div")`
   font-size: 15px;
   font-weight: 700;
-  color: #2563eb;
+  color: #1877F2;
   white-space: nowrap;
 `;
 
@@ -592,7 +592,7 @@ export const AccessDeniedCard = styled("div")`
   max-width: 480px;
   margin: 100px auto 0 auto;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 40px 32px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -607,6 +607,6 @@ export const AccessDeniedTitle = styled("h2")`
 
 export const AccessDeniedText = styled("p")`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin: 0 0 24px 0;
 `;

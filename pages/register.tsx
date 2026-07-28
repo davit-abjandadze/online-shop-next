@@ -9,7 +9,7 @@ export default function RegisterPage() {
   const [modalOpen, setModalOpen] = useState(true);
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
+    <div style={{ minHeight: "100vh", backgroundColor: "#F7F8FA" }}>
       <Head>
         <title>{t("register-page-title") || "რეგისტრაცია"}</title>
         <link rel="icon" href="/favicon.ico" />

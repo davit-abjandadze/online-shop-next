@@ -91,14 +91,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                   <S.ProfileName>
                     {session.user.name || session.user.email}
                   </S.ProfileName>
-                  <span style={{ fontSize: "10px", color: "#64748b" }}>▼</span>
+                  <span style={{ fontSize: "10px", color: "#65676B" }}>▼</span>
                 </S.ProfileTrigger>
 
                 {/* Profile Dropdown Menu */}
                 {dropdownOpen && (
                   <S.DropdownMenu>
                     <S.DropdownHeader>
-                      <div style={{ fontWeight: 600, fontSize: "14px", color: "#0f172a" }}>
+                      <div style={{ fontWeight: 600, fontSize: "14px", color: "#050505" }}>
                         {session.user.name || "მომხმარებელი"}
                       </div>
                       <S.UserEmail>{session.user.email}</S.UserEmail>

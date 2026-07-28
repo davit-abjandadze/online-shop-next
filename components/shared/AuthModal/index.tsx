@@ -460,7 +460,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* 3. FORGOT PASSWORD FORM */}
         {mode === "forgot" && (
           <S.FormContainer onSubmit={handleForgotSubmit}>
-            <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
+            <p style={{ fontSize: "14px", color: "#65676B", margin: 0 }}>
               შეიყვანეთ ელფოსტა, რომლითაც დარეგისტრირებული ხართ და გამოგიგზავნით პაროლის აღდგენის ინსტრუქციას.
             </p>
 

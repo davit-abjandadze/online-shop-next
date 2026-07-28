@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const PageWrapper = styled("div")`
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: #F7F8FA;
   padding: 32px 24px 64px 24px;
 `;
 
@@ -18,7 +18,7 @@ export const HeaderSection = styled("div")`
 export const PageTitle = styled("h1")`
   font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0 0 6px 0;
   display: flex;
   align-items: center;
@@ -27,7 +27,7 @@ export const PageTitle = styled("h1")`
 
 export const PageSubtitle = styled("p")`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin: 0;
 `;
 
@@ -46,10 +46,10 @@ export const Sidebar = styled("div")`
   width: 240px;
   flex-shrink: 0;
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #E4E6EB;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -74,12 +74,12 @@ export const SidebarItem = styled("button")<{ active?: boolean }>`
   text-align: left;
   transition: all 0.2s ease;
   white-space: nowrap;
-  background-color: ${({ active }) => (active ? "#eff6ff" : "transparent")};
-  color: ${({ active }) => (active ? "#2563eb" : "#64748b")};
+  background-color: ${({ active }) => (active ? "#E7F3FF" : "transparent")};
+  color: ${({ active }) => (active ? "#1877F2" : "#65676B")};
 
   &:hover {
-    background-color: ${({ active }) => (active ? "#eff6ff" : "#f1f5f9")};
-    color: ${({ active }) => (active ? "#2563eb" : "#0f172a")};
+    background-color: ${({ active }) => (active ? "#E7F3FF" : "#F0F2F5")};
+    color: ${({ active }) => (active ? "#1877F2" : "#050505")};
   }
 `;
 
@@ -90,16 +90,16 @@ export const Content = styled("div")`
 
 export const Card = styled("div")`
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 28px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #E4E6EB;
 `;
 
 export const CardTitle = styled("h2")`
   font-size: 18px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
   margin: 0 0 20px 0;
 `;
 
@@ -110,14 +110,14 @@ export const ProfileSummary = styled("div")`
   gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid #F0F2F5;
 `;
 
 export const AvatarCircle = styled("div")`
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #1877F2 0%, #166FE5 100%);
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -130,27 +130,27 @@ export const AvatarCircle = styled("div")`
 export const ProfileName = styled("div")`
   font-size: 18px;
   font-weight: 700;
-  color: #0f172a;
+  color: #050505;
 `;
 
 export const ProfileEmail = styled("div")`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin-top: 2px;
 `;
 
 export const Badge = styled("span")<{ variant?: "role" | "date" }>`
   display: inline-block;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   margin-top: 8px;
 
   ${({ variant }) =>
     variant === "date"
-      ? "background: #f1f5f9; color: #64748b; font-weight: 400;"
-      : "background: #dbeafe; color: #1d4ed8;"}
+      ? "background: #F0F2F5; color: #65676B; font-weight: 400;"
+      : "background: #E7F3FF; color: #166FE5;"}
 `;
 
 /* Form */
@@ -173,26 +173,26 @@ export const FormGroup = styled("div")`
 export const Label = styled("label")`
   font-size: 14px;
   font-weight: 600;
-  color: #334155;
+  color: #050505;
 `;
 
 export const Input = styled("input")`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CED0D4;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: #2563eb;
+    border-color: #1877F2;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 
   &:disabled {
-    background: #f8fafc;
-    color: #94a3b8;
+    background: #F7F8FA;
+    color: #8A8D91;
   }
 `;
 
@@ -200,14 +200,14 @@ export const Select = styled("select")`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CED0D4;
   font-size: 14px;
   outline: none;
   background: #ffffff;
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: #2563eb;
+    border-color: #1877F2;
   }
 `;
 
@@ -233,23 +233,23 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "secondary"
         `;
       case "secondary":
         return `
-          background-color: #f1f5f9;
-          color: #334155;
-          &:hover { background-color: #e2e8f0; }
+          background-color: #F0F2F5;
+          color: #050505;
+          &:hover { background-color: #E4E6EB; }
         `;
       case "outline":
         return `
           background-color: transparent;
-          color: #2563eb;
-          border: 1px solid #cbd5e1;
-          &:hover { background-color: #eff6ff; border-color: #2563eb; }
+          color: #1877F2;
+          border: 1px solid #CED0D4;
+          &:hover { background-color: #E7F3FF; border-color: #1877F2; }
         `;
       case "primary":
       default:
         return `
-          background-color: #2563eb;
+          background-color: #1877F2;
           color: #ffffff;
-          &:hover { background-color: #1d4ed8; }
+          &:hover { background-color: #166FE5; }
         `;
     }
   }}
@@ -265,7 +265,7 @@ export const FormFooter = styled("div")`
   justify-content: flex-end;
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid #F0F2F5;
 `;
 
 /* Favorites list */
@@ -290,13 +290,13 @@ export const PageButton = styled("button")`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #CED0D4;
   background-color: #ffffff;
-  color: #2563eb;
+  color: #1877F2;
 
   &:hover:not(:disabled) {
-    background-color: #eff6ff;
-    border-color: #2563eb;
+    background-color: #E7F3FF;
+    border-color: #1877F2;
   }
 
   &:disabled {
@@ -320,12 +320,12 @@ export const PageNumberButton = styled("button")<{ active?: boolean }>`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid ${({ active }) => (active ? "#2563eb" : "#cbd5e1")};
-  background-color: ${({ active }) => (active ? "#2563eb" : "#ffffff")};
-  color: ${({ active }) => (active ? "#ffffff" : "#334155")};
+  border: 1px solid ${({ active }) => (active ? "#1877F2" : "#CED0D4")};
+  background-color: ${({ active }) => (active ? "#1877F2" : "#ffffff")};
+  color: ${({ active }) => (active ? "#ffffff" : "#050505")};
 
   &:hover:not(:disabled) {
-    ${({ active }) => (active ? "" : "background-color: #eff6ff; border-color: #2563eb;")}
+    ${({ active }) => (active ? "" : "background-color: #E7F3FF; border-color: #1877F2;")}
   }
 `;
 
@@ -335,28 +335,28 @@ export const PageEllipsis = styled("span")`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #94a3b8;
+  color: #8A8D91;
   font-weight: 600;
 `;
 
 export const EmptyState = styled("div")`
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 48px 24px;
   text-align: center;
-  border: 1px dashed #cbd5e1;
+  border: 1px dashed #CED0D4;
 `;
 
 export const EmptyTitle = styled("h3")`
   font-size: 18px;
   font-weight: 600;
-  color: #334155;
+  color: #050505;
   margin: 0 0 8px 0;
 `;
 
 export const EmptyText = styled("p")`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin: 0 0 20px 0;
 `;
 
@@ -364,7 +364,7 @@ export const AccessDeniedCard = styled("div")`
   max-width: 480px;
   margin: 100px auto 0 auto;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 40px 32px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -379,6 +379,6 @@ export const AccessDeniedTitle = styled("h2")`
 
 export const AccessDeniedText = styled("p")`
   font-size: 14px;
-  color: #64748b;
+  color: #65676B;
   margin: 0 0 24px 0;
 `;

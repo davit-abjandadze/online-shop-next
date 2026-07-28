@@ -218,7 +218,7 @@ export const DashboardComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ fontSize: "16px", color: "#64748b" }}>იტვირთება...</p>
+            <p style={{ fontSize: "16px", color: "#65676B" }}>იტვირთება...</p>
           </S.Container>
         </S.PageWrapper>
       </>
@@ -485,7 +485,7 @@ export const DashboardComponent: React.FC = () => {
 
               {loadingQ ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
-                  <p style={{ color: "#64748b" }}>კითხვები იტვირთება...</p>
+                  <p style={{ color: "#65676B" }}>კითხვები იტვირთება...</p>
                 </div>
               ) : questions.length === 0 ? (
                 <S.EmptyState>
@@ -543,11 +543,11 @@ export const DashboardComponent: React.FC = () => {
                           {q.answers && q.answers.length > 0 ? (
                             q.answers.map((ans, idx) => (
                               <S.AnswerPill key={ans.id || idx}>
-                                <span style={{ fontWeight: 600, color: "#2563eb" }}>{idx + 1}.</span> {ans.text}
+                                <span style={{ fontWeight: 600, color: "#1877F2" }}>{idx + 1}.</span> {ans.text}
                               </S.AnswerPill>
                             ))
                           ) : (
-                            <p style={{ fontSize: "13px", color: "#94a3b8", margin: 0 }}>პასუხები არ არის მითითებული</p>
+                            <p style={{ fontSize: "13px", color: "#8A8D91", margin: 0 }}>პასუხები არ არის მითითებული</p>
                           )}
                         </S.AnswersGrid>
                       </S.AnswersSection>
@@ -597,7 +597,7 @@ export const DashboardComponent: React.FC = () => {
             <>
               {loadingC ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
-                  <p style={{ color: "#64748b" }}>კატეგორიები იტვირთება...</p>
+                  <p style={{ color: "#65676B" }}>კატეგორიები იტვირთება...</p>
                 </div>
               ) : categories.length === 0 ? (
                 <S.EmptyState>
@@ -616,7 +616,7 @@ export const DashboardComponent: React.FC = () => {
                         <div>
                           <S.QuestionText>🏷️ {cat.name}</S.QuestionText>
                           {cat.description && (
-                            <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "#64748b" }}>{cat.description}</p>
+                            <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "#65676B" }}>{cat.description}</p>
                           )}
                           <S.Badge variant="date" style={{ marginTop: "8px", display: "inline-block" }}>
                             {cat.questions?.length || 0} კითხვა
@@ -643,7 +643,7 @@ export const DashboardComponent: React.FC = () => {
             <>
               {loadingStats && !statsLoaded ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
-                  <p style={{ color: "#64748b" }}>ანალიტიკა იტვირთება...</p>
+                  <p style={{ color: "#65676B" }}>ანალიტიკა იტვირთება...</p>
                 </div>
               ) : (
                 <>
@@ -684,7 +684,7 @@ export const DashboardComponent: React.FC = () => {
                         <S.ChartTitleText>🏷️ ხმები კატეგორიების მიხედვით</S.ChartTitleText>
                       </S.ChartCardTitle>
                       {categoryStats.length === 0 ? (
-                        <p style={{ fontSize: "13px", color: "#94a3b8" }}>მონაცემები არ არის</p>
+                        <p style={{ fontSize: "13px", color: "#8A8D91" }}>მონაცემები არ არის</p>
                       ) : (
                         <S.ChartCanvasWrapper>
                           <Bar
@@ -694,7 +694,7 @@ export const DashboardComponent: React.FC = () => {
                                 {
                                   label: "ხმები",
                                   data: categoryStats.map((c) => c.votes),
-                                  backgroundColor: "#2563eb",
+                                  backgroundColor: "#1877F2",
                                   borderRadius: 6,
                                 },
                               ],
@@ -720,7 +720,7 @@ export const DashboardComponent: React.FC = () => {
                         </S.PeriodSelector>
                       </S.ChartCardTitle>
                       {trends.length === 0 ? (
-                        <p style={{ fontSize: "13px", color: "#94a3b8" }}>მონაცემები არ არის</p>
+                        <p style={{ fontSize: "13px", color: "#8A8D91" }}>მონაცემები არ არის</p>
                       ) : (
                         <S.ChartCanvasWrapper>
                           <Line
@@ -730,7 +730,7 @@ export const DashboardComponent: React.FC = () => {
                                 {
                                   label: "ხმები",
                                   data: trends.map((t) => t.votes),
-                                  borderColor: "#2563eb",
+                                  borderColor: "#1877F2",
                                   backgroundColor: "rgba(37, 99, 235, 0.1)",
                                   tension: 0.3,
                                   fill: true,
@@ -754,7 +754,7 @@ export const DashboardComponent: React.FC = () => {
                       <S.ChartTitleText>🔥 პოპულარული კითხვები</S.ChartTitleText>
                     </S.ChartCardTitle>
                     {popularQuestions.length === 0 ? (
-                      <p style={{ fontSize: "13px", color: "#94a3b8" }}>მონაცემები არ არის</p>
+                      <p style={{ fontSize: "13px", color: "#8A8D91" }}>მონაცემები არ არის</p>
                     ) : (
                       <S.PopularQuestionsList>
                         {popularQuestions.map((q, idx) => (
