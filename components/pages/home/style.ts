@@ -53,6 +53,126 @@ export const HeroSubtitle = styled("p")`
   line-height: 1.6;
 `;
 
+export const PopularSection = styled("section")`
+  max-width: 1100px;
+  margin: 0 auto 40px auto;
+  padding: 0 24px;
+
+  .swiper {
+    padding: 4px 4px 44px 4px;
+  }
+
+  .swiper-pagination-bullet {
+    background: #cbd5e1;
+    opacity: 1;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: #2563eb;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: #2563eb;
+    background: #ffffff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &::after {
+      font-size: 14px;
+      font-weight: 700;
+    }
+  }
+`;
+
+export const PopularSectionHeader = styled("div")`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+export const PopularSectionTitle = styled("h2")`
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+export const PopularCard = styled("div")`
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  height: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+  }
+`;
+
+export const PopularCardTop = styled("div")`
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+`;
+
+export const PopularRankBadge = styled("div")`
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const PopularCardText = styled("div")`
+  font-size: 15px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+export const PopularCardFooter = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+`;
+
+export const PopularVotesBadge = styled("div")`
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
 export const Container = styled("div")`
   max-width: 900px;
   margin: 0 auto;

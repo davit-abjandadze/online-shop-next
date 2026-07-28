@@ -5,6 +5,7 @@ import {
   Configuration,
   FavoritesApi,
   QuestionsApi,
+  StatsApi,
   UserAnswerApi,
   UsersApi,
 } from "./client";
@@ -113,6 +114,11 @@ export const FavoritesAPI = (acceptLanguage: string, accessToken: string) => {
 export const UserAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new UsersApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const StatsAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new StatsApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

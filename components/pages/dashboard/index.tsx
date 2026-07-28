@@ -2,14 +2,64 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar, Line } from "react-chartjs-2";
 import Header from "@/components/shared/Header";
-import { AnswerAPI, CategoriesAPI, QuestionAPI } from "@/API_Client";
+import { AnswerAPI, CategoriesAPI, QuestionAPI, StatsAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import * as S from "./style";
 
-type DashboardTab = "questions" | "categories";
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
+
+type DashboardTab = "questions" | "categories" | "stats";
+type TrendsPeriod = "week" | "month" | "year";
 const QUESTIONS_PAGE_SIZE = 10;
+
+// ბექიდან მოსული სტატისტიკის პასუხების ტიპი გენერირებულ კლიენტში `void`-ადაა
+// მონიშნული (OpenAPI სქემას პასუხის DTO არ ჰქონდა), ამიტომ საველეებს
+// რამდენიმე შესაძლო სახელით ვცდით.
+const pickField = (obj: any, keys: string[], fallback: any = 0) => {
+  if (!obj) return fallback;
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== null) return obj[key];
+  }
+  return fallback;
+};
+
+interface GlobalStats {
+  totalQuestions: number;
+  totalVotes: number;
+  totalCategories: number;
+  activeQuestions: number;
+}
+
+interface CategoryStat {
+  label: string;
+  votes: number;
+  questionsCount: number;
+}
+
+interface PopularQuestion {
+  id: number | string;
+  text: string;
+  votes: number;
+}
+
+interface TrendPoint {
+  label: string;
+  votes: number;
+}
 
 export const DashboardComponent: React.FC = () => {
   const { data: session, status } = useSession();
@@ -53,6 +103,15 @@ export const DashboardComponent: React.FC = () => {
   const [editCatDesc, setEditCatDesc] = useState<string>("");
   const [catEditSubmitting, setCatEditSubmitting] = useState<boolean>(false);
 
+  // ─── Analytics State ──────────────────────────────────────────────────────────
+  const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
+  const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
+  const [popularQuestions, setPopularQuestions] = useState<PopularQuestion[]>([]);
+  const [trends, setTrends] = useState<TrendPoint[]>([]);
+  const [trendsPeriod, setTrendsPeriod] = useState<TrendsPeriod>("month");
+  const [loadingStats, setLoadingStats] = useState<boolean>(true);
+  const [statsLoaded, setStatsLoaded] = useState<boolean>(false);
+
   // ─── Fetch helpers ────────────────────────────────────────────────────────────
   const fetchQuestions = async () => {
     if (!session?.accessToken) return;
@@ -82,12 +141,75 @@ export const DashboardComponent: React.FC = () => {
     }
   };
 
+  const fetchStats = async () => {
+    if (!session?.accessToken) return;
+    setLoadingStats(true);
+    try {
+      const api = StatsAPI(router.locale || "ka", session.accessToken);
+      const [globalRes, categoriesRes, popularRes, trendsRes] = await Promise.all([
+        api.statsControllerGetGlobalStats(),
+        api.statsControllerGetCategoriesStats(),
+        api.statsControllerGetPopularQuestions(5),
+        api.statsControllerGetTrends(trendsPeriod),
+      ]);
+
+      const g = globalRes.data as any;
+      setGlobalStats({
+        totalQuestions: pickField(g, ["totalQuestions", "questionsCount", "questions"]),
+        totalVotes: pickField(g, ["totalVotes", "votesCount", "totalAnswers", "votes"]),
+        totalCategories: pickField(g, ["totalCategories", "categoriesCount", "categories"]),
+        activeQuestions: pickField(g, ["activeQuestions", "activeQuestionsCount", "active"]),
+      });
+
+      const cData = categoriesRes.data as any;
+      const cList = Array.isArray(cData) ? cData : Array.isArray(cData?.data) ? cData.data : [];
+      setCategoryStats(
+        cList.map((item: any) => ({
+          label: pickField(item, ["categoryName", "name", "label"], "—"),
+          votes: pickField(item, ["votesCount", "totalVotes", "votes", "count"]),
+          questionsCount: pickField(item, ["questionsCount", "questions"]),
+        }))
+      );
+
+      const pData = popularRes.data as any;
+      const pList = Array.isArray(pData) ? pData : Array.isArray(pData?.data) ? pData.data : [];
+      setPopularQuestions(
+        pList.map((item: any) => ({
+          id: pickField(item, ["id", "questionId"], Math.random()),
+          text: pickField(item, ["text", "questionText", "title"], "—"),
+          votes: pickField(item, ["votesCount", "totalVotes", "votes", "count"]),
+        }))
+      );
+
+      const tData = trendsRes.data as any;
+      const tList = Array.isArray(tData) ? tData : Array.isArray(tData?.data) ? tData.data : [];
+      setTrends(
+        tList.map((item: any) => ({
+          label: pickField(item, ["label", "period", "date", "day"], "—"),
+          votes: pickField(item, ["votesCount", "totalVotes", "votes", "count"]),
+        }))
+      );
+
+      setStatsLoaded(true);
+    } catch {
+      toast.error("ანალიტიკის ჩატვირთვა ვერ მოხერხდა");
+    } finally {
+      setLoadingStats(false);
+    }
+  };
+
   useEffect(() => {
     if (status === "authenticated" && session?.user?.role?.toLowerCase() === "admin") {
       fetchQuestions();
       fetchCategories();
     }
   }, [status, session, questionsPage]);
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.role?.toLowerCase() === "admin" && activeTab === "stats") {
+      fetchStats();
+    }
+  }, [status, session, activeTab, trendsPeriod]);
 
   // ─── Auth Guard ───────────────────────────────────────────────────────────────
   if (status === "loading") {
@@ -309,11 +431,12 @@ export const DashboardComponent: React.FC = () => {
               <S.PageTitle>⚙️ ადმინ დეშბორდი</S.PageTitle>
               <S.PageSubtitle>მართეთ რეფერენდუმის კითხვები, კატეგორიები და სავარაუდო პასუხები</S.PageSubtitle>
             </S.TitleGroup>
-            {activeTab === "questions" ? (
+            {activeTab === "questions" && (
               <S.ActionButton variant="primary" onClick={() => setIsCreateModalOpen(true)}>
                 ➕ ახალი კითხვა
               </S.ActionButton>
-            ) : (
+            )}
+            {activeTab === "categories" && (
               <S.ActionButton variant="primary" onClick={() => setIsCatCreateOpen(true)}>
                 ➕ ახალი კატეგორია
               </S.ActionButton>
@@ -327,6 +450,9 @@ export const DashboardComponent: React.FC = () => {
             </S.Tab>
             <S.Tab active={activeTab === "categories"} onClick={() => setActiveTab("categories")}>
               🏷️ კატეგორიები ({categories.length})
+            </S.Tab>
+            <S.Tab active={activeTab === "stats"} onClick={() => setActiveTab("stats")}>
+              📊 ანალიტიკა
             </S.Tab>
           </S.TabBar>
 
@@ -508,6 +634,143 @@ export const DashboardComponent: React.FC = () => {
                     </S.QuestionCard>
                   ))}
                 </S.QuestionsList>
+              )}
+            </>
+          )}
+
+          {/* ═══ STATS / ANALYTICS TAB ═══════════════════════════════════════════ */}
+          {activeTab === "stats" && (
+            <>
+              {loadingStats && !statsLoaded ? (
+                <div style={{ textAlign: "center", padding: "40px" }}>
+                  <p style={{ color: "#64748b" }}>ანალიტიკა იტვირთება...</p>
+                </div>
+              ) : (
+                <>
+                  <S.StatsGrid>
+                    <S.StatCard>
+                      <S.StatIcon>❓</S.StatIcon>
+                      <S.StatInfo>
+                        <S.StatValue>{globalStats?.totalQuestions ?? 0}</S.StatValue>
+                        <S.StatLabel>სულ კითხვები</S.StatLabel>
+                      </S.StatInfo>
+                    </S.StatCard>
+                    <S.StatCard>
+                      <S.StatIcon>🗳️</S.StatIcon>
+                      <S.StatInfo>
+                        <S.StatValue>{globalStats?.totalVotes ?? 0}</S.StatValue>
+                        <S.StatLabel>სულ ხმები</S.StatLabel>
+                      </S.StatInfo>
+                    </S.StatCard>
+                    <S.StatCard>
+                      <S.StatIcon>🟢</S.StatIcon>
+                      <S.StatInfo>
+                        <S.StatValue>{globalStats?.activeQuestions ?? 0}</S.StatValue>
+                        <S.StatLabel>აქტიური კითხვები</S.StatLabel>
+                      </S.StatInfo>
+                    </S.StatCard>
+                    <S.StatCard>
+                      <S.StatIcon>🏷️</S.StatIcon>
+                      <S.StatInfo>
+                        <S.StatValue>{globalStats?.totalCategories ?? 0}</S.StatValue>
+                        <S.StatLabel>კატეგორიები</S.StatLabel>
+                      </S.StatInfo>
+                    </S.StatCard>
+                  </S.StatsGrid>
+
+                  <S.ChartsGrid>
+                    <S.ChartCard>
+                      <S.ChartCardTitle>
+                        <S.ChartTitleText>🏷️ ხმები კატეგორიების მიხედვით</S.ChartTitleText>
+                      </S.ChartCardTitle>
+                      {categoryStats.length === 0 ? (
+                        <p style={{ fontSize: "13px", color: "#94a3b8" }}>მონაცემები არ არის</p>
+                      ) : (
+                        <S.ChartCanvasWrapper>
+                          <Bar
+                            data={{
+                              labels: categoryStats.map((c) => c.label),
+                              datasets: [
+                                {
+                                  label: "ხმები",
+                                  data: categoryStats.map((c) => c.votes),
+                                  backgroundColor: "#2563eb",
+                                  borderRadius: 6,
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: { legend: { display: false } },
+                              scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                            }}
+                          />
+                        </S.ChartCanvasWrapper>
+                      )}
+                    </S.ChartCard>
+
+                    <S.ChartCard>
+                      <S.ChartCardTitle>
+                        <S.ChartTitleText>📈 ხმების ტრენდი</S.ChartTitleText>
+                        <S.PeriodSelector>
+                          <S.PeriodButton active={trendsPeriod === "week"} onClick={() => setTrendsPeriod("week")}>კვირა</S.PeriodButton>
+                          <S.PeriodButton active={trendsPeriod === "month"} onClick={() => setTrendsPeriod("month")}>თვე</S.PeriodButton>
+                          <S.PeriodButton active={trendsPeriod === "year"} onClick={() => setTrendsPeriod("year")}>წელი</S.PeriodButton>
+                        </S.PeriodSelector>
+                      </S.ChartCardTitle>
+                      {trends.length === 0 ? (
+                        <p style={{ fontSize: "13px", color: "#94a3b8" }}>მონაცემები არ არის</p>
+                      ) : (
+                        <S.ChartCanvasWrapper>
+                          <Line
+                            data={{
+                              labels: trends.map((t) => t.label),
+                              datasets: [
+                                {
+                                  label: "ხმები",
+                                  data: trends.map((t) => t.votes),
+                                  borderColor: "#2563eb",
+                                  backgroundColor: "rgba(37, 99, 235, 0.1)",
+                                  tension: 0.3,
+                                  fill: true,
+                                },
+                              ],
+                            }}
+                            options={{
+                              responsive: true,
+                              maintainAspectRatio: false,
+                              plugins: { legend: { display: false } },
+                              scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                            }}
+                          />
+                        </S.ChartCanvasWrapper>
+                      )}
+                    </S.ChartCard>
+                  </S.ChartsGrid>
+
+                  <S.ChartCard>
+                    <S.ChartCardTitle>
+                      <S.ChartTitleText>🔥 პოპულარული კითხვები</S.ChartTitleText>
+                    </S.ChartCardTitle>
+                    {popularQuestions.length === 0 ? (
+                      <p style={{ fontSize: "13px", color: "#94a3b8" }}>მონაცემები არ არის</p>
+                    ) : (
+                      <S.PopularQuestionsList>
+                        {popularQuestions.map((q, idx) => (
+                          <S.PopularQuestionRow key={q.id}>
+                            <S.PopularRank>{idx + 1}</S.PopularRank>
+                            <S.PopularQuestionInfo>
+                              <S.PopularQuestionText title={q.text}>{q.text}</S.PopularQuestionText>
+                              <S.PopularQuestionMeta>კითხვის ID: {q.id}</S.PopularQuestionMeta>
+                            </S.PopularQuestionInfo>
+                            <S.PopularQuestionVotes>{q.votes} ხმა</S.PopularQuestionVotes>
+                          </S.PopularQuestionRow>
+                        ))}
+                      </S.PopularQuestionsList>
+                    )}
+                  </S.ChartCard>
+                </>
               )}
             </>
           )}

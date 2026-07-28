@@ -2,6 +2,7 @@ import "intl-pluralrules";
 
 import "@/styles/globals.css";
 import "@/styles/iconFont.css";
+import "swiper/swiper-bundle.min.css";
 
 import { ssTheme } from "@/theme";
 import type { AppProps } from "next/app";

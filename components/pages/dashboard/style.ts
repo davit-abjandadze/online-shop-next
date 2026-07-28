@@ -474,6 +474,120 @@ export const ModalFooter = styled("div")`
   border-top: 1px solid #f1f5f9;
 `;
 
+export const ChartsGrid = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+`;
+
+export const ChartCard = styled("div")`
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+`;
+
+export const ChartCardTitle = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+`;
+
+export const ChartTitleText = styled("h3")`
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+`;
+
+export const ChartCanvasWrapper = styled("div")`
+  position: relative;
+  height: 280px;
+`;
+
+export const PeriodSelector = styled("div")`
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 3px;
+`;
+
+export const PeriodButton = styled("button")<{ active?: boolean }>`
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: ${({ active }) => (active ? "#ffffff" : "transparent")};
+  color: ${({ active }) => (active ? "#0f172a" : "#64748b")};
+  box-shadow: ${({ active }) => (active ? "0 1px 4px rgba(0,0,0,0.08)" : "none")};
+`;
+
+export const PopularQuestionsList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const PopularQuestionRow = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+`;
+
+export const PopularRank = styled("div")`
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const PopularQuestionInfo = styled("div")`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const PopularQuestionText = styled("div")`
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const PopularQuestionMeta = styled("div")`
+  font-size: 12px;
+  color: #64748b;
+`;
+
+export const PopularQuestionVotes = styled("div")`
+  font-size: 15px;
+  font-weight: 700;
+  color: #2563eb;
+  white-space: nowrap;
+`;
+
 export const AccessDeniedCard = styled("div")`
   max-width: 480px;
   margin: 100px auto 0 auto;

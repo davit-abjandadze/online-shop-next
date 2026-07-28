@@ -65,7 +65,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const maxPct = results ? Math.max(...Object.values(results.answerPercentages), 0) : 0;
 
   return (
-    <S.QuestionCardWrapper>
+    <S.QuestionCardWrapper id={`question-${q.id}`}>
       <S.CardTop>
         <div>
           <S.QuestionText>{q.text}</S.QuestionText>

@@ -2,16 +2,37 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Autoplay } from "swiper";
 import Header from "@/components/shared/Header";
 import AuthModal from "@/components/shared/AuthModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
-import { CategoriesAPI, FavoritesAPI, QuestionAPI, UserAnswerAPI } from "@/API_Client";
+import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 6;
+const POPULAR_QUESTIONS_LIMIT = 5;
+
+// ბექიდან მოსული `popular-questions` პასუხის ტიპი გენერირებულ კლიენტში
+// `void`-ადაა მონიშნული (OpenAPI სქემას პასუხის DTO არ ჰქონდა), ამიტომ
+// საველეებს რამდენიმე შესაძლო სახელით ვცდით.
+const pickField = (obj: any, keys: string[], fallback: any = undefined) => {
+  if (!obj) return fallback;
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== null) return obj[key];
+  }
+  return fallback;
+};
+
+interface PopularQuestion {
+  id: number;
+  text: string;
+  categoryName?: string;
+  votes: number;
+}
 
 export const HomeComponent: React.FC = () => {
   const { data: session, status } = useSession();
@@ -46,6 +67,10 @@ export const HomeComponent: React.FC = () => {
   const [favoriteQuestionIds, setFavoriteQuestionIds] = useState<Set<number>>(new Set());
   const [favoritingId, setFavoritingId] = useState<number | null>(null);
 
+  // Popular questions slider
+  const [popularQuestions, setPopularQuestions] = useState<PopularQuestion[]>([]);
+  const [loadingPopular, setLoadingPopular] = useState<boolean>(true);
+
   // Fetch results for a single question
   const fetchSingleResults = async (q: Question) => {
     try {
@@ -65,6 +90,7 @@ export const HomeComponent: React.FC = () => {
     if (status === "loading") return;
     fetchQuestions();
     fetchCategories();
+    fetchPopularQuestions();
   }, [status, session?.accessToken, page]);
 
   // Fetch questions
@@ -144,6 +170,42 @@ export const HomeComponent: React.FC = () => {
       setCategories(Array.isArray(data) ? data : []);
     } catch {
       // categories are optional, ignore errors silently
+    }
+  };
+
+  const fetchPopularQuestions = async () => {
+    setLoadingPopular(true);
+    try {
+      const res = await StatsAPI(
+        router.locale || "ka",
+        session?.accessToken || ""
+      ).statsControllerGetPopularQuestions(POPULAR_QUESTIONS_LIMIT);
+
+      const data = res.data as any;
+      const list = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+
+      setPopularQuestions(
+        list.map((item: any) => {
+          const question = pickField(item, ["question"], item);
+          return {
+            id: pickField(question, ["id", "questionId"]),
+            text: pickField(question, ["text", "questionText", "title"], "—"),
+            categoryName: pickField(question, ["categoryName"]) ?? question?.category?.name,
+            votes: pickField(item, ["votesCount", "totalVotes", "votes", "count"], 0),
+          };
+        })
+      );
+    } catch {
+      // popular questions are optional, ignore errors silently
+    } finally {
+      setLoadingPopular(false);
+    }
+  };
+
+  const handlePopularCardClick = (questionId: number) => {
+    const el = document.getElementById(`question-${questionId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -279,6 +341,46 @@ export const HomeComponent: React.FC = () => {
           დააფიქსირეთ თქვენი პოზიცია მნიშვნელოვან საკითხებზე და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.
         </S.HeroSubtitle>
       </S.HeroSection>
+
+      {/* Popular Active Questions Slider */}
+      {!loadingPopular && popularQuestions.length > 0 && (
+        <S.PopularSection>
+          <S.PopularSectionHeader>
+            <S.PopularSectionTitle>
+              <span>🔥</span> პოპულარული კითხვები
+            </S.PopularSectionTitle>
+          </S.PopularSectionHeader>
+
+          <Swiper
+            modules={[Navigation, Pagination, Autoplay]}
+            navigation
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            loop={popularQuestions.length > 3}
+            spaceBetween={20}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+          >
+            {popularQuestions.map((pq, idx) => (
+              <SwiperSlide key={pq.id}>
+                <S.PopularCard onClick={() => handlePopularCardClick(pq.id)}>
+                  <S.PopularCardTop>
+                    <S.PopularRankBadge>{idx + 1}</S.PopularRankBadge>
+                    <S.PopularCardText>{pq.text}</S.PopularCardText>
+                  </S.PopularCardTop>
+                  <S.PopularCardFooter>
+                    <S.PopularVotesBadge>🗳️ {pq.votes} ხმა</S.PopularVotesBadge>
+                    {pq.categoryName && <span style={{ fontSize: "12px", color: "#94a3b8" }}>🏷️ {pq.categoryName}</span>}
+                  </S.PopularCardFooter>
+                </S.PopularCard>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </S.PopularSection>
+      )}
 
       <S.Container>
         <S.SectionHeader>
