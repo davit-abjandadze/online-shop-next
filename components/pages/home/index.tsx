@@ -182,7 +182,13 @@ export const HomeComponent: React.FC = () => {
       ).statsControllerGetPopularQuestions(POPULAR_QUESTIONS_LIMIT);
 
       const data = res.data as any;
-      const list = Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : [];
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.mostVoted)
+        ? data.mostVoted
+        : Array.isArray(data?.data)
+        ? data.data
+        : [];
 
       setPopularQuestions(
         list.map((item: any) => {
@@ -190,8 +196,8 @@ export const HomeComponent: React.FC = () => {
           return {
             id: pickField(question, ["id", "questionId"]),
             text: pickField(question, ["text", "questionText", "title"], "—"),
-            categoryName: pickField(question, ["categoryName"]) ?? question?.category?.name,
-            votes: pickField(item, ["votesCount", "totalVotes", "votes", "count"], 0),
+            categoryName: pickField(question, ["category", "categoryName"]) || question?.category?.name,
+            votes: pickField(item, ["votes", "votesCount", "totalVotes", "count"], 0),
           };
         })
       );
@@ -330,6 +336,11 @@ export const HomeComponent: React.FC = () => {
     });
   };
 
+
+  useEffect(() => {
+   console.log(popularQuestions)
+  }, [popularQuestions])
+  
   return (
     <>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
