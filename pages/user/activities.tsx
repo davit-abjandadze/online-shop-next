@@ -8,8 +8,9 @@ export default function ActivitiesPage() {
   return (
     <>
       <Head>
-        <title>აქტივობები - {t("default-page-title")}</title>
+        <title>{`აქტივობები - ${t("default-page-title")}`}</title>
         <meta name="description" content="მომხმარებლის აქტივობები" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <ActivitiesComponent />
     </>

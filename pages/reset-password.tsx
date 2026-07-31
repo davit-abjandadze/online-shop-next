@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { CheckCircleIcon, KeyIcon, WarningIcon } from "@/components/ui/RefIcons";
@@ -8,6 +9,13 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { token } = router.query;
+
+  const headTags = (
+    <Head>
+      <title>პაროლის აღდგენა - სახალხო რეფერენდუმი</title>
+      <meta name="robots" content="noindex, nofollow" />
+    </Head>
+  );
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -63,6 +71,7 @@ export default function ResetPasswordPage() {
   if (!token) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--ref-bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+        {headTags}
         <div style={{ maxWidth: "400px", textAlign: "center", background: "var(--ref-bg-elevated)", borderRadius: "16px", padding: "40px 32px", boxShadow: "var(--ref-shadow-md)", border: "1px solid var(--ref-border-soft)" }}>
           <WarningIcon size={40} />
           <h2 style={{ color: "var(--ref-danger)", margin: "16px 0 8px 0", fontSize: "20px" }}>არასწორი ბმული</h2>
@@ -77,6 +86,7 @@ export default function ResetPasswordPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--ref-bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      {headTags}
       <div style={{ maxWidth: "420px", width: "100%", background: "var(--ref-bg-elevated)", borderRadius: "16px", padding: "40px 32px", boxShadow: "var(--ref-shadow-md)", border: "1px solid var(--ref-border-soft)" }}>
         <h1 style={{ textAlign: "center", marginBottom: "28px", fontSize: "22px", color: "var(--ref-text-primary)", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
           <KeyIcon size={24} /> ახალი პაროლის დაყენება

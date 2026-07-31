@@ -8,8 +8,9 @@ export default function FavoritesPage() {
   return (
     <>
       <Head>
-        <title>ფავორიტები - {t("default-page-title")}</title>
+        <title>{`ფავორიტები - ${t("default-page-title")}`}</title>
         <meta name="description" content="მომხმარებლის ფავორიტი კითხვები" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <FavoritesComponent />
     </>

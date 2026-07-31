@@ -511,7 +511,7 @@ export const DashboardComponent: React.FC = () => {
                 <S.EmptyState>
                   <ClipboardIcon size={48} />
                   <S.EmptyTitle>კითხვები არ არის დამატებული</S.EmptyTitle>
-                  <S.EmptyText>დააჭირეთ "ახალი კითხვა" ღილაკს პირველი კითხვის შესაქმნელად.</S.EmptyText>
+                  <S.EmptyText>დააჭირეთ &quot;ახალი კითხვა&quot; ღილაკს პირველი კითხვის შესაქმნელად.</S.EmptyText>
                   <S.ActionButton variant="primary" onClick={() => setIsCreateModalOpen(true)}>
                     <PlusIcon size={16} /> კითხვის დამატება
                   </S.ActionButton>

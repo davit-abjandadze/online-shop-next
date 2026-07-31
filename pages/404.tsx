@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Link from "next/link";
 import { BallotIcon } from "@/components/ui/RefIcons";
 
@@ -16,6 +17,10 @@ export default function NotFound() {
         textAlign: "center",
       }}
     >
+      <Head>
+        <title>გვერდი ვერ მოიძებნა - სახალხო რეფერენდუმი</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Head>
       <BallotIcon size={56} />
       <h1 style={{ fontSize: "56px", fontWeight: 800, color: "var(--ref-text-primary)", margin: 0, lineHeight: 1 }}>
         404

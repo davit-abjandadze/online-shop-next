@@ -1,4 +1,0 @@
-# TODO: Update with your domain
-# sitemap: https://yourdomain.com/sitemap.xml
-User-agent: *
-Disallow:

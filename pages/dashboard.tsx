@@ -8,8 +8,9 @@ export default function DashboardPage() {
   return (
     <>
       <Head>
-        <title>ადმინ დეშბორდი - {t("default-page-title")}</title>
+        <title>{`ადმინ დეშბორდი - ${t("default-page-title")}`}</title>
         <meta name="description" content="რეფერენდუმის კითხვებისა და პასუხების მართვა" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <DashboardComponent />
     </>

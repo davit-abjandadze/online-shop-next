@@ -12,6 +12,8 @@ export default function RegisterPage() {
     <div style={{ minHeight: "100vh", backgroundColor: "#F7F8FA" }}>
       <Head>
         <title>{t("register-page-title") || "რეგისტრაცია"}</title>
+        <meta name="description" content="დარეგისტრირდით და მიიღეთ მონაწილეობა სახალხო რეფერენდუმში" />
+        <meta name="robots" content="noindex, nofollow" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header onOpenAuth={() => setModalOpen(true)} />

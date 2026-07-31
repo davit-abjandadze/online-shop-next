@@ -214,6 +214,7 @@ export default function ChangePasswordPage() {
     <Container>
       <Head>
         <title>პაროლის შეცვლა</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <Header />
       <Content>

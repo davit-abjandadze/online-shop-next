@@ -8,8 +8,9 @@ export default function ProfilePage() {
   return (
     <>
       <Head>
-        <title>პროფილი - {t("default-page-title")}</title>
+        <title>{`პროფილი - ${t("default-page-title")}`}</title>
         <meta name="description" content="მომხმარებლის პროფილი და ფავორიტი კითხვები" />
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <ProfileComponent />
     </>
