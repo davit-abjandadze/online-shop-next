@@ -433,16 +433,22 @@ export const HomeComponent: React.FC = () => {
             </p>
           </S.EmptyState>
         ) : (() => {
+          const activeQuestions = questions.filter((q) => {
+            if (!q.isActive) return false;
+            if (q.endDate && new Date(q.endDate).getTime() < Date.now()) return false;
+            return true;
+          });
+
           const filteredQuestions = activeCategoryId === null
-            ? questions
-            : questions.filter((q) => (q as any).categoryId === activeCategoryId || q.category?.id === activeCategoryId);
+            ? activeQuestions
+            : activeQuestions.filter((q) => (q as any).categoryId === activeCategoryId || q.category?.id === activeCategoryId);
 
           if (filteredQuestions.length === 0) {
             return (
               <S.EmptyState>
                 <span style={{ fontSize: "48px" }}>🔍</span>
                 <h3 style={{ fontSize: "18px", color: "#050505", marginTop: "16px" }}>
-                  ამ კატეგორიაში კითხვები არ არის
+                  {activeCategoryId === null ? "აქტიური კითხვები არ არის" : "ამ კატეგორიაში აქტიური კითხვები არ არის"}
                 </h3>
               </S.EmptyState>
             );

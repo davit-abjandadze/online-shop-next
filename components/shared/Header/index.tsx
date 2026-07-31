@@ -110,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                       </S.DropdownItem>
                     )}
 
-                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/profile"); }}>
+                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/profile"); }}>
                       👤 პროფილი
                     </S.DropdownItem>
 
