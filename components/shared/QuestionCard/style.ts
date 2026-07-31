@@ -44,6 +44,31 @@ export const FavoriteButton = styled("button")<{ active?: boolean }>`
   }
 `;
 
+export const CardTopActions = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+`;
+
+export const ShareButton = styled("button")`
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--ref-bg-subtle);
+  }
+`;
+
 export const QuestionText = styled("h3")`
   font-size: 20px;
   font-weight: 700;

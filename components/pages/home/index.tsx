@@ -90,6 +90,26 @@ export const HomeComponent: React.FC = () => {
     }
   };
 
+  // ერთხელ, გვერდის პირველივე ჩატვირთვაზე, `page` state-ს ვასინქრონებთ
+  // URL-ის `?page=` პარამეტრთან — ასე დათვალიერების/გაზიარებული ლინკი
+  // იმავე გვერდზე გახსნის, საიდანაც იყო გაზიარებული.
+  useEffect(() => {
+    if (!router.isReady) return;
+    const queryPage = parseInt(router.query.page as string, 10);
+    if (!isNaN(queryPage) && queryPage > 0 && queryPage !== page) {
+      setPage(queryPage);
+    }
+  }, [router.isReady]);
+
+  const goToPage = (newPage: number) => {
+    setPage(newPage);
+    router.push(
+      { pathname: router.pathname, query: { ...router.query, page: String(newPage) } },
+      undefined,
+      { shallow: true }
+    );
+  };
+
   useEffect(() => {
     if (status === "loading") return;
     fetchQuestions();
@@ -518,7 +538,7 @@ export const HomeComponent: React.FC = () => {
         {questionsMeta && questionsMeta.totalPages > 1 && (
           <S.PaginationBar>
             <S.PageButton
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => goToPage(Math.max(1, questionsMeta.page - 1))}
               disabled={!questionsMeta.hasPrevious}
             >
               ← წინა
@@ -532,7 +552,7 @@ export const HomeComponent: React.FC = () => {
                   <S.PageNumberButton
                     key={item}
                     active={item === questionsMeta.page}
-                    onClick={() => setPage(item)}
+                    onClick={() => goToPage(item)}
                   >
                     {item}
                   </S.PageNumberButton>
@@ -541,7 +561,7 @@ export const HomeComponent: React.FC = () => {
             </S.PageNumbers>
 
             <S.PageButton
-              onClick={() => setPage((p) => p + 1)}
+              onClick={() => goToPage(questionsMeta.page + 1)}
               disabled={!questionsMeta.hasNext}
             >
               შემდეგი →

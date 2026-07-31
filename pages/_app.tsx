@@ -67,6 +67,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <meta
           property="og:url"
           content={`${BASEPATH}/${router.locale}${router.asPath}`}
+          key="ogUrl"
         />
         <meta property="og:type" content="website" />
         <meta
@@ -83,6 +84,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <link
           rel="canonical"
           href={`${BASEPATH}/${router.locale}${router.asPath}`}
+          key="canonical"
         />
       </Head>
       <SWRConfig

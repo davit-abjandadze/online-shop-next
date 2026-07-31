@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { Question } from "@/API_Client/client/models";
 import { ParsedResult } from "@/utils/parseQuestionResults";
 import {
@@ -6,6 +7,7 @@ import {
   ChartIcon,
   CheckCircleIcon,
   CheckSquareIcon,
+  FacebookIcon,
   HourglassIcon,
   LockIcon,
   PeopleIcon,
@@ -78,8 +80,16 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   onToggleResults,
   onToggleFavorite,
 }) => {
+  const router = useRouter();
   const isMultiple = q.type === "multiple";
   const maxPct = results ? Math.max(...Object.values(results.answerPercentages), 0) : 0;
+
+  const handleShareToFacebook = () => {
+    const localePrefix = router.locale && router.locale !== "default" ? `/${router.locale}` : "";
+    const shareUrl = `${window.location.origin}${localePrefix}/questions/${q.id}`;
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    window.open(fbShareUrl, "_blank", "noopener,noreferrer,width=600,height=600");
+  };
 
   return (
     <S.QuestionCardWrapper id={`question-${q.id}`}>
@@ -103,16 +113,27 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           )}
         </div>
 
-        <S.FavoriteButton
-          type="button"
-          active={isFavorite}
-          disabled={favoriting}
-          onClick={onToggleFavorite}
-          aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
-          title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
-        >
-          <StarIcon size={22} filled={isFavorite} />
-        </S.FavoriteButton>
+        <S.CardTopActions>
+          <S.ShareButton
+            type="button"
+            onClick={handleShareToFacebook}
+            aria-label="გაზიარება Facebook-ზე"
+            title="გაზიარება Facebook-ზე"
+          >
+            <FacebookIcon size={22} />
+          </S.ShareButton>
+
+          <S.FavoriteButton
+            type="button"
+            active={isFavorite}
+            disabled={favoriting}
+            onClick={onToggleFavorite}
+            aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+            title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+          >
+            <StarIcon size={22} filled={isFavorite} />
+          </S.FavoriteButton>
+        </S.CardTopActions>
       </S.CardTop>
 
       {!isShowingResults ? (
