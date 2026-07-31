@@ -2,12 +2,13 @@ import styled from "styled-components";
 
 export const HeaderWrapper = styled.header`
   width: 100%;
-  height: 56px;
-  background: #ffffff;
+  height: 60px;
+  background: var(--ref-bg-elevated);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--ref-shadow-sm);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 `;
 
 export const Container = styled.div`
@@ -37,12 +38,12 @@ export const LogoLink = styled.a`
 export const LogoBadge = styled.div`
   width: 40px;
   height: 40px;
-  background: #1877F2;
+  background: var(--ref-primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: var(--ref-text-on-primary);
   font-weight: 800;
   font-size: 20px;
   overflow: hidden;
@@ -54,13 +55,30 @@ export const LogoBadge = styled.div`
   }
 `;
 
-
-
 export const LeftSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   position: relative;
+`;
+
+export const ThemeToggleButton = styled.button`
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--ref-bg-subtle);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--ref-border-soft);
+    transform: rotate(12deg);
+  }
 `;
 
 export const LoginBtn = styled.button`
@@ -68,17 +86,17 @@ export const LoginBtn = styled.button`
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  background: #1877F2;
-  color: #ffffff;
+  background: var(--ref-primary);
+  color: var(--ref-text-on-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
 
   &:hover {
-    background: #166FE5;
+    background: var(--ref-primary-hover);
   }
 `;
 
@@ -86,7 +104,7 @@ export const ProfileTrigger = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #F0F2F5;
+  background: var(--ref-bg-subtle);
   border: none;
   padding: 4px 12px 4px 4px;
   border-radius: 999px;
@@ -94,7 +112,7 @@ export const ProfileTrigger = styled.button`
   transition: background 0.15s ease;
 
   &:hover {
-    background: #E4E6EB;
+    background: var(--ref-border-soft);
   }
 `;
 
@@ -102,8 +120,8 @@ export const AvatarCircle = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #1877F2;
-  color: #ffffff;
+  background: var(--ref-primary);
+  color: var(--ref-text-on-primary);
   font-weight: 700;
   font-size: 13px;
   display: flex;
@@ -121,7 +139,7 @@ export const AvatarCircle = styled.div`
 export const ProfileName = styled.span`
   font-size: 14px;
   font-weight: 600;
-  color: #050505;
+  color: var(--ref-text-primary);
 `;
 
 export const DropdownMenu = styled.div`
@@ -129,9 +147,10 @@ export const DropdownMenu = styled.div`
   top: calc(100% + 8px);
   left: 0;
   width: 240px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 10px;
+  box-shadow: var(--ref-shadow-lg);
   padding: 8px;
   z-index: 100;
   animation: fadeIn 0.2s ease;
@@ -144,13 +163,19 @@ export const DropdownMenu = styled.div`
 
 export const DropdownHeader = styled.div`
   padding: 12px 14px;
-  border-bottom: 1px solid #F0F2F5;
+  border-bottom: 1px solid var(--ref-border-soft);
   margin-bottom: 4px;
+`;
+
+export const DropdownHeaderName = styled.div`
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ref-text-primary);
 `;
 
 export const UserEmail = styled.div`
   font-size: 12px;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   word-break: break-all;
 `;
 
@@ -162,16 +187,15 @@ export const DropdownItem = styled.button<{ danger?: boolean }>`
   padding: 10px 14px;
   background: none;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: ${({ danger }) => (danger ? "#dc2626" : "#050505")};
+  color: ${({ danger }) => (danger ? "var(--ref-danger)" : "var(--ref-text-primary)")};
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
 
   &:hover {
-    background: ${({ danger }) => (danger ? "#fef2f2" : "#F7F8FA")};
-    color: ${({ danger }) => (danger ? "#dc2626" : "#050505")};
+    background: ${({ danger }) => (danger ? "var(--ref-danger-soft)" : "var(--ref-bg-subtle)")};
   }
 `;

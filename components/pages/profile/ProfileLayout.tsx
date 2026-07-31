@@ -1,6 +1,7 @@
 import React from "react";
 import { useRouter } from "next/router";
 import Header from "@/components/shared/Header";
+import { ClipboardIcon, StarIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 type ProfileTab = "info" | "favorites" | "activities";
@@ -43,13 +44,13 @@ export const ProfileLayout: React.FC<ProfileLayoutProps> = ({
           <S.Layout>
             <S.Sidebar>
               <S.SidebarItem active={activeTab === "info"} onClick={() => router.push(TAB_ROUTES.info)}>
-                🧑‍💼 პირადი ინფორმაცია
+                <UserIcon size={18} /> პირადი ინფორმაცია
               </S.SidebarItem>
               <S.SidebarItem active={activeTab === "favorites"} onClick={() => router.push(TAB_ROUTES.favorites)}>
-                ⭐ ფავორიტები {favoritesCount != null ? `(${favoritesCount})` : ""}
+                <StarIcon size={18} filled /> ფავორიტები {favoritesCount != null ? `(${favoritesCount})` : ""}
               </S.SidebarItem>
               <S.SidebarItem active={activeTab === "activities"} onClick={() => router.push(TAB_ROUTES.activities)}>
-                🗂️ აქტივობები {activitiesCount != null ? `(${activitiesCount})` : ""}
+                <ClipboardIcon size={18} /> აქტივობები {activitiesCount != null ? `(${activitiesCount})` : ""}
               </S.SidebarItem>
             </S.Sidebar>
 

@@ -9,6 +9,7 @@ import { PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
 import { ProfileLayout } from "./ProfileLayout";
+import { BallotIcon, ClipboardIcon, LockIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const ACTIVITIES_PAGE_SIZE = 10;
@@ -124,7 +125,7 @@ export const ActivitiesComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ fontSize: "16px", color: "#65676B" }}>იტვირთება...</p>
+            <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
           </S.Container>
         </S.PageWrapper>
       </>
@@ -137,7 +138,7 @@ export const ActivitiesComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.AccessDeniedCard>
-            <span style={{ fontSize: "48px" }}>🔒</span>
+            <LockIcon size={48} />
             <S.AccessDeniedTitle>წვდომა უარყოფილია</S.AccessDeniedTitle>
             <S.AccessDeniedText>ამ გვერდზე გადასასვლელად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
             <S.ActionButton variant="primary" onClick={() => router.push("/")}>
@@ -152,23 +153,23 @@ export const ActivitiesComponent: React.FC = () => {
   return (
     <ProfileLayout
       activeTab="activities"
-      title="🗂️ აქტივობები"
+      title="აქტივობები"
       subtitle="თქვენი აქტივობების ისტორია"
       activitiesCount={activitiesMeta?.total}
     >
-      <S.CardTitle>🗂️ ჩემი აქტივობები</S.CardTitle>
+      <S.CardTitle>ჩემი აქტივობები</S.CardTitle>
 
       {loadingActivities ? (
         <div style={{ textAlign: "center", padding: "40px" }}>
-          <p style={{ color: "#65676B" }}>იტვირთება...</p>
+          <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
         </div>
       ) : activities.length === 0 ? (
         <S.EmptyState>
-          <span style={{ fontSize: "48px" }}>🗂️</span>
+          <ClipboardIcon size={48} />
           <S.EmptyTitle>აქტივობები არ არის</S.EmptyTitle>
           <S.EmptyText>თქვენ ჯერ არ მიგიღიათ მონაწილეობა არცერთ გამოკითხვაში.</S.EmptyText>
           <S.ActionButton variant="primary" onClick={() => router.push("/")}>
-            🗳️ კითხვების ნახვა
+            <BallotIcon size={16} /> კითხვების ნახვა
           </S.ActionButton>
         </S.EmptyState>
       ) : (

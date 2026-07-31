@@ -10,34 +10,44 @@ export const FilterBar = styled("div")`
 export const FilterChip = styled("button")<{ active?: boolean }>`
   padding: 6px 16px;
   border-radius: 999px;
-  border: 2px solid ${({ active }) => (active ? "#1877F2" : "#E4E6EB")};
-  background-color: ${({ active }) => (active ? "#1877F2" : "#ffffff")};
-  color: ${({ active }) => (active ? "#ffffff" : "#65676B")};
+  border: 2px solid ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-border-soft)")};
+  background-color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-bg-elevated)")};
+  color: ${({ active }) => (active ? "var(--ref-text-on-primary)" : "var(--ref-text-secondary)")};
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 
   &:hover {
-    border-color: #1877F2;
-    color: ${({ active }) => (active ? "#ffffff" : "#1877F2")};
+    border-color: var(--ref-primary);
+    color: ${({ active }) => (active ? "var(--ref-text-on-primary)" : "var(--ref-primary)")};
   }
 `;
 
 export const HeroSection = styled("section")`
-  background: #1877F2;
-  color: #ffffff;
-  padding: 40px 24px;
+  background: linear-gradient(135deg, var(--ref-primary) 0%, var(--ref-primary-hover) 100%);
+  color: var(--ref-text-on-primary);
+  padding: 44px 24px;
   text-align: center;
   margin-bottom: 24px;
-  border-bottom: 1px solid #E4E6EB;
+  border-bottom: 1px solid var(--ref-border-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 `;
 
 export const HeroTitle = styled("h1")`
   font-size: 28px;
   font-weight: 800;
-  margin: 0 0 8px 0;
-  color: #ffffff;
+  margin: 0;
+  color: var(--ref-text-on-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
   @media (max-width: 640px) {
     font-size: 22px;
@@ -46,43 +56,47 @@ export const HeroTitle = styled("h1")`
 
 export const HeroSubtitle = styled("p")`
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.5;
 `;
 
 export const PopularSection = styled("section")`
-  max-width: 900px;
+  max-width: 960px;
   margin: 0 auto 24px auto;
   padding: 0 16px;
 
   .swiper {
-    padding: 4px 4px 44px 4px;
+    padding: 6px 4px 38px 4px;
+  }
+
+  .swiper-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    bottom: 0 !important;
   }
 
   .swiper-pagination-bullet {
-    background: #CED0D4;
+    width: 8px;
+    height: 8px;
+    margin: 0 !important;
+    background: var(--ref-border);
+    border-radius: 999px;
     opacity: 1;
+    transition: width 0.25s ease, background-color 0.25s ease;
   }
 
   .swiper-pagination-bullet-active {
-    background: #1877F2;
+    width: 22px;
+    background: var(--ref-primary);
   }
 
   .swiper-button-next,
   .swiper-button-prev {
-    color: #1877F2;
-    background: #ffffff;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-    &::after {
-      font-size: 14px;
-      font-weight: 700;
-    }
+    display: none;
   }
 `;
 
@@ -96,29 +110,86 @@ export const PopularSectionHeader = styled("div")`
 export const PopularSectionTitle = styled("h2")`
   font-size: 20px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0;
   display: flex;
   align-items: center;
   gap: 10px;
 `;
 
-export const PopularCard = styled("div")`
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 16px;
+export const PopularNavButtons = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const PopularNavButton = styled("button")`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-primary);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--ref-primary);
+    border-color: var(--ref-primary);
+    color: var(--ref-text-on-primary);
+  }
+
+  &:disabled,
+  &.swiper-button-disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 480px) {
+    display: none;
+  }
+`;
+
+export const PopularCard = styled("div")<{ rank?: number }>`
+  position: relative;
+  background: var(--ref-bg-elevated);
+  border-radius: 12px;
+  padding: 18px 16px 16px 16px;
   height: 100%;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  border: 1px solid #CED0D4;
+  box-shadow: var(--ref-shadow-sm);
+  border: 1px solid ${({ rank }) => (rank === 1 ? "var(--ref-primary)" : "var(--ref-border)")};
   display: flex;
   flex-direction: column;
   gap: 14px;
   cursor: pointer;
-  transition: box-shadow 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+    transform: translateY(-4px);
+    box-shadow: var(--ref-shadow-md);
+    border-color: var(--ref-primary);
   }
+`;
+
+export const PopularTrendingTag = styled("div")`
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f43e50 0%, #ff7a59 100%);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(244, 62, 80, 0.35);
 `;
 
 export const PopularCardTop = styled("div")`
@@ -127,29 +198,52 @@ export const PopularCardTop = styled("div")`
   gap: 12px;
 `;
 
-export const PopularRankBadge = styled("div")`
+const rankGradients: Record<number, string> = {
+  1: "linear-gradient(135deg, #FFD76A 0%, #F5A623 100%)",
+  2: "linear-gradient(135deg, #E3E7EC 0%, #B7BEC7 100%)",
+  3: "linear-gradient(135deg, #E7B27A 0%, #C1743A 100%)",
+};
+
+export const PopularRankBadge = styled("div")<{ rank?: number }>`
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  background: #1877F2;
-  color: #ffffff;
+  background: ${({ rank }) => (rank && rankGradients[rank]) || "var(--ref-primary)"};
+  color: ${({ rank }) => (rank && rank <= 3 ? "#5a3d00" : "var(--ref-text-on-primary)")};
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 0 0 3px var(--ref-bg-elevated), 0 2px 6px rgba(0, 0, 0, 0.15);
 `;
 
 export const PopularCardText = styled("div")`
   font-size: 15px;
   font-weight: 600;
-  color: #050505;
+  color: var(--ref-text-primary);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+`;
+
+export const PopularVoteBarTrack = styled("div")`
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--ref-border-soft);
+  overflow: hidden;
+`;
+
+export const PopularVoteBarFill = styled("div")<{ percent: number }>`
+  height: 100%;
+  width: ${({ percent }) => Math.max(4, Math.min(100, percent))}%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--ref-primary) 0%, var(--ref-primary-hover) 100%);
+  transition: width 0.4s ease;
 `;
 
 export const PopularCardFooter = styled("div")`
@@ -159,16 +253,24 @@ export const PopularCardFooter = styled("div")`
   gap: 8px;
   margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid #F0F2F5;
+  border-top: 1px solid var(--ref-border-soft);
 `;
 
 export const PopularVotesBadge = styled("div")`
   font-size: 13px;
   font-weight: 700;
-  color: #1877F2;
+  color: var(--ref-primary);
   display: flex;
   align-items: center;
   gap: 6px;
+`;
+
+export const PopularCategoryLabel = styled("span")`
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 `;
 
 export const Container = styled("div")`
@@ -187,7 +289,7 @@ export const SectionHeader = styled("div")`
 export const SectionTitle = styled("h2")`
   font-size: 22px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0;
   display: flex;
   align-items: center;
@@ -215,13 +317,13 @@ export const PageButton = styled("button")`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #CED0D4;
-  background-color: #ffffff;
-  color: #1877F2;
+  border: 1px solid var(--ref-border);
+  background-color: var(--ref-bg-elevated);
+  color: var(--ref-primary);
 
   &:hover:not(:disabled) {
-    background-color: #E7F3FF;
-    border-color: #1877F2;
+    background-color: var(--ref-primary-soft);
+    border-color: var(--ref-primary);
   }
 
   &:disabled {
@@ -245,12 +347,12 @@ export const PageNumberButton = styled("button")<{ active?: boolean }>`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid ${({ active }) => (active ? "#1877F2" : "#CED0D4")};
-  background-color: ${({ active }) => (active ? "#1877F2" : "#ffffff")};
-  color: ${({ active }) => (active ? "#ffffff" : "#050505")};
+  border: 1px solid ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-border)")};
+  background-color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-bg-elevated)")};
+  color: ${({ active }) => (active ? "var(--ref-text-on-primary)" : "var(--ref-text-primary)")};
 
   &:hover:not(:disabled) {
-    ${({ active }) => (active ? "" : "background-color: #E7F3FF; border-color: #1877F2;")}
+    ${({ active }) => (active ? "" : "background-color: var(--ref-primary-soft); border-color: var(--ref-primary);")}
   }
 `;
 
@@ -260,15 +362,37 @@ export const PageEllipsis = styled("span")`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8A8D91;
+  color: var(--ref-text-secondary);
   font-weight: 600;
 `;
 
 export const EmptyState = styled("div")`
-  background: #ffffff;
-  border-radius: 8px;
+  background: var(--ref-bg-elevated);
+  border-radius: 10px;
   padding: 64px 24px;
   text-align: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  border: 1px solid #CED0D4;
+  box-shadow: var(--ref-shadow-sm);
+  border: 1px solid var(--ref-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const EmptyStateTitle = styled("h3")`
+  font-size: 18px;
+  color: var(--ref-text-primary);
+  margin: 8px 0 0 0;
+`;
+
+export const EmptyStateText = styled("p")`
+  font-size: 14px;
+  color: var(--ref-text-secondary);
+  margin: 0;
+`;
+
+export const PageBackground = styled("div")`
+  background: var(--ref-bg);
+  min-height: 100vh;
+  transition: background 0.2s ease;
 `;

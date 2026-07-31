@@ -18,6 +18,26 @@ import Header from "@/components/shared/Header";
 import { AnswerAPI, CategoriesAPI, QuestionAPI, StatsAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
+import {
+  BallotIcon,
+  CalendarIcon,
+  ChartIcon,
+  CheckSquareIcon,
+  ClipboardIcon,
+  CloseIcon,
+  EditIcon,
+  FireIcon,
+  HourglassIcon,
+  LockIcon,
+  PauseIcon,
+  PlayIcon,
+  PlusIcon,
+  QuestionMarkIcon,
+  RadioIcon,
+  TagIcon,
+  TargetIcon,
+  TrashIcon,
+} from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend);
@@ -218,7 +238,7 @@ export const DashboardComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ fontSize: "16px", color: "#65676B" }}>იტვირთება...</p>
+            <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
           </S.Container>
         </S.PageWrapper>
       </>
@@ -231,7 +251,7 @@ export const DashboardComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.AccessDeniedCard>
-            <span style={{ fontSize: "48px" }}>🚫</span>
+            <LockIcon size={48} />
             <S.AccessDeniedTitle>წვდომა უარყოფილია</S.AccessDeniedTitle>
             <S.AccessDeniedText>ამ გვერდზე გადასასვლელად გესაჭიროებათ ადმინისტრატორის უფლებები.</S.AccessDeniedText>
             <S.ActionButton variant="primary" onClick={() => router.push("/")}>
@@ -428,17 +448,17 @@ export const DashboardComponent: React.FC = () => {
           {/* Page Header */}
           <S.HeaderSection>
             <S.TitleGroup>
-              <S.PageTitle>⚙️ ადმინ დეშბორდი</S.PageTitle>
+              <S.PageTitle>ადმინ დეშბორდი</S.PageTitle>
               <S.PageSubtitle>მართეთ რეფერენდუმის კითხვები, კატეგორიები და სავარაუდო პასუხები</S.PageSubtitle>
             </S.TitleGroup>
             {activeTab === "questions" && (
               <S.ActionButton variant="primary" onClick={() => setIsCreateModalOpen(true)}>
-                ➕ ახალი კითხვა
+                <PlusIcon size={16} /> ახალი კითხვა
               </S.ActionButton>
             )}
             {activeTab === "categories" && (
               <S.ActionButton variant="primary" onClick={() => setIsCatCreateOpen(true)}>
-                ➕ ახალი კატეგორია
+                <PlusIcon size={16} /> ახალი კატეგორია
               </S.ActionButton>
             )}
           </S.HeaderSection>
@@ -446,13 +466,13 @@ export const DashboardComponent: React.FC = () => {
           {/* Tab Navigation */}
           <S.TabBar>
             <S.Tab active={activeTab === "questions"} onClick={() => setActiveTab("questions")}>
-              ❓ კითხვები ({questions.length})
+              <QuestionMarkIcon size={16} /> კითხვები ({questions.length})
             </S.Tab>
             <S.Tab active={activeTab === "categories"} onClick={() => setActiveTab("categories")}>
-              🏷️ კატეგორიები ({categories.length})
+              <TagIcon size={16} /> კატეგორიები ({categories.length})
             </S.Tab>
             <S.Tab active={activeTab === "stats"} onClick={() => setActiveTab("stats")}>
-              📊 ანალიტიკა
+              <ChartIcon size={16} /> ანალიტიკა
             </S.Tab>
           </S.TabBar>
 
@@ -461,21 +481,21 @@ export const DashboardComponent: React.FC = () => {
             <>
               <S.StatsGrid>
                 <S.StatCard>
-                  <S.StatIcon>❓</S.StatIcon>
+                  <S.StatIcon><QuestionMarkIcon size={24} /></S.StatIcon>
                   <S.StatInfo>
                     <S.StatValue>{questions.length}</S.StatValue>
                     <S.StatLabel>სულ კითხვები</S.StatLabel>
                   </S.StatInfo>
                 </S.StatCard>
                 <S.StatCard>
-                  <S.StatIcon>🎯</S.StatIcon>
+                  <S.StatIcon><TargetIcon size={24} /></S.StatIcon>
                   <S.StatInfo>
                     <S.StatValue>{questions.reduce((acc, q) => acc + (q.answers?.length || 0), 0)}</S.StatValue>
                     <S.StatLabel>სულ სავარაუდო პასუხები</S.StatLabel>
                   </S.StatInfo>
                 </S.StatCard>
                 <S.StatCard>
-                  <S.StatIcon>🏷️</S.StatIcon>
+                  <S.StatIcon><TagIcon size={24} /></S.StatIcon>
                   <S.StatInfo>
                     <S.StatValue>{categories.length}</S.StatValue>
                     <S.StatLabel>კატეგორიები</S.StatLabel>
@@ -485,15 +505,15 @@ export const DashboardComponent: React.FC = () => {
 
               {loadingQ ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
-                  <p style={{ color: "#65676B" }}>კითხვები იტვირთება...</p>
+                  <p style={{ color: "var(--ref-text-secondary)" }}>კითხვები იტვირთება...</p>
                 </div>
               ) : questions.length === 0 ? (
                 <S.EmptyState>
-                  <span style={{ fontSize: "48px" }}>📋</span>
+                  <ClipboardIcon size={48} />
                   <S.EmptyTitle>კითხვები არ არის დამატებული</S.EmptyTitle>
                   <S.EmptyText>დააჭირეთ "ახალი კითხვა" ღილაკს პირველი კითხვის შესაქმნელად.</S.EmptyText>
                   <S.ActionButton variant="primary" onClick={() => setIsCreateModalOpen(true)}>
-                    ➕ კითხვის დამატება
+                    <PlusIcon size={16} /> კითხვის დამატება
                   </S.ActionButton>
                 </S.EmptyState>
               ) : (
@@ -505,19 +525,20 @@ export const DashboardComponent: React.FC = () => {
                           <S.QuestionText>{q.text}</S.QuestionText>
                           <S.BadgeGroup>
                             <S.Badge variant={q.type === "multiple" ? "multiple" : "single"}>
-                              {q.type === "multiple" ? "☑️ მრავალარჩევიანი" : "🔘 ერთარჩევიანი"}
+                              {q.type === "multiple" ? <CheckSquareIcon size={13} /> : <RadioIcon size={13} />}
+                              {q.type === "multiple" ? "მრავალარჩევიანი" : "ერთარჩევიანი"}
                             </S.Badge>
                             <S.Badge variant={q.isActive ? "active" : "inactive"}>
-                              {q.isActive ? "🟢 აქტიური" : "⚪ არააქტიური"}
+                              {q.isActive ? "აქტიური" : "არააქტიური"}
                             </S.Badge>
                             {q.category && (
-                              <S.Badge variant="date">🏷️ {q.category.name}</S.Badge>
+                              <S.Badge variant="date"><TagIcon size={13} /> {q.category.name}</S.Badge>
                             )}
                             {q.createdAt && (
-                              <S.Badge variant="date">📅 {new Date(q.createdAt).toLocaleDateString("ka-GE")}</S.Badge>
+                              <S.Badge variant="date"><CalendarIcon size={13} /> {new Date(q.createdAt).toLocaleDateString("ka-GE")}</S.Badge>
                             )}
                             {q.endDate && (
-                              <S.Badge variant="date">⏳ {new Date(q.endDate).toLocaleDateString("ka-GE")}</S.Badge>
+                              <S.Badge variant="date"><HourglassIcon size={13} /> {new Date(q.endDate).toLocaleDateString("ka-GE")}</S.Badge>
                             )}
                           </S.BadgeGroup>
                         </div>
@@ -526,13 +547,14 @@ export const DashboardComponent: React.FC = () => {
                             variant={q.isActive ? "secondary" : "success"}
                             onClick={() => handleToggleActive(q)}
                           >
-                            {q.isActive ? "⏸️ დეაქტივაცია" : "▶️ აქტივაცია"}
+                            {q.isActive ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
+                            {q.isActive ? "დეაქტივაცია" : "აქტივაცია"}
                           </S.ActionButton>
                           <S.ActionButton variant="outline" onClick={() => handleOpenEdit(q)}>
-                            ✏️ რედაქტირება
+                            <EditIcon size={16} /> რედაქტირება
                           </S.ActionButton>
                           <S.ActionButton variant="danger" onClick={() => handleDeleteQuestion(q.id)}>
-                            🗑️ წაშლა
+                            <TrashIcon size={16} /> წაშლა
                           </S.ActionButton>
                         </S.CardActions>
                       </S.CardHeader>
@@ -543,11 +565,11 @@ export const DashboardComponent: React.FC = () => {
                           {q.answers && q.answers.length > 0 ? (
                             q.answers.map((ans, idx) => (
                               <S.AnswerPill key={ans.id || idx}>
-                                <span style={{ fontWeight: 600, color: "#1877F2" }}>{idx + 1}.</span> {ans.text}
+                                <span style={{ fontWeight: 600, color: "var(--ref-primary)" }}>{idx + 1}.</span> {ans.text}
                               </S.AnswerPill>
                             ))
                           ) : (
-                            <p style={{ fontSize: "13px", color: "#8A8D91", margin: 0 }}>პასუხები არ არის მითითებული</p>
+                            <p style={{ fontSize: "13px", color: "var(--ref-text-secondary)", margin: 0 }}>პასუხები არ არის მითითებული</p>
                           )}
                         </S.AnswersGrid>
                       </S.AnswersSection>
@@ -597,15 +619,15 @@ export const DashboardComponent: React.FC = () => {
             <>
               {loadingC ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
-                  <p style={{ color: "#65676B" }}>კატეგორიები იტვირთება...</p>
+                  <p style={{ color: "var(--ref-text-secondary)" }}>კატეგორიები იტვირთება...</p>
                 </div>
               ) : categories.length === 0 ? (
                 <S.EmptyState>
-                  <span style={{ fontSize: "48px" }}>🏷️</span>
+                  <TagIcon size={48} />
                   <S.EmptyTitle>კატეგორიები არ არის</S.EmptyTitle>
                   <S.EmptyText>დაამატეთ პირველი კატეგორია კითხვების გასაჯგუფებლად.</S.EmptyText>
                   <S.ActionButton variant="primary" onClick={() => setIsCatCreateOpen(true)}>
-                    ➕ კატეგორიის დამატება
+                    <PlusIcon size={16} /> კატეგორიის დამატება
                   </S.ActionButton>
                 </S.EmptyState>
               ) : (
@@ -614,9 +636,11 @@ export const DashboardComponent: React.FC = () => {
                     <S.QuestionCard key={cat.id}>
                       <S.CardHeader>
                         <div>
-                          <S.QuestionText>🏷️ {cat.name}</S.QuestionText>
+                          <S.QuestionText style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <TagIcon size={18} /> {cat.name}
+                          </S.QuestionText>
                           {cat.description && (
-                            <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "#65676B" }}>{cat.description}</p>
+                            <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "var(--ref-text-secondary)" }}>{cat.description}</p>
                           )}
                           <S.Badge variant="date" style={{ marginTop: "8px", display: "inline-block" }}>
                             {cat.questions?.length || 0} კითხვა
@@ -624,10 +648,10 @@ export const DashboardComponent: React.FC = () => {
                         </div>
                         <S.CardActions>
                           <S.ActionButton variant="outline" onClick={() => handleOpenEditCat(cat)}>
-                            ✏️ რედაქტირება
+                            <EditIcon size={16} /> რედაქტირება
                           </S.ActionButton>
                           <S.ActionButton variant="danger" onClick={() => handleDeleteCat(cat.id)}>
-                            🗑️ წაშლა
+                            <TrashIcon size={16} /> წაშლა
                           </S.ActionButton>
                         </S.CardActions>
                       </S.CardHeader>
@@ -643,34 +667,34 @@ export const DashboardComponent: React.FC = () => {
             <>
               {loadingStats && !statsLoaded ? (
                 <div style={{ textAlign: "center", padding: "40px" }}>
-                  <p style={{ color: "#65676B" }}>ანალიტიკა იტვირთება...</p>
+                  <p style={{ color: "var(--ref-text-secondary)" }}>ანალიტიკა იტვირთება...</p>
                 </div>
               ) : (
                 <>
                   <S.StatsGrid>
                     <S.StatCard>
-                      <S.StatIcon>❓</S.StatIcon>
+                      <S.StatIcon><QuestionMarkIcon size={24} /></S.StatIcon>
                       <S.StatInfo>
                         <S.StatValue>{globalStats?.totalQuestions ?? 0}</S.StatValue>
                         <S.StatLabel>სულ კითხვები</S.StatLabel>
                       </S.StatInfo>
                     </S.StatCard>
                     <S.StatCard>
-                      <S.StatIcon>🗳️</S.StatIcon>
+                      <S.StatIcon><BallotIcon size={24} /></S.StatIcon>
                       <S.StatInfo>
                         <S.StatValue>{globalStats?.totalVotes ?? 0}</S.StatValue>
                         <S.StatLabel>სულ ხმები</S.StatLabel>
                       </S.StatInfo>
                     </S.StatCard>
                     <S.StatCard>
-                      <S.StatIcon>🟢</S.StatIcon>
+                      <S.StatIcon><PlayIcon size={24} /></S.StatIcon>
                       <S.StatInfo>
                         <S.StatValue>{globalStats?.activeQuestions ?? 0}</S.StatValue>
                         <S.StatLabel>აქტიური კითხვები</S.StatLabel>
                       </S.StatInfo>
                     </S.StatCard>
                     <S.StatCard>
-                      <S.StatIcon>🏷️</S.StatIcon>
+                      <S.StatIcon><TagIcon size={24} /></S.StatIcon>
                       <S.StatInfo>
                         <S.StatValue>{globalStats?.totalCategories ?? 0}</S.StatValue>
                         <S.StatLabel>კატეგორიები</S.StatLabel>
@@ -681,10 +705,12 @@ export const DashboardComponent: React.FC = () => {
                   <S.ChartsGrid>
                     <S.ChartCard>
                       <S.ChartCardTitle>
-                        <S.ChartTitleText>🏷️ ხმები კატეგორიების მიხედვით</S.ChartTitleText>
+                        <S.ChartTitleText style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <TagIcon size={18} /> ხმები კატეგორიების მიხედვით
+                        </S.ChartTitleText>
                       </S.ChartCardTitle>
                       {categoryStats.length === 0 ? (
-                        <p style={{ fontSize: "13px", color: "#8A8D91" }}>მონაცემები არ არის</p>
+                        <p style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>მონაცემები არ არის</p>
                       ) : (
                         <S.ChartCanvasWrapper>
                           <Bar
@@ -712,7 +738,9 @@ export const DashboardComponent: React.FC = () => {
 
                     <S.ChartCard>
                       <S.ChartCardTitle>
-                        <S.ChartTitleText>📈 ხმების ტრენდი</S.ChartTitleText>
+                        <S.ChartTitleText style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <ChartIcon size={18} /> ხმების ტრენდი
+                        </S.ChartTitleText>
                         <S.PeriodSelector>
                           <S.PeriodButton active={trendsPeriod === "week"} onClick={() => setTrendsPeriod("week")}>კვირა</S.PeriodButton>
                           <S.PeriodButton active={trendsPeriod === "month"} onClick={() => setTrendsPeriod("month")}>თვე</S.PeriodButton>
@@ -720,7 +748,7 @@ export const DashboardComponent: React.FC = () => {
                         </S.PeriodSelector>
                       </S.ChartCardTitle>
                       {trends.length === 0 ? (
-                        <p style={{ fontSize: "13px", color: "#8A8D91" }}>მონაცემები არ არის</p>
+                        <p style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>მონაცემები არ არის</p>
                       ) : (
                         <S.ChartCanvasWrapper>
                           <Line
@@ -751,10 +779,12 @@ export const DashboardComponent: React.FC = () => {
 
                   <S.ChartCard>
                     <S.ChartCardTitle>
-                      <S.ChartTitleText>🔥 პოპულარული კითხვები</S.ChartTitleText>
+                      <S.ChartTitleText style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        <FireIcon size={18} /> პოპულარული კითხვები
+                      </S.ChartTitleText>
                     </S.ChartCardTitle>
                     {popularQuestions.length === 0 ? (
-                      <p style={{ fontSize: "13px", color: "#8A8D91" }}>მონაცემები არ არის</p>
+                      <p style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>მონაცემები არ არის</p>
                     ) : (
                       <S.PopularQuestionsList>
                         {popularQuestions.map((q, idx) => (
@@ -782,8 +812,12 @@ export const DashboardComponent: React.FC = () => {
         <S.ModalOverlay onClick={() => setIsCreateModalOpen(false)}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
-              <S.ModalTitle>➕ ახალი კითხვის დამატება</S.ModalTitle>
-              <S.CloseButton onClick={() => setIsCreateModalOpen(false)}>✕</S.CloseButton>
+              <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <PlusIcon size={18} /> ახალი კითხვის დამატება
+              </S.ModalTitle>
+              <S.CloseButton onClick={() => setIsCreateModalOpen(false)}>
+                <CloseIcon size={16} />
+              </S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleCreateSubmit}>
               <S.FormGroup>
@@ -839,12 +873,12 @@ export const DashboardComponent: React.FC = () => {
                       required
                     />
                     {newAnswers.length > 2 && (
-                      <S.ActionButton type="button" variant="secondary" style={{ color: "#ef4444", padding: "10px 14px" }} onClick={() => handleRemoveAnswerInput(index)}>🗑️</S.ActionButton>
+                      <S.ActionButton type="button" variant="secondary" style={{ color: "var(--ref-danger)", padding: "10px 14px" }} onClick={() => handleRemoveAnswerInput(index)}><TrashIcon size={16} /></S.ActionButton>
                     )}
                   </S.AnswerInputRow>
                 ))}
                 <S.ActionButton type="button" variant="outline" style={{ marginTop: "8px", justifyContent: "center" }} onClick={handleAddAnswerInput}>
-                  ➕ პასუხის ვარიანტის დამატება
+<PlusIcon size={14} /> პასუხის ვარიანტის დამატება
                 </S.ActionButton>
               </S.FormGroup>
 
@@ -862,8 +896,10 @@ export const DashboardComponent: React.FC = () => {
         <S.ModalOverlay onClick={() => setEditingQuestion(null)}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
-              <S.ModalTitle>✏️ კითხვის რედაქტირება</S.ModalTitle>
-              <S.CloseButton onClick={() => setEditingQuestion(null)}>✕</S.CloseButton>
+              <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <EditIcon size={18} /> კითხვის რედაქტირება
+              </S.ModalTitle>
+              <S.CloseButton onClick={() => setEditingQuestion(null)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleEditSubmit}>
               <S.FormGroup>
@@ -901,12 +937,12 @@ export const DashboardComponent: React.FC = () => {
                       required
                     />
                     {editAnswers.length > 2 && (
-                      <S.ActionButton type="button" variant="secondary" style={{ color: "#ef4444", padding: "10px 14px" }} onClick={() => handleRemoveEditAnswerRow(index)}>🗑️</S.ActionButton>
+                      <S.ActionButton type="button" variant="secondary" style={{ color: "var(--ref-danger)", padding: "10px 14px" }} onClick={() => handleRemoveEditAnswerRow(index)}><TrashIcon size={16} /></S.ActionButton>
                     )}
                   </S.AnswerInputRow>
                 ))}
                 <S.ActionButton type="button" variant="outline" style={{ marginTop: "8px", justifyContent: "center" }} onClick={handleAddEditAnswerRow}>
-                  ➕ პასუხის ვარიანტის დამატება
+<PlusIcon size={14} /> პასუხის ვარიანტის დამატება
                 </S.ActionButton>
               </S.FormGroup>
 
@@ -924,8 +960,10 @@ export const DashboardComponent: React.FC = () => {
         <S.ModalOverlay onClick={() => setIsCatCreateOpen(false)}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
-              <S.ModalTitle>🏷️ ახალი კატეგორიის დამატება</S.ModalTitle>
-              <S.CloseButton onClick={() => setIsCatCreateOpen(false)}>✕</S.CloseButton>
+              <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <TagIcon size={18} /> ახალი კატეგორიის დამატება
+              </S.ModalTitle>
+              <S.CloseButton onClick={() => setIsCatCreateOpen(false)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleCatCreateSubmit}>
               <S.FormGroup>
@@ -950,8 +988,10 @@ export const DashboardComponent: React.FC = () => {
         <S.ModalOverlay onClick={() => setEditingCat(null)}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
-              <S.ModalTitle>✏️ კატეგორიის რედაქტირება</S.ModalTitle>
-              <S.CloseButton onClick={() => setEditingCat(null)}>✕</S.CloseButton>
+              <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <EditIcon size={18} /> კატეგორიის რედაქტირება
+              </S.ModalTitle>
+              <S.CloseButton onClick={() => setEditingCat(null)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleCatEditSubmit}>
               <S.FormGroup>

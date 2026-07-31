@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const PageWrapper = styled("div")`
   min-height: 100vh;
-  background-color: #F7F8FA;
+  background-color: var(--ref-bg);
   padding: 32px 24px 64px 24px;
 `;
 
@@ -18,7 +18,7 @@ export const HeaderSection = styled("div")`
 export const PageTitle = styled("h1")`
   font-size: 26px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0 0 6px 0;
   display: flex;
   align-items: center;
@@ -27,7 +27,7 @@ export const PageTitle = styled("h1")`
 
 export const PageSubtitle = styled("p")`
   font-size: 14px;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   margin: 0;
 `;
 
@@ -45,11 +45,11 @@ export const Layout = styled("div")`
 export const Sidebar = styled("div")`
   width: 240px;
   flex-shrink: 0;
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
   border-radius: 8px;
   padding: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #E4E6EB;
+  border: 1px solid var(--ref-border-soft);
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -74,12 +74,12 @@ export const SidebarItem = styled("button")<{ active?: boolean }>`
   text-align: left;
   transition: all 0.2s ease;
   white-space: nowrap;
-  background-color: ${({ active }) => (active ? "#E7F3FF" : "transparent")};
-  color: ${({ active }) => (active ? "#1877F2" : "#65676B")};
+  background-color: ${({ active }) => (active ? "var(--ref-primary-soft)" : "transparent")};
+  color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-secondary)")};
 
   &:hover {
-    background-color: ${({ active }) => (active ? "#E7F3FF" : "#F0F2F5")};
-    color: ${({ active }) => (active ? "#1877F2" : "#050505")};
+    background-color: ${({ active }) => (active ? "var(--ref-primary-soft)" : "var(--ref-bg-subtle)")};
+    color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-primary)")};
   }
 `;
 
@@ -89,17 +89,17 @@ export const Content = styled("div")`
 `;
 
 export const Card = styled("div")`
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
   border-radius: 8px;
   padding: 28px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #E4E6EB;
+  border: 1px solid var(--ref-border-soft);
 `;
 
 export const CardTitle = styled("h2")`
   font-size: 18px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0 0 20px 0;
 `;
 
@@ -110,15 +110,15 @@ export const ProfileSummary = styled("div")`
   gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 24px;
-  border-bottom: 1px solid #F0F2F5;
+  border-bottom: 1px solid var(--ref-border-soft);
 `;
 
 export const AvatarCircle = styled("div")`
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1877F2 0%, #166FE5 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--ref-primary) 0%, var(--ref-primary-hover) 100%);
+  color: var(--ref-text-on-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -130,17 +130,19 @@ export const AvatarCircle = styled("div")`
 export const ProfileName = styled("div")`
   font-size: 18px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
 `;
 
 export const ProfileEmail = styled("div")`
   font-size: 14px;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   margin-top: 2px;
 `;
 
 export const Badge = styled("span")<{ variant?: "role" | "date" }>`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 12px;
@@ -149,8 +151,8 @@ export const Badge = styled("span")<{ variant?: "role" | "date" }>`
 
   ${({ variant }) =>
     variant === "date"
-      ? "background: #F0F2F5; color: #65676B; font-weight: 400;"
-      : "background: #E7F3FF; color: #166FE5;"}
+      ? "background: var(--ref-bg-subtle); color: var(--ref-text-secondary); font-weight: 400;"
+      : "background: var(--ref-primary-soft); color: var(--ref-primary-hover);"}
 `;
 
 /* Form */
@@ -173,26 +175,26 @@ export const FormGroup = styled("div")`
 export const Label = styled("label")`
   font-size: 14px;
   font-weight: 600;
-  color: #050505;
+  color: var(--ref-text-primary);
 `;
 
 export const Input = styled("input")`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #CED0D4;
+  border: 1px solid var(--ref-border);
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: #1877F2;
+    border-color: var(--ref-primary);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 
   &:disabled {
-    background: #F7F8FA;
-    color: #8A8D91;
+    background: var(--ref-bg-subtle);
+    color: var(--ref-text-secondary);
   }
 `;
 
@@ -200,14 +202,14 @@ export const Select = styled("select")`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #CED0D4;
+  border: 1px solid var(--ref-border);
   font-size: 14px;
   outline: none;
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: #1877F2;
+    border-color: var(--ref-primary);
   }
 `;
 
@@ -227,29 +229,29 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "secondary"
     switch (variant) {
       case "danger":
         return `
-          background-color: #ef4444;
-          color: #ffffff;
-          &:hover { background-color: #dc2626; }
+          background-color: var(--ref-danger);
+          color: var(--ref-text-on-primary);
+          &:hover { background-color: var(--ref-danger); }
         `;
       case "secondary":
         return `
-          background-color: #F0F2F5;
-          color: #050505;
-          &:hover { background-color: #E4E6EB; }
+          background-color: var(--ref-bg-subtle);
+          color: var(--ref-text-primary);
+          &:hover { background-color: var(--ref-border-soft); }
         `;
       case "outline":
         return `
           background-color: transparent;
-          color: #1877F2;
-          border: 1px solid #CED0D4;
-          &:hover { background-color: #E7F3FF; border-color: #1877F2; }
+          color: var(--ref-primary);
+          border: 1px solid var(--ref-border);
+          &:hover { background-color: var(--ref-primary-soft); border-color: var(--ref-primary); }
         `;
       case "primary":
       default:
         return `
-          background-color: #1877F2;
-          color: #ffffff;
-          &:hover { background-color: #166FE5; }
+          background-color: var(--ref-primary);
+          color: var(--ref-text-on-primary);
+          &:hover { background-color: var(--ref-primary-hover); }
         `;
     }
   }}
@@ -265,7 +267,7 @@ export const FormFooter = styled("div")`
   justify-content: flex-end;
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 1px solid #F0F2F5;
+  border-top: 1px solid var(--ref-border-soft);
 `;
 
 /* Favorites list */
@@ -290,13 +292,13 @@ export const PageButton = styled("button")`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #CED0D4;
-  background-color: #ffffff;
-  color: #1877F2;
+  border: 1px solid var(--ref-border);
+  background-color: var(--ref-bg-elevated);
+  color: var(--ref-primary);
 
   &:hover:not(:disabled) {
-    background-color: #E7F3FF;
-    border-color: #1877F2;
+    background-color: var(--ref-primary-soft);
+    border-color: var(--ref-primary);
   }
 
   &:disabled {
@@ -320,12 +322,12 @@ export const PageNumberButton = styled("button")<{ active?: boolean }>`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid ${({ active }) => (active ? "#1877F2" : "#CED0D4")};
-  background-color: ${({ active }) => (active ? "#1877F2" : "#ffffff")};
-  color: ${({ active }) => (active ? "#ffffff" : "#050505")};
+  border: 1px solid ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-border)")};
+  background-color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-bg-elevated)")};
+  color: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "var(--ref-text-primary)")};
 
   &:hover:not(:disabled) {
-    ${({ active }) => (active ? "" : "background-color: #E7F3FF; border-color: #1877F2;")}
+    ${({ active }) => (active ? "" : "background-color: var(--ref-primary-soft); border-color: var(--ref-primary);")}
   }
 `;
 
@@ -335,35 +337,35 @@ export const PageEllipsis = styled("span")`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8A8D91;
+  color: var(--ref-text-secondary);
   font-weight: 600;
 `;
 
 export const EmptyState = styled("div")`
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
   border-radius: 8px;
   padding: 48px 24px;
   text-align: center;
-  border: 1px dashed #CED0D4;
+  border: 1px dashed var(--ref-border);
 `;
 
 export const EmptyTitle = styled("h3")`
   font-size: 18px;
   font-weight: 600;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0 0 8px 0;
 `;
 
 export const EmptyText = styled("p")`
   font-size: 14px;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   margin: 0 0 20px 0;
 `;
 
 export const AccessDeniedCard = styled("div")`
   max-width: 480px;
   margin: 100px auto 0 auto;
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
   border-radius: 8px;
   padding: 40px 32px;
   text-align: center;
@@ -373,12 +375,12 @@ export const AccessDeniedCard = styled("div")`
 export const AccessDeniedTitle = styled("h2")`
   font-size: 22px;
   font-weight: 700;
-  color: #ef4444;
+  color: var(--ref-danger);
   margin: 16px 0 8px 0;
 `;
 
 export const AccessDeniedText = styled("p")`
   font-size: 14px;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   margin: 0 0 24px 0;
 `;

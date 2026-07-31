@@ -5,12 +5,14 @@ import { toast } from "react-toastify";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper";
 import Header from "@/components/shared/Header";
+import ReferendumFooter from "@/components/shared/ReferendumFooter";
 import AuthModal from "@/components/shared/AuthModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
 import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
+import { BallotIcon, ClipboardIcon, FireIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 6;
@@ -70,6 +72,8 @@ export const HomeComponent: React.FC = () => {
   // Popular questions slider
   const [popularQuestions, setPopularQuestions] = useState<PopularQuestion[]>([]);
   const [loadingPopular, setLoadingPopular] = useState<boolean>(true);
+  const [popularPrevEl, setPopularPrevEl] = useState<HTMLButtonElement | null>(null);
+  const [popularNextEl, setPopularNextEl] = useState<HTMLButtonElement | null>(null);
 
   // Fetch results for a single question
   const fetchSingleResults = async (q: Question) => {
@@ -342,61 +346,90 @@ export const HomeComponent: React.FC = () => {
   }, [popularQuestions])
   
   return (
-    <>
+    <S.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
 
       {/* Hero Banner */}
       <S.HeroSection>
-        <S.HeroTitle>🗳️ სახალხო რეფერენდუმი</S.HeroTitle>
+        <S.HeroTitle><BallotIcon size={32} /> სახალხო რეფერენდუმი</S.HeroTitle>
         <S.HeroSubtitle>
           დააფიქსირეთ თქვენი პოზიცია მნიშვნელოვან საკითხებზე და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.
         </S.HeroSubtitle>
       </S.HeroSection>
 
       {/* Popular Active Questions Slider */}
-      {!loadingPopular && popularQuestions.length > 0 && (
-        <S.PopularSection>
-          <S.PopularSectionHeader>
-            <S.PopularSectionTitle>
-              <span>🔥</span> პოპულარული კითხვები
-            </S.PopularSectionTitle>
-          </S.PopularSectionHeader>
+      {!loadingPopular && popularQuestions.length > 0 && (() => {
+        const maxVotes = Math.max(...popularQuestions.map((pq) => pq.votes), 1);
 
-          <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
-            navigation
-            pagination={{ clickable: true }}
-            autoplay={{ delay: 5000, disableOnInteraction: false }}
-            loop={popularQuestions.length > 3}
-            spaceBetween={20}
-            slidesPerView={1}
-            breakpoints={{
-              640: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
-          >
-            {popularQuestions.map((pq, idx) => (
-              <SwiperSlide key={pq.id}>
-                <S.PopularCard onClick={() => handlePopularCardClick(pq.id)}>
-                  <S.PopularCardTop>
-                    <S.PopularRankBadge>{idx + 1}</S.PopularRankBadge>
-                    <S.PopularCardText>{pq.text}</S.PopularCardText>
-                  </S.PopularCardTop>
-                  <S.PopularCardFooter>
-                    <S.PopularVotesBadge>🗳️ {pq.votes} ხმა</S.PopularVotesBadge>
-                    {pq.categoryName && <span style={{ fontSize: "12px", color: "#8A8D91" }}>🏷️ {pq.categoryName}</span>}
-                  </S.PopularCardFooter>
-                </S.PopularCard>
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </S.PopularSection>
-      )}
+        return (
+          <S.PopularSection>
+            <S.PopularSectionHeader>
+              <S.PopularSectionTitle>
+                <FireIcon size={22} /> პოპულარული კითხვები
+              </S.PopularSectionTitle>
+              <S.PopularNavButtons>
+                <S.PopularNavButton ref={setPopularPrevEl} type="button" aria-label="წინა">
+                  ‹
+                </S.PopularNavButton>
+                <S.PopularNavButton ref={setPopularNextEl} type="button" aria-label="შემდეგი">
+                  ›
+                </S.PopularNavButton>
+              </S.PopularNavButtons>
+            </S.PopularSectionHeader>
+
+            <Swiper
+              modules={[Navigation, Pagination, Autoplay]}
+              navigation={{ prevEl: popularPrevEl, nextEl: popularNextEl }}
+              pagination={{ clickable: true }}
+              autoplay={{ delay: 5000, disableOnInteraction: false }}
+              loop={popularQuestions.length > 3}
+              spaceBetween={20}
+              slidesPerView={1}
+              breakpoints={{
+                640: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+              }}
+            >
+              {popularQuestions.map((pq, idx) => {
+                const rank = idx + 1;
+                const percent = (pq.votes / maxVotes) * 100;
+
+                return (
+                  <SwiperSlide key={pq.id}>
+                    <S.PopularCard rank={rank} onClick={() => handlePopularCardClick(pq.id)}>
+                      {rank === 1 && (
+                        <S.PopularTrendingTag>
+                          <FireIcon size={12} /> ტრენდში
+                        </S.PopularTrendingTag>
+                      )}
+                      <S.PopularCardTop>
+                        <S.PopularRankBadge rank={rank}>{rank}</S.PopularRankBadge>
+                        <S.PopularCardText>{pq.text}</S.PopularCardText>
+                      </S.PopularCardTop>
+                      <S.PopularVoteBarTrack>
+                        <S.PopularVoteBarFill percent={percent} />
+                      </S.PopularVoteBarTrack>
+                      <S.PopularCardFooter>
+                        <S.PopularVotesBadge><BallotIcon size={14} /> {pq.votes} ხმა</S.PopularVotesBadge>
+                        {pq.categoryName && (
+                          <S.PopularCategoryLabel>
+                            <TagIcon size={13} /> {pq.categoryName}
+                          </S.PopularCategoryLabel>
+                        )}
+                      </S.PopularCardFooter>
+                    </S.PopularCard>
+                  </SwiperSlide>
+                );
+              })}
+            </Swiper>
+          </S.PopularSection>
+        );
+      })()}
 
       <S.Container>
         <S.SectionHeader>
           <S.SectionTitle>
-            <span>📋</span> აქტიური კითხვები
+            <ClipboardIcon size={24} /> აქტიური კითხვები
           </S.SectionTitle>
         </S.SectionHeader>
 
@@ -404,7 +437,7 @@ export const HomeComponent: React.FC = () => {
         {categories.length > 0 && (
           <S.FilterBar>
             <S.FilterChip active={activeCategoryId === null} onClick={() => setActiveCategoryId(null)}>
-              🗳️ ყველა
+              <BallotIcon size={16} /> ყველა
             </S.FilterChip>
             {categories.map((cat) => (
               <S.FilterChip
@@ -412,7 +445,7 @@ export const HomeComponent: React.FC = () => {
                 active={activeCategoryId === cat.id}
                 onClick={() => setActiveCategoryId(activeCategoryId === cat.id ? null : cat.id)}
               >
-                🏷️ {cat.name}
+                <TagIcon size={16} /> {cat.name}
               </S.FilterChip>
             ))}
           </S.FilterBar>
@@ -420,17 +453,17 @@ export const HomeComponent: React.FC = () => {
 
         {loading ? (
           <div style={{ textAlign: "center", padding: "100px 0" }}>
-            <p style={{ fontSize: "18px", color: "#65676B" }}>იტვირთება...</p>
+            <p style={{ fontSize: "18px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
           </div>
         ) : questions.length === 0 ? (
           <S.EmptyState>
-            <span style={{ fontSize: "48px" }}>🗳️</span>
-            <h3 style={{ fontSize: "18px", color: "#050505", marginTop: "16px" }}>
+            <BallotIcon size={48} />
+            <S.EmptyStateTitle>
               ამ ეტაპზე აქტიური კითხვები არ არის
-            </h3>
-            <p style={{ fontSize: "14px", color: "#65676B" }}>
+            </S.EmptyStateTitle>
+            <S.EmptyStateText>
               გთხოვთ მოგვიანებით შეამოწმოთ.
-            </p>
+            </S.EmptyStateText>
           </S.EmptyState>
         ) : (() => {
           const activeQuestions = questions.filter((q) => {
@@ -446,10 +479,10 @@ export const HomeComponent: React.FC = () => {
           if (filteredQuestions.length === 0) {
             return (
               <S.EmptyState>
-                <span style={{ fontSize: "48px" }}>🔍</span>
-                <h3 style={{ fontSize: "18px", color: "#050505", marginTop: "16px" }}>
+                <SearchIcon size={48} />
+                <S.EmptyStateTitle>
                   {activeCategoryId === null ? "აქტიური კითხვები არ არის" : "ამ კატეგორიაში აქტიური კითხვები არ არის"}
-                </h3>
+                </S.EmptyStateTitle>
               </S.EmptyState>
             );
           }
@@ -517,12 +550,14 @@ export const HomeComponent: React.FC = () => {
         )}
       </S.Container>
 
+      <ReferendumFooter />
+
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         initialMode="login"
       />
-    </>
+    </S.PageBackground>
   );
 };
 

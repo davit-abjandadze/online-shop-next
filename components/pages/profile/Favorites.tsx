@@ -9,6 +9,7 @@ import { PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
 import { ProfileLayout } from "./ProfileLayout";
+import { BallotIcon, LockIcon, StarIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const FAVORITES_PAGE_SIZE = 10;
@@ -92,7 +93,7 @@ export const FavoritesComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ fontSize: "16px", color: "#65676B" }}>იტვირთება...</p>
+            <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
           </S.Container>
         </S.PageWrapper>
       </>
@@ -105,7 +106,7 @@ export const FavoritesComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.AccessDeniedCard>
-            <span style={{ fontSize: "48px" }}>🔒</span>
+            <LockIcon size={48} />
             <S.AccessDeniedTitle>წვდომა უარყოფილია</S.AccessDeniedTitle>
             <S.AccessDeniedText>ამ გვერდზე გადასასვლელად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
             <S.ActionButton variant="primary" onClick={() => router.push("/")}>
@@ -187,23 +188,23 @@ export const FavoritesComponent: React.FC = () => {
   return (
     <ProfileLayout
       activeTab="favorites"
-      title="⭐ ფავორიტები"
+      title="ფავორიტები"
       subtitle="თქვენი ფავორიტი კითხვები"
       favoritesCount={favoritesMeta?.total}
     >
-      <S.CardTitle>⭐ ფავორიტი კითხვები</S.CardTitle>
+      <S.CardTitle>ფავორიტი კითხვები</S.CardTitle>
 
       {loadingFavorites ? (
         <div style={{ textAlign: "center", padding: "40px" }}>
-          <p style={{ color: "#65676B" }}>იტვირთება...</p>
+          <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
         </div>
       ) : favorites.length === 0 ? (
         <S.EmptyState>
-          <span style={{ fontSize: "48px" }}>⭐</span>
+          <StarIcon size={48} filled />
           <S.EmptyTitle>ფავორიტები არ არის დამატებული</S.EmptyTitle>
           <S.EmptyText>დაამატეთ კითხვები ფავორიტებში მთავარი გვერდიდან.</S.EmptyText>
           <S.ActionButton variant="primary" onClick={() => router.push("/")}>
-            🗳️ კითხვების ნახვა
+            <BallotIcon size={16} /> კითხვების ნახვა
           </S.ActionButton>
         </S.EmptyState>
       ) : (

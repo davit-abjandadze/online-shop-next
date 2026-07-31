@@ -1,15 +1,15 @@
 import styled from "styled-components";
 
 export const QuestionCardWrapper = styled("div")`
-  background: #ffffff;
-  border-radius: 8px;
+  background: var(--ref-bg-elevated);
+  border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-  border: 1px solid #CED0D4;
-  transition: box-shadow 0.15s ease;
+  box-shadow: var(--ref-shadow-sm);
+  border: 1px solid var(--ref-border);
+  transition: box-shadow 0.15s ease, background 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--ref-shadow-md);
   }
 `;
 
@@ -31,15 +31,11 @@ export const FavoriteButton = styled("button")<{ active?: boolean }>`
   border-radius: 50%;
   border: none;
   background: transparent;
-  font-size: 22px;
-  line-height: 1;
   cursor: pointer;
-  color: ${({ active }) => (active ? "#f59e0b" : "#8A8D91")};
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: #F0F2F5;
-    color: #f59e0b;
+    background-color: var(--ref-bg-subtle);
   }
 
   &:disabled {
@@ -51,13 +47,15 @@ export const FavoriteButton = styled("button")<{ active?: boolean }>`
 export const QuestionText = styled("h3")`
   font-size: 20px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0 0 8px 0;
   line-height: 1.4;
 `;
 
 export const Badge = styled("span")<{ variant?: "single" | "multiple" | "countdown" | "expired" | "category" }>`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -67,15 +65,15 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "countdo
   ${({ variant }) => {
     switch (variant) {
       case "multiple":
-        return "background: #fef3c7; color: #b45309;";
+        return "background: var(--ref-warning-soft); color: #b45309;";
       case "countdown":
-        return "background: #ffedd5; color: #c2410c;";
+        return "background: var(--ref-warning-soft); color: #c2410c;";
       case "expired":
-        return "background: #fee2e2; color: #dc2626;";
+        return "background: var(--ref-danger-soft); color: var(--ref-danger);";
       case "category":
-        return "background: #F0F2F5; color: #65676B;";
+        return "background: var(--ref-bg-subtle); color: var(--ref-text-secondary);";
       default:
-        return "background: #E7F3FF; color: #166FE5;";
+        return "background: var(--ref-primary-soft); color: var(--ref-primary);";
     }
   }}
 `;
@@ -92,47 +90,22 @@ export const OptionItem = styled("div")<{ selected?: boolean }>`
   display: flex;
   align-items: center;
   padding: 12px 16px;
-  border-radius: 6px;
-  border: 1px solid ${({ selected }) => (selected ? "#1877F2" : "#CED0D4")};
-  background-color: ${({ selected }) => (selected ? "#E7F3FF" : "#F7F8FA")};
+  border-radius: 8px;
+  border: 1px solid ${({ selected }) => (selected ? "var(--ref-primary)" : "var(--ref-border)")};
+  background-color: ${({ selected }) => (selected ? "var(--ref-primary-soft)" : "var(--ref-bg-subtle)")};
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    border-color: #1877F2;
-    background-color: #E7F3FF;
-  }
-`;
-
-export const CheckIndicator = styled("div")<{ selected?: boolean; type?: "single" | "multiple" }>`
-  width: 20px;
-  height: 20px;
-  border-radius: ${({ type }) => (type === "multiple" ? "6px" : "50%")};
-  border: 2px solid ${({ selected }) => (selected ? "#1877F2" : "#CED0D4")};
-  background-color: ${({ selected }) => (selected ? "#1877F2" : "#ffffff")};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 14px;
-  flex-shrink: 0;
-
-  &::after {
-    content: "";
-    display: ${({ selected }) => (selected ? "block" : "none")};
-    width: ${({ type }) => (type === "multiple" ? "6px" : "8px")};
-    height: ${({ type }) => (type === "multiple" ? "10px" : "8px")};
-    border: solid #ffffff;
-    border-width: ${({ type }) => (type === "multiple" ? "0 2px 2px 0" : "0")};
-    background-color: ${({ type }) => (type === "multiple" ? "transparent" : "#ffffff")};
-    border-radius: ${({ type }) => (type === "multiple" ? "0" : "50%")};
-    transform: ${({ type }) => (type === "multiple" ? "rotate(45deg)" : "none")};
+    border-color: var(--ref-primary);
+    background-color: var(--ref-primary-soft);
   }
 `;
 
 export const OptionText = styled("span")`
   font-size: 15px;
   font-weight: 500;
-  color: #050505;
+  color: var(--ref-text-primary);
 `;
 
 /* Results Bar Styles */
@@ -141,10 +114,10 @@ export const ResultsContainer = styled("div")`
   flex-direction: column;
   gap: 16px;
   margin-bottom: 20px;
-  background: #F7F8FA;
-  border-radius: 8px;
+  background: var(--ref-bg-subtle);
+  border-radius: 10px;
   padding: 16px;
-  border: 1px solid #E4E6EB;
+  border: 1px solid var(--ref-border-soft);
 `;
 
 export const ResultsHeader = styled("div")`
@@ -157,7 +130,7 @@ export const ResultsHeader = styled("div")`
 export const TotalVotesText = styled("div")`
   font-size: 14px;
   font-weight: 600;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -174,19 +147,19 @@ export const ResultInfo = styled("div")`
   justify-content: space-between;
   font-size: 14px;
   font-weight: 600;
-  color: #050505;
+  color: var(--ref-text-primary);
 `;
 
 export const ResultOptionText = styled("span")``;
 
 export const ResultPercentageText = styled("span")`
-  color: #1877F2;
+  color: var(--ref-primary);
 `;
 
 export const ProgressBarTrack = styled("div")`
   width: 100%;
   height: 12px;
-  background-color: #E4E6EB;
+  background-color: var(--ref-border-soft);
   border-radius: 6px;
   overflow: hidden;
   position: relative;
@@ -197,8 +170,8 @@ export const ProgressBarFill = styled("div")<{ percentage: number; isTop?: boole
   width: ${({ percentage }) => percentage}%;
   background: ${({ isTop }) =>
     isTop
-      ? "linear-gradient(90deg, #1877F2 0%, #1877F2 100%)"
-      : "linear-gradient(90deg, #65676B 0%, #8A8D91 100%)"};
+      ? "linear-gradient(90deg, var(--ref-primary) 0%, var(--ref-primary-hover) 100%)"
+      : "linear-gradient(90deg, var(--ref-text-secondary) 0%, var(--ref-text-disabled) 100%)"};
   border-radius: 6px;
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 `;
@@ -209,12 +182,12 @@ export const CardFooter = styled("div")`
   align-items: center;
   padding-top: 12px;
   margin-top: 4px;
-  border-top: 1px solid #E4E6EB;
+  border-top: 1px solid var(--ref-border-soft);
 `;
 
 export const ActionButton = styled("button")<{ variant?: "primary" | "secondary" | "outline" }>`
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -229,21 +202,21 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "secondary"
       case "outline":
         return `
           background-color: transparent;
-          color: #65676B;
-          &:hover { background-color: #F0F2F5; }
+          color: var(--ref-text-secondary);
+          &:hover { background-color: var(--ref-bg-subtle); }
         `;
       case "secondary":
         return `
           background-color: transparent;
-          color: #65676B;
-          &:hover { background-color: #F0F2F5; }
+          color: var(--ref-text-secondary);
+          &:hover { background-color: var(--ref-bg-subtle); }
         `;
       case "primary":
       default:
         return `
-          background-color: #1877F2;
-          color: #ffffff;
-          &:hover { background-color: #166FE5; }
+          background-color: var(--ref-primary);
+          color: var(--ref-text-on-primary);
+          &:hover { background-color: var(--ref-primary-hover); }
         `;
     }
   }}

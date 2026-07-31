@@ -45,6 +45,11 @@ export default class MyDocument extends Document {
           {/* TODO: Add third-party scripts here (Analytics, GTM, etc.) */}
         </Head>
         <body>
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){try{var m=localStorage.getItem("ref-theme-mode");document.documentElement.setAttribute("data-theme",m==="dark"?"dark":"light");}catch(e){}})();`,
+            }}
+          />
           <Main />
           <NextScript />
         </body>

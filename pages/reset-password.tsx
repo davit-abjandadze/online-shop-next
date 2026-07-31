@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { CheckCircleIcon, KeyIcon, WarningIcon } from "@/components/ui/RefIcons";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -61,89 +62,102 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div style={{ maxWidth: "400px", margin: "100px auto", textAlign: "center" }}>
-        <h2 style={{ color: "#ef4444" }}>არასწორი ბმული</h2>
-        <p>გთხოვთ, ხელახლა სცადოთ პაროლის აღდგენა.</p>
-        <a href="/ka/forgot-password" style={{ color: "#0070f3" }}>
-          პაროლის აღდგენა
-        </a>
+      <div style={{ minHeight: "100vh", background: "var(--ref-bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+        <div style={{ maxWidth: "400px", textAlign: "center", background: "var(--ref-bg-elevated)", borderRadius: "16px", padding: "40px 32px", boxShadow: "var(--ref-shadow-md)", border: "1px solid var(--ref-border-soft)" }}>
+          <WarningIcon size={40} />
+          <h2 style={{ color: "var(--ref-danger)", margin: "16px 0 8px 0", fontSize: "20px" }}>არასწორი ბმული</h2>
+          <p style={{ color: "var(--ref-text-secondary)", fontSize: "14px" }}>გთხოვთ, ხელახლა სცადოთ პაროლის აღდგენა.</p>
+          <a href="/ka/forgot-password" style={{ color: "var(--ref-primary)", fontWeight: 600, fontSize: "14px" }}>
+            პაროლის აღდგენა
+          </a>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: "400px", margin: "100px auto", padding: "20px" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>
-        ახალი პაროლის დაყენება
-      </h1>
+    <div style={{ minHeight: "100vh", background: "var(--ref-bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      <div style={{ maxWidth: "420px", width: "100%", background: "var(--ref-bg-elevated)", borderRadius: "16px", padding: "40px 32px", boxShadow: "var(--ref-shadow-md)", border: "1px solid var(--ref-border-soft)" }}>
+        <h1 style={{ textAlign: "center", marginBottom: "28px", fontSize: "22px", color: "var(--ref-text-primary)", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
+          <KeyIcon size={24} /> ახალი პაროლის დაყენება
+        </h1>
 
-      {!success ? (
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px" }}>
-              ახალი პაროლი:
-            </label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-              minLength={6}
+        {!success ? (
+          <form onSubmit={handleSubmit}>
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ display: "block", marginBottom: "8px", fontSize: "13px", fontWeight: 600, color: "var(--ref-text-primary)" }}>
+                ახალი პაროლი:
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                minLength={6}
+                style={{
+                  width: "100%",
+                  padding: "10px 14px",
+                  border: "1.5px solid var(--ref-border-soft)",
+                  borderRadius: "8px",
+                  background: "var(--ref-bg-elevated)",
+                  color: "var(--ref-text-primary)",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ display: "block", marginBottom: "8px", fontSize: "13px", fontWeight: 600, color: "var(--ref-text-primary)" }}>
+                დაადასტურეთ ახალი პაროლი:
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+                style={{
+                  width: "100%",
+                  padding: "10px 14px",
+                  border: "1.5px solid var(--ref-border-soft)",
+                  borderRadius: "8px",
+                  background: "var(--ref-bg-elevated)",
+                  color: "var(--ref-text-primary)",
+                  outline: "none",
+                }}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
               style={{
                 width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
+                padding: "12px",
+                backgroundColor: loading ? "var(--ref-text-secondary)" : "var(--ref-primary)",
+                color: "var(--ref-text-on-primary)",
+                border: "none",
+                borderRadius: "8px",
+                cursor: loading ? "not-allowed" : "pointer",
+                fontSize: "15px",
+                fontWeight: 600,
               }}
-            />
+            >
+              {loading ? "ინახება..." : "პაროლის შეცვლა"}
+            </button>
+          </form>
+        ) : (
+          <div style={{ textAlign: "center", padding: "24px 0" }}>
+            <CheckCircleIcon size={40} />
+            <h2 style={{ color: "var(--ref-success)", margin: "16px 0 8px 0", fontSize: "18px" }}>
+              პაროლი წარმატებით შეიცვალა!
+            </h2>
+            <p style={{ color: "var(--ref-text-secondary)", fontSize: "14px" }}>
+              3 წამში გადახვალთ ლოგინის გვერდზე...
+            </p>
           </div>
-
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px" }}>
-              დაადასტურეთ ახალი პაროლი:
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={6}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-              }}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: "100%",
-              padding: "12px",
-              backgroundColor: loading ? "#ccc" : "#0070f3",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: loading ? "not-allowed" : "pointer",
-              fontSize: "16px",
-            }}
-          >
-            {loading ? "ინახება..." : "პაროლის შეცვლა"}
-          </button>
-        </form>
-      ) : (
-        <div style={{ textAlign: "center", padding: "40px 0" }}>
-          <h2 style={{ color: "#10b981", marginBottom: "20px" }}>
-            ✅ პაროლი წარმატებით შეიცვალა!
-          </h2>
-          <p style={{ color: "#666" }}>
-            3 წამში გადახვალთ ლოგინის გვერდზე...
-          </p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

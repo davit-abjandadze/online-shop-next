@@ -3,6 +3,8 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import AuthModal from "@/components/shared/AuthModal";
+import { useThemeMode } from "@/context/ThemeMode";
+import { ChartIcon, ChevronDownIcon, KeyIcon, LogoutIcon, MoonIcon, SunIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 interface HeaderProps {
@@ -12,6 +14,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { mode, toggleMode } = useThemeMode();
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register" | "forgot">("login");
@@ -45,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
   const handleLogout = async () => {
     setDropdownOpen(false);
     await signOut({ redirect: false });
-    router.push("/");
+    window.location.replace("/")
   };
 
   // Get User Initials
@@ -75,6 +78,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
             </Link>
           </S.RightSection>
           <S.LeftSection ref={dropdownRef}>
+            <S.ThemeToggleButton
+              type="button"
+              onClick={toggleMode}
+              aria-label={mode === "dark" ? "ღია რეჟიმზე გადართვა" : "ბნელ რეჟიმზე გადართვა"}
+              title={mode === "dark" ? "ღია რეჟიმი" : "ბნელი რეჟიმი"}
+            >
+              {mode === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
+            </S.ThemeToggleButton>
+
             {status === "authenticated" && session?.user ? (
               <>
                 <S.ProfileTrigger
@@ -91,42 +103,42 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                   <S.ProfileName>
                     {session.user.name || session.user.email}
                   </S.ProfileName>
-                  <span style={{ fontSize: "10px", color: "#65676B" }}>▼</span>
+                  <ChevronDownIcon size={14} />
                 </S.ProfileTrigger>
 
                 {/* Profile Dropdown Menu */}
                 {dropdownOpen && (
                   <S.DropdownMenu>
                     <S.DropdownHeader>
-                      <div style={{ fontWeight: 600, fontSize: "14px", color: "#050505" }}>
+                      <S.DropdownHeaderName>
                         {session.user.name || "მომხმარებელი"}
-                      </div>
+                      </S.DropdownHeaderName>
                       <S.UserEmail>{session.user.email}</S.UserEmail>
                     </S.DropdownHeader>
 
                     {session.user.role?.toLowerCase() === "admin" && (
                       <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/dashboard"); }}>
-                        📊 დეშბორდი
+                        <ChartIcon size={18} /> დეშბორდი
                       </S.DropdownItem>
                     )}
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/profile"); }}>
-                      👤 პროფილი
+                      <UserIcon size={18} /> პროფილი
                     </S.DropdownItem>
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/change-password"); }}>
-                      🔑 პაროლის შეცვლა
+                      <KeyIcon size={18} /> პაროლის შეცვლა
                     </S.DropdownItem>
 
                     <S.DropdownItem danger onClick={handleLogout}>
-                      🚪 გამოსვლა
+                      <LogoutIcon size={18} /> გამოსვლა
                     </S.DropdownItem>
                   </S.DropdownMenu>
                 )}
               </>
             ) : (
               <S.LoginBtn onClick={() => handleOpenLogin("login")} type="button">
-                👤 შესვლა / ავტორიზაცია
+                <UserIcon size={18} style={{ filter: "brightness(0) invert(1)" }} /> შესვლა / ავტორიზაცია
               </S.LoginBtn>
             )}
           </S.LeftSection>

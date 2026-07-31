@@ -6,6 +6,7 @@ import { AuthAPI } from "@/API_Client";
 import { RegisterDtoGenderEnum } from "@/API_Client/client";
 import useTranslation from "next-translate/useTranslation";
 import { useRouter } from 'next/navigation';
+import { CheckCircleIcon, CloseIcon, FacebookIcon, GoogleIcon, WarningIcon } from "@/components/ui/RefIcons";
 
 export type AuthMode = "login" | "register" | "forgot";
 
@@ -243,7 +244,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {mode === "forgot" && "პაროლის აღდგენა"}
           </S.Title>
           <S.CloseButton onClick={onClose} aria-label="Close">
-            ✕
+            <CloseIcon size={16} />
           </S.CloseButton>
         </S.ModalHeader>
 
@@ -269,8 +270,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         {/* Alerts */}
         <div style={{ padding: "0 28px", marginTop: "16px" }}>
-          {error && <S.ErrorAlert>⚠️ {error}</S.ErrorAlert>}
-          {success && <S.SuccessAlert>✓ {success}</S.SuccessAlert>}
+          {error && (
+            <S.ErrorAlert>
+              <WarningIcon size={16} /> {error}
+            </S.ErrorAlert>
+          )}
+          {success && (
+            <S.SuccessAlert>
+              <CheckCircleIcon size={16} /> {success}
+            </S.SuccessAlert>
+          )}
         </div>
 
         {/* 1. LOGIN FORM */}
@@ -278,44 +287,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <S.FormContainer onSubmit={handleLoginSubmit}>
 
             <button
-  type="button"
-  onClick={() => signIn("google", { callbackUrl: "/" })}
-  style={{
-    width: "100%",
-    padding: "10px",
-    backgroundColor: "#fff",
-    color: "#333",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-  }}
->
-  {/* აქ შეგიძლია Google-ის SVG იკონკა ჩასვა */}
-  <span>🔵</span> Google-ით შესვლა
-</button>
-<button
-  type="button"
-  onClick={() => signIn("facebook", { callbackUrl: "/" })}
-  style={{
-    width: "100%",
-    padding: "10px",
-    backgroundColor: "#1877F2",
-    color: "#fff",
-    border: "none",
-    borderRadius: "4px",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "10px",
-  }}
->
-  <span>🔵</span> Facebook-ით შესვლა
-</button>
+              type="button"
+              onClick={() => signIn("google", { callbackUrl: "/" })}
+              style={{
+                width: "100%",
+                padding: "10px",
+                backgroundColor: "var(--ref-bg-elevated)",
+                color: "var(--ref-text-primary)",
+                border: "1.5px solid var(--ref-border-soft)",
+                borderRadius: "6px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+            >
+              <GoogleIcon size={18} /> Google-ით შესვლა
+            </button>
+            <button
+              type="button"
+              onClick={() => signIn("facebook", { callbackUrl: "/" })}
+              style={{
+                width: "100%",
+                padding: "10px",
+                backgroundColor: "var(--ref-primary)",
+                color: "var(--ref-text-on-primary)",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                fontWeight: 600,
+                fontSize: "14px",
+              }}
+            >
+              <FacebookIcon size={18} /> Facebook-ით შესვლა
+            </button>
 
             <S.FormGroup>
               <S.Label>ელფოსტა</S.Label>
@@ -460,7 +472,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {/* 3. FORGOT PASSWORD FORM */}
         {mode === "forgot" && (
           <S.FormContainer onSubmit={handleForgotSubmit}>
-            <p style={{ fontSize: "14px", color: "#65676B", margin: 0 }}>
+            <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)", margin: 0 }}>
               შეიყვანეთ ელფოსტა, რომლითაც დარეგისტრირებული ხართ და გამოგიგზავნით პაროლის აღდგენის ინსტრუქციას.
             </p>
 

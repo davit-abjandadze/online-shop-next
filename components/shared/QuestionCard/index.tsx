@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Question } from "@/API_Client/client/models";
 import { ParsedResult } from "@/utils/parseQuestionResults";
+import {
+  BallotIcon,
+  ChartIcon,
+  CheckCircleIcon,
+  CheckSquareIcon,
+  HourglassIcon,
+  LockIcon,
+  PeopleIcon,
+  RadioIcon,
+  StarIcon,
+  TagIcon,
+  UndoIcon,
+} from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -16,7 +29,11 @@ export const CountdownBadge: React.FC<{ endDate: Date | string }> = ({ endDate }
   const diffMs = new Date(endDate).getTime() - now;
 
   if (diffMs <= 0) {
-    return <S.Badge variant="expired">⏳ ვადა გასულია</S.Badge>;
+    return (
+      <S.Badge variant="expired">
+        <HourglassIcon size={14} /> ვადა გასულია
+      </S.Badge>
+    );
   }
 
   const totalSeconds = Math.floor(diffMs / 1000);
@@ -27,7 +44,7 @@ export const CountdownBadge: React.FC<{ endDate: Date | string }> = ({ endDate }
 
   return (
     <S.Badge variant="countdown">
-      ⏳ {days > 0 && `დარჩენილია ${days}დღე და `}{pad(hours)}:{pad(minutes)}:{pad(seconds)}
+      <HourglassIcon size={14} /> {days > 0 && `დარჩენილია ${days}დღე და `}{pad(hours)}:{pad(minutes)}:{pad(seconds)}
     </S.Badge>
   );
 };
@@ -70,13 +87,18 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         <div>
           <S.QuestionText>{q.text}</S.QuestionText>
           <S.Badge variant={isMultiple ? "multiple" : "single"}>
-            {isMultiple ? "☑️ მრავალარჩევიანი" : "🔘 ერთარჩევიანი"}
+            {isMultiple ? <CheckSquareIcon size={14} /> : <RadioIcon size={14} />}
+            {isMultiple ? "მრავალარჩევიანი" : "ერთარჩევიანი"}
           </S.Badge>
-          {q.category && <S.Badge variant="category">🏷️ {q.category.name}</S.Badge>}
+          {q.category && (
+            <S.Badge variant="category">
+              <TagIcon size={14} /> {q.category.name}
+            </S.Badge>
+          )}
           {q.endDate && <CountdownBadge endDate={q.endDate} />}
           {hasVoted && (
-            <S.Badge variant="single" style={{ marginTop: "8px", display: "inline-block" }}>
-              ✅ თქვენ უკვე მიეცით ხმა
+            <S.Badge variant="single" style={{ marginTop: "8px", display: "inline-flex" }}>
+              <CheckCircleIcon size={14} /> თქვენ უკვე მიეცით ხმა
             </S.Badge>
           )}
         </div>
@@ -89,7 +111,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
           title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
         >
-          {isFavorite ? "⭐" : "☆"}
+          <StarIcon size={22} filled={isFavorite} />
         </S.FavoriteButton>
       </S.CardTop>
 
@@ -101,7 +123,17 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               const selected = chosenIds.includes(ans.id);
               return (
                 <S.OptionItem key={ans.id} selected={selected} onClick={() => onSelectOption(ans.id, isMultiple)}>
-                  <S.CheckIndicator selected={selected} type={isMultiple ? "multiple" : "single"} />
+                  {isMultiple ? (
+                    <CheckSquareIcon
+                      size={20}
+                      style={{ marginRight: 14, opacity: selected ? 1 : 0.35 }}
+                    />
+                  ) : (
+                    <RadioIcon
+                      size={20}
+                      style={{ marginRight: 14, opacity: selected ? 1 : 0.35 }}
+                    />
+                  )}
                   <S.OptionText>{ans.text}</S.OptionText>
                 </S.OptionItem>
               );
@@ -110,11 +142,11 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
 
           <S.CardFooter>
             <S.ActionButton variant="primary" onClick={onVote} disabled={submitting}>
-              {submitting ? "იგზავნება..." : "🗳️ ხმის მიცემა"}
+              <BallotIcon size={16} /> {submitting ? "იგზავნება..." : "ხმის მიცემა"}
             </S.ActionButton>
 
             <S.ActionButton variant="secondary" onClick={onToggleResults}>
-              📊 შედეგების ნახვა
+              <ChartIcon size={16} /> შედეგების ნახვა
             </S.ActionButton>
           </S.CardFooter>
         </>
@@ -124,7 +156,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <S.ResultsContainer>
             <S.ResultsHeader>
               <S.TotalVotesText>
-                <span>👥</span> სულ მიღებულია {results?.totalUsers || 0} ხმა
+                <PeopleIcon size={16} /> სულ მიღებულია {results?.totalUsers || 0} ხმა
               </S.TotalVotesText>
             </S.ResultsHeader>
 
@@ -152,11 +184,11 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           <S.CardFooter>
             {hasVoted ? (
               <S.ActionButton variant="outline" disabled style={{ opacity: 0.6, cursor: "not-allowed" }}>
-                🔒 ხმის შეცვლა შეუძლებელია
+                <LockIcon size={16} /> ხმის შეცვლა შეუძლებელია
               </S.ActionButton>
             ) : (
               <S.ActionButton variant="outline" onClick={onToggleResults}>
-                ↩️ ხმის მიცემის ფორმაზე დაბრუნება
+                <UndoIcon size={16} /> ხმის მიცემის ფორმაზე დაბრუნება
               </S.ActionButton>
             )}
           </S.CardFooter>

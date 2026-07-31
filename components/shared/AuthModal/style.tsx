@@ -12,7 +12,7 @@ export const Overlay = styled(motion.div)`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: var(--ref-overlay);
   backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
@@ -22,7 +22,7 @@ export const Overlay = styled(motion.div)`
 `;
 
 export const ModalContainer = styled(motion.div)`
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
   width: 100%;
   max-width: 440px;
   border-radius: 8px;
@@ -37,19 +37,19 @@ export const ModalHeader = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #F0F2F5;
+  border-bottom: 1px solid var(--ref-bg);
 `;
 
 export const Title = styled.h3`
   font-size: 20px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0;
   font-family: inherit;
 `;
 
 export const CloseButton = styled.button`
-  background: #F7F8FA;
+  background: var(--ref-bg-subtle);
   border: none;
   width: 36px;
   height: 36px;
@@ -58,20 +58,20 @@ export const CloseButton = styled.button`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   font-size: 18px;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #F0F2F5;
-    color: #050505;
+    background: var(--ref-bg);
+    color: var(--ref-text-primary);
     transform: rotate(90deg);
   }
 `;
 
 export const TabBar = styled.div`
   display: flex;
-  background: #F7F8FA;
+  background: var(--ref-bg);
   padding: 4px;
   margin: 16px 28px 0;
   border-radius: 8px;
@@ -82,8 +82,8 @@ export const TabButton = styled.button<{ active: boolean }>`
   flex: 1;
   padding: 10px 14px;
   border: none;
-  background: ${({ active }) => (active ? "#ffffff" : "transparent")};
-  color: ${({ active }) => (active ? "#050505" : "#65676B")};
+  background: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "transparent")};
+  color: ${({ active }) => (active ? "var(--ref-text-primary)" : "var(--ref-text-secondary)")};
   font-weight: ${({ active }) => (active ? "600" : "500")};
   font-size: 14px;
   border-radius: 6px;
@@ -93,7 +93,7 @@ export const TabButton = styled.button<{ active: boolean }>`
     active ? "0 2px 8px rgba(0, 0, 0, 0.06)" : "none"};
 
   &:hover {
-    color: #050505;
+    color: var(--ref-text-primary);
   }
 `;
 
@@ -113,7 +113,7 @@ export const FormGroup = styled.div`
 export const Label = styled.label`
   font-size: 13px;
   font-weight: 600;
-  color: #050505;
+  color: var(--ref-text-primary);
 `;
 
 export const InputWrapper = styled.div`
@@ -125,27 +125,27 @@ export const InputWrapper = styled.div`
 export const Input = styled.input`
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #E4E6EB;
+  border: 1.5px solid var(--ref-border-soft);
   border-radius: 6px;
   font-size: 14px;
-  color: #050505;
+  color: var(--ref-text-primary);
   outline: none;
   transition: all 0.2s ease;
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
 
   &:focus {
-    border-color: #1877F2;
+    border-color: var(--ref-primary);
     box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
   }
 
   &::placeholder {
-    color: #8A8D91;
+    color: var(--ref-text-secondary);
   }
 `;
 
 export const GenderSwitch = styled.div`
   display: flex;
-  background: #F7F8FA;
+  background: var(--ref-bg);
   padding: 4px;
   border-radius: 8px;
   gap: 4px;
@@ -155,8 +155,8 @@ export const GenderOption = styled.button<{ active: boolean }>`
   flex: 1;
   padding: 10px 14px;
   border: none;
-  background: ${({ active }) => (active ? "#ffffff" : "transparent")};
-  color: ${({ active }) => (active ? "#050505" : "#65676B")};
+  background: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "transparent")};
+  color: ${({ active }) => (active ? "var(--ref-text-primary)" : "var(--ref-text-secondary)")};
   font-weight: ${({ active }) => (active ? "600" : "500")};
   font-size: 14px;
   border-radius: 6px;
@@ -166,24 +166,24 @@ export const GenderOption = styled.button<{ active: boolean }>`
     active ? "0 2px 8px rgba(0, 0, 0, 0.06)" : "none"};
 
   &:hover {
-    color: #050505;
+    color: var(--ref-text-primary);
   }
 `;
 
 export const Select = styled.select`
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #E4E6EB;
+  border: 1.5px solid var(--ref-border-soft);
   border-radius: 6px;
   font-size: 14px;
-  color: #050505;
+  color: var(--ref-text-primary);
   outline: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: #ffffff;
+  background: var(--ref-bg-elevated);
 
   &:focus {
-    border-color: #1877F2;
+    border-color: var(--ref-primary);
     box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
   }
 `;
@@ -193,23 +193,23 @@ export const TogglePasswordBtn = styled.button`
   right: 12px;
   background: none;
   border: none;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   cursor: pointer;
   font-size: 13px;
   padding: 4px 8px;
   border-radius: 6px;
 
   &:hover {
-    color: #050505;
-    background: #F0F2F5;
+    color: var(--ref-text-primary);
+    background: var(--ref-bg);
   }
 `;
 
 export const SubmitButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
   padding: 12px;
-  background: ${({ disabled }) => (disabled ? "#8A8D91" : "#1877F2")};
-  color: #ffffff;
+  background: ${({ disabled }) => (disabled ? "var(--ref-text-secondary)" : "var(--ref-primary)")};
+  color: var(--ref-text-on-primary);
   border: none;
   border-radius: 6px;
   font-size: 15px;
@@ -219,14 +219,14 @@ export const SubmitButton = styled.button<{ disabled?: boolean }>`
   margin-top: 8px;
 
   &:hover:not(:disabled) {
-    background: #166FE5;
+    background: var(--ref-primary-hover);
   }
 `;
 
 export const ErrorAlert = styled.div`
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: var(--ref-danger-soft);
+  border: 1px solid var(--ref-danger-soft);
+  color: var(--ref-danger);
   padding: 12px 16px;
   border-radius: 6px;
   font-size: 13px;
@@ -237,9 +237,9 @@ export const ErrorAlert = styled.div`
 `;
 
 export const SuccessAlert = styled.div`
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #16a34a;
+  background: var(--ref-success-soft);
+  border: 1px solid var(--ref-success-soft);
+  color: var(--ref-success);
   padding: 12px 16px;
   border-radius: 6px;
   font-size: 13px;
@@ -260,7 +260,7 @@ export const FooterLinks = styled.div`
 export const LinkBtn = styled.button`
   background: none;
   border: none;
-  color: #1877F2;
+  color: var(--ref-primary);
   font-weight: 600;
   cursor: pointer;
   padding: 0;
@@ -268,6 +268,6 @@ export const LinkBtn = styled.button`
 
   &:hover {
     text-decoration: underline;
-    color: #166FE5;
+    color: var(--ref-primary-hover);
   }
 `;

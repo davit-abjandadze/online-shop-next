@@ -19,6 +19,7 @@ import { withTranslateRoutes } from "next-translate-routes";
 import useTranslation from "next-translate/useTranslation";
 import Head from "next/head";
 import { GlobalProvider } from "@/context/GlobalContext";
+import { ThemeModeProvider } from "@/context/ThemeMode";
 
 NProgress.configure({ showSpinner: false });
 
@@ -97,7 +98,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
             refetchOnWindowFocus={false}
           >
             <GlobalProvider>
-              <>
+              <ThemeModeProvider>
                 <Component {...pageProps} />
                 <ToastContainer
                   autoClose={3000}
@@ -114,7 +115,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
                     }
                   }}
                 />
-              </>
+              </ThemeModeProvider>
             </GlobalProvider>
           </SessionProvider>
         </ScreenClassProvider>

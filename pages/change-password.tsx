@@ -7,10 +7,11 @@ import Header from "@/components/shared/Header";
 import styled from "styled-components";
 import { AuthAPI } from "@/API_Client";
 import useTranslation from "next-translate/useTranslation";
+import { CheckCircleIcon, KeyIcon, WarningIcon } from "@/components/ui/RefIcons";
 
 const Container = styled.div`
   min-height: 100vh;
-  background-color: #F7F8FA;
+  background-color: var(--ref-bg);
 `;
 
 const Content = styled.div`
@@ -20,23 +21,26 @@ const Content = styled.div`
 `;
 
 const Card = styled.div`
-  background: #ffffff;
-  border-radius: 20px;
+  background: var(--ref-bg-elevated);
+  border-radius: 16px;
   padding: 32px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-  border: 1px solid #E4E6EB;
+  box-shadow: var(--ref-shadow-md);
+  border: 1px solid var(--ref-border-soft);
 `;
 
 const Title = styled.h1`
   font-size: 22px;
   font-weight: 700;
-  color: #050505;
+  color: var(--ref-text-primary);
   margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 `;
 
 const Subtitle = styled.p`
   font-size: 14px;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   margin: 0 0 24px 0;
 `;
 
@@ -50,7 +54,7 @@ const FormGroup = styled.div`
 const Label = styled.label`
   font-size: 13px;
   font-weight: 600;
-  color: #050505;
+  color: var(--ref-text-primary);
 `;
 
 const InputWrapper = styled.div`
@@ -62,16 +66,17 @@ const InputWrapper = styled.div`
 const Input = styled.input`
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid #E4E6EB;
-  border-radius: 12px;
+  border: 1.5px solid var(--ref-border-soft);
+  border-radius: 10px;
   font-size: 14px;
-  color: #050505;
+  color: var(--ref-text-primary);
   outline: none;
   transition: all 0.2s ease;
+  background: var(--ref-bg-elevated);
 
   &:focus {
-    border-color: #1877F2;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+    border-color: var(--ref-primary);
+    box-shadow: 0 0 0 4px var(--ref-primary-soft);
   }
 `;
 
@@ -80,25 +85,25 @@ const ToggleBtn = styled.button`
   right: 12px;
   background: none;
   border: none;
-  color: #65676B;
+  color: var(--ref-text-secondary);
   cursor: pointer;
   font-size: 12px;
   padding: 4px 8px;
   border-radius: 6px;
 
   &:hover {
-    color: #050505;
-    background: #F0F2F5;
+    color: var(--ref-text-primary);
+    background: var(--ref-bg-subtle);
   }
 `;
 
 const SubmitButton = styled.button`
   width: 100%;
   padding: 14px;
-  background: linear-gradient(135deg, #1877F2 0%, #166FE5 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, var(--ref-primary) 0%, var(--ref-primary-hover) 100%);
+  color: var(--ref-text-on-primary);
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -106,25 +111,28 @@ const SubmitButton = styled.button`
   margin-top: 8px;
 
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #166FE5 0%, #0C44AE 100%);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    filter: brightness(1.05);
+    box-shadow: var(--ref-shadow-md);
   }
 
   &:disabled {
-    background: #8A8D91;
+    background: var(--ref-text-secondary);
     cursor: not-allowed;
   }
 `;
 
 const Alert = styled.div<{ success?: boolean }>`
   padding: 12px 16px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
   margin-bottom: 16px;
-  background: ${({ success }) => (success ? "#f0fdf4" : "#fef2f2")};
-  border: 1px solid ${({ success }) => (success ? "#bbf7d0" : "#fecaca")};
-  color: ${({ success }) => (success ? "#16a34a" : "#dc2626")};
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: ${({ success }) => (success ? "var(--ref-success-soft)" : "var(--ref-danger-soft)")};
+  border: 1px solid ${({ success }) => (success ? "var(--ref-success)" : "var(--ref-danger)")};
+  color: ${({ success }) => (success ? "var(--ref-success)" : "var(--ref-danger)")};
 `;
 
 export default function ChangePasswordPage() {
@@ -210,11 +218,11 @@ export default function ChangePasswordPage() {
       <Header />
       <Content>
         <Card>
-          <Title>პაროლის შეცვლა</Title>
+          <Title><KeyIcon size={22} /> პაროლის შეცვლა</Title>
           <Subtitle>შეიყვანეთ მიმდინარე და ახალი პაროლი</Subtitle>
 
-          {error && <Alert>{error}</Alert>}
-          {success && <Alert success>{success}</Alert>}
+          {error && <Alert><WarningIcon size={16} /> {error}</Alert>}
+          {success && <Alert success><CheckCircleIcon size={16} /> {success}</Alert>}
 
           <form onSubmit={handleSubmit}>
             <FormGroup>
