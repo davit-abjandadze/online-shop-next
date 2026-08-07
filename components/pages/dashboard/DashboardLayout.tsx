@@ -1,9 +1,9 @@
 import React from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Header from "@/components/shared/Header";
 import { ChartIcon, LockIcon, QuestionMarkIcon, TagIcon } from "@/components/ui/RefIcons";
+import { useAdminGuard } from "@/hooks/useAdminGuard";
 import * as S from "./style";
 
 interface DashboardTabConfig {
@@ -26,11 +26,11 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ title, subtitle, headerAction, children }) => {
-  const { data: session, status } = useSession();
+  const { isLoading, isDenied } = useAdminGuard();
   const router = useRouter();
 
   // ─── Auth Guard ───────────────────────────────────────────────────────────────
-  if (status === "loading") {
+  if (isLoading) {
     return (
       <>
         <Header />
@@ -43,7 +43,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ title, subtitl
     );
   }
 
-  if (status === "unauthenticated" || session?.user?.role?.toLowerCase() !== "admin") {
+  if (isDenied) {
     return (
       <>
         <Header />

@@ -19,6 +19,7 @@ import { withTranslateRoutes } from "next-translate-routes";
 import useTranslation from "next-translate/useTranslation";
 import Head from "next/head";
 import { ThemeModeProvider } from "@/context/ThemeMode";
+import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
 NProgress.configure({ showSpinner: false });
 
@@ -100,7 +101,9 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           >
             {/* <GlobalProvider> */}
               <ThemeModeProvider>
-                <Component {...pageProps} />
+                <ErrorBoundary>
+                  <Component {...pageProps} />
+                </ErrorBoundary>
                 <ToastContainer
                   autoClose={3000}
                   transition={ToastAnimation}

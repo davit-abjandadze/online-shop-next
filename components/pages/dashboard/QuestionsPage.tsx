@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AnswerAPI, CategoriesAPI, QuestionAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
+import { useAdminGuard } from "@/hooks/useAdminGuard";
 import {
   CalendarIcon,
   CheckSquareIcon,
@@ -22,13 +24,24 @@ import {
   TrashIcon,
 } from "@/components/ui/RefIcons";
 import DashboardLayout from "./DashboardLayout";
+import ConfirmDialog from "./ConfirmDialog";
+import { StatsSkeleton, ListSkeleton } from "./Skeletons";
+import { QuestionFormValues, questionFormSchema } from "./schemas";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 10;
 const QUESTIONS_FETCH_PAGE_SIZE = 100; // backend-ის მაქსიმალური დასაშვები limit
 
+const emptyQuestionForm: QuestionFormValues = {
+  text: "",
+  type: "single",
+  categoryId: "",
+  endDate: "",
+  answers: [{ text: "" }, { text: "" }],
+};
+
 export const QuestionsPage: React.FC = () => {
-  const { data: session, status } = useSession();
+  const { session } = useAdminGuard();
   const router = useRouter();
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -40,24 +53,31 @@ export const QuestionsPage: React.FC = () => {
   // ჩვენების `questions`-ისგან დამოუკიდებლად ვინახავთ
   const [totalQuestionsCount, setTotalQuestionsCount] = useState<number>(0);
   const [totalAnswersCount, setTotalAnswersCount] = useState<number>(0);
+  const [statsLoading, setStatsLoading] = useState<boolean>(true);
 
   const [categories, setCategories] = useState<Category[]>([]);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
-  const [newQuestionText, setNewQuestionText] = useState<string>("");
-  const [newQuestionType, setNewQuestionType] = useState<"single" | "multiple">("single");
-  const [newQuestionCategoryId, setNewQuestionCategoryId] = useState<number | "">("");
-  const [newAnswers, setNewAnswers] = useState<string[]>(["", ""]);
-  const [newEndDate, setNewEndDate] = useState<string>("");
   const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
 
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
-  const [editText, setEditText] = useState<string>("");
-  const [editType, setEditType] = useState<"single" | "multiple">("single");
-  const [editCategoryId, setEditCategoryId] = useState<number | "">("");
-  const [editAnswers, setEditAnswers] = useState<{ id?: number; text: string }[]>([]);
   const [deletedAnswerIds, setDeletedAnswerIds] = useState<number[]>([]);
   const [editSubmitting, setEditSubmitting] = useState<boolean>(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<Question | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
+
+  const createForm = useForm<QuestionFormValues>({
+    resolver: zodResolver(questionFormSchema),
+    defaultValues: emptyQuestionForm,
+  });
+  const createAnswers = useFieldArray({ control: createForm.control, name: "answers" });
+
+  const editForm = useForm<QuestionFormValues>({
+    resolver: zodResolver(questionFormSchema),
+    defaultValues: emptyQuestionForm,
+  });
+  const editAnswersField = useFieldArray({ control: editForm.control, name: "answers" });
 
   const fetchQuestions = async () => {
     if (!session?.accessToken) return;
@@ -77,6 +97,7 @@ export const QuestionsPage: React.FC = () => {
   // გვერდზე გავლით, რადგან `questions` მხოლოდ მიმდინარე გვერდის მონაცემებს შეიცავს
   const fetchQuestionsStats = async () => {
     if (!session?.accessToken) return;
+    setStatsLoading(true);
     try {
       const api = QuestionAPI(router.locale || "ka", session.accessToken);
       let page = 1;
@@ -96,6 +117,8 @@ export const QuestionsPage: React.FC = () => {
       setTotalAnswersCount(answersSum);
     } catch {
       // მთავარი სიის ჩატვირთვის შეცდომას ცალკე ვამუშავებთ fetchQuestions-ში
+    } finally {
+      setStatsLoading(false);
     }
   };
 
@@ -111,39 +134,34 @@ export const QuestionsPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.role?.toLowerCase() === "admin") {
+    if (session?.accessToken) {
       fetchQuestions();
       fetchQuestionsStats();
       fetchCategories();
-      fetchQuestionsStats();
     }
-  }, [status, session, questionsPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, questionsPage]);
 
-  // ─── Question Handlers ────────────────────────────────────────────────────────
-  const handleAddAnswerInput = () => setNewAnswers([...newAnswers, ""]);
-  const handleRemoveAnswerInput = (index: number) => {
-    if (newAnswers.length <= 2) { toast.warning("კითხვას უნდა ჰქონდეს მინიმუმ 2 სავარაუდო პასუხი"); return; }
-    setNewAnswers(newAnswers.filter((_, i) => i !== index));
+  // ─── Create Question ──────────────────────────────────────────────────────────
+  const handleOpenCreate = () => {
+    createForm.reset(emptyQuestionForm);
+    setIsCreateModalOpen(true);
   };
 
-  const handleCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newQuestionText.trim()) { toast.warning("გთხოვთ შეავსოთ კითხვის ტექსტი"); return; }
-    const validAnswers = newAnswers.map((a) => a.trim()).filter((a) => a.length > 0);
-    if (validAnswers.length < 2) { toast.warning("გთხოვთ მიუთითოთ მინიმუმ 2 სავარაუდო პასუხი"); return; }
-
+  const handleCreateSubmit = createForm.handleSubmit(async (data) => {
     setCreateSubmitting(true);
     try {
+      const validAnswers = data.answers.map((a) => a.text.trim()).filter((a) => a.length > 0);
       await QuestionAPI(router.locale || "ka", session!.accessToken!).questionControllerCreate({
-        text: newQuestionText.trim(),
-        type: newQuestionType as any,
-        categoryId: newQuestionCategoryId !== "" ? Number(newQuestionCategoryId) : undefined,
+        text: data.text.trim(),
+        type: data.type as any,
+        categoryId: data.categoryId !== "" ? Number(data.categoryId) : undefined,
         answers: validAnswers.map((text) => ({ text })),
-        endDate: newEndDate ? new Date(newEndDate).toISOString() : undefined,
+        endDate: data.endDate ? new Date(data.endDate).toISOString() : undefined,
       });
       toast.success("კითხვა წარმატებით დაემატა!");
       setIsCreateModalOpen(false);
-      setNewQuestionText(""); setNewQuestionType("single"); setNewAnswers(["", ""]); setNewQuestionCategoryId(""); setNewEndDate("");
+      createForm.reset(emptyQuestionForm);
       fetchQuestions();
       fetchQuestionsStats();
     } catch (err: any) {
@@ -151,31 +169,30 @@ export const QuestionsPage: React.FC = () => {
     } finally {
       setCreateSubmitting(false);
     }
-  };
+  });
 
+  // ─── Edit Question ────────────────────────────────────────────────────────────
   const handleOpenEdit = (q: Question) => {
     setEditingQuestion(q);
-    setEditText(q.text);
-    setEditType((q.type as any) || "single");
-    setEditCategoryId(q.categoryId ?? "");
-    setEditAnswers((q.answers || []).map((a) => ({ id: a.id, text: a.text })));
+    editForm.reset({
+      text: q.text,
+      type: ((q.type as any) || "single"),
+      categoryId: q.categoryId ?? "",
+      endDate: "",
+      answers: (q.answers || []).map((a) => ({ id: a.id, text: a.text })),
+    });
     setDeletedAnswerIds([]);
   };
 
-  const handleAddEditAnswerRow = () => setEditAnswers([...editAnswers, { text: "" }]);
   const handleRemoveEditAnswerRow = (index: number) => {
-    if (editAnswers.length <= 2) { toast.warning("კითხვას უნდა ჰქონდეს მინიმუმ 2 სავარაუდო პასუხი"); return; }
-    const target = editAnswers[index];
-    if (target.id) setDeletedAnswerIds([...deletedAnswerIds, target.id]);
-    setEditAnswers(editAnswers.filter((_, i) => i !== index));
+    const target = editForm.getValues(`answers.${index}`);
+    if (target?.id) setDeletedAnswerIds((prev) => [...prev, target.id as number]);
+    editAnswersField.remove(index);
   };
 
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEditSubmit = editForm.handleSubmit(async (data) => {
     if (!editingQuestion || !session?.accessToken) return;
-    if (!editText.trim()) { toast.warning("გთხოვთ შეავსოთ კითხვის ტექსტი"); return; }
-    const validAnswers = editAnswers.filter((a) => a.text.trim().length > 0);
-    if (validAnswers.length < 2) { toast.warning("გთხოვთ მიუთითოთ მინიმუმ 2 სავარაუდო პასუხი"); return; }
+    const validAnswers = data.answers.filter((a) => a.text.trim().length > 0);
 
     setEditSubmitting(true);
     try {
@@ -183,7 +200,7 @@ export const QuestionsPage: React.FC = () => {
       const aApi = AnswerAPI(router.locale || "ka", session.accessToken);
 
       await qApi.questionControllerUpdate(
-        { text: editText.trim(), type: editType as any, categoryId: editCategoryId !== "" ? Number(editCategoryId) : undefined } as any,
+        { text: data.text.trim(), type: data.type as any, categoryId: data.categoryId !== "" ? Number(data.categoryId) : undefined } as any,
         String(editingQuestion.id)
       );
 
@@ -211,7 +228,7 @@ export const QuestionsPage: React.FC = () => {
     } finally {
       setEditSubmitting(false);
     }
-  };
+  });
 
   const handleToggleActive = async (q: Question) => {
     try {
@@ -230,16 +247,26 @@ export const QuestionsPage: React.FC = () => {
     }
   };
 
-  const handleDeleteQuestion = async (qId: number) => {
-    if (!window.confirm("ნამდვილად გსურთ კითხვის წაშლა?")) return;
+  // ─── Delete Question (confirm dialog instead of window.confirm) ─────────────
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteSubmitting(true);
     try {
-      await QuestionAPI(router.locale || "ka", session?.accessToken || "").questionControllerRemove(String(qId));
+      await QuestionAPI(router.locale || "ka", session?.accessToken || "").questionControllerRemove(String(deleteTarget.id));
       toast.success("კითხვა წარმატებით წაიშალა!");
+      setDeleteTarget(null);
       fetchQuestions();
       fetchQuestionsStats();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "კითხვის წაშლა ვერ მოხერხდა");
+    } finally {
+      setDeleteSubmitting(false);
     }
+  };
+
+  const answersError = (form: typeof createForm | typeof editForm) => {
+    const err = form.formState.errors.answers as any;
+    return err?.message || err?.root?.message;
   };
 
   return (
@@ -247,45 +274,47 @@ export const QuestionsPage: React.FC = () => {
       title="ადმინ დეშბორდი"
       subtitle="მართეთ რეფერენდუმის კითხვები, კატეგორიები და სავარაუდო პასუხები"
       headerAction={
-        <S.ActionButton variant="primary" onClick={() => setIsCreateModalOpen(true)}>
+        <S.ActionButton variant="primary" onClick={handleOpenCreate}>
           <PlusIcon size={16} /> ახალი კითხვა
         </S.ActionButton>
       }
     >
-      <S.StatsGrid>
-        <S.StatCard>
-          <S.StatIcon><QuestionMarkIcon size={24} /></S.StatIcon>
-          <S.StatInfo>
-            <S.StatValue>{totalQuestionsCount}</S.StatValue>
-            <S.StatLabel>სულ კითხვები</S.StatLabel>
-          </S.StatInfo>
-        </S.StatCard>
-        <S.StatCard>
-          <S.StatIcon><TargetIcon size={24} /></S.StatIcon>
-          <S.StatInfo>
-            <S.StatValue>{totalAnswersCount}</S.StatValue>
-            <S.StatLabel>სულ სავარაუდო პასუხები</S.StatLabel>
-          </S.StatInfo>
-        </S.StatCard>
-        <S.StatCard>
-          <S.StatIcon><TagIcon size={24} /></S.StatIcon>
-          <S.StatInfo>
-            <S.StatValue>{categories.length}</S.StatValue>
-            <S.StatLabel>კატეგორიები</S.StatLabel>
-          </S.StatInfo>
-        </S.StatCard>
-      </S.StatsGrid>
+      {statsLoading ? (
+        <StatsSkeleton count={3} />
+      ) : (
+        <S.StatsGrid>
+          <S.StatCard>
+            <S.StatIcon><QuestionMarkIcon size={24} /></S.StatIcon>
+            <S.StatInfo>
+              <S.StatValue>{totalQuestionsCount}</S.StatValue>
+              <S.StatLabel>სულ კითხვები</S.StatLabel>
+            </S.StatInfo>
+          </S.StatCard>
+          <S.StatCard>
+            <S.StatIcon><TargetIcon size={24} /></S.StatIcon>
+            <S.StatInfo>
+              <S.StatValue>{totalAnswersCount}</S.StatValue>
+              <S.StatLabel>სულ სავარაუდო პასუხები</S.StatLabel>
+            </S.StatInfo>
+          </S.StatCard>
+          <S.StatCard>
+            <S.StatIcon><TagIcon size={24} /></S.StatIcon>
+            <S.StatInfo>
+              <S.StatValue>{categories.length}</S.StatValue>
+              <S.StatLabel>კატეგორიები</S.StatLabel>
+            </S.StatInfo>
+          </S.StatCard>
+        </S.StatsGrid>
+      )}
 
       {loadingQ ? (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <p style={{ color: "var(--ref-text-secondary)" }}>კითხვები იტვირთება...</p>
-        </div>
+        <ListSkeleton count={3} />
       ) : questions.length === 0 ? (
         <S.EmptyState>
           <ClipboardIcon size={48} />
           <S.EmptyTitle>კითხვები არ არის დამატებული</S.EmptyTitle>
           <S.EmptyText>დააჭირეთ &quot;ახალი კითხვა&quot; ღილაკს პირველი კითხვის შესაქმნელად.</S.EmptyText>
-          <S.ActionButton variant="primary" onClick={() => setIsCreateModalOpen(true)}>
+          <S.ActionButton variant="primary" onClick={handleOpenCreate}>
             <PlusIcon size={16} /> კითხვის დამატება
           </S.ActionButton>
         </S.EmptyState>
@@ -326,7 +355,7 @@ export const QuestionsPage: React.FC = () => {
                   <S.ActionButton variant="outline" onClick={() => handleOpenEdit(q)}>
                     <EditIcon size={16} /> რედაქტირება
                   </S.ActionButton>
-                  <S.ActionButton variant="danger" onClick={() => handleDeleteQuestion(q.id)}>
+                  <S.ActionButton variant="danger" onClick={() => setDeleteTarget(q)}>
                     <TrashIcon size={16} /> წაშლა
                   </S.ActionButton>
                 </S.CardActions>
@@ -397,34 +426,39 @@ export const QuestionsPage: React.FC = () => {
                 <CloseIcon size={16} />
               </S.CloseButton>
             </S.ModalHeader>
-            <form onSubmit={handleCreateSubmit}>
+            <form onSubmit={handleCreateSubmit} noValidate>
               <S.FormGroup>
                 <S.Label>კითხვის ტექსტი</S.Label>
                 <S.Input
                   type="text"
                   placeholder="მაგ: რომელ ქალაქს ანიჭებთ უპირატესობას?"
-                  value={newQuestionText}
-                  onChange={(e) => setNewQuestionText(e.target.value)}
-                  required
+                  {...createForm.register("text")}
                 />
+                {createForm.formState.errors.text && <S.FieldError>{createForm.formState.errors.text.message}</S.FieldError>}
               </S.FormGroup>
 
               <S.FormGroup>
                 <S.Label>კატეგორია (არასავალდებულო)</S.Label>
-                <S.Select
-                  value={newQuestionCategoryId}
-                  onChange={(e) => setNewQuestionCategoryId(e.target.value === "" ? "" : Number(e.target.value))}
-                >
-                  <option value="">— კატეგორიის გარეშე —</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </S.Select>
+                <Controller
+                  control={createForm.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <S.Select
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
+                    >
+                      <option value="">— კატეგორიის გარეშე —</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </S.Select>
+                  )}
+                />
               </S.FormGroup>
 
               <S.FormGroup>
                 <S.Label>კითხვის ტიპი</S.Label>
-                <S.Select value={newQuestionType} onChange={(e) => setNewQuestionType(e.target.value as "single" | "multiple")}>
+                <S.Select {...createForm.register("type")}>
                   <option value="single">ერთარჩევიანი (Single Choice)</option>
                   <option value="multiple">მრავალარჩევიანი (Multiple Choice)</option>
                 </S.Select>
@@ -432,30 +466,37 @@ export const QuestionsPage: React.FC = () => {
 
               <S.FormGroup>
                 <S.Label>დამთავრების თარიღი (არასავალდებულო)</S.Label>
-                <S.Input
-                  type="date"
-                  value={newEndDate}
-                  onChange={(e) => setNewEndDate(e.target.value)}
-                />
+                <S.Input type="date" {...createForm.register("endDate")} />
               </S.FormGroup>
 
               <S.FormGroup>
                 <S.Label>სავარაუდო პასუხები (მინიმუმ 2)</S.Label>
-                {newAnswers.map((ansText, index) => (
-                  <S.AnswerInputRow key={index}>
+                {createAnswers.fields.map((field, index) => (
+                  <S.AnswerInputRow key={field.id}>
                     <S.Input
                       type="text"
                       placeholder={`პასუხის ვარიანტი ${index + 1}`}
-                      value={ansText}
-                      onChange={(e) => { const u = [...newAnswers]; u[index] = e.target.value; setNewAnswers(u); }}
-                      required
+                      {...createForm.register(`answers.${index}.text` as const)}
                     />
-                    {newAnswers.length > 2 && (
-                      <S.ActionButton type="button" variant="secondary" style={{ color: "var(--ref-danger)", padding: "10px 14px" }} onClick={() => handleRemoveAnswerInput(index)}><TrashIcon size={16} /></S.ActionButton>
+                    {createAnswers.fields.length > 2 && (
+                      <S.ActionButton
+                        type="button"
+                        variant="secondary"
+                        style={{ color: "var(--ref-danger)", padding: "10px 14px" }}
+                        onClick={() => createAnswers.remove(index)}
+                      >
+                        <TrashIcon size={16} />
+                      </S.ActionButton>
                     )}
                   </S.AnswerInputRow>
                 ))}
-                <S.ActionButton type="button" variant="outline" style={{ marginTop: "8px", justifyContent: "center" }} onClick={handleAddAnswerInput}>
+                {answersError(createForm) && <S.FieldError>{answersError(createForm)}</S.FieldError>}
+                <S.ActionButton
+                  type="button"
+                  variant="outline"
+                  style={{ marginTop: "8px", justifyContent: "center" }}
+                  onClick={() => createAnswers.append({ text: "" })}
+                >
                   <PlusIcon size={14} /> პასუხის ვარიანტის დამატება
                 </S.ActionButton>
               </S.FormGroup>
@@ -479,25 +520,35 @@ export const QuestionsPage: React.FC = () => {
               </S.ModalTitle>
               <S.CloseButton onClick={() => setEditingQuestion(null)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
-            <form onSubmit={handleEditSubmit}>
+            <form onSubmit={handleEditSubmit} noValidate>
               <S.FormGroup>
                 <S.Label>კითხვის ტექსტი</S.Label>
-                <S.Input type="text" value={editText} onChange={(e) => setEditText(e.target.value)} required />
+                <S.Input type="text" {...editForm.register("text")} />
+                {editForm.formState.errors.text && <S.FieldError>{editForm.formState.errors.text.message}</S.FieldError>}
               </S.FormGroup>
 
               <S.FormGroup>
                 <S.Label>კატეგორია (არასავალდებულო)</S.Label>
-                <S.Select value={editCategoryId} onChange={(e) => setEditCategoryId(e.target.value === "" ? "" : Number(e.target.value))}>
-                  <option value="">— კატეგორიის გარეშე —</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </S.Select>
+                <Controller
+                  control={editForm.control}
+                  name="categoryId"
+                  render={({ field }) => (
+                    <S.Select
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
+                    >
+                      <option value="">— კატეგორიის გარეშე —</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </S.Select>
+                  )}
+                />
               </S.FormGroup>
 
               <S.FormGroup>
                 <S.Label>კითხვის ტიპი</S.Label>
-                <S.Select value={editType} onChange={(e) => setEditType(e.target.value as "single" | "multiple")}>
+                <S.Select {...editForm.register("type")}>
                   <option value="single">ერთარჩევიანი (Single Choice)</option>
                   <option value="multiple">მრავალარჩევიანი (Multiple Choice)</option>
                 </S.Select>
@@ -505,21 +556,32 @@ export const QuestionsPage: React.FC = () => {
 
               <S.FormGroup>
                 <S.Label>სავარაუდო პასუხები (მინიმუმ 2)</S.Label>
-                {editAnswers.map((ans, index) => (
-                  <S.AnswerInputRow key={index}>
+                {editAnswersField.fields.map((field, index) => (
+                  <S.AnswerInputRow key={field.id}>
                     <S.Input
                       type="text"
                       placeholder={`პასუხის ვარიანტი ${index + 1}`}
-                      value={ans.text}
-                      onChange={(e) => { const u = [...editAnswers]; u[index] = { ...u[index], text: e.target.value }; setEditAnswers(u); }}
-                      required
+                      {...editForm.register(`answers.${index}.text` as const)}
                     />
-                    {editAnswers.length > 2 && (
-                      <S.ActionButton type="button" variant="secondary" style={{ color: "var(--ref-danger)", padding: "10px 14px" }} onClick={() => handleRemoveEditAnswerRow(index)}><TrashIcon size={16} /></S.ActionButton>
+                    {editAnswersField.fields.length > 2 && (
+                      <S.ActionButton
+                        type="button"
+                        variant="secondary"
+                        style={{ color: "var(--ref-danger)", padding: "10px 14px" }}
+                        onClick={() => handleRemoveEditAnswerRow(index)}
+                      >
+                        <TrashIcon size={16} />
+                      </S.ActionButton>
                     )}
                   </S.AnswerInputRow>
                 ))}
-                <S.ActionButton type="button" variant="outline" style={{ marginTop: "8px", justifyContent: "center" }} onClick={handleAddEditAnswerRow}>
+                {answersError(editForm) && <S.FieldError>{answersError(editForm)}</S.FieldError>}
+                <S.ActionButton
+                  type="button"
+                  variant="outline"
+                  style={{ marginTop: "8px", justifyContent: "center" }}
+                  onClick={() => editAnswersField.append({ text: "" })}
+                >
                   <PlusIcon size={14} /> პასუხის ვარიანტის დამატება
                 </S.ActionButton>
               </S.FormGroup>
@@ -532,6 +594,15 @@ export const QuestionsPage: React.FC = () => {
           </S.ModalContent>
         </S.ModalOverlay>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="კითხვის წაშლა"
+        description="ნამდვილად გსურთ ამ კითხვის წაშლა? ეს მოქმედება შეუქცევადია."
+        confirming={deleteSubmitting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </DashboardLayout>
   );
 };

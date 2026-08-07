@@ -1,29 +1,45 @@
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoriesAPI } from "@/API_Client";
 import { Category } from "@/API_Client/client/models";
 import { CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { useAdminGuard } from "@/hooks/useAdminGuard";
 import DashboardLayout from "./DashboardLayout";
+import ConfirmDialog from "./ConfirmDialog";
+import { ListSkeleton } from "./Skeletons";
+import { CategoryFormValues, categoryFormSchema } from "./schemas";
 import * as S from "./style";
 
+const emptyCategoryForm: CategoryFormValues = { name: "", description: "" };
+
 export const CategoriesPage: React.FC = () => {
-  const { data: session, status } = useSession();
+  const { session } = useAdminGuard();
   const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingC, setLoadingC] = useState<boolean>(true);
 
   const [isCatCreateOpen, setIsCatCreateOpen] = useState<boolean>(false);
-  const [newCatName, setNewCatName] = useState<string>("");
-  const [newCatDesc, setNewCatDesc] = useState<string>("");
   const [catCreateSubmitting, setCatCreateSubmitting] = useState<boolean>(false);
 
   const [editingCat, setEditingCat] = useState<Category | null>(null);
-  const [editCatName, setEditCatName] = useState<string>("");
-  const [editCatDesc, setEditCatDesc] = useState<string>("");
   const [catEditSubmitting, setCatEditSubmitting] = useState<boolean>(false);
+
+  const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
+
+  const createForm = useForm<CategoryFormValues>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: emptyCategoryForm,
+  });
+
+  const editForm = useForm<CategoryFormValues>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: emptyCategoryForm,
+  });
 
   const fetchCategories = async () => {
     if (!session?.accessToken) return;
@@ -40,44 +56,46 @@ export const CategoriesPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.role?.toLowerCase() === "admin") {
+    if (session?.accessToken) {
       fetchCategories();
     }
-  }, [status, session]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
-  const handleCatCreateSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCatName.trim()) { toast.warning("გთხოვთ შეავსოთ კატეგორიის სახელი"); return; }
+  const handleOpenCreate = () => {
+    createForm.reset(emptyCategoryForm);
+    setIsCatCreateOpen(true);
+  };
+
+  const handleCatCreateSubmit = createForm.handleSubmit(async (data) => {
     setCatCreateSubmitting(true);
     try {
       await CategoriesAPI(router.locale || "ka", session!.accessToken!).categoryControllerCreate({
-        name: newCatName.trim(),
-        description: newCatDesc.trim() || undefined,
+        name: data.name.trim(),
+        description: data.description?.trim() || undefined,
       });
       toast.success("კატეგორია წარმატებით დაემატა!");
-      setIsCatCreateOpen(false); setNewCatName(""); setNewCatDesc("");
+      setIsCatCreateOpen(false);
+      createForm.reset(emptyCategoryForm);
       fetchCategories();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "კატეგორიის დამატება ვერ მოხერხდა");
     } finally {
       setCatCreateSubmitting(false);
     }
-  };
+  });
 
   const handleOpenEditCat = (cat: Category) => {
     setEditingCat(cat);
-    setEditCatName(cat.name);
-    setEditCatDesc(cat.description || "");
+    editForm.reset({ name: cat.name, description: cat.description || "" });
   };
 
-  const handleCatEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCatEditSubmit = editForm.handleSubmit(async (data) => {
     if (!editingCat || !session?.accessToken) return;
-    if (!editCatName.trim()) { toast.warning("გთხოვთ შეავსოთ კატეგორიის სახელი"); return; }
     setCatEditSubmitting(true);
     try {
       await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerUpdate(
-        { name: editCatName.trim(), description: editCatDesc.trim() || undefined },
+        { name: data.name.trim(), description: data.description?.trim() || undefined },
         String(editingCat.id)
       );
       toast.success("კატეგორია წარმატებით განახლდა!");
@@ -88,16 +106,20 @@ export const CategoriesPage: React.FC = () => {
     } finally {
       setCatEditSubmitting(false);
     }
-  };
+  });
 
-  const handleDeleteCat = async (catId: number) => {
-    if (!window.confirm("ნამდვილად გსურთ კატეგორიის წაშლა?")) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleteSubmitting(true);
     try {
-      await CategoriesAPI(router.locale || "ka", session?.accessToken || "").categoryControllerRemove(String(catId));
+      await CategoriesAPI(router.locale || "ka", session?.accessToken || "").categoryControllerRemove(String(deleteTarget.id));
       toast.success("კატეგორია წარმატებით წაიშალა!");
+      setDeleteTarget(null);
       fetchCategories();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "კატეგორიის წაშლა ვერ მოხერხდა");
+    } finally {
+      setDeleteSubmitting(false);
     }
   };
 
@@ -106,21 +128,19 @@ export const CategoriesPage: React.FC = () => {
       title="ადმინ დეშბორდი"
       subtitle="მართეთ რეფერენდუმის კითხვები, კატეგორიები და სავარაუდო პასუხები"
       headerAction={
-        <S.ActionButton variant="primary" onClick={() => setIsCatCreateOpen(true)}>
+        <S.ActionButton variant="primary" onClick={handleOpenCreate}>
           <PlusIcon size={16} /> ახალი კატეგორია
         </S.ActionButton>
       }
     >
       {loadingC ? (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <p style={{ color: "var(--ref-text-secondary)" }}>კატეგორიები იტვირთება...</p>
-        </div>
+        <ListSkeleton count={3} />
       ) : categories.length === 0 ? (
         <S.EmptyState>
           <TagIcon size={48} />
           <S.EmptyTitle>კატეგორიები არ არის</S.EmptyTitle>
           <S.EmptyText>დაამატეთ პირველი კატეგორია კითხვების გასაჯგუფებლად.</S.EmptyText>
-          <S.ActionButton variant="primary" onClick={() => setIsCatCreateOpen(true)}>
+          <S.ActionButton variant="primary" onClick={handleOpenCreate}>
             <PlusIcon size={16} /> კატეგორიის დამატება
           </S.ActionButton>
         </S.EmptyState>
@@ -144,7 +164,7 @@ export const CategoriesPage: React.FC = () => {
                   <S.ActionButton variant="outline" onClick={() => handleOpenEditCat(cat)}>
                     <EditIcon size={16} /> რედაქტირება
                   </S.ActionButton>
-                  <S.ActionButton variant="danger" onClick={() => handleDeleteCat(cat.id)}>
+                  <S.ActionButton variant="danger" onClick={() => setDeleteTarget(cat)}>
                     <TrashIcon size={16} /> წაშლა
                   </S.ActionButton>
                 </S.CardActions>
@@ -164,14 +184,15 @@ export const CategoriesPage: React.FC = () => {
               </S.ModalTitle>
               <S.CloseButton onClick={() => setIsCatCreateOpen(false)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
-            <form onSubmit={handleCatCreateSubmit}>
+            <form onSubmit={handleCatCreateSubmit} noValidate>
               <S.FormGroup>
                 <S.Label>კატეგორიის სახელი</S.Label>
-                <S.Input type="text" placeholder="მაგ: პოლიტიკა" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} required />
+                <S.Input type="text" placeholder="მაგ: პოლიტიკა" {...createForm.register("name")} />
+                {createForm.formState.errors.name && <S.FieldError>{createForm.formState.errors.name.message}</S.FieldError>}
               </S.FormGroup>
               <S.FormGroup>
                 <S.Label>მოკლე აღწერა (არასავალდებულო)</S.Label>
-                <S.Input type="text" placeholder="მაგ: პოლიტიკური თემატიკის კითხვები" value={newCatDesc} onChange={(e) => setNewCatDesc(e.target.value)} />
+                <S.Input type="text" placeholder="მაგ: პოლიტიკური თემატიკის კითხვები" {...createForm.register("description")} />
               </S.FormGroup>
               <S.ModalFooter>
                 <S.ActionButton type="button" variant="secondary" onClick={() => setIsCatCreateOpen(false)}>გაუქმება</S.ActionButton>
@@ -192,14 +213,15 @@ export const CategoriesPage: React.FC = () => {
               </S.ModalTitle>
               <S.CloseButton onClick={() => setEditingCat(null)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
-            <form onSubmit={handleCatEditSubmit}>
+            <form onSubmit={handleCatEditSubmit} noValidate>
               <S.FormGroup>
                 <S.Label>კატეგორიის სახელი</S.Label>
-                <S.Input type="text" value={editCatName} onChange={(e) => setEditCatName(e.target.value)} required />
+                <S.Input type="text" {...editForm.register("name")} />
+                {editForm.formState.errors.name && <S.FieldError>{editForm.formState.errors.name.message}</S.FieldError>}
               </S.FormGroup>
               <S.FormGroup>
                 <S.Label>მოკლე აღწერა (არასავალდებულო)</S.Label>
-                <S.Input type="text" value={editCatDesc} onChange={(e) => setEditCatDesc(e.target.value)} />
+                <S.Input type="text" {...editForm.register("description")} />
               </S.FormGroup>
               <S.ModalFooter>
                 <S.ActionButton type="button" variant="secondary" onClick={() => setEditingCat(null)}>გაუქმება</S.ActionButton>
@@ -209,6 +231,15 @@ export const CategoriesPage: React.FC = () => {
           </S.ModalContent>
         </S.ModalOverlay>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        title="კატეგორიის წაშლა"
+        description="ნამდვილად გსურთ ამ კატეგორიის წაშლა? ეს მოქმედება შეუქცევადია."
+        confirming={deleteSubmitting}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </DashboardLayout>
   );
 };

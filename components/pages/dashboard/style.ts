@@ -488,6 +488,12 @@ export const Label = styled("label")`
   color: var(--ref-text-primary);
 `;
 
+export const FieldError = styled("span")`
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ref-danger);
+`;
+
 export const Input = styled("input")`
   width: 100%;
   padding: 10px 14px;
@@ -669,4 +675,34 @@ export const AccessDeniedText = styled("p")`
   font-size: 14px;
   color: var(--ref-text-secondary);
   margin: 0 0 24px 0;
+`;
+
+/* Skeleton Loaders */
+export const SkeletonPulse = styled("div")<{ width?: string; height?: string; radius?: string }>`
+  width: ${({ width }) => width || "100%"};
+  height: ${({ height }) => height || "16px"};
+  border-radius: ${({ radius }) => radius || "6px"};
+  background: linear-gradient(90deg, var(--ref-bg-subtle) 25%, var(--ref-border-soft) 37%, var(--ref-bg-subtle) 63%);
+  background-size: 400% 100%;
+  animation: ref-skeleton-shine 1.4s ease infinite;
+
+  @keyframes ref-skeleton-shine {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+  }
+`;
+
+export const SkeletonStatCard = styled(StatCard)`
+  gap: 16px;
+`;
+
+export const SkeletonCard = styled(QuestionCard)`
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+export const SkeletonRow = styled("div")`
+  display: flex;
+  gap: 10px;
 `;

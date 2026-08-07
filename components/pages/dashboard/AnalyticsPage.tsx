@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import {
@@ -17,7 +16,9 @@ import {
 import { Bar, Line } from "react-chartjs-2";
 import { QuestionAPI, StatsAPI } from "@/API_Client";
 import { BallotIcon, ChartIcon, FireIcon, PlayIcon, QuestionMarkIcon, TagIcon } from "@/components/ui/RefIcons";
+import { useAdminGuard } from "@/hooks/useAdminGuard";
 import DashboardLayout from "./DashboardLayout";
+import { StatsSkeleton } from "./Skeletons";
 import * as S from "./style";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -83,7 +84,7 @@ const fetchAllQuestions = async (
 };
 
 export const AnalyticsPage: React.FC = () => {
-  const { data: session, status } = useSession();
+  const { session, isAdmin } = useAdminGuard();
   const router = useRouter();
 
   const [globalStats, setGlobalStats] = useState<GlobalStats | null>(null);
@@ -93,8 +94,6 @@ export const AnalyticsPage: React.FC = () => {
   const [trendsPeriod, setTrendsPeriod] = useState<TrendsPeriod>("month");
   const [loadingStats, setLoadingStats] = useState<boolean>(true);
   const [statsLoaded, setStatsLoaded] = useState<boolean>(false);
-
-  const isAdmin = status === "authenticated" && session?.user?.role?.toLowerCase() === "admin";
 
   const fetchTrends = async () => {
     if (!session?.accessToken) return;
@@ -232,9 +231,7 @@ export const AnalyticsPage: React.FC = () => {
       subtitle="მართეთ რეფერენდუმის კითხვები, კატეგორიები და სავარაუდო პასუხები"
     >
       {loadingStats && !statsLoaded ? (
-        <div style={{ textAlign: "center", padding: "40px" }}>
-          <p style={{ color: "var(--ref-text-secondary)" }}>ანალიტიკა იტვირთება...</p>
-        </div>
+        <StatsSkeleton count={4} />
       ) : (
         <>
           <S.StatsGrid>
