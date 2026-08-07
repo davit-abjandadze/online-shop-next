@@ -38,6 +38,66 @@ export const Container = styled("div")`
   margin: 0 auto;
 `;
 
+export const Layout = styled("div")`
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+`;
+
+export const MainColumn = styled("div")`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const Sidebar = styled("nav")`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--ref-bg);
+  border-radius: 8px;
+  padding: 4px;
+  position: sticky;
+  top: 24px;
+
+  @media (max-width: 900px) {
+    width: 100%;
+    flex-direction: row;
+    position: static;
+  }
+`;
+
+export const SidebarTab = styled("button")<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  background-color: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "transparent")};
+  color: ${({ active }) => (active ? "var(--ref-text-primary)" : "var(--ref-text-secondary)")};
+  box-shadow: ${({ active }) => (active ? "0 1px 4px rgba(0,0,0,0.08)" : "none")};
+
+  &:hover {
+    color: var(--ref-text-primary);
+  }
+
+  @media (max-width: 900px) {
+    flex: 1;
+    justify-content: center;
+  }
+`;
+
 export const HeaderSection = styled("div")`
   display: flex;
   justify-content: space-between;
