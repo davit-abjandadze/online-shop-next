@@ -20,6 +20,7 @@ import { ListSkeleton } from "./Skeletons";
 import * as S from "./style";
 
 const PAGE_SIZE = 10;
+const DEFAULT_REJECT_REASON = "თქვენი კითხვა არ აკმაყოფილებს პლატფორმის მოთხოვნებს, ამიტომ ვერ დამტკიცდა.";
 
 export const PendingQuestionsPage: React.FC = () => {
   const { session } = useAdminGuard();
@@ -31,6 +32,9 @@ export const PendingQuestionsPage: React.FC = () => {
   const [meta, setMeta] = useState<PaginationMetaDto | null>(null);
 
   const [approvingId, setApprovingId] = useState<number | null>(null);
+  const [approveTarget, setApproveTarget] = useState<Question | null>(null);
+  const [approveEndDate, setApproveEndDate] = useState<string>("");
+  const [approveSubmitting, setApproveSubmitting] = useState<boolean>(false);
   const [rejectTarget, setRejectTarget] = useState<Question | null>(null);
   const [rejectReason, setRejectReason] = useState<string>("");
   const [rejectSubmitting, setRejectSubmitting] = useState<boolean>(false);
@@ -66,16 +70,32 @@ export const PendingQuestionsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, page]);
 
-  const handleApprove = async (q: Question) => {
-    if (!session?.accessToken) return;
-    setApprovingId(q.id);
+  const handleOpenApprove = (q: Question) => {
+    setApproveTarget(q);
+    setApproveEndDate("");
+  };
+
+  const handleConfirmApprove = async () => {
+    if (!approveTarget || !session?.accessToken) return;
+    if (!approveEndDate) {
+      toast.warning("გთხოვთ მიუთითოთ დასრულების თარიღი");
+      return;
+    }
+    setApproveSubmitting(true);
+    setApprovingId(approveTarget.id);
     try {
-      await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerApprove(String(q.id));
+      const endDate = new Date(`${approveEndDate}T23:59:59.000Z`).toISOString();
+      await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerApprove(
+        { endDate },
+        String(approveTarget.id)
+      );
       toast.success("კითხვა დამტკიცებულია!");
+      setApproveTarget(null);
       fetchPending();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "კითხვის დამტკიცება ვერ მოხერხდა");
     } finally {
+      setApproveSubmitting(false);
       setApprovingId(null);
     }
   };
@@ -87,14 +107,11 @@ export const PendingQuestionsPage: React.FC = () => {
 
   const handleConfirmReject = async () => {
     if (!rejectTarget || !session?.accessToken) return;
-    if (!rejectReason.trim()) {
-      toast.warning("გთხოვთ მიუთითოთ უარყოფის მიზეზი");
-      return;
-    }
+    const reason = rejectReason.trim() || DEFAULT_REJECT_REASON;
     setRejectSubmitting(true);
     try {
       await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerReject(
-        { reason: rejectReason.trim() },
+        { reason },
         String(rejectTarget.id)
       );
       toast.success("კითხვა უარყოფილია!");
@@ -143,13 +160,16 @@ export const PendingQuestionsPage: React.FC = () => {
                         {q.createdBy.firstName || q.createdBy.email} მიერ
                       </S.Badge>
                     )}
+                    {q.creatorType === "user" && q.createdById && (
+                      <S.Badge variant="date">User ID: {q.createdById}</S.Badge>
+                    )}
                     {q.createdAt && (
                       <S.Badge variant="date"><CalendarIcon size={13} /> {new Date(q.createdAt).toLocaleDateString("ka-GE")}</S.Badge>
                     )}
                   </S.BadgeGroup>
                 </div>
                 <S.CardActions>
-                  <S.ActionButton variant="success" onClick={() => handleApprove(q)} disabled={approvingId === q.id}>
+                  <S.ActionButton variant="success" onClick={() => handleOpenApprove(q)} disabled={approvingId === q.id}>
                     <CheckCircleIcon size={16} /> {approvingId === q.id ? "მუშავდება..." : "დადასტურება"}
                   </S.ActionButton>
                   <S.ActionButton variant="danger" onClick={() => handleOpenReject(q)}>
@@ -180,7 +200,7 @@ export const PendingQuestionsPage: React.FC = () => {
       {meta && meta.totalPages > 1 && (
         <S.PaginationBar>
           <S.PageButton onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={!meta.hasPrevious}>
-            ← წინა
+            ←
           </S.PageButton>
 
           <S.PageNumbers>
@@ -196,9 +216,48 @@ export const PendingQuestionsPage: React.FC = () => {
           </S.PageNumbers>
 
           <S.PageButton onClick={() => setPage((p) => p + 1)} disabled={!meta.hasNext}>
-            შემდეგი →
+            →
           </S.PageButton>
         </S.PaginationBar>
+      )}
+
+      {/* ═══ APPROVE MODAL ══════════════════════════════════════════════════════ */}
+      {approveTarget && (
+        <S.ModalOverlay onClick={() => setApproveTarget(null)}>
+          <S.ModalContent style={{ maxWidth: "480px" }} onClick={(e) => e.stopPropagation()}>
+            <S.ModalHeader>
+              <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ref-success)" }}>
+                <CheckCircleIcon size={18} /> კითხვის დამტკიცება
+              </S.ModalTitle>
+              <S.CloseButton onClick={() => setApproveTarget(null)}>
+                <CloseIcon size={16} />
+              </S.CloseButton>
+            </S.ModalHeader>
+            <S.FormGroup>
+              <S.Label>დასრულების თარიღი</S.Label>
+              <S.Input
+                type="date"
+                value={approveEndDate}
+                onChange={(e) => setApproveEndDate(e.target.value)}
+                min={new Date().toISOString().slice(0, 10)}
+              />
+              {!approveEndDate && <S.FieldError>დასრულების თარიღის მითითება სავალდებულოა</S.FieldError>}
+            </S.FormGroup>
+            <S.ModalFooter>
+              <S.ActionButton type="button" variant="secondary" onClick={() => setApproveTarget(null)} disabled={approveSubmitting}>
+                გაუქმება
+              </S.ActionButton>
+              <S.ActionButton
+                type="button"
+                variant="success"
+                onClick={handleConfirmApprove}
+                disabled={approveSubmitting || !approveEndDate}
+              >
+                {approveSubmitting ? "მუშავდება..." : "დამტკიცება"}
+              </S.ActionButton>
+            </S.ModalFooter>
+          </S.ModalContent>
+        </S.ModalOverlay>
       )}
 
       {/* ═══ REJECT MODAL ═══════════════════════════════════════════════════════ */}
@@ -216,11 +275,10 @@ export const PendingQuestionsPage: React.FC = () => {
             <S.FormGroup>
               <S.Label>უარყოფის მიზეზი</S.Label>
               <S.Textarea
-                placeholder="მაგ: კითხვის ტექსტი არ არის ნათელი"
+                placeholder="მაგ: კითხვის ტექსტი არ არის ნათელი (თუ არაფერს მიუთითებთ, გამოეგზავნება სტანდარტული ტექსტი)"
                 value={rejectReason}
                 onChange={(e) => setRejectReason(e.target.value)}
               />
-              {!rejectReason.trim() && <S.FieldError>მიზეზის მითითება სავალდებულოა</S.FieldError>}
             </S.FormGroup>
             <S.ModalFooter>
               <S.ActionButton type="button" variant="secondary" onClick={() => setRejectTarget(null)} disabled={rejectSubmitting}>
@@ -230,7 +288,7 @@ export const PendingQuestionsPage: React.FC = () => {
                 type="button"
                 variant="danger"
                 onClick={handleConfirmReject}
-                disabled={rejectSubmitting || !rejectReason.trim()}
+                disabled={rejectSubmitting}
               >
                 {rejectSubmitting ? "მუშავდება..." : "უკუგდება"}
               </S.ActionButton>

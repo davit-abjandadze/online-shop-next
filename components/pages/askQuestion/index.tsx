@@ -22,9 +22,10 @@ const emptyForm: AskQuestionFormValues = {
   text: "",
   type: "single",
   categoryId: "",
-  endDate: "",
   answers: [{ text: "" }, { text: "" }],
 };
+
+const MAX_ANSWERS = 4;
 
 export const AskQuestionComponent: React.FC = () => {
   const { data: session, status } = useSession();
@@ -48,7 +49,7 @@ export const AskQuestionComponent: React.FC = () => {
       const data = res.data as any;
       setCategories(Array.isArray(data) ? data : []);
     } catch {
-      // კატეგორიები არასავალდებულოა ფორმისთვის — შეცდომას მდუმარედ ვიგნორებთ
+      // ჩამონათვალის ჩატვირთვის შეცდომას მდუმარედ ვიგნორებთ
     }
   };
 
@@ -106,9 +107,8 @@ export const AskQuestionComponent: React.FC = () => {
       await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerCreate({
         text: data.text.trim(),
         type: data.type as any,
-        categoryId: data.categoryId !== "" ? Number(data.categoryId) : undefined,
+        categoryId: Number(data.categoryId),
         answers: validAnswers.map((text) => ({ text })),
-        endDate: data.endDate ? new Date(data.endDate).toISOString() : undefined,
       });
       setSuccess(true);
       form.reset(emptyForm);
@@ -161,22 +161,26 @@ export const AskQuestionComponent: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>კატეგორია (არასავალდებულო)</S.Label>
+                <S.Label>კატეგორია</S.Label>
                 <Controller
                   control={form.control}
                   name="categoryId"
                   render={({ field }) => (
                     <S.Select
+                      $invalid={!!form.formState.errors.categoryId}
                       value={field.value}
                       onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
                     >
-                      <option value="">— კატეგორიის გარეშე —</option>
+                      <option value="">— აირჩიეთ კატეგორია —</option>
                       {categories.map((cat) => (
                         <option key={cat.id} value={cat.id}>{cat.name}</option>
                       ))}
                     </S.Select>
                   )}
                 />
+                {form.formState.errors.categoryId && (
+                  <S.FieldError>{form.formState.errors.categoryId.message}</S.FieldError>
+                )}
               </S.FormGroup>
 
               <S.FormGroup>
@@ -188,12 +192,7 @@ export const AskQuestionComponent: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>დამთავრების თარიღი (არასავალდებულო)</S.Label>
-                <S.Input type="date" {...form.register("endDate")} />
-              </S.FormGroup>
-
-              <S.FormGroup>
-                <S.Label>სავარაუდო პასუხები (მინიმუმ 2)</S.Label>
+                <S.Label>სავარაუდო პასუხები (მინიმუმ 2, მაქსიმუმ {MAX_ANSWERS})</S.Label>
                 {answersField.fields.map((field, index) => (
                   <S.AnswerInputRow key={field.id}>
                     <S.Input
@@ -214,14 +213,16 @@ export const AskQuestionComponent: React.FC = () => {
                   </S.AnswerInputRow>
                 ))}
                 {answersError() && <S.FieldError>{answersError()}</S.FieldError>}
-                <S.ActionButton
-                  type="button"
-                  variant="outline"
-                  style={{ marginTop: "8px", justifyContent: "center" }}
-                  onClick={() => answersField.append({ text: "" })}
-                >
-                  <PlusIcon size={14} /> პასუხის ვარიანტის დამატება
-                </S.ActionButton>
+                {answersField.fields.length < MAX_ANSWERS && (
+                  <S.ActionButton
+                    type="button"
+                    variant="outline"
+                    style={{ marginTop: "8px", justifyContent: "center" }}
+                    onClick={() => answersField.append({ text: "" })}
+                  >
+                    <PlusIcon size={14} /> პასუხის ვარიანტის დამატება
+                  </S.ActionButton>
+                )}
               </S.FormGroup>
 
               <S.FormFooter>

@@ -46,7 +46,8 @@ export const CountdownBadge: React.FC<{ endDate: Date | string }> = ({ endDate }
 
   return (
     <S.Badge variant="countdown">
-      <HourglassIcon size={14} /> {days > 0 && `დარჩენილია ${days}დღე და `}{pad(hours)}:{pad(minutes)}:{pad(seconds)}
+      {/* <HourglassIcon size={14} /> {days > 0 && `დარჩენილია ${days}დღე და `}{pad(hours)}:{pad(minutes)}:{pad(seconds)} */}
+      <HourglassIcon size={14} /> {days > 0 && `${days} დღე და `}{pad(hours)}:{pad(minutes)}:{pad(seconds)}
     </S.Badge>
   );
 };
@@ -96,10 +97,10 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
       <S.CardTop>
         <div>
           <S.QuestionText>{q.text}</S.QuestionText>
-          <S.Badge variant={isMultiple ? "multiple" : "single"}>
+          {/* <S.Badge variant={isMultiple ? "multiple" : "single"}>
             {isMultiple ? <CheckSquareIcon size={14} /> : <RadioIcon size={14} />}
             {isMultiple ? "მრავალარჩევიანი" : "ერთარჩევიანი"}
-          </S.Badge>
+          </S.Badge> */}
           {q.category && (
             <S.Badge variant="category">
               <TagIcon size={14} /> {q.category.name}

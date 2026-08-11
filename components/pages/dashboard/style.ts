@@ -31,6 +31,11 @@ export const PageWrapper = styled("div")`
   min-height: 100vh;
   background-color: var(--ref-bg);
   padding: 32px 24px 64px 24px;
+  overflow-x: hidden;
+
+  @media (max-width: 640px) {
+    padding: 20px 12px 40px 12px;
+  }
 `;
 
 export const Container = styled("div")`
@@ -69,6 +74,8 @@ export const Sidebar = styled("nav")`
     width: 100%;
     flex-direction: row;
     position: static;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 `;
 
@@ -93,8 +100,14 @@ export const SidebarTab = styled("button")<{ active?: boolean }>`
   }
 
   @media (max-width: 900px) {
-    flex: 1;
+    flex: none;
     justify-content: center;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px 12px;
+    font-size: 13px;
   }
 `;
 
@@ -185,11 +198,62 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | 
   }
 `;
 
+export const FilterBar = styled("div")`
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+`;
+
+export const FilterGroup = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+  flex: 1;
+
+  @media (max-width: 640px) {
+    min-width: 100%;
+  }
+`;
+
+export const FilterLabel = styled("label")`
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+`;
+
+export const FilterActions = styled("div")`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+  @media (max-width: 640px) {
+    width: 100%;
+
+    & > button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+`;
+
 export const StatsGrid = styled("div")`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
   margin-bottom: 32px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const StatCard = styled("div")`
@@ -201,6 +265,10 @@ export const StatCard = styled("div")`
   display: flex;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 480px) {
+    padding: 16px 18px;
+  }
 `;
 
 export const StatIcon = styled("div")`
@@ -245,6 +313,10 @@ export const QuestionCard = styled("div")`
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
+
+  @media (max-width: 640px) {
+    padding: 16px;
+  }
 `;
 
 export const CardHeader = styled("div")`
@@ -253,6 +325,11 @@ export const CardHeader = styled("div")`
   align-items: flex-start;
   gap: 16px;
   margin-bottom: 16px;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 export const QuestionText = styled("h3")`
@@ -268,6 +345,7 @@ export const BadgeGroup = styled("div")`
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+  max-width:330px
 `;
 
 export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" | "pending" | "approved" | "rejected" }>`
@@ -294,6 +372,16 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" |
     }
     return "background: var(--ref-primary-soft); color: var(--ref-primary-hover);";
   }}
+`;
+
+export const RejectionReasonBox = styled("div")`
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--ref-danger-soft);
+  border: 1px solid var(--ref-danger);
+  color: var(--ref-danger);
+  font-size: 13px;
 `;
 
 export const AnswersSection = styled("div")`
@@ -333,14 +421,28 @@ export const CardActions = styled("div")`
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    & > button {
+      flex: 1;
+      justify-content: center;
+    }
+  }
 `;
 
 export const PaginationBar = styled("div")`
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 12px;
   margin-top: 24px;
+  max-width: 100%;
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
 `;
 
 export const PageButton = styled("button")`
@@ -353,6 +455,7 @@ export const PageButton = styled("button")`
   border: 1px solid var(--ref-border);
   background-color: var(--ref-bg-elevated);
   color: var(--ref-primary);
+  white-space: nowrap;
 
   &:hover:not(:disabled) {
     background-color: var(--ref-primary-soft);
@@ -363,11 +466,18 @@ export const PageButton = styled("button")`
     opacity: 0.5;
     cursor: not-allowed;
   }
+
+  @media (max-width: 480px) {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
 `;
 
 export const PageNumbers = styled("div")`
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
 `;
 
@@ -386,6 +496,13 @@ export const PageNumberButton = styled("button")<{ active?: boolean }>`
 
   &:hover:not(:disabled) {
     ${({ active }) => (active ? "" : "background-color: var(--ref-primary-soft); border-color: var(--ref-primary);")}
+  }
+
+  @media (max-width: 480px) {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 6px;
+    font-size: 13px;
   }
 `;
 
@@ -445,6 +562,10 @@ export const ModalContent = styled("div")`
   overflow-y: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   padding: 28px;
+
+  @media (max-width: 480px) {
+    padding: 18px;
+  }
 `;
 
 export const ModalHeader = styled("div")`
@@ -559,13 +680,26 @@ export const ModalFooter = styled("div")`
   margin-top: 28px;
   padding-top: 20px;
   border-top: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+
+    & > button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 `;
 
 export const ChartsGrid = styled("div")`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns:  1fr;
   gap: 20px;
   margin-bottom: 32px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const ChartCard = styled("div")`
@@ -574,6 +708,10 @@ export const ChartCard = styled("div")`
   padding: 20px 24px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 480px) {
+    padding: 16px 18px;
+  }
 `;
 
 export const ChartCardTitle = styled("div")`

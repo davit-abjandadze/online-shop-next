@@ -26,7 +26,7 @@ export interface UpdateQuestionDto {
      */
     categoryId?: number;
     /**
-     * აქტიურია თუ არა კითხვა
+     * აქტიურია თუ არა კითხვა (მხოლოდ admin-ის შექმნილ კითხვას ეხება — user-ის კითხვისთვის ეს ველი იგნორირდება)
      *
      * @type {boolean}
      * @memberof UpdateQuestionDto
@@ -34,7 +34,7 @@ export interface UpdateQuestionDto {
      */
     isActive?: boolean;
     /**
-     * დასრულების თარიღი (ISO ფორმატი). ვადის გასვლის შემდეგ კითხვა ავტომატურად გადავა დეაქტივირებულ სიაში
+     * დასრულების თარიღი (ISO ფორმატი). ვადის გასვლის შემდეგ კითხვა ავტომატურად გადავა დეაქტივირებულ სიაში. მხოლოდ admin-ის შექმნილ კითხვას ეხება — user-ის მიერ გამოგზავნილი ეს ველი იგნორირდება (user-ის კითხვისთვის დამთავრების თარიღეს ადგენს admin approve-ის დროს)
      *
      * @type {string}
      * @memberof UpdateQuestionDto

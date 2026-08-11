@@ -635,7 +635,7 @@ export const HomeComponent: React.FC = () => {
               onClick={() => goToPage(Math.max(1, questionsMeta.page - 1))}
               disabled={!questionsMeta.hasPrevious}
             >
-              ← წინა
+              ← 
             </S.PageButton>
 
             <S.PageNumbers>
@@ -658,7 +658,7 @@ export const HomeComponent: React.FC = () => {
               onClick={() => goToPage(questionsMeta.page + 1)}
               disabled={!questionsMeta.hasNext}
             >
-              შემდეგი →
+               →
             </S.PageButton>
           </S.PaginationBar>
         )}

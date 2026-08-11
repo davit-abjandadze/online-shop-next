@@ -240,7 +240,7 @@ export const FavoritesComponent: React.FC = () => {
             onClick={() => setFavoritesPage((p) => Math.max(1, p - 1))}
             disabled={!favoritesMeta.hasPrevious}
           >
-            ← წინა
+            ← 
           </S.PageButton>
 
           <S.PageNumbers>
@@ -263,7 +263,7 @@ export const FavoritesComponent: React.FC = () => {
             onClick={() => setFavoritesPage((p) => p + 1)}
             disabled={!favoritesMeta.hasNext}
           >
-            შემდეგი →
+           →
           </S.PageButton>
         </S.PaginationBar>
       )}

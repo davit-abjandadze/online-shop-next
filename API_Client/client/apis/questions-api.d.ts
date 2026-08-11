@@ -12,6 +12,7 @@
 import { AxiosResponse, AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Configuration } from '../configuration';
 import { RequestArgs, BaseAPI } from '../base';
+import { ApproveQuestionDto } from '../models';
 import { CreateQuestionDto } from '../models';
 import { PaginatedResponseDto } from '../models';
 import { Question } from '../models';
@@ -32,12 +33,13 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
     questionControllerActivate: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
-     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @summary user-ის დასმული კითხვის დადასტურება, სურვილისამებრ დამთავრების თარიღით (მხოლოდ admin)
+     * @param {ApproveQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerApprove: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    questionControllerApprove: (body: ApproveQuestionDto, id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
      * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
@@ -129,12 +131,13 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
     questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
     /**
      *
-     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @summary user-ის დასმული კითხვის დადასტურება, სურვილისამებრ დამთავრების თარიღით (მხოლოდ admin)
+     * @param {ApproveQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerApprove(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
+    questionControllerApprove(body: ApproveQuestionDto, id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
     /**
      *
      * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
@@ -226,12 +229,13 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
     questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
-     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @summary user-ის დასმული კითხვის დადასტურება, სურვილისამებრ დამთავრების თარიღით (მხოლოდ admin)
+     * @param {ApproveQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerApprove(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    questionControllerApprove(body: ApproveQuestionDto, id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
      * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
@@ -326,13 +330,14 @@ export declare class QuestionsApi extends BaseAPI {
     questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
-     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @summary user-ის დასმული კითხვის დადასტურება, სურვილისამებრ დამთავრების თარიღით (მხოლოდ admin)
+     * @param {ApproveQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QuestionsApi
      */
-    questionControllerApprove(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    questionControllerApprove(body: ApproveQuestionDto, id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
      * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)

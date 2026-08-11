@@ -4,6 +4,10 @@ export const PageWrapper = styled("div")`
   min-height: 100vh;
   background-color: var(--ref-bg);
   padding: 32px 24px 64px 24px;
+
+  @media (max-width: 720px) {
+    padding: 20px 16px 48px 16px;
+  }
 `;
 
 export const Container = styled("div")`
@@ -13,6 +17,10 @@ export const Container = styled("div")`
 
 export const HeaderSection = styled("div")`
   margin-bottom: 32px;
+
+  @media (max-width: 720px) {
+    margin-bottom: 20px;
+  }
 `;
 
 export const PageTitle = styled("h1")`
@@ -23,6 +31,10 @@ export const PageTitle = styled("h1")`
   display: flex;
   align-items: center;
   gap: 10px;
+
+  @media (max-width: 480px) {
+    font-size: 21px;
+  }
 `;
 
 export const PageSubtitle = styled("p")`
@@ -38,6 +50,7 @@ export const Layout = styled("div")`
 
   @media (max-width: 720px) {
     flex-direction: column;
+    gap: 16px;
   }
 `;
 
@@ -58,6 +71,8 @@ export const Sidebar = styled("div")`
     width: 100%;
     flex-direction: row;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
   }
 `;
 
@@ -73,7 +88,6 @@ export const SidebarItem = styled("button")<{ active?: boolean }>`
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease;
-  white-space: nowrap;
   background-color: ${({ active }) => (active ? "var(--ref-primary-soft)" : "transparent")};
   color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-secondary)")};
 
@@ -81,11 +95,19 @@ export const SidebarItem = styled("button")<{ active?: boolean }>`
     background-color: ${({ active }) => (active ? "var(--ref-primary-soft)" : "var(--ref-bg-subtle)")};
     color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-primary)")};
   }
+
+  @media (max-width: 720px) {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
 `;
 
 export const Content = styled("div")`
   flex: 1;
   min-width: 0;
+  width: 100%;
 `;
 
 export const Card = styled("div")`
@@ -94,6 +116,10 @@ export const Card = styled("div")`
   padding: 28px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 480px) {
+    padding: 18px;
+  }
 `;
 
 export const CardTitle = styled("h2")`
@@ -111,6 +137,17 @@ export const ProfileSummary = styled("div")`
   margin-bottom: 24px;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+`;
+
+export const ProfileInfo = styled("div")`
+  min-width: 0;
+  flex: 1;
 `;
 
 export const AvatarCircle = styled("div")`
@@ -131,12 +168,26 @@ export const ProfileName = styled("div")`
   font-size: 18px;
   font-weight: 700;
   color: var(--ref-text-primary);
+  overflow-wrap: break-word;
 `;
 
 export const ProfileEmail = styled("div")`
   font-size: 14px;
   color: var(--ref-text-secondary);
   margin-top: 2px;
+  overflow-wrap: break-word;
+`;
+
+export const BadgeRow = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+
+  @media (max-width: 480px) {
+    justify-content: center;
+  }
 `;
 
 export const Badge = styled("span")<{ variant?: "role" | "date" | "pending" | "approved" | "rejected" }>`
@@ -147,7 +198,6 @@ export const Badge = styled("span")<{ variant?: "role" | "date" | "pending" | "a
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
-  margin-top: 8px;
 
   ${({ variant }) => {
     switch (variant) {
@@ -285,6 +335,14 @@ export const FormFooter = styled("div")`
   margin-top: 24px;
   padding-top: 20px;
   border-top: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 480px) {
+    justify-content: stretch;
+
+    button {
+      width: 100%;
+    }
+  }
 `;
 
 /* Favorites list */
@@ -428,6 +486,11 @@ export const AccessDeniedCard = styled("div")`
   padding: 40px 32px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: 480px) {
+    margin: 48px auto 0 auto;
+    padding: 32px 20px;
+  }
 `;
 
 export const AccessDeniedTitle = styled("h2")`

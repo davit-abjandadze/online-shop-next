@@ -67,18 +67,19 @@ export const Input = styled("input")<{ $invalid?: boolean }>`
   }
 `;
 
-export const Select = styled("select")`
+export const Select = styled("select")<{ $invalid?: boolean }>`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid var(--ref-border);
+  border: 1px solid ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-border)")};
   font-size: 14px;
   outline: none;
   background: var(--ref-bg-elevated);
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: var(--ref-primary);
+    border-color: ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-primary)")};
+    box-shadow: 0 0 0 3px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.1)" : "rgba(37, 99, 235, 0.1)")};
   }
 `;
 

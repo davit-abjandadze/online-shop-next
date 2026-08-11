@@ -1,4 +1,5 @@
 export * from './answer';
+export * from './approve-question-dto';
 export * from './category';
 export * from './category-response-dto';
 export * from './change-password-dto';

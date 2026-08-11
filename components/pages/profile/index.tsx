@@ -34,7 +34,7 @@ export const ProfileComponent: React.FC = () => {
     formState: { errors, isSubmitting: savingUser },
   } = useForm<ProfileEditFormValues>({
     resolver: zodResolver(profileEditSchema),
-    defaultValues: { firstName: "", lastName: "", age: "", gender: "" },
+    defaultValues: { firstName: "", lastName: "", age: "", gender: "" as ProfileEditFormValues["gender"] },
   });
 
   const firstName = watch("firstName");
@@ -139,23 +139,25 @@ export const ProfileComponent: React.FC = () => {
       <S.Card>
         <S.ProfileSummary>
           <S.AvatarCircle>{getUserInitials()}</S.AvatarCircle>
-          <div>
+          <S.ProfileInfo>
             <S.ProfileName>
               {(user?.firstName || firstName) ? `${firstName || user?.firstName} ${lastName || user?.lastName}` : session?.user?.name || session?.user?.email}
             </S.ProfileName>
             <S.ProfileEmail>{email || session?.user?.email}</S.ProfileEmail>
-            {user?.role && (
-              <S.Badge variant="role">
-                {user.role === "admin" ? <ShieldIcon size={14} /> : <UserIcon size={14} />}
-                {user.role === "admin" ? "ადმინისტრატორი" : "მომხმარებელი"}
-              </S.Badge>
-            )}
-            {user?.createdAt && (
-              <S.Badge variant="date" style={{ marginLeft: "8px" }}>
-                <CalendarIcon size={13} /> რეგისტრირებულია {new Date(user.createdAt).toLocaleDateString("ka-GE")}
-              </S.Badge>
-            )}
-          </div>
+            <S.BadgeRow>
+              {user?.role && (
+                <S.Badge variant="role">
+                  {user.role === "admin" ? <ShieldIcon size={14} /> : <UserIcon size={14} />}
+                  {user.role === "admin" ? "ადმინისტრატორი" : "მომხმარებელი"}
+                </S.Badge>
+              )}
+              {user?.createdAt && (
+                <S.Badge variant="date">
+                  <CalendarIcon size={13} /> რეგისტრირებულია {new Date(user.createdAt).toLocaleDateString("ka-GE")}
+                </S.Badge>
+              )}
+            </S.BadgeRow>
+          </S.ProfileInfo>
         </S.ProfileSummary>
 
         {loadingUser ? (

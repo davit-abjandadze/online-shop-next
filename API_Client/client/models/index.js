@@ -11,6 +11,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./answer"), exports);
+__exportStar(require("./approve-question-dto"), exports);
 __exportStar(require("./category"), exports);
 __exportStar(require("./category-response-dto"), exports);
 __exportStar(require("./change-password-dto"), exports);

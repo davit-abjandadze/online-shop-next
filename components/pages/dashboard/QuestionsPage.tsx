@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnswerAPI, CategoriesAPI, QuestionAPI } from "@/API_Client";
+import { AnswerAPI, CategoriesAPI, QuestionAPI, UserAnswerAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
@@ -57,6 +57,37 @@ export const QuestionsPage: React.FC = () => {
 
   const [categories, setCategories] = useState<Category[]>([]);
 
+  // კითხვის ID -> სულ ხმების (აქტივობის) რაოდენობა; `undefined` ჯერ ჩატვირთვამდე
+  const [activityCounts, setActivityCounts] = useState<Record<number, number>>({});
+
+  // ─── Filters ──────────────────────────────────────────────────────────────────
+  const [filterCategory, setFilterCategory] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("");
+  const [filterApprovalStatus, setFilterApprovalStatus] = useState<string>("");
+  const [filterCreatorType, setFilterCreatorType] = useState<string>("");
+  const [filterSortBy, setFilterSortBy] = useState<string>("createdAt");
+  // შენიშვნა: backend `order`-ს ელოდება მკაცრად ლათინური დიდი ასოებით (ASC/DESC),
+  // პატარა ასოებზე 500 აბრუნებს.
+  const [filterOrder, setFilterOrder] = useState<string>("DESC");
+
+  const hasActiveFilters =
+    filterCategory !== "" ||
+    filterStatus !== "" ||
+    filterApprovalStatus !== "" ||
+    filterCreatorType !== "" ||
+    filterSortBy !== "createdAt" ||
+    filterOrder !== "DESC";
+
+  const handleResetFilters = () => {
+    setFilterCategory("");
+    setFilterStatus("");
+    setFilterApprovalStatus("");
+    setFilterCreatorType("");
+    setFilterSortBy("createdAt");
+    setFilterOrder("DESC");
+    setQuestionsPage(1);
+  };
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
 
@@ -83,14 +114,44 @@ export const QuestionsPage: React.FC = () => {
     if (!session?.accessToken) return;
     setLoadingQ(true);
     try {
-      const res = await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerFindAll(questionsPage, QUESTIONS_PAGE_SIZE);
-      setQuestions(Array.isArray(res.data?.data) ? res.data.data : []);
+      const res = await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerFindAll(
+        questionsPage,
+        QUESTIONS_PAGE_SIZE,
+        filterSortBy || undefined,
+        filterOrder || undefined,
+        filterCategory !== "" ? Number(filterCategory) : undefined,
+        filterStatus !== "" ? filterStatus : undefined,
+        filterApprovalStatus !== "" ? filterApprovalStatus : undefined,
+        filterCreatorType !== "" ? filterCreatorType : undefined
+      );
+      const list: Question[] = Array.isArray(res.data?.data) ? res.data.data : [];
+      setQuestions(list);
       setQuestionsMeta(res.data?.meta || null);
+      fetchActivityCounts(list);
     } catch {
       toast.error("კითხვების ჩატვირთვა ვერ მოხერხდა");
     } finally {
       setLoadingQ(false);
     }
+  };
+
+  // მიმდინარე გვერდზე ჩვენებული კითხვების აქტივობის (მიცემული ხმების) რაოდენობა
+  const fetchActivityCounts = async (list: Question[]) => {
+    if (!session?.accessToken || list.length === 0) return;
+    const api = UserAnswerAPI(router.locale || "ka", session.accessToken);
+    const entries = await Promise.all(
+      list.map(async (q) => {
+        try {
+          const res = await api.userAnswerControllerGetResults(String(q.id));
+          const data = res.data as any;
+          const total = typeof data?.totalVotes === "number" ? data.totalVotes : 0;
+          return [q.id, total] as const;
+        } catch {
+          return [q.id, 0] as const;
+        }
+      })
+    );
+    setActivityCounts((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
   };
 
   // სტატისტიკის ბლოკებისთვის ვითვლით ყველა კითხვასა და პასუხს ყველა
@@ -136,11 +197,23 @@ export const QuestionsPage: React.FC = () => {
   useEffect(() => {
     if (session?.accessToken) {
       fetchQuestions();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, questionsPage, filterCategory, filterStatus, filterApprovalStatus, filterCreatorType, filterSortBy, filterOrder]);
+
+  useEffect(() => {
+    if (session?.accessToken) {
       fetchQuestionsStats();
       fetchCategories();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, questionsPage]);
+  }, [session]);
+
+  // ფილტრის ცვლილებისას ვბრუნდებით პირველ გვერდზე
+  const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
+    setter(value);
+    setQuestionsPage(1);
+  };
 
   // ─── Create Question ──────────────────────────────────────────────────────────
   const handleOpenCreate = () => {
@@ -307,6 +380,92 @@ export const QuestionsPage: React.FC = () => {
         </S.StatsGrid>
       )}
 
+      <S.FilterBar>
+        <S.FilterGroup>
+          <S.FilterLabel>კატეგორია</S.FilterLabel>
+          <S.Select
+            value={filterCategory}
+            onChange={(e) => handleFilterChange(setFilterCategory)(e.target.value)}
+          >
+            <option value="">ყველა კატეგორია</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </S.Select>
+        </S.FilterGroup>
+
+        <S.FilterGroup>
+          <S.FilterLabel>აქტიურობის სტატუსი</S.FilterLabel>
+          <S.Select
+            value={filterStatus}
+            onChange={(e) => handleFilterChange(setFilterStatus)(e.target.value)}
+          >
+            <option value="">ყველა</option>
+            <option value="active">აქტიური</option>
+            <option value="inactive">არააქტიური</option>
+          </S.Select>
+        </S.FilterGroup>
+
+        <S.FilterGroup>
+          <S.FilterLabel>დამტკიცების სტატუსი</S.FilterLabel>
+          <S.Select
+            value={filterApprovalStatus}
+            onChange={(e) => handleFilterChange(setFilterApprovalStatus)(e.target.value)}
+          >
+            <option value="">ყველა</option>
+            <option value="pending">მოლოდინში</option>
+            <option value="approved">დამტკიცებული</option>
+            <option value="rejected">უარყოფილი</option>
+          </S.Select>
+        </S.FilterGroup>
+
+        <S.FilterGroup>
+          <S.FilterLabel>შემქმნელი</S.FilterLabel>
+          <S.Select
+            value={filterCreatorType}
+            onChange={(e) => handleFilterChange(setFilterCreatorType)(e.target.value)}
+          >
+            <option value="">ყველა</option>
+            <option value="admin">ადმინი</option>
+            <option value="user">მომხმარებელი</option>
+          </S.Select>
+        </S.FilterGroup>
+
+        <S.FilterGroup>
+          <S.FilterLabel>დალაგება</S.FilterLabel>
+          <S.Select
+            value={filterSortBy}
+            onChange={(e) => handleFilterChange(setFilterSortBy)(e.target.value)}
+          >
+            <option value="createdAt">დამატების თარიღი</option>
+            <option value="endDate">დასრულების თარიღი</option>
+            <option value="text">ტექსტი</option>
+          </S.Select>
+        </S.FilterGroup>
+
+        <S.FilterGroup>
+          <S.FilterLabel>მიმართულება</S.FilterLabel>
+          <S.Select
+            value={filterOrder}
+            onChange={(e) => handleFilterChange(setFilterOrder)(e.target.value)}
+          >
+            <option value="DESC">კლებადი</option>
+            <option value="ASC">ზრდადი</option>
+          </S.Select>
+        </S.FilterGroup>
+
+        <S.FilterActions>
+          <S.ActionButton
+            type="button"
+            variant="secondary"
+            onClick={handleResetFilters}
+            disabled={!hasActiveFilters}
+          >
+            <CloseIcon size={14} /> ფილტრის გასუფთავება
+          </S.ActionButton>
+        </S.FilterActions>
+      </S.FilterBar>
+
       {loadingQ ? (
         <ListSkeleton count={3} />
       ) : questions.length === 0 ? (
@@ -326,15 +485,18 @@ export const QuestionsPage: React.FC = () => {
                 <div>
                   <S.QuestionText>{q.text}</S.QuestionText>
                   <S.BadgeGroup>
-                    <S.Badge variant={q.type === "multiple" ? "multiple" : "single"}>
+                    {/* <S.Badge variant={q.type === "multiple" ? "multiple" : "single"}>
                       {q.type === "multiple" ? <CheckSquareIcon size={13} /> : <RadioIcon size={13} />}
                       {q.type === "multiple" ? "მრავალარჩევიანი" : "ერთარჩევიანი"}
-                    </S.Badge>
+                    </S.Badge> */}
                     <S.Badge variant={q.isActive ? "active" : "inactive"}>
                       {q.isActive ? "აქტიური" : "არააქტიური"}
                     </S.Badge>
                     {q.category && (
                       <S.Badge variant="date"><TagIcon size={13} /> {q.category.name}</S.Badge>
+                    )}
+                    {q.creatorType === "user" && q.createdById && (
+                      <S.Badge variant="date">User ID: {q.createdById}</S.Badge>
                     )}
                     {q.createdAt && (
                       <S.Badge variant="date"><CalendarIcon size={13} /> {new Date(q.createdAt).toLocaleDateString("ka-GE")}</S.Badge>
@@ -342,6 +504,9 @@ export const QuestionsPage: React.FC = () => {
                     {q.endDate && (
                       <S.Badge variant="date"><HourglassIcon size={13} /> {new Date(q.endDate).toLocaleDateString("ka-GE")}</S.Badge>
                     )}
+                    <S.Badge variant="date">
+                      <TargetIcon size={13} /> აქტივობა: {activityCounts[q.id] ?? 0}
+                    </S.Badge>
                   </S.BadgeGroup>
                 </div>
                 <S.CardActions>
@@ -386,7 +551,7 @@ export const QuestionsPage: React.FC = () => {
             onClick={() => setQuestionsPage((p) => Math.max(1, p - 1))}
             disabled={!questionsMeta.hasPrevious}
           >
-            ← წინა
+            ← 
           </S.PageButton>
 
           <S.PageNumbers>
@@ -409,7 +574,7 @@ export const QuestionsPage: React.FC = () => {
             onClick={() => setQuestionsPage((p) => p + 1)}
             disabled={!questionsMeta.hasNext}
           >
-            შემდეგი →
+            →
           </S.PageButton>
         </S.PaginationBar>
       )}

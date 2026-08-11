@@ -119,10 +119,10 @@ export const MyQuestionsComponent: React.FC = () => {
                 <div>
                   <S.QuestionText>{q.text}</S.QuestionText>
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    <S.Badge>
+                    {/* <S.Badge>
                       {q.type === "multiple" ? <CheckSquareIcon size={13} /> : <RadioIcon size={13} />}
                       {q.type === "multiple" ? "მრავალარჩევიანი" : "ერთარჩევიანი"}
-                    </S.Badge>
+                    </S.Badge> */}
                     <S.Badge
                       variant={
                         q.approvalStatus === "approved"
@@ -155,7 +155,7 @@ export const MyQuestionsComponent: React.FC = () => {
       {meta && meta.totalPages > 1 && (
         <S.PaginationBar>
           <S.PageButton onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={!meta.hasPrevious}>
-            ← წინა
+            ← 
           </S.PageButton>
 
           <S.PageNumbers>
@@ -171,7 +171,7 @@ export const MyQuestionsComponent: React.FC = () => {
           </S.PageNumbers>
 
           <S.PageButton onClick={() => setPage((p) => p + 1)} disabled={!meta.hasNext}>
-            შემდეგი →
+            →
           </S.PageButton>
         </S.PaginationBar>
       )}

@@ -200,7 +200,7 @@ export const ActivitiesComponent: React.FC = () => {
             onClick={() => setActivitiesPage((p) => Math.max(1, p - 1))}
             disabled={!activitiesMeta.hasPrevious}
           >
-            ← წინა
+            ← 
           </S.PageButton>
 
           <S.PageNumbers>
@@ -223,7 +223,7 @@ export const ActivitiesComponent: React.FC = () => {
             onClick={() => setActivitiesPage((p) => p + 1)}
             disabled={!activitiesMeta.hasNext}
           >
-            შემდეგი →
+             →
           </S.PageButton>
         </S.PaginationBar>
       )}
