@@ -3,8 +3,49 @@ import styled from "styled-components";
 export const FilterBar = styled("div")`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 28px;
+`;
+
+export const FilterChips = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+export const SortControl = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+`;
+
+export const SortLabel = styled("span")`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  white-space: nowrap;
+`;
+
+export const SortSelect = styled("select")`
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 2px solid var(--ref-border-soft);
+  background-color: var(--ref-bg-elevated);
+  color: var(--ref-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease, color 0.2s ease;
+
+  &:hover,
+  &:focus {
+    border-color: var(--ref-primary);
+    color: var(--ref-primary);
+  }
 `;
 
 export const FilterChip = styled("button")<{ active?: boolean }>`
@@ -464,6 +505,61 @@ export const PopularModalClose = styled("button")`
     border-color: var(--ref-primary);
     color: var(--ref-text-on-primary);
   }
+`;
+
+export const skeletonShimmer = `
+  @keyframes ref-skeleton-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+`;
+
+export const SkeletonBlock = styled("div")<{ width?: string; height?: string }>`
+  width: ${({ width }) => width || "100%"};
+  height: ${({ height }) => height || "14px"};
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--ref-border-soft) 25%,
+    var(--ref-border) 50%,
+    var(--ref-border-soft) 75%
+  );
+  background-size: 200% 100%;
+  animation: ref-skeleton-shimmer 1.4s ease-in-out infinite;
+
+  ${skeletonShimmer}
+`;
+
+export const SkeletonCard = styled("div")`
+  background: var(--ref-bg-elevated);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--ref-shadow-sm);
+  border: 1px solid var(--ref-border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+export const SkeletonCardHeader = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+export const SkeletonOptions = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+export const SkeletonFooter = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
 `;
 
 export const PageBackground = styled("div")`

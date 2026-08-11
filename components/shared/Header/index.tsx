@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
             <Link href="/" passHref legacyBehavior>
               <S.LogoLink>
                 <S.LogoBadge>
-                  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFo1sRXIAqzVIPar-o5_yM6ggVh95DaWkekcNbLjCg7g&s=10" alt="" />
+                  <img src="/icons/logo.svg" alt="" />
                 </S.LogoBadge>
               </S.LogoLink>
             </Link>

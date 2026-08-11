@@ -77,6 +77,12 @@ export const HomeComponent: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
 
+  // Sorting: "activity" (ხმების რაოდენობით) იზომება კლიენტის მხარეს,
+  // დანარჩენი (createdAt/endDate) ბექენდზე გადადის sortBy/order პარამეტრებით
+  const [sortOption, setSortOption] = useState<
+    "createdAt_DESC" | "createdAt_ASC" | "endDate_ASC" | "activity_DESC" | "activity_ASC"
+  >("createdAt_DESC");
+
   // Favorite question IDs and per-question loading state during toggle
   const [favoriteQuestionIds, setFavoriteQuestionIds] = useState<Set<number>>(new Set());
   const [favoritingId, setFavoritingId] = useState<number | null>(null);
@@ -125,10 +131,21 @@ export const HomeComponent: React.FC = () => {
       undefined,
       { shallow: true }
     );
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleCategorySelect = (categoryId: number | null) => {
     setActiveCategoryId(categoryId);
+    setPage(1);
+    router.push(
+      { pathname: router.pathname, query: { ...router.query, page: "1" } },
+      undefined,
+      { shallow: true }
+    );
+  };
+
+  const handleSortChange = (value: typeof sortOption) => {
+    setSortOption(value);
     setPage(1);
     router.push(
       { pathname: router.pathname, query: { ...router.query, page: "1" } },
@@ -142,24 +159,110 @@ export const HomeComponent: React.FC = () => {
     fetchQuestions();
     fetchCategories();
     fetchPopularQuestions();
-  }, [status, session?.accessToken, page, activeCategoryId]);
+  }, [status, session?.accessToken, page, activeCategoryId, sortOption]);
+
+  // ბექენდს "ხმების რაოდენობით" დალაგების პარამეტრი არ აქვს, ამიტომ ამ
+  // შემთხვევაში ყველა აქტიურ კითხვას ვკრეფავთ (გვერდობრივად, backend-ის
+  // 100-იან ლიმიტს გავლენით), თითოეულისთვის ველოდებით ხმების ჯამურ
+  // რაოდენობას და მხოლოდ ამის შემდეგ ვასორტირებთ და "ვაპეიჯინგებთ"
+  // კლიენტის მხარეს — თუ ამის ნაცვლად უკვე ბექენდიდან დაპეიჯინგებულ
+  // ერთ გვერდს დაგვესორტირებინა, "ყველაზე აქტიური" მხოლოდ იმ ერთი
+  // (თანაც შემთხვევითი დალაგების) გვერდის ფარგლებში გამოვიდოდა სწორი.
+  const fetchAllActiveQuestionsWithVotes = async (): Promise<{ question: Question; results: ParsedResult }[]> => {
+    const FETCH_PAGE_SIZE = 100;
+    const collected: Question[] = [];
+    let fetchPage = 1;
+    let hasNext = true;
+
+    while (hasNext) {
+      const res = await QuestionAPI(
+        router.locale || "ka",
+        session?.accessToken || ""
+      ).questionControllerFindAll(fetchPage, FETCH_PAGE_SIZE, undefined, undefined, activeCategoryId ?? undefined);
+
+      const pageItems = Array.isArray(res.data?.data) ? res.data.data : [];
+      collected.push(...pageItems);
+
+      hasNext = !!res.data?.meta?.hasNext;
+      fetchPage += 1;
+    }
+
+    const activeItems = collected.filter((q) => {
+      if (!q.isActive) return false;
+      if (q.endDate && new Date(q.endDate).getTime() < Date.now()) return false;
+      return true;
+    });
+
+    const withResults = await Promise.all(
+      activeItems.map(async (q) => {
+        try {
+          const res = await UserAnswerAPI(
+            router.locale || "ka",
+            session?.accessToken || ""
+          ).userAnswerControllerGetResults(String(q.id));
+          return { question: q, results: parseResultsData(res.data, q) };
+        } catch {
+          return { question: q, results: parseResultsData(null, q) };
+        }
+      })
+    );
+
+    return withResults;
+  };
 
   // Fetch questions
   const fetchQuestions = async () => {
     setLoading(true);
     try {
-      const res = await QuestionAPI(
-        router.locale || "ka",
-        session?.accessToken || ""
-      ).questionControllerFindAll(page, QUESTIONS_PAGE_SIZE, undefined, undefined, activeCategoryId ?? undefined);
+      const [sortField, sortOrder] = sortOption.split("_") as [string, "ASC" | "DESC"];
+      const isActivitySort = sortField === "activity";
 
-      const qList = Array.isArray(res.data?.data) ? res.data.data : [];
-      setQuestions(qList);
-      setQuestionsMeta(res.data?.meta || null);
+      let qList: Question[] = [];
 
-      qList.forEach((q: any) => {
-        fetchSingleResults(q);
-      });
+      if (isActivitySort) {
+        const allWithResults = await fetchAllActiveQuestionsWithVotes();
+
+        allWithResults.sort((a, b) => {
+          const diff = a.results.totalUsers - b.results.totalUsers;
+          return sortOrder === "DESC" ? -diff : diff;
+        });
+
+        const total = allWithResults.length;
+        const totalPages = Math.max(1, Math.ceil(total / QUESTIONS_PAGE_SIZE));
+        const safePage = Math.min(page, totalPages);
+        const start = (safePage - 1) * QUESTIONS_PAGE_SIZE;
+        const pageSlice = allWithResults.slice(start, start + QUESTIONS_PAGE_SIZE);
+
+        qList = pageSlice.map((item) => item.question);
+        setQuestionResults((prev) => {
+          const next = { ...prev };
+          pageSlice.forEach((item) => { next[item.question.id] = item.results; });
+          return next;
+        });
+
+        setQuestions(qList);
+        setQuestionsMeta({
+          total,
+          page: safePage,
+          limit: QUESTIONS_PAGE_SIZE,
+          totalPages,
+          hasNext: safePage < totalPages,
+          hasPrevious: safePage > 1,
+        });
+      } else {
+        const res = await QuestionAPI(
+          router.locale || "ka",
+          session?.accessToken || ""
+        ).questionControllerFindAll(page, QUESTIONS_PAGE_SIZE, sortField, sortOrder, activeCategoryId ?? undefined);
+
+        qList = Array.isArray(res.data?.data) ? res.data.data : [];
+        setQuestions(qList);
+        setQuestionsMeta(res.data?.meta || null);
+
+        qList.forEach((q: any) => {
+          fetchSingleResults(q);
+        });
+      }
 
       if (status === "authenticated" && session?.accessToken) {
         try {
@@ -547,28 +650,62 @@ export const HomeComponent: React.FC = () => {
           </S.SectionTitle>
         </S.SectionHeader>
 
-        {/* Category Filter Bar */}
-        {categories.length > 0 && (
-          <S.FilterBar>
-            <S.FilterChip active={activeCategoryId === null} onClick={() => handleCategorySelect(null)}>
-              <BallotIcon size={16} /> ყველა
-            </S.FilterChip>
-            {categories.map((cat) => (
-              <S.FilterChip
-                key={cat.id}
-                active={activeCategoryId === cat.id}
-                onClick={() => handleCategorySelect(activeCategoryId === cat.id ? null : cat.id)}
-              >
-                <TagIcon size={16} /> {cat.name}
+        {/* Category Filter Bar + Sorting */}
+        <S.FilterBar>
+          {categories.length > 0 ? (
+            <S.FilterChips>
+              <S.FilterChip active={activeCategoryId === null} onClick={() => handleCategorySelect(null)}>
+                <BallotIcon size={16} /> ყველა
               </S.FilterChip>
-            ))}
-          </S.FilterBar>
-        )}
+              {categories.map((cat) => (
+                <S.FilterChip
+                  key={cat.id}
+                  active={activeCategoryId === cat.id}
+                  onClick={() => handleCategorySelect(activeCategoryId === cat.id ? null : cat.id)}
+                >
+                  <TagIcon size={16} /> {cat.name}
+                </S.FilterChip>
+              ))}
+            </S.FilterChips>
+          ) : (
+            <span />
+          )}
+
+          <S.SortControl>
+            <S.SortLabel>დალაგება:</S.SortLabel>
+            <S.SortSelect
+              value={sortOption}
+              onChange={(e) => handleSortChange(e.target.value as typeof sortOption)}
+            >
+              <option value="createdAt_DESC">უახლესი დამატებული</option>
+              <option value="createdAt_ASC">ძველი დამატებული</option>
+              <option value="endDate_ASC">მალე დასრულებადი</option>
+              <option value="activity_DESC">ყველაზე აქტიური (ხმებით)</option>
+              <option value="activity_ASC">ყველაზე ნაკლებად აქტიური</option>
+            </S.SortSelect>
+          </S.SortControl>
+        </S.FilterBar>
 
         {loading ? (
-          <div style={{ textAlign: "center", padding: "100px 0" }}>
-            <p style={{ fontSize: "18px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
-          </div>
+          <S.QuestionsGrid>
+            {Array.from({ length: QUESTIONS_PAGE_SIZE }).map((_, idx) => (
+              <S.SkeletonCard key={idx}>
+                <S.SkeletonCardHeader>
+                  <S.SkeletonBlock width="70%" height="18px" />
+                  <S.SkeletonBlock width="60px" height="24px" />
+                </S.SkeletonCardHeader>
+                <S.SkeletonOptions>
+                  <S.SkeletonBlock height="40px" />
+                  <S.SkeletonBlock height="40px" />
+                  <S.SkeletonBlock height="40px" />
+                </S.SkeletonOptions>
+                <S.SkeletonFooter>
+                  <S.SkeletonBlock width="100px" height="14px" />
+                  <S.SkeletonBlock width="80px" height="32px" />
+                </S.SkeletonFooter>
+              </S.SkeletonCard>
+            ))}
+          </S.QuestionsGrid>
         ) : questions.length === 0 ? (
           <S.EmptyState>
             <BallotIcon size={48} />
@@ -586,6 +723,10 @@ export const HomeComponent: React.FC = () => {
             return true;
           });
 
+          // შენიშვნა: კატეგორიით და აქტიურობით ფილტრი/დალაგება "activity_*"
+          // შემთხვევაში უკვე fetchQuestions-ში სრულადაა გაკეთებული (ყველა
+          // გვერდზე გავლით), ამიტომ questions state უკვე სწორად დასორტირებული
+          // და დაპეიჯინგებული მოდის — აქ მხოლოდ დამატებით დაცვას ვიტოვებთ.
           const filteredQuestions = activeCategoryId === null
             ? activeQuestions
             : activeQuestions.filter((q) => (q as any).categoryId === activeCategoryId || q.category?.id === activeCategoryId);
