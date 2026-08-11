@@ -15,7 +15,7 @@ import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, User
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
-import { BallotIcon, ClipboardIcon, CloseIcon, FireIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BallotIcon, ClipboardIcon, CloseIcon, FireIcon, PlusIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 6;
@@ -456,6 +456,19 @@ export const HomeComponent: React.FC = () => {
         <S.HeroSubtitle>
           დააფიქსირეთ თქვენი პოზიცია მნიშვნელოვან საკითხებზე და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.
         </S.HeroSubtitle>
+        <S.HeroCTAButton
+          type="button"
+          onClick={() => {
+            if (status === "authenticated") {
+              router.push("/questions/ask");
+            } else {
+              toast.info("კითხვის დასამატებლად გთხოვთ გაიაროთ ავტორიზაცია");
+              setAuthModalOpen(true);
+            }
+          }}
+        >
+          <PlusIcon size={16} /> დასვით საკუთარი კითხვა
+        </S.HeroCTAButton>
       </S.HeroSection>
 
       {/* Popular Active Questions Slider */}

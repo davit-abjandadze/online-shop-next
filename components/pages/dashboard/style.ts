@@ -270,7 +270,7 @@ export const BadgeGroup = styled("div")`
   flex-wrap: wrap;
 `;
 
-export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" }>`
+export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" | "pending" | "approved" | "rejected" }>`
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 12px;
@@ -283,11 +283,14 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" |
     if (variant === "date") {
       return "background: var(--ref-bg-subtle); color: var(--ref-text-secondary); font-weight: 400;";
     }
-    if (variant === "active") {
+    if (variant === "active" || variant === "approved") {
       return "background: var(--ref-success-soft); color: var(--ref-success);";
     }
-    if (variant === "inactive") {
+    if (variant === "inactive" || variant === "rejected") {
       return "background: var(--ref-danger-soft); color: var(--ref-danger);";
+    }
+    if (variant === "pending") {
+      return "background: var(--ref-warning-soft); color: #b45309;";
     }
     return "background: var(--ref-primary-soft); color: var(--ref-primary-hover);";
   }}
@@ -521,6 +524,24 @@ export const Select = styled("select")`
 
   &:focus {
     border-color: var(--ref-primary);
+  }
+`;
+
+export const Textarea = styled("textarea")`
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--ref-border);
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  min-height: 90px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: var(--ref-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
   }
 `;
 

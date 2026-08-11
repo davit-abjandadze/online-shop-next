@@ -1,15 +1,16 @@
 import React from "react";
 import { useRouter } from "next/router";
 import Header from "@/components/shared/Header";
-import { ClipboardIcon, KeyIcon, StarIcon, UserIcon } from "@/components/ui/RefIcons";
+import { ClipboardIcon, KeyIcon, QuestionMarkIcon, StarIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
-type ProfileTab = "info" | "favorites" | "activities" | "password";
+type ProfileTab = "info" | "favorites" | "activities" | "myQuestions" | "password";
 
 const TAB_ROUTES: Record<ProfileTab, string> = {
   info: "/user/profile",
   favorites: "/user/favorites",
   activities: "/user/activities",
+  myQuestions: "/user/my-questions",
   password: "/user/change-password",
 };
 
@@ -19,6 +20,7 @@ interface ProfileLayoutProps {
   subtitle: string;
   favoritesCount?: number;
   activitiesCount?: number;
+  myQuestionsCount?: number;
   children: React.ReactNode;
 }
 
@@ -28,6 +30,7 @@ export const ProfileLayout: React.FC<ProfileLayoutProps> = ({
   subtitle,
   favoritesCount,
   activitiesCount,
+  myQuestionsCount,
   children,
 }) => {
   const router = useRouter();
@@ -52,6 +55,9 @@ export const ProfileLayout: React.FC<ProfileLayoutProps> = ({
               </S.SidebarItem>
               <S.SidebarItem active={activeTab === "activities"} onClick={() => router.push(TAB_ROUTES.activities)}>
                 <ClipboardIcon size={18} /> აქტივობები {activitiesCount != null ? `(${activitiesCount})` : ""}
+              </S.SidebarItem>
+              <S.SidebarItem active={activeTab === "myQuestions"} onClick={() => router.push(TAB_ROUTES.myQuestions)}>
+                <QuestionMarkIcon size={18} /> ჩემი დასმული კითხვები {myQuestionsCount != null ? `(${myQuestionsCount})` : ""}
               </S.SidebarItem>
               <S.SidebarItem active={activeTab === "password"} onClick={() => router.push(TAB_ROUTES.password)}>
                 <KeyIcon size={18} /> პაროლის შეცვლა

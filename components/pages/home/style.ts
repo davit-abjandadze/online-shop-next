@@ -62,6 +62,26 @@ export const HeroSubtitle = styled("p")`
   line-height: 1.5;
 `;
 
+export const HeroCTAButton = styled("button")`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--ref-bg-elevated);
+  color: var(--ref-primary);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+  }
+`;
+
 export const PopularSection = styled("section")`
   max-width: 960px;
   margin: 0 auto 24px auto;

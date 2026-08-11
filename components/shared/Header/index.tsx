@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import AuthModal from "@/components/shared/AuthModal";
 import { useThemeMode } from "@/context/ThemeMode";
-import { ChartIcon, ChevronDownIcon, KeyIcon, LogoutIcon, MoonIcon, SunIcon, UserIcon } from "@/components/ui/RefIcons";
+import { ChartIcon, ChevronDownIcon, KeyIcon, LogoutIcon, MoonIcon, PlusIcon, QuestionMarkIcon, SunIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 interface HeaderProps {
@@ -124,6 +124,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/profile"); }}>
                       <UserIcon size={18} /> პროფილი
+                    </S.DropdownItem>
+
+                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/questions/ask"); }}>
+                      <PlusIcon size={18} /> კითხვის დამატება
+                    </S.DropdownItem>
+
+                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/my-questions"); }}>
+                      <QuestionMarkIcon size={18} /> ჩემი დასმული კითხვები
                     </S.DropdownItem>
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/change-password"); }}>

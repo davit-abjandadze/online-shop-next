@@ -139,7 +139,7 @@ export const ProfileEmail = styled("div")`
   margin-top: 2px;
 `;
 
-export const Badge = styled("span")<{ variant?: "role" | "date" }>`
+export const Badge = styled("span")<{ variant?: "role" | "date" | "pending" | "approved" | "rejected" }>`
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -149,10 +149,20 @@ export const Badge = styled("span")<{ variant?: "role" | "date" }>`
   font-weight: 600;
   margin-top: 8px;
 
-  ${({ variant }) =>
-    variant === "date"
-      ? "background: var(--ref-bg-subtle); color: var(--ref-text-secondary); font-weight: 400;"
-      : "background: var(--ref-primary-soft); color: var(--ref-primary-hover);"}
+  ${({ variant }) => {
+    switch (variant) {
+      case "date":
+        return "background: var(--ref-bg-subtle); color: var(--ref-text-secondary); font-weight: 400;";
+      case "pending":
+        return "background: var(--ref-warning-soft); color: #b45309;";
+      case "approved":
+        return "background: var(--ref-success-soft); color: var(--ref-success);";
+      case "rejected":
+        return "background: var(--ref-danger-soft); color: var(--ref-danger);";
+      default:
+        return "background: var(--ref-primary-soft); color: var(--ref-primary-hover);";
+    }
+  }}
 `;
 
 /* Form */
@@ -282,6 +292,47 @@ export const FavoritesList = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 16px;
+`;
+
+/* My Questions list */
+export const QuestionsList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+export const QuestionCard = styled("div")`
+  background: var(--ref-bg-elevated);
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--ref-border-soft);
+`;
+
+export const QuestionCardHeader = styled("div")`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
+export const QuestionText = styled("h3")`
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+`;
+
+export const RejectionReasonBox = styled("div")`
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--ref-danger-soft);
+  border: 1px solid var(--ref-danger);
+  color: var(--ref-danger);
+  font-size: 13px;
 `;
 
 export const PaginationBar = styled("div")`
