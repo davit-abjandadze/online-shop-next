@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { signIn, useSession } from "next-auth/react";
@@ -26,38 +26,39 @@ const RegisterForm: React.FC = () => {
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const schema = yup.object().shape({
-    firstName: yup
-      .string()
-      .required(t("register-validation-first-name-required"))
-      .min(2, t("register-validation-first-name-min")),
-    lastName: yup
-      .string()
-      .required(t("register-validation-last-name-required"))
-      .min(2, t("register-validation-last-name-min")),
-    email: yup
-      .string()
-      .required(t("register-validation-email-required"))
-      .email(t("register-validation-email-invalid")),
-    password: yup
-      .string()
-      .required(t("register-validation-password-required"))
-      .min(6, t("register-validation-password-min")),
-    confirmPassword: yup
-      .string()
-      .required(t("register-validation-confirm-password-required"))
-      .oneOf(
-        [yup.ref("password")],
-        t("register-validation-confirm-password-match")
-      ),
-  });
+  const schema = z
+    .object({
+      firstName: z
+        .string()
+        .min(1, t("register-validation-first-name-required"))
+        .min(2, t("register-validation-first-name-min")),
+      lastName: z
+        .string()
+        .min(1, t("register-validation-last-name-required"))
+        .min(2, t("register-validation-last-name-min")),
+      email: z
+        .string()
+        .min(1, t("register-validation-email-required"))
+        .email(t("register-validation-email-invalid")),
+      password: z
+        .string()
+        .min(1, t("register-validation-password-required"))
+        .min(6, t("register-validation-password-min")),
+      confirmPassword: z
+        .string()
+        .min(1, t("register-validation-confirm-password-required")),
+    })
+    .refine((data) => data.confirmPassword === data.password, {
+      message: t("register-validation-confirm-password-match") as string,
+      path: ["confirmPassword"],
+    });
 
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormValues>({
-    resolver: yupResolver(schema),
+    resolver: zodResolver(schema),
   });
 
   const { lang } = useTranslation("common");

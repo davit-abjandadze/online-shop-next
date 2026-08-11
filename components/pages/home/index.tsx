@@ -7,10 +7,11 @@ import { Navigation, Pagination, Autoplay } from "swiper";
 import Header from "@/components/shared/Header";
 import ReferendumFooter from "@/components/shared/ReferendumFooter";
 import AuthModal from "@/components/shared/AuthModal";
+import CompleteProfileModal from "@/components/shared/CompleteProfileModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
 import MobilePopup from "@/components/ui/MobilePopup";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
-import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI } from "@/API_Client";
+import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, UserAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
@@ -66,6 +67,11 @@ export const HomeComponent: React.FC = () => {
   // Auth modal control if guest tries to vote
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [votedQuestionIds, setVotedQuestionIds] = useState<Set<number>>(new Set());
+
+  // Profile completion modal control - ხმის მიცემისას თუ ავტორიზებულ მომხმარებელს
+  // არ აქვს შევსებული ასაკი და სქესი
+  const [completeProfileOpen, setCompleteProfileOpen] = useState<boolean>(false);
+  const [pendingVoteQuestion, setPendingVoteQuestion] = useState<Question | null>(null);
 
   // Categories for filter
   const [categories, setCategories] = useState<Category[]>([]);
@@ -309,11 +315,41 @@ export const HomeComponent: React.FC = () => {
     }
   };
 
+  // მოწმდება, თქვენს პროფილში შევსებულია თუ არა ასაკი და სქესი (საჭირო ხმის მისაცემად)
+  const checkProfileComplete = async (): Promise<boolean> => {
+    if (!session?.accessToken || !session?.user?.id) return false;
+    try {
+      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(
+        session.user.id
+      );
+      const u = res.data;
+      return u.age != null && !!u.gender;
+    } catch {
+      // თუ პროფილის შემოწმება ვერ მოხერხდა, ხმის მიცემას არ ვბლოკავთ
+      return true;
+    }
+  };
+
+  const handleProfileCompleted = () => {
+    setCompleteProfileOpen(false);
+    const q = pendingVoteQuestion;
+    setPendingVoteQuestion(null);
+    if (q) {
+      handleVote(q);
+    }
+  };
+
   // Handle Voting Submit
   const handleVote = async (q: Question) => {
     if (status !== "authenticated" || !session?.accessToken) {
       toast.info("ხმის მისაცემად გთხოვთ გაიაროთ ავტორიზაცია");
       setAuthModalOpen(true);
+      return;
+    }
+
+    if (!(await checkProfileComplete())) {
+      setPendingVoteQuestion(q);
+      setCompleteProfileOpen(true);
       return;
     }
 
@@ -621,6 +657,15 @@ export const HomeComponent: React.FC = () => {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         initialMode="login"
+      />
+
+      <CompleteProfileModal
+        isOpen={completeProfileOpen}
+        onClose={() => {
+          setCompleteProfileOpen(false);
+          setPendingVoteQuestion(null);
+        }}
+        onCompleted={handleProfileCompleted}
       />
 
       {popularModalQuestionId !== null && (() => {

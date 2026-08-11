@@ -11,6 +11,7 @@
  */
 import { Answer } from './answer';
 import { Category } from './category';
+import { User } from './user';
 /**
 *
 *
@@ -59,6 +60,51 @@ export interface Question {
      */
     endDate?: Date | null;
     /**
+     * @type {string}
+     * @memberof Question
+     */
+    creatorType: QuestionCreatorTypeEnum;
+    /**
+     * @type {User}
+     * @memberof Question
+     */
+    createdBy?: User;
+    /**
+     * @type {number}
+     * @memberof Question
+     */
+    createdById?: number;
+    /**
+     * @type {string}
+     * @memberof Question
+     */
+    creatorIp?: string;
+    /**
+     * @type {string}
+     * @memberof Question
+     */
+    approvalStatus: QuestionApprovalStatusEnum;
+    /**
+     * @type {string}
+     * @memberof Question
+     */
+    rejectionReason?: string | null;
+    /**
+     * @type {User}
+     * @memberof Question
+     */
+    reviewedBy?: User;
+    /**
+     * @type {number}
+     * @memberof Question
+     */
+    reviewedById?: number;
+    /**
+     * @type {Date}
+     * @memberof Question
+     */
+    reviewedAt?: Date | null;
+    /**
      * @type {Date}
      * @memberof Question
      */
@@ -71,4 +117,21 @@ export interface Question {
 export declare enum QuestionTypeEnum {
     Single = "single",
     Multiple = "multiple"
+}
+/**
+ * @export
+ * @enum {string}
+ */
+export declare enum QuestionCreatorTypeEnum {
+    Admin = "admin",
+    User = "user"
+}
+/**
+ * @export
+ * @enum {string}
+ */
+export declare enum QuestionApprovalStatusEnum {
+    Pending = "pending",
+    Approved = "approved",
+    Rejected = "rejected"
 }

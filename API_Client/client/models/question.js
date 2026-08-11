@@ -13,7 +13,7 @@
  * Do not edit the class manually.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.QuestionTypeEnum = void 0;
+exports.QuestionApprovalStatusEnum = exports.QuestionCreatorTypeEnum = exports.QuestionTypeEnum = void 0;
 /**
  * @export
  * @enum {string}
@@ -23,3 +23,22 @@ var QuestionTypeEnum;
     QuestionTypeEnum["Single"] = "single";
     QuestionTypeEnum["Multiple"] = "multiple";
 })(QuestionTypeEnum = exports.QuestionTypeEnum || (exports.QuestionTypeEnum = {}));
+/**
+ * @export
+ * @enum {string}
+ */
+var QuestionCreatorTypeEnum;
+(function (QuestionCreatorTypeEnum) {
+    QuestionCreatorTypeEnum["Admin"] = "admin";
+    QuestionCreatorTypeEnum["User"] = "user";
+})(QuestionCreatorTypeEnum = exports.QuestionCreatorTypeEnum || (exports.QuestionCreatorTypeEnum = {}));
+/**
+ * @export
+ * @enum {string}
+ */
+var QuestionApprovalStatusEnum;
+(function (QuestionApprovalStatusEnum) {
+    QuestionApprovalStatusEnum["Pending"] = "pending";
+    QuestionApprovalStatusEnum["Approved"] = "approved";
+    QuestionApprovalStatusEnum["Rejected"] = "rejected";
+})(QuestionApprovalStatusEnum = exports.QuestionApprovalStatusEnum || (exports.QuestionApprovalStatusEnum = {}));

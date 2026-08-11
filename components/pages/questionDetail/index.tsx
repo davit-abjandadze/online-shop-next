@@ -6,8 +6,9 @@ import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import ReferendumFooter from "@/components/shared/ReferendumFooter";
 import AuthModal from "@/components/shared/AuthModal";
+import CompleteProfileModal from "@/components/shared/CompleteProfileModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
-import { FavoritesAPI, UserAnswerAPI } from "@/API_Client";
+import { FavoritesAPI, UserAnswerAPI, UserAPI } from "@/API_Client";
 import { Question } from "@/API_Client/client/models";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
 import * as S from "@/components/pages/home/style";
@@ -28,6 +29,7 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriting, setFavoriting] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [completeProfileOpen, setCompleteProfileOpen] = useState(false);
 
   const fetchResults = async () => {
     try {
@@ -83,10 +85,30 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
     });
   };
 
+  // მოწმდება, პროფილში შევსებულია თუ არა ასაკი და სქესი (საჭირო ხმის მისაცემად)
+  const checkProfileComplete = async (): Promise<boolean> => {
+    if (!session?.accessToken || !session?.user?.id) return false;
+    try {
+      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(
+        session.user.id
+      );
+      const u = res.data;
+      return u.age != null && !!u.gender;
+    } catch {
+      // თუ პროფილის შემოწმება ვერ მოხერხდა, ხმის მიცემას არ ვბლოკავთ
+      return true;
+    }
+  };
+
   const handleVote = async () => {
     if (status !== "authenticated" || !session?.accessToken) {
       toast.info("ხმის მისაცემად გთხოვთ გაიაროთ ავტორიზაცია");
       setAuthModalOpen(true);
+      return;
+    }
+
+    if (!(await checkProfileComplete())) {
+      setCompleteProfileOpen(true);
       return;
     }
 
@@ -178,6 +200,15 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
       <ReferendumFooter />
 
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} initialMode="login" />
+
+      <CompleteProfileModal
+        isOpen={completeProfileOpen}
+        onClose={() => setCompleteProfileOpen(false)}
+        onCompleted={() => {
+          setCompleteProfileOpen(false);
+          handleVote();
+        }}
+      />
     </S.PageBackground>
   );
 };

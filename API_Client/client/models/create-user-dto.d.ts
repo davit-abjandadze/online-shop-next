@@ -29,6 +29,13 @@ export interface CreateUserDto {
      */
     gender?: CreateUserDtoGenderEnum;
     /**
+     * მომხმარებლის ასაკი
+     *
+     * @type {number}
+     * @memberof CreateUserDto
+     */
+    age?: number;
+    /**
      * @type {string}
      * @memberof CreateUserDto
      */

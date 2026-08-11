@@ -178,24 +178,31 @@ export const Label = styled("label")`
   color: var(--ref-text-primary);
 `;
 
-export const Input = styled("input")`
+export const Input = styled("input")<{ $invalid?: boolean }>`
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid var(--ref-border);
+  border: 1px solid ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-border)")};
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: var(--ref-primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-primary)")};
+    box-shadow: 0 0 0 3px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.1)" : "rgba(37, 99, 235, 0.1)")};
   }
 
   &:disabled {
     background: var(--ref-bg-subtle);
     color: var(--ref-text-secondary);
   }
+`;
+
+export const FieldError = styled("span")`
+  display: block;
+  font-size: 12px;
+  color: var(--ref-danger);
+  margin-top: 6px;
 `;
 
 export const Select = styled("select")`
@@ -383,4 +390,43 @@ export const AccessDeniedText = styled("p")`
   font-size: 14px;
   color: var(--ref-text-secondary);
   margin: 0 0 24px 0;
+`;
+
+/* Alerts */
+export const Alert = styled("div")<{ success?: boolean }>`
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: ${({ success }) => (success ? "var(--ref-success-soft)" : "var(--ref-danger-soft)")};
+  border: 1px solid ${({ success }) => (success ? "var(--ref-success)" : "var(--ref-danger)")};
+  color: ${({ success }) => (success ? "var(--ref-success)" : "var(--ref-danger)")};
+`;
+
+/* Password input with show/hide toggle */
+export const InputWrapper = styled("div")`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
+export const ToggleBtn = styled("button")`
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--ref-text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+
+  &:hover {
+    color: var(--ref-text-primary);
+    background: var(--ref-bg-subtle);
+  }
 `;

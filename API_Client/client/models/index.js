@@ -29,6 +29,7 @@ __exportStar(require("./pagination-meta-dto"), exports);
 __exportStar(require("./question"), exports);
 __exportStar(require("./register-dto"), exports);
 __exportStar(require("./register-response-dto"), exports);
+__exportStar(require("./reject-question-dto"), exports);
 __exportStar(require("./reset-password-dto"), exports);
 __exportStar(require("./submit-answer-dto"), exports);
 __exportStar(require("./task"), exports);

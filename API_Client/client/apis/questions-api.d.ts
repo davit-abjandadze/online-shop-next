@@ -15,6 +15,7 @@ import { RequestArgs, BaseAPI } from '../base';
 import { CreateQuestionDto } from '../models';
 import { PaginatedResponseDto } from '../models';
 import { Question } from '../models';
+import { RejectQuestionDto } from '../models';
 import { UpdateQuestionDto } from '../models';
 /**
  * QuestionsApi - axios parameter creator
@@ -23,7 +24,7 @@ import { UpdateQuestionDto } from '../models';
 export declare const QuestionsApiAxiosParamCreator: (configuration?: Configuration) => {
     /**
      *
-     * @summary კითხვის გააქტიურება
+     * @summary კითხვის გააქტიურება (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -31,6 +32,15 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
     questionControllerActivate: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
+     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerApprove: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
+     * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -38,7 +48,7 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
     questionControllerCreate: (body: CreateQuestionDto, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
-     * @summary კითხვის დეაქტივაცია
+     * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -53,10 +63,23 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
      * @param {string} [order] მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+     * @param {string} [creatorType] ვინ დასვა კითხვა
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerFindAll: (page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    questionControllerFindAll: (page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
+     * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerFindMyQuestions: (page?: number, limit?: number, sortBy?: string, order?: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
      * @param {string} id
@@ -66,6 +89,16 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
     questionControllerFindOne: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
+     * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+     * @param {RejectQuestionDto} body
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerReject: (body: RejectQuestionDto, id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    /**
+     *
+     * @summary კითხვის წაშლა (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -73,6 +106,7 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
     questionControllerRemove: (id: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
+     * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
      * @param {UpdateQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.
@@ -87,7 +121,7 @@ export declare const QuestionsApiAxiosParamCreator: (configuration?: Configurati
 export declare const QuestionsApiFp: (configuration?: Configuration) => {
     /**
      *
-     * @summary კითხვის გააქტიურება
+     * @summary კითხვის გააქტიურება (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -95,6 +129,15 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
     questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
     /**
      *
+     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerApprove(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
+    /**
+     *
+     * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -102,7 +145,7 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
     questionControllerCreate(body: CreateQuestionDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
     /**
      *
-     * @summary კითხვის დეაქტივაცია
+     * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -117,10 +160,23 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
      * @param {string} [order] მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+     * @param {string} [creatorType] ვინ დასვა კითხვა
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<PaginatedResponseDto>>>;
+    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<PaginatedResponseDto>>>;
+    /**
+     *
+     * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerFindMyQuestions(page?: number, limit?: number, sortBy?: string, order?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
     /**
      *
      * @param {string} id
@@ -130,6 +186,16 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
     questionControllerFindOne(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
     /**
      *
+     * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+     * @param {RejectQuestionDto} body
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerReject(body: RejectQuestionDto, id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
+    /**
+     *
+     * @summary კითხვის წაშლა (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -137,6 +203,7 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
     questionControllerRemove(id: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<Question>>>;
     /**
      *
+     * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
      * @param {UpdateQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.
@@ -151,7 +218,7 @@ export declare const QuestionsApiFp: (configuration?: Configuration) => {
 export declare const QuestionsApiFactory: (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) => {
     /**
      *
-     * @summary კითხვის გააქტიურება
+     * @summary კითხვის გააქტიურება (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -159,6 +226,15 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
     questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
+     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerApprove(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
+     * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -166,7 +242,7 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
     questionControllerCreate(body: CreateQuestionDto, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
-     * @summary კითხვის დეაქტივაცია
+     * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -181,10 +257,23 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
      * @param {string} [order] მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+     * @param {string} [creatorType] ვინ დასვა კითხვა
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaginatedResponseDto>>;
+    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaginatedResponseDto>>;
+    /**
+     *
+     * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerFindMyQuestions(page?: number, limit?: number, sortBy?: string, order?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
      * @param {string} id
@@ -194,6 +283,16 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
     questionControllerFindOne(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
+     * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+     * @param {RejectQuestionDto} body
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    questionControllerReject(body: RejectQuestionDto, id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
+     * @summary კითხვის წაშლა (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -201,6 +300,7 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
     questionControllerRemove(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
+     * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
      * @param {UpdateQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.
@@ -217,7 +317,7 @@ export declare const QuestionsApiFactory: (configuration?: Configuration, basePa
 export declare class QuestionsApi extends BaseAPI {
     /**
      *
-     * @summary კითხვის გააქტიურება
+     * @summary კითხვის გააქტიურება (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -226,6 +326,16 @@ export declare class QuestionsApi extends BaseAPI {
     questionControllerActivate(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
+     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    questionControllerApprove(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
+     * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -234,7 +344,7 @@ export declare class QuestionsApi extends BaseAPI {
     questionControllerCreate(body: CreateQuestionDto, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
-     * @summary კითხვის დეაქტივაცია
+     * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -250,11 +360,25 @@ export declare class QuestionsApi extends BaseAPI {
      * @param {string} [order] მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+     * @param {string} [creatorType] ვინ დასვა კითხვა
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QuestionsApi
      */
-    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaginatedResponseDto>>;
+    questionControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<PaginatedResponseDto>>;
+    /**
+     *
+     * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    questionControllerFindMyQuestions(page?: number, limit?: number, sortBy?: string, order?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
      * @param {string} id
@@ -265,6 +389,17 @@ export declare class QuestionsApi extends BaseAPI {
     questionControllerFindOne(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
+     * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+     * @param {RejectQuestionDto} body
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    questionControllerReject(body: RejectQuestionDto, id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
+    /**
+     *
+     * @summary კითხვის წაშლა (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -273,6 +408,7 @@ export declare class QuestionsApi extends BaseAPI {
     questionControllerRemove(id: string, options?: AxiosRequestConfig): Promise<AxiosResponse<Question>>;
     /**
      *
+     * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
      * @param {UpdateQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.

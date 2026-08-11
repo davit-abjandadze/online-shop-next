@@ -122,10 +122,10 @@ export const InputWrapper = styled.div`
   align-items: center;
 `;
 
-export const Input = styled.input`
+export const Input = styled.input<{ $invalid?: boolean }>`
   width: 100%;
   padding: 12px 16px;
-  border: 1.5px solid var(--ref-border-soft);
+  border: 1.5px solid ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-border-soft)")};
   border-radius: 6px;
   font-size: 14px;
   color: var(--ref-text-primary);
@@ -134,8 +134,8 @@ export const Input = styled.input`
   background: var(--ref-bg-elevated);
 
   &:focus {
-    border-color: var(--ref-primary);
-    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
+    border-color: ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-primary)")};
+    box-shadow: 0 0 0 4px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.15)" : "rgba(24, 119, 242, 0.15)")};
   }
 
   &::placeholder {
@@ -143,30 +143,55 @@ export const Input = styled.input`
   }
 `;
 
+export const FieldError = styled.span`
+  font-size: 12px;
+  color: var(--ref-danger);
+  margin-top: 2px;
+`;
+
 export const GenderSwitch = styled.div`
+  position: relative;
   display: flex;
+  width: 100%;
+  height: 42px;
+  border-radius: 999px;
   background: var(--ref-bg);
-  padding: 4px;
-  border-radius: 8px;
-  gap: 4px;
+  border: 1.5px solid var(--ref-border-soft);
+  padding: 3px;
+`;
+
+export const GenderThumb = styled.div<{ position: "left" | "right" }>`
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: ${({ position }) => (position === "left" ? "3px" : "50%")};
+  width: calc(50% - 3px);
+  border-radius: 999px;
+  background: var(--ref-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 export const GenderOption = styled.button<{ active: boolean }>`
+  position: relative;
+  z-index: 1;
   flex: 1;
-  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   border: none;
-  background: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "transparent")};
-  color: ${({ active }) => (active ? "var(--ref-text-primary)" : "var(--ref-text-secondary)")};
-  font-weight: ${({ active }) => (active ? "600" : "500")};
+  background: transparent;
+  color: ${({ active }) => (active ? "var(--ref-text-on-primary)" : "var(--ref-text-secondary)")};
+  font-weight: ${({ active }) => (active ? "700" : "500")};
   font-size: 14px;
-  border-radius: 6px;
+  border-radius: 999px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: ${({ active }) =>
-    active ? "0 2px 8px rgba(0, 0, 0, 0.06)" : "none"};
+  transition: color 0.2s ease;
 
   &:hover {
-    color: var(--ref-text-primary);
+    color: ${({ active }) =>
+      active ? "var(--ref-text-on-primary)" : "var(--ref-text-primary)"};
   }
 `;
 

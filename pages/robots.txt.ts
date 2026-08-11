@@ -6,7 +6,6 @@ const PRIVATE_PATHS = [
   "/user/",
   "/login",
   "/register",
-  "/change-password",
   "/reset-password",
   "/api/",
 ];

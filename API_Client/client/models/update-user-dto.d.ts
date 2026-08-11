@@ -29,6 +29,13 @@ export interface UpdateUserDto {
      */
     gender?: UpdateUserDtoGenderEnum;
     /**
+     * მომხმარებლის ასაკი
+     *
+     * @type {number}
+     * @memberof UpdateUserDto
+     */
+    age?: number;
+    /**
      * @type {string}
      * @memberof UpdateUserDto
      */

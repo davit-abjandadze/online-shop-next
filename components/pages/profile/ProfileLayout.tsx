@@ -1,15 +1,16 @@
 import React from "react";
 import { useRouter } from "next/router";
 import Header from "@/components/shared/Header";
-import { ClipboardIcon, StarIcon, UserIcon } from "@/components/ui/RefIcons";
+import { ClipboardIcon, KeyIcon, StarIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
-type ProfileTab = "info" | "favorites" | "activities";
+type ProfileTab = "info" | "favorites" | "activities" | "password";
 
 const TAB_ROUTES: Record<ProfileTab, string> = {
   info: "/user/profile",
   favorites: "/user/favorites",
   activities: "/user/activities",
+  password: "/user/change-password",
 };
 
 interface ProfileLayoutProps {
@@ -51,6 +52,9 @@ export const ProfileLayout: React.FC<ProfileLayoutProps> = ({
               </S.SidebarItem>
               <S.SidebarItem active={activeTab === "activities"} onClick={() => router.push(TAB_ROUTES.activities)}>
                 <ClipboardIcon size={18} /> აქტივობები {activitiesCount != null ? `(${activitiesCount})` : ""}
+              </S.SidebarItem>
+              <S.SidebarItem active={activeTab === "password"} onClick={() => router.push(TAB_ROUTES.password)}>
+                <KeyIcon size={18} /> პაროლის შეცვლა
               </S.SidebarItem>
             </S.Sidebar>
 

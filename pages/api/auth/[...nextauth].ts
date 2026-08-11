@@ -140,10 +140,17 @@ export const authOptions: NextAuthOptions = {
 
 
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.access_token = (user as any).access_token;
         token.role = (user as any).role;
+        token.id = (user as any).id;
+      }
+      // პროფილის ფორმიდან useSession().update(...) გამოძახებისას აქ ვანახლებთ
+      // token-ს, რომ ჰედერშიც (და ყველგან, სადაც session.user.name გამოიყენება)
+      // დაუყოვნებლივ აისახოს ახალი სახელი/გვარი.
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
       }
       return token;
     },
@@ -153,6 +160,7 @@ export const authOptions: NextAuthOptions = {
         session.accessToken = token.access_token as string;
         if (session.user) {
           (session.user as any).role = token.role;
+          (session.user as any).id = token.id ?? (token.sub as string);
         }
       }
       return session;

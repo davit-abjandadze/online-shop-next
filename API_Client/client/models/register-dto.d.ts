@@ -24,6 +24,13 @@ export interface RegisterDto {
      */
     gender?: RegisterDtoGenderEnum;
     /**
+     * მომხმარებლის ასაკი
+     *
+     * @type {number}
+     * @memberof RegisterDto
+     */
+    age?: number;
+    /**
      * @type {string}
      * @memberof RegisterDto
      */

@@ -94,10 +94,12 @@ exports.UserAnswerApiAxiosParamCreator = function (configuration) {
          * @param {string} [order] დალაგების მიმართულება
          * @param {number} [category] კატეგორიის ID
          * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+         * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, options) {
+        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
                 var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
@@ -144,6 +146,12 @@ exports.UserAnswerApiAxiosParamCreator = function (configuration) {
                             }
                             if (status !== undefined) {
                                 localVarQueryParameter['status'] = status;
+                            }
+                            if (approvalStatus !== undefined) {
+                                localVarQueryParameter['approvalStatus'] = approvalStatus;
+                            }
+                            if (creatorType !== undefined) {
+                                localVarQueryParameter['creatorType'] = creatorType;
                             }
                             query = new URLSearchParams(localVarUrlObj.search);
                             for (key in localVarQueryParameter) {
@@ -344,15 +352,17 @@ exports.UserAnswerApiFp = function (configuration) {
          * @param {string} [order] დალაგების მიმართულება
          * @param {number} [category] კატეგორიის ID
          * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+         * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, options) {
+        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
             return __awaiter(this, void 0, void 0, function () {
                 var localVarAxiosArgs;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.UserAnswerApiAxiosParamCreator(configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, options)];
+                        case 0: return [4 /*yield*/, exports.UserAnswerApiAxiosParamCreator(configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, approvalStatus, creatorType, options)];
                         case 1:
                             localVarAxiosArgs = _a.sent();
                             return [2 /*return*/, function (axios, basePath) {
@@ -457,13 +467,15 @@ exports.UserAnswerApiFactory = function (configuration, basePath, axios) {
          * @param {string} [order] დალაგების მიმართულება
          * @param {number} [category] კატეგორიის ID
          * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+         * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, options) {
+        userAnswerControllerGetMyActivities: function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
-                    return [2 /*return*/, exports.UserAnswerApiFp(configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, options).then(function (request) { return request(axios, basePath); })];
+                    return [2 /*return*/, exports.UserAnswerApiFp(configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, approvalStatus, creatorType, options).then(function (request) { return request(axios, basePath); })];
                 });
             });
         },
@@ -531,15 +543,17 @@ var UserAnswerApi = /** @class */ (function (_super) {
      * @param {string} [order] დალაგების მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+     * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserAnswerApi
      */
-    UserAnswerApi.prototype.userAnswerControllerGetMyActivities = function (page, limit, sortBy, order, category, status, options) {
+    UserAnswerApi.prototype.userAnswerControllerGetMyActivities = function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, exports.UserAnswerApiFp(this.configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+                return [2 /*return*/, exports.UserAnswerApiFp(this.configuration).userAnswerControllerGetMyActivities(page, limit, sortBy, order, category, status, approvalStatus, creatorType, options).then(function (request) { return request(_this.axios, _this.basePath); })];
             });
         });
     };

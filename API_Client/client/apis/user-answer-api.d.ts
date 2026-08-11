@@ -27,10 +27,12 @@ export declare const UserAnswerApiAxiosParamCreator: (configuration?: Configurat
      * @param {string} [order] დალაგების მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+     * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    userAnswerControllerGetMyActivities: (page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
+    userAnswerControllerGetMyActivities: (page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig) => Promise<RequestArgs>;
     /**
      *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
@@ -70,10 +72,12 @@ export declare const UserAnswerApiFp: (configuration?: Configuration) => {
      * @param {string} [order] დალაგების მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+     * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
+    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => Promise<AxiosResponse<void>>>;
     /**
      *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
@@ -113,10 +117,12 @@ export declare const UserAnswerApiFactory: (configuration?: Configuration, baseP
      * @param {string} [order] დალაგების მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+     * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული
@@ -158,11 +164,13 @@ export declare class UserAnswerApi extends BaseAPI {
      * @param {string} [order] დალაგების მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი (მხ. user-ის დასმულ კითხვებს ეხება; admin-ის კითხვები ყოველთვის approved-ია)
+     * @param {string} [creatorType] ვინ დასვა კითხვა — admin თუ user
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UserAnswerApi
      */
-    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
+    userAnswerControllerGetMyActivities(page?: number, limit?: number, sortBy?: string, order?: string, category?: number, status?: string, approvalStatus?: string, creatorType?: string, options?: AxiosRequestConfig): Promise<AxiosResponse<void>>;
     /**
      *
      * @summary კითხვების ID-ები, რომლებზეც მომხმარებელს აქვს ხმა მიცემული

@@ -87,7 +87,7 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
     return {
         /**
          *
-         * @summary კითხვის გააქტიურება
+         * @summary კითხვის გააქტიურება (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -95,40 +95,119 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
         questionControllerActivate: function (id, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
-                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
-                return __generator(this, function (_a) {
-                    // verify required parameter 'id' is not null or undefined
-                    if (id === null || id === undefined) {
-                        throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerActivate.');
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // verify required parameter 'id' is not null or undefined
+                            if (id === null || id === undefined) {
+                                throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerActivate.');
+                            }
+                            localVarPath = "/questions/{id}/activate"
+                                .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
                     }
-                    localVarPath = "/questions/{id}/activate"
-                        .replace("{" + "id" + "}", encodeURIComponent(String(id)));
-                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
-                    if (configuration) {
-                        baseOptions = configuration.baseOptions;
-                    }
-                    localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
-                    localVarHeaderParameter = {};
-                    localVarQueryParameter = {};
-                    query = new URLSearchParams(localVarUrlObj.search);
-                    for (key in localVarQueryParameter) {
-                        query.set(key, localVarQueryParameter[key]);
-                    }
-                    for (key in options.params) {
-                        query.set(key, options.params[key]);
-                    }
-                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
-                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                    return [2 /*return*/, {
-                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                            options: localVarRequestOptions,
-                        }];
                 });
             });
         },
         /**
          *
+         * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerApprove: function (id, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // verify required parameter 'id' is not null or undefined
+                            if (id === null || id === undefined) {
+                                throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerApprove.');
+                            }
+                            localVarPath = "/questions/{id}/approve"
+                                .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
          * @param {CreateQuestionDto} body
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -136,43 +215,61 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
         questionControllerCreate: function (body, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
-                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions, needsSerialization;
-                return __generator(this, function (_a) {
-                    // verify required parameter 'body' is not null or undefined
-                    if (body === null || body === undefined) {
-                        throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling questionControllerCreate.');
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions, needsSerialization;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // verify required parameter 'body' is not null or undefined
+                            if (body === null || body === undefined) {
+                                throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling questionControllerCreate.');
+                            }
+                            localVarPath = "/questions";
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            localVarHeaderParameter['Content-Type'] = 'application/json';
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+                            localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
                     }
-                    localVarPath = "/questions";
-                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
-                    if (configuration) {
-                        baseOptions = configuration.baseOptions;
-                    }
-                    localVarRequestOptions = __assign(__assign({ method: 'POST' }, baseOptions), options);
-                    localVarHeaderParameter = {};
-                    localVarQueryParameter = {};
-                    localVarHeaderParameter['Content-Type'] = 'application/json';
-                    query = new URLSearchParams(localVarUrlObj.search);
-                    for (key in localVarQueryParameter) {
-                        query.set(key, localVarQueryParameter[key]);
-                    }
-                    for (key in options.params) {
-                        query.set(key, options.params[key]);
-                    }
-                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
-                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                    needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-                    localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
-                    return [2 /*return*/, {
-                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                            options: localVarRequestOptions,
-                        }];
                 });
             });
         },
         /**
          *
-         * @summary კითხვის დეაქტივაცია
+         * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -180,35 +277,53 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
         questionControllerDeactivate: function (id, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
-                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
-                return __generator(this, function (_a) {
-                    // verify required parameter 'id' is not null or undefined
-                    if (id === null || id === undefined) {
-                        throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerDeactivate.');
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // verify required parameter 'id' is not null or undefined
+                            if (id === null || id === undefined) {
+                                throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerDeactivate.');
+                            }
+                            localVarPath = "/questions/{id}/deactivate"
+                                .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
                     }
-                    localVarPath = "/questions/{id}/deactivate"
-                        .replace("{" + "id" + "}", encodeURIComponent(String(id)));
-                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
-                    if (configuration) {
-                        baseOptions = configuration.baseOptions;
-                    }
-                    localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
-                    localVarHeaderParameter = {};
-                    localVarQueryParameter = {};
-                    query = new URLSearchParams(localVarUrlObj.search);
-                    for (key in localVarQueryParameter) {
-                        query.set(key, localVarQueryParameter[key]);
-                    }
-                    for (key in options.params) {
-                        query.set(key, options.params[key]);
-                    }
-                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
-                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                    return [2 /*return*/, {
-                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                            options: localVarRequestOptions,
-                        }];
                 });
             });
         },
@@ -221,10 +336,12 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
          * @param {string} [order] მიმართულება
          * @param {number} [category] კატეგორიის ID
          * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+         * @param {string} [creatorType] ვინ დასვა კითხვა
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        questionControllerFindAll: function (page, limit, sortBy, order, category, status, options) {
+        questionControllerFindAll: function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
                 var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
@@ -255,6 +372,12 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
                     if (status !== undefined) {
                         localVarQueryParameter['status'] = status;
                     }
+                    if (approvalStatus !== undefined) {
+                        localVarQueryParameter['approvalStatus'] = approvalStatus;
+                    }
+                    if (creatorType !== undefined) {
+                        localVarQueryParameter['creatorType'] = creatorType;
+                    }
                     query = new URLSearchParams(localVarUrlObj.search);
                     for (key in localVarQueryParameter) {
                         query.set(key, localVarQueryParameter[key]);
@@ -269,6 +392,76 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
                             url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
                             options: localVarRequestOptions,
                         }];
+                });
+            });
+        },
+        /**
+         *
+         * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {string} [order] დალაგების მიმართულება
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerFindMyQuestions: function (page, limit, sortBy, order, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            localVarPath = "/questions/my-questions";
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'GET' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            if (page !== undefined) {
+                                localVarQueryParameter['page'] = page;
+                            }
+                            if (limit !== undefined) {
+                                localVarQueryParameter['limit'] = limit;
+                            }
+                            if (sortBy !== undefined) {
+                                localVarQueryParameter['sortBy'] = sortBy;
+                            }
+                            if (order !== undefined) {
+                                localVarQueryParameter['order'] = order;
+                            }
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
+                    }
                 });
             });
         },
@@ -315,6 +508,75 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
         },
         /**
          *
+         * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+         * @param {RejectQuestionDto} body
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerReject: function (body, id, options) {
+            if (options === void 0) { options = {}; }
+            return __awaiter(_this, void 0, void 0, function () {
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions, needsSerialization;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // verify required parameter 'body' is not null or undefined
+                            if (body === null || body === undefined) {
+                                throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling questionControllerReject.');
+                            }
+                            // verify required parameter 'id' is not null or undefined
+                            if (id === null || id === undefined) {
+                                throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerReject.');
+                            }
+                            localVarPath = "/questions/{id}/reject"
+                                .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            localVarHeaderParameter['Content-Type'] = 'application/json';
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+                            localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary კითხვის წაშლა (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -322,40 +584,59 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
         questionControllerRemove: function (id, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
-                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions;
-                return __generator(this, function (_a) {
-                    // verify required parameter 'id' is not null or undefined
-                    if (id === null || id === undefined) {
-                        throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerRemove.');
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // verify required parameter 'id' is not null or undefined
+                            if (id === null || id === undefined) {
+                                throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerRemove.');
+                            }
+                            localVarPath = "/questions/{id}"
+                                .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'DELETE' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
                     }
-                    localVarPath = "/questions/{id}"
-                        .replace("{" + "id" + "}", encodeURIComponent(String(id)));
-                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
-                    if (configuration) {
-                        baseOptions = configuration.baseOptions;
-                    }
-                    localVarRequestOptions = __assign(__assign({ method: 'DELETE' }, baseOptions), options);
-                    localVarHeaderParameter = {};
-                    localVarQueryParameter = {};
-                    query = new URLSearchParams(localVarUrlObj.search);
-                    for (key in localVarQueryParameter) {
-                        query.set(key, localVarQueryParameter[key]);
-                    }
-                    for (key in options.params) {
-                        query.set(key, options.params[key]);
-                    }
-                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
-                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                    return [2 /*return*/, {
-                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                            options: localVarRequestOptions,
-                        }];
                 });
             });
         },
         /**
          *
+         * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
          * @param {UpdateQuestionDto} body
          * @param {string} id
          * @param {*} [options] Override http request option.
@@ -364,42 +645,60 @@ exports.QuestionsApiAxiosParamCreator = function (configuration) {
         questionControllerUpdate: function (body, id, options) {
             if (options === void 0) { options = {}; }
             return __awaiter(_this, void 0, void 0, function () {
-                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, query, key, key, headersFromBaseOptions, needsSerialization;
-                return __generator(this, function (_a) {
-                    // verify required parameter 'body' is not null or undefined
-                    if (body === null || body === undefined) {
-                        throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling questionControllerUpdate.');
+                var localVarPath, localVarUrlObj, baseOptions, localVarRequestOptions, localVarHeaderParameter, localVarQueryParameter, accessToken, _a, query, key, key, headersFromBaseOptions, needsSerialization;
+                return __generator(this, function (_b) {
+                    switch (_b.label) {
+                        case 0:
+                            // verify required parameter 'body' is not null or undefined
+                            if (body === null || body === undefined) {
+                                throw new base_1.RequiredError('body', 'Required parameter body was null or undefined when calling questionControllerUpdate.');
+                            }
+                            // verify required parameter 'id' is not null or undefined
+                            if (id === null || id === undefined) {
+                                throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerUpdate.');
+                            }
+                            localVarPath = "/questions/{id}"
+                                .replace("{" + "id" + "}", encodeURIComponent(String(id)));
+                            localVarUrlObj = new URL(localVarPath, 'https://example.com');
+                            if (configuration) {
+                                baseOptions = configuration.baseOptions;
+                            }
+                            localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
+                            localVarHeaderParameter = {};
+                            localVarQueryParameter = {};
+                            if (!(configuration && configuration.accessToken)) return [3 /*break*/, 5];
+                            if (!(typeof configuration.accessToken === 'function')) return [3 /*break*/, 2];
+                            return [4 /*yield*/, configuration.accessToken()];
+                        case 1:
+                            _a = _b.sent();
+                            return [3 /*break*/, 4];
+                        case 2: return [4 /*yield*/, configuration.accessToken];
+                        case 3:
+                            _a = _b.sent();
+                            _b.label = 4;
+                        case 4:
+                            accessToken = _a;
+                            localVarHeaderParameter["Authorization"] = "Bearer " + accessToken;
+                            _b.label = 5;
+                        case 5:
+                            localVarHeaderParameter['Content-Type'] = 'application/json';
+                            query = new URLSearchParams(localVarUrlObj.search);
+                            for (key in localVarQueryParameter) {
+                                query.set(key, localVarQueryParameter[key]);
+                            }
+                            for (key in options.params) {
+                                query.set(key, options.params[key]);
+                            }
+                            localVarUrlObj.search = (new URLSearchParams(query)).toString();
+                            headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+                            localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
+                            needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+                            localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
+                            return [2 /*return*/, {
+                                    url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
+                                    options: localVarRequestOptions,
+                                }];
                     }
-                    // verify required parameter 'id' is not null or undefined
-                    if (id === null || id === undefined) {
-                        throw new base_1.RequiredError('id', 'Required parameter id was null or undefined when calling questionControllerUpdate.');
-                    }
-                    localVarPath = "/questions/{id}"
-                        .replace("{" + "id" + "}", encodeURIComponent(String(id)));
-                    localVarUrlObj = new URL(localVarPath, 'https://example.com');
-                    if (configuration) {
-                        baseOptions = configuration.baseOptions;
-                    }
-                    localVarRequestOptions = __assign(__assign({ method: 'PATCH' }, baseOptions), options);
-                    localVarHeaderParameter = {};
-                    localVarQueryParameter = {};
-                    localVarHeaderParameter['Content-Type'] = 'application/json';
-                    query = new URLSearchParams(localVarUrlObj.search);
-                    for (key in localVarQueryParameter) {
-                        query.set(key, localVarQueryParameter[key]);
-                    }
-                    for (key in options.params) {
-                        query.set(key, options.params[key]);
-                    }
-                    localVarUrlObj.search = (new URLSearchParams(query)).toString();
-                    headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-                    localVarRequestOptions.headers = __assign(__assign(__assign({}, localVarHeaderParameter), headersFromBaseOptions), options.headers);
-                    needsSerialization = (typeof body !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
-                    localVarRequestOptions.data = needsSerialization ? JSON.stringify(body !== undefined ? body : {}) : (body || "");
-                    return [2 /*return*/, {
-                            url: localVarUrlObj.pathname + localVarUrlObj.search + localVarUrlObj.hash,
-                            options: localVarRequestOptions,
-                        }];
                 });
             });
         },
@@ -413,7 +712,7 @@ exports.QuestionsApiFp = function (configuration) {
     return {
         /**
          *
-         * @summary კითხვის გააქტიურება
+         * @summary კითხვის გააქტიურება (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -438,6 +737,32 @@ exports.QuestionsApiFp = function (configuration) {
         },
         /**
          *
+         * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerApprove: function (id, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerApprove(id, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
          * @param {CreateQuestionDto} body
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -462,7 +787,7 @@ exports.QuestionsApiFp = function (configuration) {
         },
         /**
          *
-         * @summary კითხვის დეაქტივაცია
+         * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -494,15 +819,45 @@ exports.QuestionsApiFp = function (configuration) {
          * @param {string} [order] მიმართულება
          * @param {number} [category] კატეგორიის ID
          * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+         * @param {string} [creatorType] ვინ დასვა კითხვა
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        questionControllerFindAll: function (page, limit, sortBy, order, category, status, options) {
+        questionControllerFindAll: function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
             return __awaiter(this, void 0, void 0, function () {
                 var localVarAxiosArgs;
                 return __generator(this, function (_a) {
                     switch (_a.label) {
-                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, options)];
+                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, approvalStatus, creatorType, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {string} [order] დალაგების მიმართულება
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerFindMyQuestions: function (page, limit, sortBy, order, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerFindMyQuestions(page, limit, sortBy, order, options)];
                         case 1:
                             localVarAxiosArgs = _a.sent();
                             return [2 /*return*/, function (axios, basePath) {
@@ -541,6 +896,33 @@ exports.QuestionsApiFp = function (configuration) {
         },
         /**
          *
+         * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+         * @param {RejectQuestionDto} body
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerReject: function (body, id, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                var localVarAxiosArgs;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0: return [4 /*yield*/, exports.QuestionsApiAxiosParamCreator(configuration).questionControllerReject(body, id, options)];
+                        case 1:
+                            localVarAxiosArgs = _a.sent();
+                            return [2 /*return*/, function (axios, basePath) {
+                                    if (axios === void 0) { axios = axios_1.default; }
+                                    if (basePath === void 0) { basePath = base_1.BASE_PATH; }
+                                    var axiosRequestArgs = __assign(__assign({}, localVarAxiosArgs.options), { url: basePath + localVarAxiosArgs.url });
+                                    return axios.request(axiosRequestArgs);
+                                }];
+                    }
+                });
+            });
+        },
+        /**
+         *
+         * @summary კითხვის წაშლა (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -565,6 +947,7 @@ exports.QuestionsApiFp = function (configuration) {
         },
         /**
          *
+         * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
          * @param {UpdateQuestionDto} body
          * @param {string} id
          * @param {*} [options] Override http request option.
@@ -598,7 +981,7 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
     return {
         /**
          *
-         * @summary კითხვის გააქტიურება
+         * @summary კითხვის გააქტიურება (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -612,6 +995,21 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
         },
         /**
          *
+         * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerApprove: function (id, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerApprove(id, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
          * @param {CreateQuestionDto} body
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -625,7 +1023,7 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
         },
         /**
          *
-         * @summary კითხვის დეაქტივაცია
+         * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -646,13 +1044,32 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
          * @param {string} [order] მიმართულება
          * @param {number} [category] კატეგორიის ID
          * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+         * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+         * @param {string} [creatorType] ვინ დასვა კითხვა
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        questionControllerFindAll: function (page, limit, sortBy, order, category, status, options) {
+        questionControllerFindAll: function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
             return __awaiter(this, void 0, void 0, function () {
                 return __generator(this, function (_a) {
-                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, options).then(function (request) { return request(axios, basePath); })];
+                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, approvalStatus, creatorType, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {string} [order] დალაგების მიმართულება
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerFindMyQuestions: function (page, limit, sortBy, order, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerFindMyQuestions(page, limit, sortBy, order, options).then(function (request) { return request(axios, basePath); })];
                 });
             });
         },
@@ -671,6 +1088,22 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
         },
         /**
          *
+         * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+         * @param {RejectQuestionDto} body
+         * @param {string} id
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerReject: function (body, id, options) {
+            return __awaiter(this, void 0, void 0, function () {
+                return __generator(this, function (_a) {
+                    return [2 /*return*/, exports.QuestionsApiFp(configuration).questionControllerReject(body, id, options).then(function (request) { return request(axios, basePath); })];
+                });
+            });
+        },
+        /**
+         *
+         * @summary კითხვის წაშლა (მხოლოდ admin)
          * @param {string} id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -684,6 +1117,7 @@ exports.QuestionsApiFactory = function (configuration, basePath, axios) {
         },
         /**
          *
+         * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
          * @param {UpdateQuestionDto} body
          * @param {string} id
          * @param {*} [options] Override http request option.
@@ -711,7 +1145,7 @@ var QuestionsApi = /** @class */ (function (_super) {
     }
     /**
      *
-     * @summary კითხვის გააქტიურება
+     * @summary კითხვის გააქტიურება (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -727,6 +1161,23 @@ var QuestionsApi = /** @class */ (function (_super) {
     };
     /**
      *
+     * @summary user-ის დასმული კითხვის დადასტურება (მხოლოდ admin)
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    QuestionsApi.prototype.questionControllerApprove = function (id, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerApprove(id, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary კითხვის დამატება (user-ს დღეში 1-ხელ, ერთი მოწყობილობიდან; user-ის კითხვა isActive:false/PENDING იქმნება)
      * @param {CreateQuestionDto} body
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -742,7 +1193,7 @@ var QuestionsApi = /** @class */ (function (_super) {
     };
     /**
      *
-     * @summary კითხვის დეაქტივაცია
+     * @summary კითხვის დეაქტივაცია (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -765,15 +1216,36 @@ var QuestionsApi = /** @class */ (function (_super) {
      * @param {string} [order] მიმართულება
      * @param {number} [category] კატეგორიის ID
      * @param {string} [status] აქტიურობის სტატუსი (ვადაგასული კითხვები ავტომატურად ითვლება inactive-ად)
+     * @param {string} [approvalStatus] admin-ის განხილვის სტატუსი
+     * @param {string} [creatorType] ვინ დასვა კითხვა
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof QuestionsApi
      */
-    QuestionsApi.prototype.questionControllerFindAll = function (page, limit, sortBy, order, category, status, options) {
+    QuestionsApi.prototype.questionControllerFindAll = function (page, limit, sortBy, order, category, status, approvalStatus, creatorType, options) {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
-                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerFindAll(page, limit, sortBy, order, category, status, approvalStatus, creatorType, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary ჩემ მიერ დასმული კითხვების სია (პროფილის გვერდისთვის, admin-ის დასტურის სტატუსით)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {string} [order] დალაგების მიმართულება
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    QuestionsApi.prototype.questionControllerFindMyQuestions = function (page, limit, sortBy, order, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerFindMyQuestions(page, limit, sortBy, order, options).then(function (request) { return request(_this.axios, _this.basePath); })];
             });
         });
     };
@@ -794,6 +1266,24 @@ var QuestionsApi = /** @class */ (function (_super) {
     };
     /**
      *
+     * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
+     * @param {RejectQuestionDto} body
+     * @param {string} id
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof QuestionsApi
+     */
+    QuestionsApi.prototype.questionControllerReject = function (body, id, options) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, exports.QuestionsApiFp(this.configuration).questionControllerReject(body, id, options).then(function (request) { return request(_this.axios, _this.basePath); })];
+            });
+        });
+    };
+    /**
+     *
+     * @summary კითხვის წაშლა (მხოლოდ admin)
      * @param {string} id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -809,6 +1299,7 @@ var QuestionsApi = /** @class */ (function (_super) {
     };
     /**
      *
+     * @summary კითხვის რედაქტირება, მათ შორის user-ის დასმული კითხვის ტექსტის/პასუხების ცვლილება (მხოლოდ admin)
      * @param {UpdateQuestionDto} body
      * @param {string} id
      * @param {*} [options] Override http request option.

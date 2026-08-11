@@ -40,4 +40,10 @@ export interface UserDataDto {
      * @example ბერიძე
      */
     lastName: string;
+    /**
+     * @type {number}
+     * @memberof UserDataDto
+     * @example 25
+     */
+    age?: number;
 }

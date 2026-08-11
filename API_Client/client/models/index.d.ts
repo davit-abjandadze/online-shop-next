@@ -17,6 +17,7 @@ export * from './pagination-meta-dto';
 export * from './question';
 export * from './register-dto';
 export * from './register-response-dto';
+export * from './reject-question-dto';
 export * from './reset-password-dto';
 export * from './submit-answer-dto';
 export * from './task';

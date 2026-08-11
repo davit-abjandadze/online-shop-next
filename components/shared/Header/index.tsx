@@ -126,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                       <UserIcon size={18} /> პროფილი
                     </S.DropdownItem>
 
-                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/change-password"); }}>
+                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/change-password"); }}>
                       <KeyIcon size={18} /> პაროლის შეცვლა
                     </S.DropdownItem>
 

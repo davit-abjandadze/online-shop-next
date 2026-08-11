@@ -2,24 +2,44 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Header from "@/components/shared/Header";
 import { UserAPI } from "@/API_Client";
 import { User, UserGenderEnum } from "@/API_Client/client/models";
 import { ProfileLayout } from "./ProfileLayout";
 import { CalendarIcon, LockIcon, ShieldIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
+import {
+  ProfileEditFormValues,
+  profileEditSchema,
+  AGE_MIN,
+  AGE_MAX,
+} from "@/components/shared/validation/schemas";
 
 export const ProfileComponent: React.FC = () => {
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
 
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState<boolean>(true);
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [gender, setGender] = useState<UserGenderEnum | "">("");
-  const [savingUser, setSavingUser] = useState<boolean>(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting: savingUser },
+  } = useForm<ProfileEditFormValues>({
+    resolver: zodResolver(profileEditSchema),
+    defaultValues: { firstName: "", lastName: "", age: "", gender: "" },
+  });
+
+  const firstName = watch("firstName");
+  const lastName = watch("lastName");
+  const gender = watch("gender");
 
   const fetchUser = async () => {
     if (!session?.accessToken || !session?.user?.id) return;
@@ -28,10 +48,13 @@ export const ProfileComponent: React.FC = () => {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(session.user.id);
       const u = res.data;
       setUser(u);
-      setFirstName(u.firstName || "");
-      setLastName(u.lastName || "");
       setEmail(u.email || "");
-      setGender((u.gender as UserGenderEnum) || "");
+      reset({
+        firstName: u.firstName || "",
+        lastName: u.lastName || "",
+        age: u.age != null ? String(u.age) : "",
+        gender: (u.gender as any) || "",
+      });
     } catch {
       toast.error("მომხმარებლის ინფორმაციის ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -85,31 +108,25 @@ export const ProfileComponent: React.FC = () => {
     return name.slice(0, 2).toUpperCase() || "U";
   };
 
-  const handleSaveUser = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSaveUser = async (data: ProfileEditFormValues) => {
     if (!session?.accessToken || !session?.user?.id) return;
-    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
-      toast.warning("გთხოვთ შეავსოთ სახელი, გვარი და ელფოსტა");
-      return;
-    }
 
-    setSavingUser(true);
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
         {
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
+          firstName: data.firstName.trim(),
+          lastName: data.lastName.trim(),
           email: email.trim(),
-          gender: gender ? (gender as any) : undefined,
+          gender: data.gender ? (data.gender as any) : undefined,
+          age: data.age?.trim() ? Number(data.age) : undefined,
         },
         session.user.id
       );
       setUser(res.data);
+      await updateSession({ name: `${data.firstName.trim()} ${data.lastName.trim()}` });
       toast.success("პროფილი წარმატებით განახლდა!");
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროფილის განახლება ვერ მოხერხდა");
-    } finally {
-      setSavingUser(false);
     }
   };
 
@@ -146,48 +163,58 @@ export const ProfileComponent: React.FC = () => {
             <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
           </div>
         ) : (
-          <form onSubmit={handleSaveUser}>
+          <form onSubmit={handleSubmit(onSaveUser)}>
             <S.FormGrid>
               <S.FormGroup>
                 <S.Label>სახელი</S.Label>
                 <S.Input
                   type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
+                  $invalid={!!errors.firstName}
+                  {...register("firstName")}
                 />
+                {errors.firstName && <S.FieldError>{errors.firstName.message}</S.FieldError>}
               </S.FormGroup>
 
               <S.FormGroup>
                 <S.Label>გვარი</S.Label>
                 <S.Input
                   type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
+                  $invalid={!!errors.lastName}
+                  {...register("lastName")}
                 />
+                {errors.lastName && <S.FieldError>{errors.lastName.message}</S.FieldError>}
+              </S.FormGroup>
+              <S.FormGroup>
+                <S.Label>ასაკი</S.Label>
+                <S.Input
+                  type="number"
+                  min={AGE_MIN}
+                  max={AGE_MAX}
+                  $invalid={!!errors.age}
+                  {...register("age")}
+                />
+                {errors.age && <S.FieldError>{errors.age.message}</S.FieldError>}
               </S.FormGroup>
 
+              <S.FormGroup>
+                <S.Label>სქესი</S.Label>
+                <S.Select value={gender} onChange={(e) => setValue("gender", e.target.value as any)}>
+                  <option value="" disabled hidden>
+                    აირჩიეთ სქესი
+                  </option>
+                  <option value={UserGenderEnum.Male}>მამრობითი</option>
+                  <option value={UserGenderEnum.Female}>მდედრობითი</option>
+                </S.Select>
+                {errors.gender && <S.FieldError>{errors.gender.message as string}</S.FieldError>}
+              </S.FormGroup>
               <S.FormGroup>
                 <S.Label>ელფოსტა</S.Label>
                 <S.Input
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
+                  disabled
+                  readOnly
                 />
-              </S.FormGroup>
-
-              <S.FormGroup>
-                <S.Label>სქესი (არასავალდებულო)</S.Label>
-                <S.Select
-                  value={gender}
-                  onChange={(e) => setGender(e.target.value as UserGenderEnum | "")}
-                >
-                  <option value="">— მითითებული არ არის —</option>
-                  <option value={UserGenderEnum.Male}>მამრობითი</option>
-                  <option value={UserGenderEnum.Female}>მდედრობითი</option>
-                </S.Select>
               </S.FormGroup>
             </S.FormGrid>
 

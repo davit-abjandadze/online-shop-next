@@ -47,6 +47,11 @@ export interface User {
      */
     gender?: UserGenderEnum;
     /**
+     * @type {number}
+     * @memberof User
+     */
+    age?: number;
+    /**
      * @type {string}
      * @memberof User
      */

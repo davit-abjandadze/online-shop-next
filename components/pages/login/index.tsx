@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { signIn, useSession } from "next-auth/react";
@@ -24,12 +24,12 @@ const LoginForm: React.FC = () => {
 
   const { data: session } = useSession();
 
-  const schema = yup.object().shape({
-    email: yup
+  const schema = z.object({
+    email: z
       .string()
-      .required(t("login-validation-email-required"))
+      .min(1, t("login-validation-email-required"))
       .email(t("login-validation-email-invalid")),
-    password: yup.string().required(t("login-validation-password-required")),
+    password: z.string().min(1, t("login-validation-password-required")),
   });
 
   const {
@@ -37,7 +37,7 @@ const LoginForm: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormValues>({
-    resolver: yupResolver(schema),
+    resolver: zodResolver(schema),
   });
 
   const onSubmit = async (data: LoginFormValues) => {

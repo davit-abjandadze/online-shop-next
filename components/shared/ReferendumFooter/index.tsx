@@ -39,7 +39,7 @@ export const ReferendumFooter: React.FC = () => {
               <Link href="/user/profile" passHref legacyBehavior>
                 <S.FooterLink>პროფილი</S.FooterLink>
               </Link>
-              <Link href="/change-password" passHref legacyBehavior>
+              <Link href="/user/change-password" passHref legacyBehavior>
                 <S.FooterLink>პაროლის შეცვლა</S.FooterLink>
               </Link>
             </S.LinkColumn>

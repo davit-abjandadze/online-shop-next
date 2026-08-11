@@ -2,9 +2,25 @@ import { useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircleIcon, KeyIcon, WarningIcon } from "@/components/ui/RefIcons";
+import {
+  ResetPasswordFormValues,
+  resetPasswordSchema,
+} from "@/components/shared/validation/schemas";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const inputStyle = {
+  width: "100%",
+  padding: "10px 14px",
+  border: "1.5px solid var(--ref-border-soft)",
+  borderRadius: "8px",
+  background: "var(--ref-bg-elevated)",
+  color: "var(--ref-text-primary)",
+  outline: "none",
+};
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -17,45 +33,37 @@ export default function ResetPasswordPage() {
     </Head>
   );
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting: loading },
+  } = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { newPassword: "", confirmPassword: "" },
+  });
 
-    if (newPassword !== confirmPassword) {
-      toast.error("პაროლები არ ემთხვევა ერთმანეთს");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toast.error("პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო");
-      return;
-    }
-
-    setLoading(true);
-
+  const onSubmit = async (data: ResetPasswordFormValues) => {
     try {
       const response = await fetch(`${API_URL}/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          newPassword,
+          newPassword: data.newPassword,
         }),
       });
 
-      const data = await response.json();
+      const resData = await response.json();
 
       if (!response.ok) {
-        toast.error(data.message || "შეცდომა მოხდა");
+        toast.error(resData.message || "შეცდომა მოხდა");
         return;
       }
 
       setSuccess(true);
-      toast.success(data.message);
+      toast.success(resData.message);
 
       // 3 წამის შემდეგ ლოგინის გვერდზე გადასვლა
       setTimeout(() => {
@@ -63,8 +71,6 @@ export default function ResetPasswordPage() {
       }, 3000);
     } catch (error) {
       toast.error("სერვერთან დაკავშირება ვერ მოხერხდა");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -93,27 +99,24 @@ export default function ResetPasswordPage() {
         </h1>
 
         {!success ? (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div style={{ marginBottom: "20px" }}>
               <label style={{ display: "block", marginBottom: "8px", fontSize: "13px", fontWeight: 600, color: "var(--ref-text-primary)" }}>
                 ახალი პაროლი:
               </label>
               <input
                 type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                minLength={6}
                 style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  border: "1.5px solid var(--ref-border-soft)",
-                  borderRadius: "8px",
-                  background: "var(--ref-bg-elevated)",
-                  color: "var(--ref-text-primary)",
-                  outline: "none",
+                  ...inputStyle,
+                  borderColor: errors.newPassword ? "var(--ref-danger)" : "var(--ref-border-soft)",
                 }}
+                {...register("newPassword")}
               />
+              {errors.newPassword && (
+                <p style={{ color: "var(--ref-danger)", fontSize: "12px", marginTop: "6px" }}>
+                  {errors.newPassword.message}
+                </p>
+              )}
             </div>
 
             <div style={{ marginBottom: "20px" }}>
@@ -122,20 +125,17 @@ export default function ResetPasswordPage() {
               </label>
               <input
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                minLength={6}
                 style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  border: "1.5px solid var(--ref-border-soft)",
-                  borderRadius: "8px",
-                  background: "var(--ref-bg-elevated)",
-                  color: "var(--ref-text-primary)",
-                  outline: "none",
+                  ...inputStyle,
+                  borderColor: errors.confirmPassword ? "var(--ref-danger)" : "var(--ref-border-soft)",
                 }}
+                {...register("confirmPassword")}
               />
+              {errors.confirmPassword && (
+                <p style={{ color: "var(--ref-danger)", fontSize: "12px", marginTop: "6px" }}>
+                  {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             <button
