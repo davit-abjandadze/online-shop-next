@@ -188,6 +188,10 @@ export const ProgressBarTrack = styled("div")`
   border-radius: 6px;
   overflow: hidden;
   position: relative;
+
+  html[data-theme="dark"] & {
+       background-color: #edf4fb;
+  }
 `;
 
 export const ProgressBarFill = styled("div")<{ percentage: number; isTop?: boolean }>`

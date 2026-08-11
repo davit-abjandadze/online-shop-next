@@ -68,7 +68,10 @@ export const PopularSection = styled("section")`
   padding: 0 16px;
 
   .swiper {
-    padding: 6px 4px 38px 4px;
+    /* ზედა padding საკმარისი უნდა იყოს PopularTrendingTag ბეიჯის
+       (top: -10px) და hover-ზე ბარათის translateY(-4px) აწევის
+       დასატევად, თორემ overflow: hidden კონტეინერი ჭრის მას */
+    padding: 20px 4px 38px 4px;
   }
 
   .swiper-pagination {
@@ -389,6 +392,58 @@ export const EmptyStateText = styled("p")`
   font-size: 14px;
   color: var(--ref-text-secondary);
   margin: 0;
+`;
+
+export const PopularModalOverlay = styled("div")`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  z-index: 1000;
+`;
+
+export const PopularModalBox = styled("div")`
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+`;
+
+export const PopularModalContent = styled("div")`
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--ref-bg);
+  border-radius: 14px;
+  box-shadow: var(--ref-shadow-md);
+`;
+
+export const PopularModalClose = styled("button")`
+  /* გატანილია გვერდზე, ბოქსის გარეთ, 15px დაშორებით */
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translateX(calc(100% + 15px));
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--ref-primary);
+    border-color: var(--ref-primary);
+    color: var(--ref-text-on-primary);
+  }
 `;
 
 export const PageBackground = styled("div")`

@@ -8,15 +8,20 @@ import Header from "@/components/shared/Header";
 import ReferendumFooter from "@/components/shared/ReferendumFooter";
 import AuthModal from "@/components/shared/AuthModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
+import MobilePopup from "@/components/ui/MobilePopup";
+import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
 import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
-import { BallotIcon, ClipboardIcon, FireIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BallotIcon, ClipboardIcon, CloseIcon, FireIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 6;
-const POPULAR_QUESTIONS_LIMIT = 5;
+// Swiper-ს loop-რეჟიმისთვის სჭირდება მინიმუმ slidesPerView*2 სლაიდი
+// (ყველაზე დიდი breakpoint-ისთვის slidesPerView 3-ია), წინააღმდეგ
+// შემთხვევაში loop არასწორად მუშაობს — მაგ. "შემდეგი" ღილაკზე ციკლი წყდება.
+const POPULAR_QUESTIONS_LIMIT = 6;
 
 // ბექიდან მოსული `popular-questions` პასუხის ტიპი გენერირებულ კლიენტში
 // `void`-ადაა მონიშნული (OpenAPI სქემას პასუხის DTO არ ჰქონდა), ამიტომ
@@ -38,6 +43,7 @@ interface PopularQuestion {
 
 export const HomeComponent: React.FC = () => {
   const { data: session, status } = useSession();
+  const isMobile = useIsMobileDevice();
   const router = useRouter();
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -75,6 +81,11 @@ export const HomeComponent: React.FC = () => {
   const [popularPrevEl, setPopularPrevEl] = useState<HTMLButtonElement | null>(null);
   const [popularNextEl, setPopularNextEl] = useState<HTMLButtonElement | null>(null);
 
+  // Modal showing a single question when a popular-slider card is clicked
+  const [popularModalQuestionId, setPopularModalQuestionId] = useState<number | null>(null);
+  const [popularModalQuestion, setPopularModalQuestion] = useState<Question | null>(null);
+  const [popularModalLoading, setPopularModalLoading] = useState<boolean>(false);
+
   // Fetch results for a single question
   const fetchSingleResults = async (q: Question) => {
     try {
@@ -110,12 +121,22 @@ export const HomeComponent: React.FC = () => {
     );
   };
 
+  const handleCategorySelect = (categoryId: number | null) => {
+    setActiveCategoryId(categoryId);
+    setPage(1);
+    router.push(
+      { pathname: router.pathname, query: { ...router.query, page: "1" } },
+      undefined,
+      { shallow: true }
+    );
+  };
+
   useEffect(() => {
     if (status === "loading") return;
     fetchQuestions();
     fetchCategories();
     fetchPopularQuestions();
-  }, [status, session?.accessToken, page]);
+  }, [status, session?.accessToken, page, activeCategoryId]);
 
   // Fetch questions
   const fetchQuestions = async () => {
@@ -124,7 +145,7 @@ export const HomeComponent: React.FC = () => {
       const res = await QuestionAPI(
         router.locale || "ka",
         session?.accessToken || ""
-      ).questionControllerFindAll(page, QUESTIONS_PAGE_SIZE);
+      ).questionControllerFindAll(page, QUESTIONS_PAGE_SIZE, undefined, undefined, activeCategoryId ?? undefined);
 
       const qList = Array.isArray(res.data?.data) ? res.data.data : [];
       setQuestions(qList);
@@ -214,17 +235,21 @@ export const HomeComponent: React.FC = () => {
         ? data.data
         : [];
 
-      setPopularQuestions(
-        list.map((item: any) => {
-          const question = pickField(item, ["question"], item);
-          return {
-            id: pickField(question, ["id", "questionId"]),
-            text: pickField(question, ["text", "questionText", "title"], "—"),
-            categoryName: pickField(question, ["category", "categoryName"]) || question?.category?.name,
-            votes: pickField(item, ["votes", "votesCount", "totalVotes", "count"], 0),
-          };
-        })
-      );
+      const mapped: PopularQuestion[] = list.map((item: any) => {
+        const question = pickField(item, ["question"], item);
+        return {
+          id: pickField(question, ["id", "questionId"]),
+          text: pickField(question, ["text", "questionText", "title"], "—"),
+          categoryName: pickField(question, ["category", "categoryName"]) || question?.category?.name,
+          votes: pickField(item, ["votes", "votesCount", "totalVotes", "count"], 0),
+        };
+      });
+
+      // ხმების რაოდენობის მიხედვით კლებადობით დალაგება, დამოუკიდებლად იმისგან
+      // ბექიდან უკვე დალაგებული მოვიდა თუ არა
+      mapped.sort((a, b) => b.votes - a.votes);
+
+      setPopularQuestions(mapped);
     } catch {
       // popular questions are optional, ignore errors silently
     } finally {
@@ -232,11 +257,31 @@ export const HomeComponent: React.FC = () => {
     }
   };
 
-  const handlePopularCardClick = (questionId: number) => {
-    const el = document.getElementById(`question-${questionId}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
+  const handlePopularCardClick = async (questionId: number) => {
+    setPopularModalQuestionId(questionId);
+    setPopularModalQuestion(null);
+    setPopularModalLoading(true);
+    try {
+      const res = await QuestionAPI(
+        router.locale || "ka",
+        session?.accessToken || ""
+      ).questionControllerFindOne(String(questionId));
+
+      const question = res.data as Question;
+      setPopularModalQuestion(question);
+      fetchSingleResults(question);
+    } catch (err) {
+      console.error(`Could not fetch question ${questionId}:`, err);
+      toast.error("კითხვის ჩატვირთვა ვერ მოხერხდა");
+      setPopularModalQuestionId(null);
+    } finally {
+      setPopularModalLoading(false);
     }
+  };
+
+  const closePopularModal = () => {
+    setPopularModalQuestionId(null);
+    setPopularModalQuestion(null);
   };
 
 
@@ -402,7 +447,7 @@ export const HomeComponent: React.FC = () => {
               navigation={{ prevEl: popularPrevEl, nextEl: popularNextEl }}
               pagination={{ clickable: true }}
               autoplay={{ delay: 5000, disableOnInteraction: false }}
-              loop={popularQuestions.length > 3}
+              loop={popularQuestions.length > 1}
               spaceBetween={20}
               slidesPerView={1}
               breakpoints={{
@@ -456,14 +501,14 @@ export const HomeComponent: React.FC = () => {
         {/* Category Filter Bar */}
         {categories.length > 0 && (
           <S.FilterBar>
-            <S.FilterChip active={activeCategoryId === null} onClick={() => setActiveCategoryId(null)}>
+            <S.FilterChip active={activeCategoryId === null} onClick={() => handleCategorySelect(null)}>
               <BallotIcon size={16} /> ყველა
             </S.FilterChip>
             {categories.map((cat) => (
               <S.FilterChip
                 key={cat.id}
                 active={activeCategoryId === cat.id}
-                onClick={() => setActiveCategoryId(activeCategoryId === cat.id ? null : cat.id)}
+                onClick={() => handleCategorySelect(activeCategoryId === cat.id ? null : cat.id)}
               >
                 <TagIcon size={16} /> {cat.name}
               </S.FilterChip>
@@ -577,6 +622,53 @@ export const HomeComponent: React.FC = () => {
         onClose={() => setAuthModalOpen(false)}
         initialMode="login"
       />
+
+      {popularModalQuestionId !== null && (() => {
+        const body =
+          popularModalLoading || !popularModalQuestion ? (
+            <div style={{ textAlign: "center", padding: "80px 0" }}>
+              <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            </div>
+          ) : (
+            <QuestionCard
+              question={popularModalQuestion}
+              hasVoted={votedQuestionIds.has(popularModalQuestion.id)}
+              isShowingResults={
+                votedQuestionIds.has(popularModalQuestion.id) || !!viewResultsSet[popularModalQuestion.id]
+              }
+              results={questionResults[popularModalQuestion.id]}
+              chosenIds={selectedAnswers[popularModalQuestion.id] || []}
+              submitting={submittingId === popularModalQuestion.id}
+              isFavorite={favoriteQuestionIds.has(popularModalQuestion.id)}
+              favoriting={favoritingId === popularModalQuestion.id}
+              onSelectOption={(answerId, isMultiple) =>
+                handleSelectOption(popularModalQuestion.id, answerId, isMultiple)
+              }
+              onVote={() => handleVote(popularModalQuestion)}
+              onToggleResults={() => toggleResultsView(popularModalQuestion)}
+              onToggleFavorite={() => handleToggleFavorite(popularModalQuestion)}
+            />
+          );
+
+        if (isMobile) {
+          return (
+            <MobilePopup onClose={closePopularModal} overflowScroll>
+              {body}
+            </MobilePopup>
+          );
+        }
+
+        return (
+          <S.PopularModalOverlay onClick={closePopularModal}>
+            <S.PopularModalBox onClick={(e: React.MouseEvent) => e.stopPropagation()}>
+              <S.PopularModalClose type="button" onClick={closePopularModal} aria-label="დახურვა">
+                <CloseIcon size={16} />
+              </S.PopularModalClose>
+              <S.PopularModalContent>{body}</S.PopularModalContent>
+            </S.PopularModalBox>
+          </S.PopularModalOverlay>
+        );
+      })()}
     </S.PageBackground>
   );
 };
