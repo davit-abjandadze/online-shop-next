@@ -15,7 +15,7 @@ import {
 } from "chart.js";
 import { Bar, Line } from "react-chartjs-2";
 import { QuestionAPI, StatsAPI } from "@/API_Client";
-import { BallotIcon, ChartIcon, FireIcon, PlayIcon, QuestionMarkIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BallotIcon, ChartIcon, FireIcon, PauseIcon, PlayIcon, QuestionMarkIcon, TagIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import DashboardLayout from "./DashboardLayout";
 import { StatsSkeleton } from "./Skeletons";
@@ -41,6 +41,7 @@ interface GlobalStats {
   totalVotes: number;
   totalCategories: number;
   activeQuestions: number;
+  inactiveQuestions: number;
 }
 
 interface CategoryStat {
@@ -137,11 +138,13 @@ export const AnalyticsPage: React.FC = () => {
       ]);
 
       const { list: qList, total: totalQuestionsFromList } = questionsData;
-      const activeQuestionsCount = qList.filter((q) => {
+      const isQuestionActive = (q: any) => {
         if (!q?.isActive) return false;
         if (q.endDate && new Date(q.endDate).getTime() < Date.now()) return false;
         return true;
-      }).length;
+      };
+      const activeQuestionsCount = qList.filter(isQuestionActive).length;
+      const inactiveQuestionsCount = qList.length - activeQuestionsCount;
 
       const cData = categoriesRes.data as any;
       const cList = Array.isArray(cData)
@@ -167,6 +170,7 @@ export const AnalyticsPage: React.FC = () => {
         // ამიტომ ვიღებთ "/stats/categories"-დან რეალურად წამოსული სიის სიგრძეს.
         totalCategories: pickField(g, ["totalCategories", "categoriesCount", "categories"], cList.length),
         activeQuestions: activeQuestionsCount,
+        inactiveQuestions: inactiveQuestionsCount,
       });
 
       const pData = popularRes.data as any;
@@ -231,35 +235,42 @@ export const AnalyticsPage: React.FC = () => {
       subtitle="მართეთ რეფერენდუმის კითხვები, კატეგორიები და სავარაუდო პასუხები"
     >
       {loadingStats && !statsLoaded ? (
-        <StatsSkeleton count={4} />
+        <StatsSkeleton count={5} />
       ) : (
         <>
-          <S.StatsGrid>
-            <S.StatCard>
-              <S.StatIcon><QuestionMarkIcon size={24} /></S.StatIcon>
+          <S.StatsGrid compact>
+            <S.StatCard compact>
+              <S.StatIcon compact><QuestionMarkIcon size={18} /></S.StatIcon>
               <S.StatInfo>
-                <S.StatValue>{globalStats?.totalQuestions ?? 0}</S.StatValue>
+                <S.StatValue compact>{globalStats?.totalQuestions ?? 0}</S.StatValue>
                 <S.StatLabel>სულ კითხვები</S.StatLabel>
               </S.StatInfo>
             </S.StatCard>
-            <S.StatCard>
-              <S.StatIcon><BallotIcon size={24} /></S.StatIcon>
+            <S.StatCard compact>
+              <S.StatIcon compact><BallotIcon size={18} /></S.StatIcon>
               <S.StatInfo>
-                <S.StatValue>{globalStats?.totalVotes ?? 0}</S.StatValue>
+                <S.StatValue compact>{globalStats?.totalVotes ?? 0}</S.StatValue>
                 <S.StatLabel>სულ ხმები</S.StatLabel>
               </S.StatInfo>
             </S.StatCard>
-            <S.StatCard>
-              <S.StatIcon><PlayIcon size={24} /></S.StatIcon>
+            <S.StatCard compact>
+              <S.StatIcon compact><PlayIcon size={18} /></S.StatIcon>
               <S.StatInfo>
-                <S.StatValue>{globalStats?.activeQuestions ?? 0}</S.StatValue>
+                <S.StatValue compact>{globalStats?.activeQuestions ?? 0}</S.StatValue>
                 <S.StatLabel>აქტიური კითხვები</S.StatLabel>
               </S.StatInfo>
             </S.StatCard>
-            <S.StatCard>
-              <S.StatIcon><TagIcon size={24} /></S.StatIcon>
+            <S.StatCard compact>
+              <S.StatIcon compact><PauseIcon size={18} /></S.StatIcon>
               <S.StatInfo>
-                <S.StatValue>{globalStats?.totalCategories ?? 0}</S.StatValue>
+                <S.StatValue compact>{globalStats?.inactiveQuestions ?? 0}</S.StatValue>
+                <S.StatLabel>არააქტიური კითხვები</S.StatLabel>
+              </S.StatInfo>
+            </S.StatCard>
+            <S.StatCard compact>
+              <S.StatIcon compact><TagIcon size={18} /></S.StatIcon>
+              <S.StatInfo>
+                <S.StatValue compact>{globalStats?.totalCategories ?? 0}</S.StatValue>
                 <S.StatLabel>კატეგორიები</S.StatLabel>
               </S.StatInfo>
             </S.StatCard>

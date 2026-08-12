@@ -27,6 +27,21 @@ export const Tab = styled("button")<{ active?: boolean }>`
   }
 `;
 
+export const TabCount = styled("span")<{ active?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background-color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-bg-elevated)")};
+  color: ${({ active }) => (active ? "#fff" : "var(--ref-text-secondary)")};
+`;
+
 export const PageWrapper = styled("div")`
   min-height: 100vh;
   background-color: var(--ref-bg);
@@ -245,10 +260,10 @@ export const FilterActions = styled("div")`
   }
 `;
 
-export const StatsGrid = styled("div")`
+export const StatsGrid = styled("div")<{ compact?: boolean }>`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(${({ compact }) => (compact ? "180px" : "240px")}, 1fr));
+  gap: ${({ compact }) => (compact ? "14px" : "20px")};
   margin-bottom: 32px;
 
   @media (max-width: 480px) {
@@ -256,37 +271,37 @@ export const StatsGrid = styled("div")`
   }
 `;
 
-export const StatCard = styled("div")`
+export const StatCard = styled("div")<{ compact?: boolean }>`
   background: var(--ref-bg-elevated);
   border-radius: 8px;
-  padding: 20px 24px;
+  padding: ${({ compact }) => (compact ? "14px 16px" : "20px 24px")};
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--ref-border-soft);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: ${({ compact }) => (compact ? "12px" : "16px")};
 
   @media (max-width: 480px) {
-    padding: 16px 18px;
+    padding: ${({ compact }) => (compact ? "12px 14px" : "16px 18px")};
   }
 `;
 
-export const StatIcon = styled("div")`
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+export const StatIcon = styled("div")<{ compact?: boolean }>`
+  width: ${({ compact }) => (compact ? "36px" : "48px")};
+  height: ${({ compact }) => (compact ? "36px" : "48px")};
+  border-radius: ${({ compact }) => (compact ? "8px" : "10px")};
   background: var(--ref-primary-soft);
   color: var(--ref-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: ${({ compact }) => (compact ? "16px" : "22px")};
 `;
 
 export const StatInfo = styled("div")``;
 
-export const StatValue = styled("div")`
-  font-size: 24px;
+export const StatValue = styled("div")<{ compact?: boolean }>`
+  font-size: ${({ compact }) => (compact ? "19px" : "24px")};
   font-weight: 700;
   color: var(--ref-text-primary);
 `;

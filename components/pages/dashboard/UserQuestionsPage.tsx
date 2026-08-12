@@ -37,6 +37,41 @@ export const UserQuestionsPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<Question | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
 
+  const [approvedCount, setApprovedCount] = useState<number | null>(null);
+  const [rejectedCount, setRejectedCount] = useState<number | null>(null);
+
+  const fetchCounts = async () => {
+    if (!session?.accessToken) return;
+    try {
+      const [approvedRes, rejectedRes] = await Promise.all([
+        QuestionAPI(router.locale || "ka", session.accessToken).questionControllerFindAll(
+          1,
+          1,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          "approved",
+          "user"
+        ),
+        QuestionAPI(router.locale || "ka", session.accessToken).questionControllerFindAll(
+          1,
+          1,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          "rejected",
+          "user"
+        ),
+      ]);
+      setApprovedCount(((approvedRes.data as any)?.meta?.total) ?? 0);
+      setRejectedCount(((rejectedRes.data as any)?.meta?.total) ?? 0);
+    } catch {
+      // silently ignore — counts are supplementary
+    }
+  };
+
   const fetchQuestions = async () => {
     if (!session?.accessToken) return;
     setLoading(true);
@@ -68,6 +103,13 @@ export const UserQuestionsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, page, filter]);
 
+  useEffect(() => {
+    if (session?.accessToken) {
+      fetchCounts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
+
   const handleTabChange = (next: ApprovalFilter) => {
     if (next === filter) return;
     setFilter(next);
@@ -82,6 +124,7 @@ export const UserQuestionsPage: React.FC = () => {
       toast.success("კითხვა წარმატებით წაიშალა!");
       setDeleteTarget(null);
       fetchQuestions();
+      fetchCounts();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "კითხვის წაშლა ვერ მოხერხდა");
     } finally {
@@ -97,9 +140,11 @@ export const UserQuestionsPage: React.FC = () => {
       <S.TabBar>
         <S.Tab active={filter === "approved"} onClick={() => handleTabChange("approved")}>
           <CheckCircleIcon size={15} /> დამტკიცებული
+          {approvedCount !== null && <S.TabCount active={filter === "approved"}>{approvedCount}</S.TabCount>}
         </S.Tab>
         <S.Tab active={filter === "rejected"} onClick={() => handleTabChange("rejected")}>
           <CloseIcon size={15} /> უარყოფილი
+          {rejectedCount !== null && <S.TabCount active={filter === "rejected"}>{rejectedCount}</S.TabCount>}
         </S.Tab>
       </S.TabBar>
 

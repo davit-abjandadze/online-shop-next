@@ -36,21 +36,18 @@ export const LogoLink = styled.a`
 `;
 
 export const LogoBadge = styled.div`
-  width: 40px;
-  height: 40px;
-  background: var(--ref-primary);
-  border-radius: 50%;
+  height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--ref-text-on-primary);
   font-weight: 800;
-  font-size: 20px;
   overflow: hidden;
+  background-color:black;
 
   img {
     width: 100%;
-    height: 100%;
+    height: 60px;
     object-fit: cover;
   }
 `;
