@@ -21,6 +21,7 @@ import {
   EditIcon,
   HourglassIcon,
   PauseIcon,
+  PinIcon,
   PlayIcon,
   PlusIcon,
   QuestionMarkIcon,
@@ -421,6 +422,26 @@ export const QuestionsPage: React.FC = () => {
     }
   };
 
+  const handleTogglePin = async (q: Question) => {
+    if (!q.isActive && !q.isPinned) {
+      toast.error("არააქტიური კითხვის დაპინვა შეუძლებელია");
+      return;
+    }
+    try {
+      const qApi = QuestionAPI(router.locale || "ka", session?.accessToken || "");
+      if (q.isPinned) {
+        await qApi.questionControllerUnpin(String(q.id));
+        toast.success("კითხვას მოეხსნა პინი!");
+      } else {
+        await qApi.questionControllerPin(String(q.id));
+        toast.success("კითხვა დაპინულია!");
+      }
+      fetchQuestions();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "პინის სტატუსის შეცვლა ვერ მოხერხდა");
+    }
+  };
+
   // ─── Delete Question (confirm dialog instead of window.confirm) ─────────────
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
@@ -615,6 +636,11 @@ export const QuestionsPage: React.FC = () => {
                     <S.Badge variant={q.isActive ? "active" : "inactive"}>
                       {q.isActive ? "აქტიური" : "არააქტიური"}
                     </S.Badge>
+                    {q.isPinned && (
+                      <S.Badge variant="pinned">
+                        <PinIcon size={12} /> დაპინული
+                      </S.Badge>
+                    )}
                     {q.category && (
                       <S.Badge variant="date"><TagIcon size={13} /> {q.category.name}</S.Badge>
                     )}
@@ -643,6 +669,16 @@ export const QuestionsPage: React.FC = () => {
                     {q.isActive ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
                     {q.isActive ? "დეაქტივაცია" : "აქტივაცია"}
                   </S.ActionButton>
+                  {/* არააქტიური კითხვის დაპინვა არ შეიძლება, ამიტომ ღილაკიც არ ჩანს */}
+                  {q.isActive && (
+                    <S.ActionButton
+                      variant={q.isPinned ? "secondary" : "outline"}
+                      onClick={() => handleTogglePin(q)}
+                    >
+                      <PinIcon size={16} />
+                      {q.isPinned ? "პინის მოხსნა" : "დაპინვა"}
+                    </S.ActionButton>
+                  )}
                   <S.ActionButton variant="outline" onClick={() => handleOpenEdit(q)}>
                     <EditIcon size={16} /> რედაქტირება
                   </S.ActionButton>

@@ -42,6 +42,8 @@ export interface Question {
     'reviewedById'?: number;
     'reviewedAt'?: string | null;
     'createdAt': string;
+    'isPinned': boolean;
+    'pinnedAt'?: string | null;
 }
 
 export const QuestionTypeEnum = {

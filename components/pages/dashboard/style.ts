@@ -414,11 +414,14 @@ export const BadgeGroup = styled("div")`
   max-width:330px
 `;
 
-export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" | "pending" | "approved" | "rejected" }>`
+export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" | "pending" | "approved" | "rejected" | "pinned" }>`
   padding: 4px 10px;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 
   ${({ variant }) => {
     if (variant === "multiple") {
@@ -435,6 +438,9 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" |
     }
     if (variant === "pending") {
       return "background: var(--ref-warning-soft); color: #b45309;";
+    }
+    if (variant === "pinned") {
+      return "background: var(--ref-danger-soft); color: var(--ref-danger);";
     }
     return "background: var(--ref-primary-soft); color: var(--ref-primary-hover);";
   }}

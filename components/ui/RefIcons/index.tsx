@@ -255,6 +255,16 @@ export const TargetIcon: React.FC<RefIconProps> = ({ size = 22, className, style
   </svg>
 );
 
+export const PinIcon: React.FC<RefIconProps> = ({ size = 16, className, style }) => (
+  // ეს არის დამაგრების/მიმაგრების ("push-pin") აიკონი, არა გეო-ლოკაციის მარკერი
+  <svg width={size} height={size} viewBox="0 0 16 16" fill="none" className={className} style={style}>
+    <path
+      d="M9.828.722a.5.5 0 01.354.146l4.95 4.95a.5.5 0 010 .707c-.48.48-1.072.588-1.503.588a2.8 2.8 0 01-.46-.039l-3.134 3.134a5.927 5.927 0 01.16 1.013c.046.702-.032 1.687-.72 2.375a.5.5 0 01-.707 0L5.94 10.768l-3.182 3.182c-.195.195-1.219.902-1.414.707-.195-.195.512-1.22.707-1.414l3.182-3.182-2.828-2.829a.5.5 0 010-.707c.688-.688 1.673-.767 2.375-.72a5.922 5.922 0 011.013.16l3.134-3.133a2.772 2.772 0 01-.04-.461c0-.43.108-1.022.589-1.503a.5.5 0 01.353-.146z"
+      fill="#F43E50"
+    />
+  </svg>
+);
+
 export const GoogleIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M22 12.2c0-.7-.06-1.4-.18-2H12v3.8h5.6a4.8 4.8 0 01-2.1 3.2v2.6h3.4c2-1.8 3.1-4.5 3.1-7.6z" fill="#4285F4" />

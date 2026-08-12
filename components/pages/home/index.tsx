@@ -15,7 +15,7 @@ import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, User
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
-import { BallotIcon, ClipboardIcon, CloseIcon, FireIcon, PlusIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BallotIcon, ClipboardIcon, CloseIcon, FireIcon, PinIcon, PlusIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 6;
@@ -98,6 +98,17 @@ export const HomeComponent: React.FC = () => {
   const [popularModalQuestion, setPopularModalQuestion] = useState<Question | null>(null);
   const [popularModalLoading, setPopularModalLoading] = useState<boolean>(false);
 
+  // Pinned questions slider
+  // შენიშვნა: ნავიგაციისთვის `prevEl`/`nextEl` refs-ის ნაცვლად პირდაპირ Swiper
+  // ინსტანციაზე ვმუშაობთ (`slidePrev()`/`slideNext()`) — `prevEl`/`nextEl` `useState`-ით
+  // მიბმისას პირველ რენდერზე ისინი `null`-ია და Swiper ნავიგაციას ვეღარ პოულობს/ვერ
+  // ერთვება სწორად, რაც ღილაკებს არასამუშაოდ ხდიდა მცირე რაოდენობის სლაიდებზე.
+  const [pinnedQuestions, setPinnedQuestions] = useState<Question[]>([]);
+  const [loadingPinned, setLoadingPinned] = useState<boolean>(true);
+  const [pinnedSwiperInstance, setPinnedSwiperInstance] = useState<any>(null);
+  const [pinnedIsBeginning, setPinnedIsBeginning] = useState<boolean>(true);
+  const [pinnedIsEnd, setPinnedIsEnd] = useState<boolean>(false);
+
   // Fetch results for a single question
   const fetchSingleResults = async (q: Question) => {
     try {
@@ -159,6 +170,7 @@ export const HomeComponent: React.FC = () => {
     fetchQuestions();
     fetchCategories();
     fetchPopularQuestions();
+    fetchPinnedQuestions();
   }, [status, session?.accessToken, page, activeCategoryId, sortOption]);
 
   // ბექენდს "ხმების რაოდენობით" დალაგების პარამეტრი არ აქვს, ამიტომ ამ
@@ -363,6 +375,44 @@ export const HomeComponent: React.FC = () => {
       // popular questions are optional, ignore errors silently
     } finally {
       setLoadingPopular(false);
+    }
+  };
+
+  // დაპინული კითხვების სლაიდერისთვის ვკრეფავთ ყველა გვერდს (ბექენდის
+  // `questionControllerFindAll`-ს არ აქვს `isPinned` ფილტრი), ვფილტრავთ
+  // კლიენტის მხარეს დაპინულ და აქტიურ კითხვებზე
+  const fetchPinnedQuestions = async () => {
+    setLoadingPinned(true);
+    try {
+      const FETCH_PAGE_SIZE = 100;
+      const collected: Question[] = [];
+      let fetchPage = 1;
+      let hasNext = true;
+
+      while (hasNext) {
+        const res = await QuestionAPI(
+          router.locale || "ka",
+          session?.accessToken || ""
+        ).questionControllerFindAll(fetchPage, FETCH_PAGE_SIZE);
+
+        const pageItems = Array.isArray(res.data?.data) ? (res.data.data as Question[]) : [];
+        collected.push(...pageItems);
+
+        hasNext = !!res.data?.meta?.hasNext;
+        fetchPage += 1;
+      }
+
+      const pinned = collected.filter((q) => {
+        if (!q.isPinned || !q.isActive) return false;
+        if (q.endDate && new Date(q.endDate).getTime() < Date.now()) return false;
+        return true;
+      });
+
+      setPinnedQuestions(pinned);
+    } catch {
+      // დაპინული კითხვების სლაიდერი არასავალდებულოა, შეცდომას ჩუმად ვტოვებთ
+    } finally {
+      setLoadingPinned(false);
     }
   };
 
@@ -642,6 +692,80 @@ export const HomeComponent: React.FC = () => {
           </S.PopularSection>
         );
       })()}
+
+      {/* Pinned Questions Slider */}
+      {!loadingPinned && pinnedQuestions.length > 0 && (
+        <S.PopularSection>
+          <S.PopularSectionHeader>
+            <S.PopularSectionTitle>
+              <PinIcon size={20} /> დაპინული განცხადებები
+            </S.PopularSectionTitle>
+            <S.PopularNavButtons>
+              <S.PopularNavButton
+                type="button"
+                aria-label="წინა"
+                disabled={pinnedIsBeginning}
+                onClick={() => pinnedSwiperInstance?.slidePrev()}
+              >
+                ‹
+              </S.PopularNavButton>
+              <S.PopularNavButton
+                type="button"
+                aria-label="შემდეგი"
+                disabled={pinnedIsEnd}
+                onClick={() => pinnedSwiperInstance?.slideNext()}
+              >
+                ›
+              </S.PopularNavButton>
+            </S.PopularNavButtons>
+          </S.PopularSectionHeader>
+
+          <Swiper
+            modules={[Pagination, Autoplay]}
+            onSwiper={(swiper) => {
+              setPinnedSwiperInstance(swiper);
+              setPinnedIsBeginning(swiper.isBeginning);
+              setPinnedIsEnd(swiper.isEnd);
+            }}
+            onSlideChange={(swiper) => {
+              setPinnedIsBeginning(swiper.isBeginning);
+              setPinnedIsEnd(swiper.isEnd);
+            }}
+            pagination={{ clickable: true }}
+            autoplay={{ delay: 5000, disableOnInteraction: false }}
+            // loop-რეჟიმს სჭირდება მინიმუმ slidesPerView*2 სლაიდი (ქვემოთ
+            // ყველაზე დიდი breakpoint-ისთვის slidesPerView 3-ია), თორემ
+            // ნავიგაცია (წინა/შემდეგი) არასწორად მუშაობს
+            loop={pinnedQuestions.length >= 6}
+            spaceBetween={20}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+          >
+            {pinnedQuestions.map((pq) => (
+              <SwiperSlide key={pq.id}>
+                <S.PopularCard onClick={() => handlePopularCardClick(pq.id)}>
+                  <S.PopularTrendingTag>
+                    <PinIcon size={12} /> დაპინული
+                  </S.PopularTrendingTag>
+                  <S.PopularCardTop>
+                    <S.PopularCardText>{pq.text}</S.PopularCardText>
+                  </S.PopularCardTop>
+                  <S.PopularCardFooter>
+                    {pq.category && (
+                      <S.PopularCategoryLabel>
+                        <TagIcon size={13} /> {pq.category.name}
+                      </S.PopularCategoryLabel>
+                    )}
+                  </S.PopularCardFooter>
+                </S.PopularCard>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </S.PopularSection>
+      )}
 
       <S.Container>
         <S.SectionHeader>

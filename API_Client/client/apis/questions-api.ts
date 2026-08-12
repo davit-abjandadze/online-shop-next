@@ -354,6 +354,44 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
         },
         /**
          * 
+         * @summary კითხვის დაპინვა მთავარ გვერდზე, როგორც მნიშვნელოვანი (მხოლოდ admin)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerPin: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('questionControllerPin', 'id', id)
+            const localVarPath = `/questions/{id}/pin`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
          * @param {string} id 
          * @param {RejectQuestionDto} rejectQuestionDto 
@@ -415,6 +453,44 @@ export const QuestionsApiAxiosParamCreator = function (configuration?: Configura
             }
 
             const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary კითხვის დაპინვის გაუქმება (მხოლოდ admin)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerUnpin: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('questionControllerUnpin', 'id', id)
+            const localVarPath = `/questions/{id}/unpin`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
@@ -588,6 +664,19 @@ export const QuestionsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary კითხვის დაპინვა მთავარ გვერდზე, როგორც მნიშვნელოვანი (მხოლოდ admin)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async questionControllerPin(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Question>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.questionControllerPin(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['QuestionsApi.questionControllerPin']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
          * @param {string} id 
          * @param {RejectQuestionDto} rejectQuestionDto 
@@ -611,6 +700,19 @@ export const QuestionsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.questionControllerRemove(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['QuestionsApi.questionControllerRemove']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary კითხვის დაპინვის გაუქმება (მხოლოდ admin)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async questionControllerUnpin(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Question>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.questionControllerUnpin(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['QuestionsApi.questionControllerUnpin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -718,6 +820,16 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
         },
         /**
          * 
+         * @summary კითხვის დაპინვა მთავარ გვერდზე, როგორც მნიშვნელოვანი (მხოლოდ admin)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerPin(id: string, options?: RawAxiosRequestConfig): AxiosPromise<Question> {
+            return localVarFp.questionControllerPin(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
          * @param {string} id 
          * @param {RejectQuestionDto} rejectQuestionDto 
@@ -736,6 +848,16 @@ export const QuestionsApiFactory = function (configuration?: Configuration, base
          */
         questionControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<Question> {
             return localVarFp.questionControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary კითხვის დაპინვის გაუქმება (მხოლოდ admin)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        questionControllerUnpin(id: string, options?: RawAxiosRequestConfig): AxiosPromise<Question> {
+            return localVarFp.questionControllerUnpin(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -844,6 +966,17 @@ export class QuestionsApi extends BaseAPI {
 
     /**
      * 
+     * @summary კითხვის დაპინვა მთავარ გვერდზე, როგორც მნიშვნელოვანი (მხოლოდ admin)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public questionControllerPin(id: string, options?: RawAxiosRequestConfig) {
+        return QuestionsApiFp(this.configuration).questionControllerPin(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary user-ის დასმული კითხვის უკუგდება მიზეზის მითითებით (მხოლოდ admin)
      * @param {string} id 
      * @param {RejectQuestionDto} rejectQuestionDto 
@@ -863,6 +996,17 @@ export class QuestionsApi extends BaseAPI {
      */
     public questionControllerRemove(id: string, options?: RawAxiosRequestConfig) {
         return QuestionsApiFp(this.configuration).questionControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary კითხვის დაპინვის გაუქმება (მხოლოდ admin)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public questionControllerUnpin(id: string, options?: RawAxiosRequestConfig) {
+        return QuestionsApiFp(this.configuration).questionControllerUnpin(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
