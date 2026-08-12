@@ -95,8 +95,8 @@ export const CategoriesPage: React.FC = () => {
     setCatEditSubmitting(true);
     try {
       await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerUpdate(
-        { name: data.name.trim(), description: data.description?.trim() || undefined },
-        String(editingCat.id)
+        String(editingCat.id),
+        { name: data.name.trim(), description: data.description?.trim() || undefined }
       );
       toast.success("კატეგორია წარმატებით განახლდა!");
       setEditingCat(null);

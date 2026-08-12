@@ -86,8 +86,8 @@ export const PendingQuestionsPage: React.FC = () => {
     try {
       const endDate = new Date(`${approveEndDate}T23:59:59.000Z`).toISOString();
       await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerApprove(
-        { endDate },
-        String(approveTarget.id)
+        String(approveTarget.id),
+        { endDate }
       );
       toast.success("კითხვა დამტკიცებულია!");
       setApproveTarget(null);
@@ -111,8 +111,8 @@ export const PendingQuestionsPage: React.FC = () => {
     setRejectSubmitting(true);
     try {
       await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerReject(
-        { reason },
-        String(rejectTarget.id)
+        String(rejectTarget.id),
+        { reason }
       );
       toast.success("კითხვა უარყოფილია!");
       setRejectTarget(null);

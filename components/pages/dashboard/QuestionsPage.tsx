@@ -5,6 +5,12 @@ import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnswerAPI, CategoriesAPI, QuestionAPI, UserAnswerAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
+import {
+  QuestionControllerFindAllOrderEnum,
+  QuestionControllerFindAllStatusEnum,
+  QuestionControllerFindAllApprovalStatusEnum,
+  QuestionControllerFindAllCreatorTypeEnum,
+} from "@/API_Client/client/apis/questions-api";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import {
@@ -118,13 +124,13 @@ export const QuestionsPage: React.FC = () => {
         questionsPage,
         QUESTIONS_PAGE_SIZE,
         filterSortBy || undefined,
-        filterOrder || undefined,
+        (filterOrder || undefined) as QuestionControllerFindAllOrderEnum | undefined,
         filterCategory !== "" ? Number(filterCategory) : undefined,
-        filterStatus !== "" ? filterStatus : undefined,
-        filterApprovalStatus !== "" ? filterApprovalStatus : undefined,
-        filterCreatorType !== "" ? filterCreatorType : undefined
+        filterStatus !== "" ? (filterStatus as QuestionControllerFindAllStatusEnum) : undefined,
+        filterApprovalStatus !== "" ? (filterApprovalStatus as QuestionControllerFindAllApprovalStatusEnum) : undefined,
+        filterCreatorType !== "" ? (filterCreatorType as QuestionControllerFindAllCreatorTypeEnum) : undefined
       );
-      const list: Question[] = Array.isArray(res.data?.data) ? res.data.data : [];
+      const list: Question[] = Array.isArray(res.data?.data) ? (res.data.data as Question[]) : [];
       setQuestions(list);
       setQuestionsMeta(res.data?.meta || null);
       fetchActivityCounts(list);
@@ -273,8 +279,8 @@ export const QuestionsPage: React.FC = () => {
       const aApi = AnswerAPI(router.locale || "ka", session.accessToken);
 
       await qApi.questionControllerUpdate(
-        { text: data.text.trim(), type: data.type as any, categoryId: data.categoryId !== "" ? Number(data.categoryId) : undefined } as any,
-        String(editingQuestion.id)
+        String(editingQuestion.id),
+        { text: data.text.trim(), type: data.type as any, categoryId: data.categoryId !== "" ? Number(data.categoryId) : undefined } as any
       );
 
       for (const delId of deletedAnswerIds) {
@@ -285,10 +291,10 @@ export const QuestionsPage: React.FC = () => {
       for (const ans of validAnswers) {
         if (ans.id) {
           if (originalAnswersMap.get(ans.id) !== ans.text.trim()) {
-            await aApi.answerControllerUpdate({ text: ans.text.trim() }, String(ans.id));
+            await aApi.answerControllerUpdate(String(ans.id), { text: ans.text.trim() });
           }
         } else {
-          await aApi.answerControllerAddAnswer({ text: ans.text.trim() }, String(editingQuestion.id));
+          await aApi.answerControllerAddAnswer(String(editingQuestion.id), { text: ans.text.trim() });
         }
       }
 

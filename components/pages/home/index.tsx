@@ -180,7 +180,7 @@ export const HomeComponent: React.FC = () => {
         session?.accessToken || ""
       ).questionControllerFindAll(fetchPage, FETCH_PAGE_SIZE, undefined, undefined, activeCategoryId ?? undefined);
 
-      const pageItems = Array.isArray(res.data?.data) ? res.data.data : [];
+      const pageItems = Array.isArray(res.data?.data) ? (res.data.data as Question[]) : [];
       collected.push(...pageItems);
 
       hasNext = !!res.data?.meta?.hasNext;
@@ -255,7 +255,7 @@ export const HomeComponent: React.FC = () => {
           session?.accessToken || ""
         ).questionControllerFindAll(page, QUESTIONS_PAGE_SIZE, sortField, sortOrder, activeCategoryId ?? undefined);
 
-        qList = Array.isArray(res.data?.data) ? res.data.data : [];
+        qList = Array.isArray(res.data?.data) ? (res.data.data as Question[]) : [];
         setQuestions(qList);
         setQuestionsMeta(res.data?.meta || null);
 
@@ -468,7 +468,7 @@ export const HomeComponent: React.FC = () => {
       await UserAnswerAPI(
         router.locale || "ka",
         session.accessToken
-      ).userAnswerControllerSubmitAnswer({ answerIds: chosen }, String(q.id));
+      ).userAnswerControllerSubmitAnswer(String(q.id), { answerIds: chosen });
 
       toast.success("თქვენი ხმა წარმატებით დარეგისტრირდა!");
 

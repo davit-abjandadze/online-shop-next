@@ -113,14 +113,14 @@ export const ProfileComponent: React.FC = () => {
 
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
+        session.user.id,
         {
           firstName: data.firstName.trim(),
           lastName: data.lastName.trim(),
           email: email.trim(),
           gender: data.gender ? (data.gender as any) : undefined,
           age: data.age?.trim() ? Number(data.age) : undefined,
-        },
-        session.user.id
+        }
       );
       setUser(res.data);
       await updateSession({ name: `${data.firstName.trim()} ${data.lastName.trim()}` });

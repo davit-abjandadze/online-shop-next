@@ -144,8 +144,8 @@ export const FavoritesComponent: React.FC = () => {
     setSubmittingId(q.id);
     try {
       await UserAnswerAPI(router.locale || "ka", session.accessToken).userAnswerControllerSubmitAnswer(
-        { answerIds: chosen },
-        String(q.id)
+        String(q.id),
+        { answerIds: chosen }
       );
       toast.success("თქვენი ხმა წარმატებით დარეგისტრირდა!");
       setVotedQuestionIds((prev) => new Set(prev).add(q.id));

@@ -122,7 +122,7 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
       await UserAnswerAPI(
         router.locale || "ka",
         session.accessToken
-      ).userAnswerControllerSubmitAnswer({ answerIds: chosenIds }, String(q.id));
+      ).userAnswerControllerSubmitAnswer(String(q.id), { answerIds: chosenIds });
 
       toast.success("თქვენი ხმა წარმატებით დარეგისტრირდა!");
       setHasVoted(true);
