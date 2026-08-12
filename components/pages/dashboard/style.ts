@@ -214,44 +214,95 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | 
 `;
 
 export const FilterBar = styled("div")`
-  display: flex;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  gap: 16px;
   background: var(--ref-bg-elevated);
   border: 1px solid var(--ref-border-soft);
-  border-radius: 8px;
-  padding: 18px 20px;
+  border-radius: 12px;
+  padding: 18px 22px 22px;
   margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+`;
+
+export const FilterBarHeader = styled("div")`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--ref-border-soft);
+`;
+
+export const FilterBarTitle = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+`;
+
+export const FilterCountBadge = styled("span")`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--ref-primary-soft);
+  color: var(--ref-primary);
+`;
+
+export const FilterGrid = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 14px;
+  align-items: end;
 `;
 
 export const FilterGroup = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-width: 160px;
-  flex: 1;
-
-  @media (max-width: 640px) {
-    min-width: 100%;
-  }
+  min-width: 0;
 `;
 
 export const FilterLabel = styled("label")`
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--ref-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
+`;
+
+export const SearchInputWrapper = styled("div")`
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  & > svg {
+    position: absolute;
+    left: 12px;
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  & > input {
+    padding-left: 34px;
+  }
 `;
 
 export const FilterActions = styled("div")`
   display: flex;
   gap: 10px;
   align-items: center;
+  margin-left: auto;
 
   @media (max-width: 640px) {
     width: 100%;
+    margin-left: 0;
 
     & > button {
       flex: 1;
@@ -635,31 +686,56 @@ export const FieldError = styled("span")`
 
 export const Input = styled("input")`
   width: 100%;
-  padding: 10px 14px;
+  height: 40px;
+  padding: 0 14px;
   border-radius: 8px;
   border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-primary);
   font-size: 14px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &::placeholder {
+    color: var(--ref-text-secondary);
+    opacity: 0.8;
+  }
+
+  &:hover {
+    border-color: var(--ref-primary);
+  }
 
   &:focus {
     border-color: var(--ref-primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px var(--ref-primary-soft);
   }
 `;
 
 export const Select = styled("select")`
   width: 100%;
-  padding: 10px 14px;
+  height: 40px;
+  padding: 0 32px 0 14px;
   border-radius: 8px;
   border: 1px solid var(--ref-border);
   font-size: 14px;
   outline: none;
   background: var(--ref-bg-elevated);
-  transition: border-color 0.2s ease;
+  color: var(--ref-text-primary);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2365676B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    border-color: var(--ref-primary);
+  }
 
   &:focus {
     border-color: var(--ref-primary);
+    box-shadow: 0 0 0 3px var(--ref-primary-soft);
   }
 `;
 

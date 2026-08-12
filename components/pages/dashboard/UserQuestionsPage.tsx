@@ -101,14 +101,14 @@ export const UserQuestionsPage: React.FC = () => {
       fetchQuestions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, page, filter]);
+  }, [session?.accessToken, page, filter]);
 
   useEffect(() => {
     if (session?.accessToken) {
       fetchCounts();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const handleTabChange = (next: ApprovalFilter) => {
     if (next === filter) return;

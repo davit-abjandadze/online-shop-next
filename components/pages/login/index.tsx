@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { toast } from "react-toastify";
 import TextInput from "@/components/ui/TextInput";
 import Button from "@/components/ui/Button";
@@ -21,8 +21,6 @@ const LoginForm: React.FC = () => {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const { data: session } = useSession();
 
   const schema = z.object({
     email: z
@@ -64,10 +62,6 @@ const LoginForm: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
 
   return (
     <S.Wrapper>

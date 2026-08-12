@@ -205,6 +205,124 @@ export const ProgressBarFill = styled("div")<{ percentage: number; isTop?: boole
   transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
+/* Demographics Breakdown (სქესი/ასაკი) */
+export const DemographicsWrapper = styled("div")<{ compact?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: ${({ compact }) => (compact ? "10px" : "0")};
+  padding-top: ${({ compact }) => (compact ? "10px" : "0")};
+  border-top: ${({ compact }) => (compact ? "1px dashed var(--ref-border-soft)" : "none")};
+`;
+
+export const DemographicsTitle = styled("div")`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+`;
+
+export const DemographicsToggle = styled("button")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--ref-text-primary);
+  }
+`;
+
+export const GenderStackTrack = styled("div")`
+  display: flex;
+  width: 100%;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--ref-border-soft);
+`;
+
+export const GenderStackSegment = styled("div")<{ color: string }>`
+  height: 100%;
+  background-color: ${({ color }) => color};
+
+  & + & {
+    margin-left: 2px;
+  }
+`;
+
+export const GenderLegend = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
+export const GenderLegendItem = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+`;
+
+export const GenderLegendDot = styled("span")<{ color: string }>`
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  border-radius: 50%;
+  background-color: ${({ color }) => color};
+`;
+
+export const AgeGroupList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+export const AgeGroupRow = styled("div")`
+  display: grid;
+  grid-template-columns: 48px 1fr 28px;
+  align-items: center;
+  gap: 8px;
+`;
+
+export const AgeGroupLabel = styled("span")`
+  font-size: 11px;
+  color: var(--ref-text-secondary);
+`;
+
+export const AgeGroupBarTrack = styled("div")`
+  height: 6px;
+  border-radius: 4px;
+  background: var(--ref-border-soft);
+  overflow: hidden;
+`;
+
+export const AgeGroupBarFill = styled("div")`
+  height: 100%;
+  background: var(--ref-primary);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+`;
+
+export const AgeGroupCount = styled("span")`
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+  text-align: right;
+`;
+
+export const DemographicsEmptyText = styled("div")`
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+`;
+
 export const CardFooter = styled("div")`
   display: flex;
   justify-content: space-between;

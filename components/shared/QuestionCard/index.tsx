@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Question } from "@/API_Client/client/models";
 import { ParsedResult } from "@/utils/parseQuestionResults";
+import { QuestionDemographics } from "@/types/demographics";
+import { DemographicsBreakdown } from "./DemographicsBreakdown";
 import {
   BallotIcon,
   ChartIcon,
@@ -57,6 +59,7 @@ export interface QuestionCardProps {
   hasVoted: boolean;
   isShowingResults: boolean;
   results?: ParsedResult;
+  demographics?: QuestionDemographics;
   chosenIds: number[];
   submitting: boolean;
   isFavorite: boolean;
@@ -72,6 +75,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   hasVoted,
   isShowingResults,
   results,
+  demographics,
   chosenIds,
   submitting,
   isFavorite,
@@ -182,10 +186,19 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               </S.TotalVotesText>
             </S.ResultsHeader>
 
+            {demographics && demographics.totalVotes > 0 && (
+              <DemographicsBreakdown
+                data={demographics}
+                totalVotes={demographics.totalVotes}
+                title="დემოგრაფია მთელი კითხვისთვის"
+              />
+            )}
+
             {q.answers?.map((ans) => {
               const count = results?.answerCounts[ans.id] || 0;
               const pct = results?.answerPercentages[ans.id] || 0;
               const isTop = pct > 0 && pct === maxPct;
+              const answerDemographics = demographics?.answers.find((a) => a.id === ans.id);
 
               return (
                 <S.ResultRow key={ans.id}>
@@ -198,6 +211,15 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
                   <S.ProgressBarTrack>
                     <S.ProgressBarFill percentage={pct} isTop={isTop} />
                   </S.ProgressBarTrack>
+
+                  {answerDemographics && answerDemographics.votes > 0 && (
+                    <DemographicsBreakdown
+                      data={answerDemographics}
+                      totalVotes={answerDemographics.votes}
+                      compact
+                      title="დემოგრაფიული ჩაშლა"
+                    />
+                  )}
                 </S.ResultRow>
               );
             })}

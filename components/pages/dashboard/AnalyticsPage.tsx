@@ -8,20 +8,23 @@ import {
   BarElement,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
   Filler,
 } from "chart.js";
-import { Bar, Line } from "react-chartjs-2";
+import { Bar, Line, Pie } from "react-chartjs-2";
 import { QuestionAPI, StatsAPI } from "@/API_Client";
-import { BallotIcon, ChartIcon, FireIcon, PauseIcon, PlayIcon, QuestionMarkIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BallotIcon, ChartIcon, FireIcon, PauseIcon, PeopleIcon, PlayIcon, QuestionMarkIcon, TagIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { GlobalDemographics } from "@/types/demographics";
+import { AGE_GROUP_LABELS, GENDER_COLORS, GENDER_LABELS } from "@/utils/demographicsLabels";
 import DashboardLayout from "./DashboardLayout";
 import { StatsSkeleton } from "./Skeletons";
 import * as S from "./style";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Title, Tooltip, Legend, Filler);
 
 type TrendsPeriod = "week" | "month" | "year";
 
@@ -93,6 +96,7 @@ export const AnalyticsPage: React.FC = () => {
   const [popularQuestions, setPopularQuestions] = useState<PopularQuestion[]>([]);
   const [trends, setTrends] = useState<TrendPoint[]>([]);
   const [trendsPeriod, setTrendsPeriod] = useState<TrendsPeriod>("month");
+  const [demographics, setDemographics] = useState<GlobalDemographics | null>(null);
   const [loadingStats, setLoadingStats] = useState<boolean>(true);
   const [statsLoaded, setStatsLoaded] = useState<boolean>(false);
 
@@ -125,11 +129,12 @@ export const AnalyticsPage: React.FC = () => {
     setLoadingStats(true);
     try {
       const api = StatsAPI(router.locale || "ka", session.accessToken);
-      const [globalRes, categoriesRes, popularRes, trendsRes, questionsData] = await Promise.all([
+      const [globalRes, categoriesRes, popularRes, trendsRes, demographicsRes, questionsData] = await Promise.all([
         api.statsControllerGetGlobalStats(),
         api.statsControllerGetCategoriesStats(),
         api.statsControllerGetPopularQuestions(5),
         api.statsControllerGetTrends(trendsPeriod),
+        api.statsControllerGetDemographics(),
         // გლობალურ სტატისტიკაში "აქტიური კითხვების" ველი დაუდასტურებელია (backend
         // პასუხის სქემა `void`-ია), ამიტომ აქტიურობას ვითვლით რეალური კითხვების
         // სიიდან იმავე წესით, რასაც მთავარი გვერდი იყენებს ხმის მისაცემად
@@ -207,6 +212,8 @@ export const AnalyticsPage: React.FC = () => {
         }))
       );
 
+      setDemographics(demographicsRes.data as unknown as GlobalDemographics);
+
       setStatsLoaded(true);
     } catch {
       toast.error("ანალიტიკის ჩატვირთვა ვერ მოხერხდა");
@@ -220,7 +227,7 @@ export const AnalyticsPage: React.FC = () => {
       fetchStats();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, session]);
+  }, [status, session?.accessToken]);
 
   useEffect(() => {
     if (isAdmin && statsLoaded) {
@@ -374,6 +381,73 @@ export const AnalyticsPage: React.FC = () => {
               </S.PopularQuestionsList>
             )}
           </S.ChartCard>
+
+          <S.ChartsGrid>
+            <S.ChartCard>
+              <S.ChartCardTitle>
+                <S.ChartTitleText style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <PeopleIcon size={18} /> ხმები სქესის მიხედვით
+                </S.ChartTitleText>
+              </S.ChartCardTitle>
+              {!demographics || demographics.byGender.every((g) => g.votes === 0) ? (
+                <p style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>მონაცემები არ არის</p>
+              ) : (
+                <S.ChartCanvasWrapper>
+                  <Pie
+                    data={{
+                      labels: demographics.byGender.map((g) => GENDER_LABELS[g.gender]),
+                      datasets: [
+                        {
+                          data: demographics.byGender.map((g) => g.votes),
+                          backgroundColor: demographics.byGender.map((g) => GENDER_COLORS[g.gender]),
+                          borderColor: "var(--ref-bg-elevated)",
+                          borderWidth: 2,
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: { legend: { position: "bottom" } },
+                    }}
+                  />
+                </S.ChartCanvasWrapper>
+              )}
+            </S.ChartCard>
+
+            <S.ChartCard>
+              <S.ChartCardTitle>
+                <S.ChartTitleText style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <PeopleIcon size={18} /> ხმები ასაკის მიხედვით
+                </S.ChartTitleText>
+              </S.ChartCardTitle>
+              {!demographics || demographics.byAge.every((a) => a.votes === 0) ? (
+                <p style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>მონაცემები არ არის</p>
+              ) : (
+                <S.ChartCanvasWrapper>
+                  <Bar
+                    data={{
+                      labels: demographics.byAge.map((a) => AGE_GROUP_LABELS[a.ageGroup]),
+                      datasets: [
+                        {
+                          label: "ხმები",
+                          data: demographics.byAge.map((a) => a.votes),
+                          backgroundColor: "#1877F2",
+                          borderRadius: 6,
+                        },
+                      ],
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: { legend: { display: false } },
+                      scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    }}
+                  />
+                </S.ChartCanvasWrapper>
+              )}
+            </S.ChartCard>
+          </S.ChartsGrid>
         </>
       )}
     </DashboardLayout>

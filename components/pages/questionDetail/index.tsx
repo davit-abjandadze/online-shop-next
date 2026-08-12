@@ -8,9 +8,10 @@ import ReferendumFooter from "@/components/shared/ReferendumFooter";
 import AuthModal from "@/components/shared/AuthModal";
 import CompleteProfileModal from "@/components/shared/CompleteProfileModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
-import { FavoritesAPI, UserAnswerAPI, UserAPI } from "@/API_Client";
+import { FavoritesAPI, StatsAPI, UserAnswerAPI, UserAPI } from "@/API_Client";
 import { Question } from "@/API_Client/client/models";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
+import { QuestionDemographics } from "@/types/demographics";
 import * as S from "@/components/pages/home/style";
 
 export interface QuestionDetailProps {
@@ -24,6 +25,7 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
   const [hasVoted, setHasVoted] = useState(false);
   const [isShowingResults, setIsShowingResults] = useState(false);
   const [results, setResults] = useState<ParsedResult | undefined>();
+  const [demographics, setDemographics] = useState<QuestionDemographics | undefined>();
   const [chosenIds, setChosenIds] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -43,10 +45,23 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
     }
   };
 
+  // /stats/questions/:id/demographics საჯარო (public) endpoint-ია, ავტორიზაცია არ სჭირდება
+  const fetchDemographics = async () => {
+    try {
+      const res = await StatsAPI(router.locale || "ka", session?.accessToken || "").statsControllerGetQuestionDemographics(
+        String(q.id)
+      );
+      setDemographics(res.data as unknown as QuestionDemographics);
+    } catch (err) {
+      console.log(`Could not fetch demographics for question ${q.id}:`, err);
+    }
+  };
+
   useEffect(() => {
     if (status === "loading") return;
 
     fetchResults();
+    fetchDemographics();
 
     if (status === "authenticated" && session?.accessToken) {
       UserAnswerAPI(router.locale || "ka", session.accessToken)
@@ -186,6 +201,7 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
           hasVoted={hasVoted}
           isShowingResults={isShowingResults}
           results={results}
+          demographics={demographics}
           chosenIds={chosenIds}
           submitting={submitting}
           isFavorite={isFavorite}

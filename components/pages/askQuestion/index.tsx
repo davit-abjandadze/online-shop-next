@@ -58,7 +58,7 @@ export const AskQuestionComponent: React.FC = () => {
       fetchCategories();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   // ─── Auth Guard ───────────────────────────────────────────────────────────────
   if (status === "loading") {

@@ -60,7 +60,7 @@ export const CategoriesPage: React.FC = () => {
       fetchCategories();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   const handleOpenCreate = () => {
     createForm.reset(emptyCategoryForm);

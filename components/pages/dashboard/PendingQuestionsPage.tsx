@@ -68,7 +68,7 @@ export const PendingQuestionsPage: React.FC = () => {
       fetchPending();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, page]);
+  }, [session?.accessToken, page]);
 
   const handleOpenApprove = (q: Question) => {
     setApproveTarget(q);

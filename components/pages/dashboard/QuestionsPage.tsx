@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AnswerAPI, CategoriesAPI, QuestionAPI, UserAnswerAPI } from "@/API_Client";
+import { AnswerAPI, CategoriesAPI, QuestionAPI, StatsAPI, UserAnswerAPI } from "@/API_Client";
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import {
   QuestionControllerFindAllOrderEnum,
@@ -25,6 +25,7 @@ import {
   PlusIcon,
   QuestionMarkIcon,
   RadioIcon,
+  SearchIcon,
   TagIcon,
   TargetIcon,
   TrashIcon,
@@ -65,6 +66,8 @@ export const QuestionsPage: React.FC = () => {
 
   // კითხვის ID -> სულ ხმების (აქტივობის) რაოდენობა; `undefined` ჯერ ჩატვირთვამდე
   const [activityCounts, setActivityCounts] = useState<Record<number, number>>({});
+  // კითხვის ID -> ქალი/კაცი ამომრჩეველთა რაოდენობა (ბეიჯისთვის)
+  const [genderCounts, setGenderCounts] = useState<Record<number, { female: number; male: number }>>({});
 
   // ─── Filters ──────────────────────────────────────────────────────────────────
   const [filterCategory, setFilterCategory] = useState<string>("");
@@ -74,7 +77,22 @@ export const QuestionsPage: React.FC = () => {
   const [filterSortBy, setFilterSortBy] = useState<string>("createdAt");
   // შენიშვნა: backend `order`-ს ელოდება მკაცრად ლათინური დიდი ასოებით (ASC/DESC),
   // პატარა ასოებზე 500 აბრუნებს.
-  const [filterOrder, setFilterOrder] = useState<string>("DESC");
+  const [filterOrder] = useState<string>("DESC");
+  // "აქტივობა" - როცა მონიშნულია, სია ლაგდება ხმების (მიცემული პასუხების) რაოდენობის
+  // მიხედვით კლებადობით. Backend-ს არ აქვს ასეთი sortBy ველი, ამიტომ ვლაგებთ კლიენტის მხარეს.
+  const [filterActivitySort, setFilterActivitySort] = useState<string>("");
+  // ძიება კითხვის სათაურით (კლიენტის მხარეს ფილტრაცია)
+  const [searchText, setSearchText] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchText.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  useEffect(() => {
+    setQuestionsPage(1);
+  }, [debouncedSearch, filterActivitySort]);
 
   const hasActiveFilters =
     filterCategory !== "" ||
@@ -82,7 +100,8 @@ export const QuestionsPage: React.FC = () => {
     filterApprovalStatus !== "" ||
     filterCreatorType !== "" ||
     filterSortBy !== "createdAt" ||
-    filterOrder !== "DESC";
+    filterActivitySort !== "" ||
+    searchText !== "";
 
   const handleResetFilters = () => {
     setFilterCategory("");
@@ -90,7 +109,8 @@ export const QuestionsPage: React.FC = () => {
     setFilterApprovalStatus("");
     setFilterCreatorType("");
     setFilterSortBy("createdAt");
-    setFilterOrder("DESC");
+    setFilterActivitySort("");
+    setSearchText("");
     setQuestionsPage(1);
   };
 
@@ -116,48 +136,123 @@ export const QuestionsPage: React.FC = () => {
   });
   const editAnswersField = useFieldArray({ control: editForm.control, name: "answers" });
 
+  // მიმდინარე გვერდზე ჩვენებული კითხვების აქტივობის (მიცემული ხმების) რაოდენობა.
+  // აბრუნებს დათვლილ მნიშვნელობებს, რომ საჯარისო (activity) დალაგებას დაუყოვნებლივ დასჭირდეს.
+  const fetchActivityCounts = async (list: Question[]): Promise<Record<number, number>> => {
+    if (!session?.accessToken || list.length === 0) return {};
+    const api = UserAnswerAPI(router.locale || "ka", session.accessToken);
+    const statsApi = StatsAPI(router.locale || "ka", session.accessToken);
+    const entries = await Promise.all(
+      list.map(async (q) => {
+        let total = 0;
+        try {
+          const res = await api.userAnswerControllerGetResults(String(q.id));
+          const data = res.data as any;
+          total = typeof data?.totalVotes === "number" ? data.totalVotes : 0;
+        } catch {
+          total = 0;
+        }
+
+        try {
+          const demoRes = await statsApi.statsControllerGetQuestionDemographics(String(q.id));
+          const demoData = demoRes.data as any;
+          const byGender = Array.isArray(demoData?.byGender) ? demoData.byGender : [];
+          const female = byGender.find((g: any) => g.gender === "female")?.votes || 0;
+          const male = byGender.find((g: any) => g.gender === "male")?.votes || 0;
+          setGenderCounts((prev) => ({ ...prev, [q.id]: { female, male } }));
+        } catch {
+          // ბეიჯს ვაცილებთ, აქტივობის რაოდენობა ცალკე გამოთვლილია
+        }
+
+        return [q.id, total] as const;
+      })
+    );
+    const map = Object.fromEntries(entries);
+    setActivityCounts((prev) => ({ ...prev, ...map }));
+    return map;
+  };
+
   const fetchQuestions = async () => {
     if (!session?.accessToken) return;
     setLoadingQ(true);
     try {
-      const res = await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerFindAll(
-        questionsPage,
-        QUESTIONS_PAGE_SIZE,
-        filterSortBy || undefined,
-        (filterOrder || undefined) as QuestionControllerFindAllOrderEnum | undefined,
-        filterCategory !== "" ? Number(filterCategory) : undefined,
-        filterStatus !== "" ? (filterStatus as QuestionControllerFindAllStatusEnum) : undefined,
-        filterApprovalStatus !== "" ? (filterApprovalStatus as QuestionControllerFindAllApprovalStatusEnum) : undefined,
-        filterCreatorType !== "" ? (filterCreatorType as QuestionControllerFindAllCreatorTypeEnum) : undefined
-      );
-      const list: Question[] = Array.isArray(res.data?.data) ? (res.data.data as Question[]) : [];
-      setQuestions(list);
-      setQuestionsMeta(res.data?.meta || null);
-      fetchActivityCounts(list);
+      const api = QuestionAPI(router.locale || "ka", session.accessToken);
+      const isClientMode = filterActivitySort === "activity" || debouncedSearch !== "";
+
+      if (!isClientMode) {
+        const res = await api.questionControllerFindAll(
+          questionsPage,
+          QUESTIONS_PAGE_SIZE,
+          filterSortBy || undefined,
+          (filterOrder || undefined) as QuestionControllerFindAllOrderEnum | undefined,
+          filterCategory !== "" ? Number(filterCategory) : undefined,
+          filterStatus !== "" ? (filterStatus as QuestionControllerFindAllStatusEnum) : undefined,
+          filterApprovalStatus !== "" ? (filterApprovalStatus as QuestionControllerFindAllApprovalStatusEnum) : undefined,
+          filterCreatorType !== "" ? (filterCreatorType as QuestionControllerFindAllCreatorTypeEnum) : undefined
+        );
+        const list: Question[] = Array.isArray(res.data?.data) ? (res.data.data as Question[]) : [];
+        setQuestions(list);
+        setQuestionsMeta(res.data?.meta || null);
+        fetchActivityCounts(list);
+        return;
+      }
+
+      // "აქტივობა"-ზე დალაგება ან ძიება სათაურით ბექენდში არ არსებობს, ამიტომ ვკრეფავთ
+      // ყველა კითხვას (ფილტრებით), ვთვლით აქტივობას და ვლაგებთ/ვფილტრავთ/ვგვერდავთ კლიენტის მხარეს.
+      let page = 1;
+      let totalPages = 1;
+      let all: Question[] = [];
+      do {
+        const res = await api.questionControllerFindAll(
+          page,
+          QUESTIONS_FETCH_PAGE_SIZE,
+          filterSortBy || undefined,
+          (filterOrder || undefined) as QuestionControllerFindAllOrderEnum | undefined,
+          filterCategory !== "" ? Number(filterCategory) : undefined,
+          filterStatus !== "" ? (filterStatus as QuestionControllerFindAllStatusEnum) : undefined,
+          filterApprovalStatus !== "" ? (filterApprovalStatus as QuestionControllerFindAllApprovalStatusEnum) : undefined,
+          filterCreatorType !== "" ? (filterCreatorType as QuestionControllerFindAllCreatorTypeEnum) : undefined
+        );
+        const data = res.data as any;
+        const pageList: Question[] = Array.isArray(data?.data) ? data.data : [];
+        all = all.concat(pageList);
+        totalPages = data?.meta?.totalPages || 1;
+        page += 1;
+      } while (page <= totalPages);
+
+      if (debouncedSearch !== "") {
+        const needle = debouncedSearch.toLowerCase();
+        all = all.filter((q) => (q.text || "").toLowerCase().includes(needle));
+      }
+
+      const counts = await fetchActivityCounts(all);
+      const getCount = (q: Question) => counts[q.id] ?? activityCounts[q.id] ?? 0;
+
+      if (filterActivitySort === "activity") {
+        all = [...all].sort((a, b) => getCount(b) - getCount(a));
+      }
+
+      const total = all.length;
+      const totalPagesLocal = Math.max(1, Math.ceil(total / QUESTIONS_PAGE_SIZE));
+      const currentPage = Math.min(questionsPage, totalPagesLocal);
+      const startIdx = (currentPage - 1) * QUESTIONS_PAGE_SIZE;
+      const pageSlice = all.slice(startIdx, startIdx + QUESTIONS_PAGE_SIZE);
+
+      setQuestions(pageSlice);
+      setQuestionsMeta({
+        page: currentPage,
+        limit: QUESTIONS_PAGE_SIZE,
+        total,
+        totalPages: totalPagesLocal,
+        hasNext: currentPage < totalPagesLocal,
+        hasPrevious: currentPage > 1,
+      } as PaginationMetaDto);
+      if (currentPage !== questionsPage) setQuestionsPage(currentPage);
     } catch {
       toast.error("კითხვების ჩატვირთვა ვერ მოხერხდა");
     } finally {
       setLoadingQ(false);
     }
-  };
-
-  // მიმდინარე გვერდზე ჩვენებული კითხვების აქტივობის (მიცემული ხმების) რაოდენობა
-  const fetchActivityCounts = async (list: Question[]) => {
-    if (!session?.accessToken || list.length === 0) return;
-    const api = UserAnswerAPI(router.locale || "ka", session.accessToken);
-    const entries = await Promise.all(
-      list.map(async (q) => {
-        try {
-          const res = await api.userAnswerControllerGetResults(String(q.id));
-          const data = res.data as any;
-          const total = typeof data?.totalVotes === "number" ? data.totalVotes : 0;
-          return [q.id, total] as const;
-        } catch {
-          return [q.id, 0] as const;
-        }
-      })
-    );
-    setActivityCounts((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
   };
 
   // სტატისტიკის ბლოკებისთვის ვითვლით ყველა კითხვასა და პასუხს ყველა
@@ -205,7 +300,7 @@ export const QuestionsPage: React.FC = () => {
       fetchQuestions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, questionsPage, filterCategory, filterStatus, filterApprovalStatus, filterCreatorType, filterSortBy, filterOrder]);
+  }, [session?.accessToken, questionsPage, filterCategory, filterStatus, filterApprovalStatus, filterCreatorType, filterSortBy, filterActivitySort, debouncedSearch]);
 
   useEffect(() => {
     if (session?.accessToken) {
@@ -213,7 +308,7 @@ export const QuestionsPage: React.FC = () => {
       fetchCategories();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.accessToken]);
 
   // ფილტრის ცვლილებისას ვბრუნდებით პირველ გვერდზე
   const handleFilterChange = (setter: (value: string) => void) => (value: string) => {
@@ -387,89 +482,111 @@ export const QuestionsPage: React.FC = () => {
       )}
 
       <S.FilterBar>
-        <S.FilterGroup>
-          <S.FilterLabel>კატეგორია</S.FilterLabel>
-          <S.Select
-            value={filterCategory}
-            onChange={(e) => handleFilterChange(setFilterCategory)(e.target.value)}
-          >
-            <option value="">ყველა კატეგორია</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </S.Select>
-        </S.FilterGroup>
+        <S.FilterBarHeader>
+          <S.FilterBarTitle>
+            <ClipboardIcon size={16} />
+            ფილტრები
+            {hasActiveFilters && <S.FilterCountBadge>აქტიური</S.FilterCountBadge>}
+          </S.FilterBarTitle>
+          <S.FilterActions>
+            <S.ActionButton
+              type="button"
+              variant="secondary"
+              onClick={handleResetFilters}
+              disabled={!hasActiveFilters}
+            >
+              <CloseIcon size={14} /> ფილტრის გასუფთავება
+            </S.ActionButton>
+          </S.FilterActions>
+        </S.FilterBarHeader>
 
-        <S.FilterGroup>
-          <S.FilterLabel>აქტიურობის სტატუსი</S.FilterLabel>
-          <S.Select
-            value={filterStatus}
-            onChange={(e) => handleFilterChange(setFilterStatus)(e.target.value)}
-          >
-            <option value="">ყველა</option>
-            <option value="active">აქტიური</option>
-            <option value="inactive">არააქტიური</option>
-          </S.Select>
-        </S.FilterGroup>
+        <S.FilterGrid>
+          <S.FilterGroup>
+            <S.FilterLabel>ძიება</S.FilterLabel>
+            <S.SearchInputWrapper>
+              <SearchIcon size={16} />
+              <S.Input
+                type="text"
+                placeholder="მოძებნეთ კითხვის სათაურით..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </S.SearchInputWrapper>
+          </S.FilterGroup>
 
-        <S.FilterGroup>
-          <S.FilterLabel>დამტკიცების სტატუსი</S.FilterLabel>
-          <S.Select
-            value={filterApprovalStatus}
-            onChange={(e) => handleFilterChange(setFilterApprovalStatus)(e.target.value)}
-          >
-            <option value="">ყველა</option>
-            <option value="pending">მოლოდინში</option>
-            <option value="approved">დამტკიცებული</option>
-            <option value="rejected">უარყოფილი</option>
-          </S.Select>
-        </S.FilterGroup>
+          <S.FilterGroup>
+            <S.FilterLabel>კატეგორია</S.FilterLabel>
+            <S.Select
+              value={filterCategory}
+              onChange={(e) => handleFilterChange(setFilterCategory)(e.target.value)}
+            >
+              <option value="">ყველა კატეგორია</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </S.Select>
+          </S.FilterGroup>
 
-        <S.FilterGroup>
-          <S.FilterLabel>შემქმნელი</S.FilterLabel>
-          <S.Select
-            value={filterCreatorType}
-            onChange={(e) => handleFilterChange(setFilterCreatorType)(e.target.value)}
-          >
-            <option value="">ყველა</option>
-            <option value="admin">ადმინი</option>
-            <option value="user">მომხმარებელი</option>
-          </S.Select>
-        </S.FilterGroup>
+          <S.FilterGroup>
+            <S.FilterLabel>აქტიურობის სტატუსი</S.FilterLabel>
+            <S.Select
+              value={filterStatus}
+              onChange={(e) => handleFilterChange(setFilterStatus)(e.target.value)}
+            >
+              <option value="">ყველა</option>
+              <option value="active">აქტიური</option>
+              <option value="inactive">არააქტიური</option>
+            </S.Select>
+          </S.FilterGroup>
 
-        <S.FilterGroup>
-          <S.FilterLabel>დალაგება</S.FilterLabel>
-          <S.Select
-            value={filterSortBy}
-            onChange={(e) => handleFilterChange(setFilterSortBy)(e.target.value)}
-          >
-            <option value="createdAt">დამატების თარიღი</option>
-            <option value="endDate">დასრულების თარიღი</option>
-            <option value="text">ტექსტი</option>
-          </S.Select>
-        </S.FilterGroup>
+          <S.FilterGroup>
+            <S.FilterLabel>დამტკიცების სტატუსი</S.FilterLabel>
+            <S.Select
+              value={filterApprovalStatus}
+              onChange={(e) => handleFilterChange(setFilterApprovalStatus)(e.target.value)}
+            >
+              <option value="">ყველა</option>
+              <option value="pending">მოლოდინში</option>
+              <option value="approved">დამტკიცებული</option>
+              <option value="rejected">უარყოფილი</option>
+            </S.Select>
+          </S.FilterGroup>
 
-        <S.FilterGroup>
-          <S.FilterLabel>მიმართულება</S.FilterLabel>
-          <S.Select
-            value={filterOrder}
-            onChange={(e) => handleFilterChange(setFilterOrder)(e.target.value)}
-          >
-            <option value="DESC">კლებადი</option>
-            <option value="ASC">ზრდადი</option>
-          </S.Select>
-        </S.FilterGroup>
+          <S.FilterGroup>
+            <S.FilterLabel>შემქმნელი</S.FilterLabel>
+            <S.Select
+              value={filterCreatorType}
+              onChange={(e) => handleFilterChange(setFilterCreatorType)(e.target.value)}
+            >
+              <option value="">ყველა</option>
+              <option value="admin">ადმინი</option>
+              <option value="user">მომხმარებელი</option>
+            </S.Select>
+          </S.FilterGroup>
 
-        <S.FilterActions>
-          <S.ActionButton
-            type="button"
-            variant="secondary"
-            onClick={handleResetFilters}
-            disabled={!hasActiveFilters}
-          >
-            <CloseIcon size={14} /> ფილტრის გასუფთავება
-          </S.ActionButton>
-        </S.FilterActions>
+          <S.FilterGroup>
+            <S.FilterLabel>დალაგება</S.FilterLabel>
+            <S.Select
+              value={filterSortBy}
+              onChange={(e) => handleFilterChange(setFilterSortBy)(e.target.value)}
+            >
+              <option value="createdAt">დამატების თარიღი</option>
+              <option value="endDate">დასრულების თარიღი</option>
+              <option value="text">ტექსტი</option>
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>აქტივობა</S.FilterLabel>
+            <S.Select
+              value={filterActivitySort}
+              onChange={(e) => handleFilterChange(setFilterActivitySort)(e.target.value)}
+            >
+              <option value="">ჩვეულებრივი დალაგება</option>
+              <option value="activity">აქტივობის მიხედვით (ხმების რაოდენობა)</option>
+            </S.Select>
+          </S.FilterGroup>
+        </S.FilterGrid>
       </S.FilterBar>
 
       {loadingQ ? (
@@ -512,6 +629,9 @@ export const QuestionsPage: React.FC = () => {
                     )}
                     <S.Badge variant="date">
                       <TargetIcon size={13} /> აქტივობა: {activityCounts[q.id] ?? 0}
+                    </S.Badge>
+                    <S.Badge variant="date" title="ქალი / კაცი ამომრჩეველთა რაოდენობა">
+                      ♀ {genderCounts[q.id]?.female ?? 0} · ♂ {genderCounts[q.id]?.male ?? 0}
                     </S.Badge>
                   </S.BadgeGroup>
                 </div>
