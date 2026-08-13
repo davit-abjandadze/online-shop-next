@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>{`${t("default-page-title")} - სახალხო რეფერენდუმი`}</title>
-        <meta name="description" content="მიიღეთ მონაწილეობა სახალხო რეფერენდუმში და იხილეთ საზოგადოებრივი აზრის შედეგები" />
+        <title>{t("default-page-title")}</title>
+        <meta name="description" content={t("page-description")} />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>

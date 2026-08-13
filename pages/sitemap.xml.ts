@@ -3,21 +3,30 @@ import { QuestionAPI } from "@/API_Client";
 import { BASEPATH } from "@/constants";
 
 const LOCALES = ["ka", "en", "ru"];
-const STATIC_PATHS = [""];
+const STATIC_PATHS = [{ path: "", changefreq: "daily", priority: "1.0" }];
 
 const escapeXml = (value: string) => value.replace(/&/g, "&amp;");
 
-const buildUrlEntry = (path: string) => {
+const buildUrlEntry = (
+  path: string,
+  options?: { lastmod?: string; changefreq?: string; priority?: string }
+) => {
   const alternates = LOCALES.map(
     (locale) =>
       `<xhtml:link rel="alternate" hreflang="${locale}" href="${escapeXml(`${BASEPATH}/${locale}${path}`)}" />`
   ).join("");
 
-  return `<url><loc>${escapeXml(`${BASEPATH}/ka${path}`)}</loc>${alternates}</url>`;
+  const lastmod = options?.lastmod ? `<lastmod>${escapeXml(options.lastmod)}</lastmod>` : "";
+  const changefreq = options?.changefreq ? `<changefreq>${options.changefreq}</changefreq>` : "";
+  const priority = options?.priority ? `<priority>${options.priority}</priority>` : "";
+
+  return `<url><loc>${escapeXml(`${BASEPATH}/ka${path}`)}</loc>${alternates}${lastmod}${changefreq}${priority}</url>`;
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const urls: string[] = STATIC_PATHS.map(buildUrlEntry);
+  const urls: string[] = STATIC_PATHS.map((s) =>
+    buildUrlEntry(s.path, { changefreq: s.changefreq, priority: s.priority })
+  );
 
   try {
     const limit = 100;
@@ -31,7 +40,15 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
 
       list
         .filter((q: any) => q.isActive)
-        .forEach((q: any) => urls.push(buildUrlEntry(`/questions/${q.id}`)));
+        .forEach((q: any) =>
+          urls.push(
+            buildUrlEntry(`/questions/${q.id}`, {
+              lastmod: q.createdAt ? new Date(q.createdAt).toISOString() : undefined,
+              changefreq: "hourly",
+              priority: "0.8",
+            })
+          )
+        );
 
       hasNext = !!data?.meta?.hasNext;
       page += 1;

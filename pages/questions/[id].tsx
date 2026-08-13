@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { GetServerSideProps, NextPage } from "next";
+import { useRouter } from "next/router";
 import { QuestionAPI } from "@/API_Client";
 import { Question } from "@/API_Client/client/models";
 import { BASEPATH } from "@/constants";
@@ -9,10 +10,15 @@ interface QuestionDetailPageProps {
   question: Question | null;
 }
 
+const SEO_LOCALES = ["ka", "en", "ru"] as const;
+
 const truncate = (text: string, max: number) =>
   text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
 
 const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => {
+  const router = useRouter();
+  const currentLocale = router.locale && router.locale !== "default" ? router.locale : "ka";
+
   if (!question) {
     return (
       <>
@@ -30,7 +36,26 @@ const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => 
   const description = question.category?.name
     ? `კატეგორია: ${question.category.name}. მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.`
     : "მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.";
-  const url = `${BASEPATH}/questions/${question.id}`;
+  const url = `${BASEPATH}/${currentLocale}/questions/${question.id}`;
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "მთავარი",
+        item: `${BASEPATH}/${currentLocale}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: question.text,
+        item: url,
+      },
+    ],
+  };
 
   return (
     <>
@@ -42,6 +67,25 @@ const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => 
         <meta property="og:description" content={description} key="description" />
         <meta property="og:url" content={url} key="ogUrl" />
         <link rel="canonical" href={url} key="canonical" />
+        {SEO_LOCALES.map((loc) => (
+          <link
+            rel="alternate"
+            hrefLang={loc}
+            href={`${BASEPATH}/${loc}/questions/${question.id}`}
+            key={`hreflang-${loc}`}
+          />
+        ))}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={`${BASEPATH}/ka/questions/${question.id}`}
+          key="hreflang-x-default"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+          key="jsonld-breadcrumb"
+        />
       </Head>
       <main>
         <QuestionDetailComponent question={question} />

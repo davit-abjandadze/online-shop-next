@@ -50,9 +50,31 @@ const ToastAnimation = cssTransition({
 });
 
 // TODO: Add your app providers and layout components
+// SEO-სთვის მხარდაჭერილი ენების სია — sitemap.xml-ში, hreflang link-ებში
+// და JSON-LD-ში ერთნაირად გამოსაყენებლად
+const SEO_LOCALES = ["ka", "en", "ru"] as const;
+const OG_LOCALE_MAP: Record<string, string> = { ka: "ka_GE", en: "en_US", ru: "ru_RU" };
+
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { lang, t } = useTranslation("common");
   const router = useRouter();
+  const currentLocale = router.locale && router.locale !== "default" ? router.locale : "ka";
+  const canonicalUrl = `${BASEPATH}/${currentLocale}${router.asPath}`;
+
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: t("default-page-title"),
+    url: BASEPATH,
+    inLanguage: SEO_LOCALES,
+  };
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: t("default-page-title"),
+    url: BASEPATH,
+  };
 
   return (
     <ThemeProvider theme={ssTheme}>
@@ -64,11 +86,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           name="viewport"
           content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"
         />
-        <meta
-          property="og:url"
-          content={`${BASEPATH}/${router.locale}${router.asPath}`}
-          key="ogUrl"
-        />
+        <meta property="og:url" content={canonicalUrl} key="ogUrl" />
         <meta property="og:type" content="website" />
         <meta
           property="og:description"
@@ -80,11 +98,51 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           content={t("default-page-title")}
           key="title"
         />
+        <meta property="og:site_name" content={t("default-page-title")} key="ogSiteName" />
+        <meta
+          property="og:locale"
+          content={OG_LOCALE_MAP[currentLocale] || "ka_GE"}
+          key="ogLocale"
+        />
+        {SEO_LOCALES.filter((loc) => loc !== currentLocale).map((loc) => (
+          <meta
+            property="og:locale:alternate"
+            content={OG_LOCALE_MAP[loc]}
+            key={`ogLocaleAlt-${loc}`}
+          />
+        ))}
+        <meta name="twitter:card" content="summary" key="twitterCard" />
+        <meta name="twitter:title" content={t("default-page-title")} key="twitterTitle" />
+        <meta
+          name="twitter:description"
+          content={t("page-description")}
+          key="twitterDescription"
+        />
         <meta name="theme-color" content="#FFFFFF" />
+        <link rel="canonical" href={canonicalUrl} key="canonical" />
+        {SEO_LOCALES.map((loc) => (
+          <link
+            rel="alternate"
+            hrefLang={loc}
+            href={`${BASEPATH}/${loc}${router.asPath}`}
+            key={`hreflang-${loc}`}
+          />
+        ))}
         <link
-          rel="canonical"
-          href={`${BASEPATH}/${router.locale}${router.asPath}`}
-          key="canonical"
+          rel="alternate"
+          hrefLang="x-default"
+          href={`${BASEPATH}/ka${router.asPath}`}
+          key="hreflang-x-default"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          key="jsonld-website"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+          key="jsonld-organization"
         />
       </Head>
       <SWRConfig
