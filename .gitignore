@@ -51,3 +51,6 @@ next-env.d.ts
 
 certificates
 .idea
+
+# graphify (generated code-knowledge-graph output)
+/graphify-out/
