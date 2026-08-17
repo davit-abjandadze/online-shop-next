@@ -68,7 +68,12 @@ const nextConfig = {
     FACEBOOK_CLIENT_ID: process.env.FACEBOOK_CLIENT_ID,
     FACEBOOK_CLIENT_SECRET: process.env.FACEBOOK_CLIENT_SECRET,
   },
-  transpilePackages: ["supercluster", "use-supercluster"],
+  // next-auth აქაც დამატებულია: მისი შიდა detectOrigin()/parseUrl() ნამდვილ
+  // process.env.NEXTAUTH_URL-ს კითხულობს runtime-ზე (Amplify-ის SSR compute-ს
+  // ეს არ მიუწვდება, თუმცა build-ისას console-ის env vars ხელმისაწვდომია) —
+  // transpilePackages-ში ჩამატებით webpack ნამდვილად აშენებს next-auth-საც,
+  // რაც ზემოთი env{}-ის inline-ს (DefinePlugin) მასზეც ავრცელებს.
+  transpilePackages: ["supercluster", "use-supercluster", "next-auth"],
 };
 
 module.exports = withBundleAnalyzer(withTranslateRoutes(nextTranslate(nextConfig)));
