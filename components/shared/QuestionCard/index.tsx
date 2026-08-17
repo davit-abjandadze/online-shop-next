@@ -171,9 +171,9 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               <BallotIcon size={16} /> {submitting ? "იგზავნება..." : "ხმის მიცემა"}
             </S.ActionButton>
 
-            <S.ActionButton variant="secondary" onClick={onToggleResults}>
+            {/* <S.ActionButton variant="secondary" onClick={onToggleResults}>
               <ChartIcon size={16} /> შედეგების ნახვა
-            </S.ActionButton>
+            </S.ActionButton> */}
           </S.CardFooter>
         </>
       ) : (

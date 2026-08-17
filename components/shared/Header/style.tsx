@@ -47,7 +47,7 @@ export const LogoBadge = styled.div`
 
   img {
     width: 100%;
-    height: 60px;
+    height: 40px;
     object-fit: cover;
   }
 `;

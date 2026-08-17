@@ -10,8 +10,8 @@ export interface RefIconProps {
 
 export const BallotIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <rect x="3" y="9" width="18" height="12" rx="2" fill="#1877F2" />
-    <rect x="3" y="9" width="18" height="3" rx="1" fill="#166FE5" />
+    <rect x="3" y="9" width="18" height="12" rx="2" fill="#0347a0" />
+    <rect x="3" y="9" width="18" height="3" rx="1" fill="#6085b5" />
     <path d="M8 4h8a1 1 0 011 1v5H7V5a1 1 0 011-1z" fill="#E4E6EB" />
     <path d="M9.5 14.5l1.6 1.6L14.5 12.7" stroke="#FAD400" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
