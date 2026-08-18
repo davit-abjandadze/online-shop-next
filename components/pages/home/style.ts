@@ -91,15 +91,57 @@ export const FilterChip = styled("button")<{ active?: boolean }>`
   }
 `;
 
+/* Hero: სპეციალურად მუქი, "ციფრული" გრადიენტიანი ზოლი — ფიქსირებული, არ
+   ეყრდნობა light/dark თემის toggle-ს, ისევე როგორც სქემის დანარჩენი
+   ნაწილები. ეს გამოყოფს hero-ს, როგორც პლატფორმის "ვიტრინას". */
 export const HeroSection = styled("section")`
-  max-width: 1120px;
-  margin: 0 auto 40px auto;
-  padding: 56px 24px 48px 24px;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  background: radial-gradient(120% 140% at 15% -10%, #1e3a8a 0%, #0f1f4d 46%, #0a1533 100%);
+`;
+
+export const HeroTexture = styled("div")`
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 70% 60% at 30% 20%, black 40%, transparent 100%);
+  pointer-events: none;
+`;
+
+export const HeroGlow = styled("div")<{ variant?: "blue" | "gold" }>`
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  ${({ variant }) =>
+    variant === "gold"
+      ? `
+    bottom: -180px;
+    left: 10%;
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(250, 212, 0, 0.14) 0%, rgba(250, 212, 0, 0) 70%);
+  `
+      : `
+    top: -140px;
+    right: -120px;
+    width: 520px;
+    height: 520px;
+    background: radial-gradient(circle, rgba(66, 147, 250, 0.35) 0%, rgba(66, 147, 250, 0) 70%);
+  `}
+`;
+
+export const HeroInner = styled("div")`
+  position: relative;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 72px 24px 48px 24px;
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   align-items: center;
   gap: 48px;
-  border-bottom: 1px solid var(--ref-border-soft);
 
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
@@ -122,13 +164,15 @@ export const HeroEyebrow = styled("div")`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px;
-  background: var(--ref-primary-soft);
-  border-radius: 20px;
+  padding: 7px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  border-radius: 999px;
   width: fit-content;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--ref-primary);
+  font-weight: 700;
+  color: #e7f0ff;
 
    @media (max-width: 900px) {
     display: none;
@@ -136,24 +180,31 @@ export const HeroEyebrow = styled("div")`
 `;
 
 export const HeroTitle = styled("h1")`
-  font-size: 40px;
-  line-height: 1.15;
+  font-size: 44px;
+  line-height: 1.12;
   font-weight: 800;
   margin: 0;
-  color: var(--ref-text-primary);
-  letter-spacing: -0.5px;
+  color: #ffffff;
+  letter-spacing: -0.8px;
 
   @media (max-width: 640px) {
-    font-size: 22px;
+    font-size: 24px;
   }
+`;
+
+export const HeroTitleAccent = styled("span")`
+  background: linear-gradient(90deg, #8bb8ff 0%, var(--ref-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 `;
 
 export const HeroSubtitle = styled("p")`
   font-size: 16px;
-  color: var(--ref-text-secondary);
+  color: rgba(230, 236, 250, 0.78);
   max-width: 460px;
   margin: 0;
-  line-height: 1.55;
+  line-height: 1.6;
   @media (max-width: 640px) {
     font-size: 13px;
   }
@@ -173,20 +224,21 @@ export const HeroCTAButton = styled("button")`
   gap: 8px;
   height: 48px;
   padding: 0 22px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
-  background: var(--ref-primary);
-  color: var(--ref-text-on-primary);
+  background: var(--ref-accent);
+  color: #3a2e00;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
-  transition: background 0.15s ease;
+  box-shadow: 0 10px 24px rgba(250, 212, 0, 0.22);
+  transition: background 0.15s ease, transform 0.15s ease;
 
   &:hover {
-    background: var(--ref-primary-hover);
+    background: var(--ref-accent-hover, #e6c000);
+    transform: translateY(-1px);
   }
 
-  
    @media (max-width: 900px) {
       height: 38px;
   font-size: 13px;
@@ -200,20 +252,21 @@ export const HeroSecondaryButton = styled("a")`
   gap: 8px;
   height: 48px;
   padding: 0 20px;
-  border-radius: 8px;
-  border: 1px solid var(--ref-border);
-  background: transparent;
-  color: var(--ref-text-primary);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  color: #ffffff!important;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
 
   &:hover {
-    background: var(--ref-bg-subtle);
-    border-color: var(--ref-primary);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.5);
   }
-  
+
    @media (max-width: 900px) {
       height: 38px;
   font-size: 13px;
@@ -228,7 +281,7 @@ export const HeroTrustRow = styled("div")`
   flex-wrap: wrap;
   margin-top: 8px;
   padding-top: 16px;
-  border-top: 1px solid var(--ref-border-soft);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
     @media (max-width: 900px) {
       border-top: none;
        margin-top: 0;
@@ -243,7 +296,7 @@ export const HeroTrustItem = styled("div")`
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--ref-text-secondary);
+  color: rgba(230, 236, 250, 0.85);
 `;
 
 /* Hero illustration: abstract ballot / data-viz motif — deliberately not
@@ -263,13 +316,11 @@ export const HeroVisual = styled("div")`
 
 export const HeroVisualBlob = styled("div")`
   position: absolute;
-  width: 320px;
-  height: 320px;
-  border-radius: 28px;
-  background: var(--ref-primary-soft);
-  background-image: radial-gradient(var(--ref-border) 1px, transparent 1px);
-  background-size: 16px 16px;
-  background-position: center;
+  width: 300px;
+  height: 300px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.14);
 
   @media (max-width: 900px) {
     width: 240px;
@@ -279,13 +330,15 @@ export const HeroVisualBlob = styled("div")`
 
 export const HeroFloatingCard = styled("div")`
   position: absolute;
-  top: 12px;
-  right: 0;
-  width: 128px;
-  background: var(--ref-bg-elevated);
-  border-radius: 12px;
+  top: 6px;
+  right: -4px;
+  width: 140px;
+  background: rgba(20, 32, 72, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
   box-shadow: var(--ref-shadow-lg);
-  padding: 14px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -297,14 +350,14 @@ export const HeroFloatingCard = styled("div")`
 
 export const HeroFloatingBadge = styled("div")`
   position: absolute;
-  bottom: 16px;
-  left: -8px;
+  bottom: 14px;
+  left: -14px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: var(--ref-bg-elevated);
+  gap: 9px;
+  background: #ffffff;
   border-radius: 999px;
-  box-shadow: var(--ref-shadow-md);
+  box-shadow: var(--ref-shadow-lg);
   padding: 10px 16px 10px 10px;
 
   @media (max-width: 900px) {
@@ -312,10 +365,48 @@ export const HeroFloatingBadge = styled("div")`
   }
 `;
 
+export const HeroStatsStrip = styled("div")`
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+`;
+
+export const HeroStatsInner = styled("div")`
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+`;
+
+export const HeroStatItem = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+export const HeroStatValue = styled("span")`
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.4px;
+`;
+
+export const HeroStatLabel = styled("span")`
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(230, 236, 250, 0.6);
+`;
+
 export const PopularSection = styled("section")`
   max-width: 960px;
   margin: 0 auto 24px auto;
   padding: 0 16px;
+  margin-top: 15px;
 
   .swiper {
     /* ზედა padding საკმარისი უნდა იყოს PopularTrendingTag ბეიჯის

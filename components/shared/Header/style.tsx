@@ -2,13 +2,16 @@ import styled from "styled-components";
 
 export const HeaderWrapper = styled.header`
   width: 100%;
-  height: 60px;
-  background: var(--ref-bg-elevated);
+  height: 68px;
+  /* მინის ეფექტი: სქროლისას ქვედა კონტენტი ოდნავ გაჩანს ბლურის მიღმა */
+  background: color-mix(in srgb, var(--ref-bg-elevated) 82%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--ref-shadow-sm);
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  border-bottom: 1px solid var(--ref-border-soft);
+  transition: background 0.2s ease, border-color 0.2s ease;
 `;
 
 export const Container = styled.div`
@@ -40,15 +43,13 @@ export const LogoBadge = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ref-text-on-primary);
-  font-weight: 800;
+  border-radius: 10px;
   overflow: hidden;
-  background-color:black;
 
   img {
-    width: 100%;
-    height: 40px;
-    object-fit: cover;
+    height: 38px;
+    width: auto;
+    object-fit: contain;
   }
 
   @media (max-width: 600px) {
@@ -66,20 +67,21 @@ export const LeftSection = styled.div`
 `;
 
 export const ThemeToggleButton = styled.button`
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1px solid var(--ref-border-soft);
   border-radius: 50%;
   background: var(--ref-bg-subtle);
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
   flex-shrink: 0;
 
   &:hover {
     background: var(--ref-border-soft);
+    border-color: var(--ref-primary);
     transform: rotate(12deg);
   }
 `;
@@ -88,24 +90,27 @@ export const LoginBtn = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 9px 18px;
   background: var(--ref-primary);
   color: var(--ref-text-on-primary);
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s ease;
+  box-shadow: var(--ref-shadow-sm);
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   flex-shrink: 0;
 
   &:hover {
     background: var(--ref-primary-hover);
+    box-shadow: var(--ref-shadow-md);
+    transform: translateY(-1px);
   }
 
   @media (max-width: 420px) {
-    padding: 8px 12px;
+    padding: 9px 14px;
   }
 `;
 
@@ -122,14 +127,15 @@ export const ProfileTrigger = styled.button`
   align-items: center;
   gap: 8px;
   background: var(--ref-bg-subtle);
-  border: none;
+  border: 1px solid var(--ref-border-soft);
   padding: 4px 12px 4px 4px;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 
   &:hover {
     background: var(--ref-border-soft);
+    border-color: var(--ref-primary);
   }
 `;
 
@@ -137,7 +143,7 @@ export const AvatarCircle = styled.div`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--ref-primary);
+  background: linear-gradient(135deg, var(--ref-primary) 0%, var(--ref-primary-hover) 100%);
   color: var(--ref-text-on-primary);
   font-weight: 700;
   font-size: 13px;
@@ -166,12 +172,12 @@ export const ProfileName = styled.span`
 
 export const DropdownMenu = styled.div`
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   left: 0;
   width: 240px;
   background: var(--ref-bg-elevated);
   border: 1px solid var(--ref-border-soft);
-  border-radius: 10px;
+  border-radius: 14px;
   box-shadow: var(--ref-shadow-lg);
   padding: 8px;
   z-index: 100;
