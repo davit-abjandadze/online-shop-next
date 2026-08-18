@@ -58,17 +58,6 @@ export const FavoriteButton = styled("button")<{ active?: boolean }>`
   }
 `;
 
-export const CardTopActions = styled("div")`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-
-  @media (max-width: 480px) {
-    display: none;
-  }
-`;
-
 export const ShareButton = styled("button")`
   flex-shrink: 0;
   width: 40px;
@@ -95,8 +84,8 @@ export const ShareButton = styled("button")`
 `;
 
 export const QuestionText = styled("h3")`
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 500;
   color: var(--ref-text-primary);
   margin: 0 0 8px 0;
   line-height: 1.4;
@@ -243,9 +232,7 @@ export const DemographicsWrapper = styled("div")<{ compact?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-top: ${({ compact }) => (compact ? "10px" : "0")};
-  padding-top: ${({ compact }) => (compact ? "10px" : "0")};
-  border-top: ${({ compact }) => (compact ? "1px dashed var(--ref-border-soft)" : "none")};
+  margin-top: ${({ compact }) => (compact ? "5px" : "0")};
 `;
 
 export const DemographicsTitle = styled("div")`
@@ -365,17 +352,84 @@ export const CardFooter = styled("div")`
   border-top: 1px solid var(--ref-border-soft);
 `;
 
-export const ShareRow = styled("div")`
-  display: none;
+export const CardFooterActions = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+/* Details Modal */
+export const DetailsOverlay = styled("div")`
+  position: fixed;
+  inset: 0;
+  background: var(--ref-overlay);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--ref-border-soft);
+  padding: 16px;
+`;
 
-  @media (max-width: 480px) {
-    display: flex;
+export const DetailsModal = styled("div")`
+  background: var(--ref-bg-elevated);
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+`;
+
+export const DetailsModalHeader = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+`;
+
+export const DetailsModalTitle = styled("h3")`
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+  margin: 0;
+`;
+
+export const DetailsBody = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
+
+export const DetailsResultsList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  & > div:not(:last-child) {
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--ref-border-soft);
+  }
+`;
+
+export const DetailsCloseButton = styled("button")`
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ref-bg-subtle);
+  color: var(--ref-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--ref-bg);
+    color: var(--ref-text-primary);
   }
 `;
 

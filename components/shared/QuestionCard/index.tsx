@@ -10,10 +10,10 @@ import {
   ChartIcon,
   CheckCircleIcon,
   CheckSquareIcon,
+  CloseIcon,
   FacebookIcon,
   HourglassIcon,
   LinkIcon,
-  LockIcon,
   PeopleIcon,
   RadioIcon,
   StarIcon,
@@ -88,6 +88,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   onToggleFavorite,
 }) => {
   const router = useRouter();
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const isMultiple = q.type === "multiple";
   const maxPct = results ? Math.max(...Object.values(results.answerPercentages), 0) : 0;
 
@@ -111,6 +112,62 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
     }
   };
 
+  // `showDemographics=false` ბარათზე ჩვეულებრივი შედეგებისთვის (მხოლოდ ხმების/პროცენტების ჩვენება),
+  // `showDemographics=true` კი "დეტალები" მოდალისთვის, სადაც დემოგრაფიული ჩაშლაც ემატება
+  const renderResultsDetails = (showDemographics: boolean) => {
+    const answerRows = q.answers?.map((ans) => {
+      const count = results?.answerCounts[ans.id] || 0;
+      const pct = results?.answerPercentages[ans.id] || 0;
+      const isTop = pct > 0 && pct === maxPct;
+      const answerDemographics = demographics?.answers.find((a) => a.id === ans.id);
+
+      return (
+        <S.ResultRow key={ans.id}>
+          <S.ResultInfo>
+            <S.ResultOptionText>{ans.text}</S.ResultOptionText>
+            <S.ResultPercentageText>
+              {pct}% ({count} ხმა)
+            </S.ResultPercentageText>
+          </S.ResultInfo>
+          <S.ProgressBarTrack>
+            <S.ProgressBarFill percentage={pct} isTop={isTop} />
+          </S.ProgressBarTrack>
+
+          {showDemographics && answerDemographics && answerDemographics.votes > 0 && (
+            <DemographicsBreakdown
+              data={answerDemographics}
+              totalVotes={answerDemographics.votes}
+              compact
+              title="დემოგრაფიული ჩაშლა"
+            />
+          )}
+        </S.ResultRow>
+      );
+    });
+
+    return (
+      <>
+        <S.ResultsHeader>
+          <S.TotalVotesText>
+            <PeopleIcon size={16} /> სულ მიღებულია {results?.totalUsers || 0} ხმა
+          </S.TotalVotesText>
+        </S.ResultsHeader>
+
+        {showDemographics && demographics && demographics.totalVotes > 0 && (
+          <DemographicsBreakdown
+            data={demographics}
+            totalVotes={demographics.totalVotes}
+            title="დემოგრაფია მთელი კითხვისთვის"
+          />
+        )}
+
+        {/* მოდალში (showDemographics=true) პასუხები ცალკე გამორჩეულ სექციად გამოიყოფა
+            გამყოფებით, რომ დემოგრაფიულ ჩაშლასა და კითხვებს შორის არ იჭყლიტებოდეს */}
+        {showDemographics ? <S.DetailsResultsList>{answerRows}</S.DetailsResultsList> : answerRows}
+      </>
+    );
+  };
+
   return (
     <S.QuestionCardWrapper id={`question-${q.id}`}>
       <S.CardTop>
@@ -128,41 +185,10 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           {q.endDate && <CountdownBadge endDate={q.endDate} />}
           {hasVoted && (
             <S.Badge variant="single" style={{ marginTop: "8px", display: "inline-flex" }}>
-              <CheckCircleIcon size={14} /> თქვენ უკვე მიეცით ხმა
+              <CheckCircleIcon size={14} />  ხმა მიცემულია
             </S.Badge>
           )}
         </S.CardTopContent>
-
-        <S.CardTopActions>
-          <S.ShareButton
-            type="button"
-            onClick={handleShareToFacebook}
-            aria-label="გაზიარება Facebook-ზე"
-            title="გაზიარება Facebook-ზე"
-          >
-            <FacebookIcon size={22} />
-          </S.ShareButton>
-
-          <S.ShareButton
-            type="button"
-            onClick={handleCopyLink}
-            aria-label="ბმულის კოპირება"
-            title="ბმულის კოპირება"
-          >
-            <LinkIcon size={20} />
-          </S.ShareButton>
-
-          <S.FavoriteButton
-            type="button"
-            active={isFavorite}
-            disabled={favoriting}
-            onClick={onToggleFavorite}
-            aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
-            title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
-          >
-            <StarIcon size={22} filled={isFavorite} />
-          </S.FavoriteButton>
-        </S.CardTopActions>
       </S.CardTop>
 
       {!isShowingResults ? (
@@ -191,69 +217,85 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           </S.OptionsList>
 
           <S.CardFooter>
+            <S.CardFooterActions>
+              <S.ShareButton
+                type="button"
+                onClick={handleShareToFacebook}
+                aria-label="გაზიარება Facebook-ზე"
+                title="გაზიარება Facebook-ზე"
+              >
+                <FacebookIcon size={22} />
+              </S.ShareButton>
+
+              <S.ShareButton
+                type="button"
+                onClick={handleCopyLink}
+                aria-label="ბმულის კოპირება"
+                title="ბმულის კოპირება"
+              >
+                <LinkIcon size={20} />
+              </S.ShareButton>
+
+              <S.FavoriteButton
+                type="button"
+                active={isFavorite}
+                disabled={favoriting}
+                onClick={onToggleFavorite}
+                aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+                title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+              >
+                <StarIcon size={22} filled={isFavorite} />
+              </S.FavoriteButton>
+            </S.CardFooterActions>
+
             <S.ActionButton variant="primary" onClick={onVote} disabled={submitting}>
               <BallotIcon size={16} /> {submitting ? "იგზავნება..." : "ხმის მიცემა"}
             </S.ActionButton>
-
-            {/* <S.ActionButton variant="secondary" onClick={onToggleResults}>
-              <ChartIcon size={16} /> შედეგების ნახვა
-            </S.ActionButton> */}
           </S.CardFooter>
         </>
       ) : (
         /* RESULTS MODE */
         <>
-          <S.ResultsContainer>
-            <S.ResultsHeader>
-              <S.TotalVotesText>
-                <PeopleIcon size={16} /> სულ მიღებულია {results?.totalUsers || 0} ხმა
-              </S.TotalVotesText>
-            </S.ResultsHeader>
-
-            {demographics && demographics.totalVotes > 0 && (
-              <DemographicsBreakdown
-                data={demographics}
-                totalVotes={demographics.totalVotes}
-                title="დემოგრაფია მთელი კითხვისთვის"
-              />
-            )}
-
-            {q.answers?.map((ans) => {
-              const count = results?.answerCounts[ans.id] || 0;
-              const pct = results?.answerPercentages[ans.id] || 0;
-              const isTop = pct > 0 && pct === maxPct;
-              const answerDemographics = demographics?.answers.find((a) => a.id === ans.id);
-
-              return (
-                <S.ResultRow key={ans.id}>
-                  <S.ResultInfo>
-                    <S.ResultOptionText>{ans.text}</S.ResultOptionText>
-                    <S.ResultPercentageText>
-                      {pct}% ({count} ხმა)
-                    </S.ResultPercentageText>
-                  </S.ResultInfo>
-                  <S.ProgressBarTrack>
-                    <S.ProgressBarFill percentage={pct} isTop={isTop} />
-                  </S.ProgressBarTrack>
-
-                  {answerDemographics && answerDemographics.votes > 0 && (
-                    <DemographicsBreakdown
-                      data={answerDemographics}
-                      totalVotes={answerDemographics.votes}
-                      compact
-                      title="დემოგრაფიული ჩაშლა"
-                    />
-                  )}
-                </S.ResultRow>
-              );
-            })}
-          </S.ResultsContainer>
+          <S.ResultsContainer>{renderResultsDetails(false)}</S.ResultsContainer>
 
           <S.CardFooter>
             {hasVoted ? (
-              <S.ActionButton variant="outline" disabled style={{ opacity: 0.6, cursor: "not-allowed" }}>
-                <LockIcon size={16} /> ხმის შეცვლა შეუძლებელია
-              </S.ActionButton>
+              <>
+                <S.CardFooterActions>
+                  <S.ShareButton
+                    type="button"
+                    onClick={handleShareToFacebook}
+                    aria-label="გაზიარება Facebook-ზე"
+                    title="გაზიარება Facebook-ზე"
+                  >
+                    <FacebookIcon size={22} />
+                  </S.ShareButton>
+
+                  <S.ShareButton
+                    type="button"
+                    onClick={handleCopyLink}
+                    aria-label="ბმულის კოპირება"
+                    title="ბმულის კოპირება"
+                  >
+                    <LinkIcon size={20} />
+                  </S.ShareButton>
+
+                  <S.FavoriteButton
+                    type="button"
+                    active={isFavorite}
+                    disabled={favoriting}
+                    onClick={onToggleFavorite}
+                    aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+                    title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+                  >
+                    <StarIcon size={22} filled={isFavorite} />
+                  </S.FavoriteButton>
+                </S.CardFooterActions>
+
+                <S.ActionButton variant="outline" onClick={() => setDetailsOpen(true)}>
+                  <ChartIcon size={16} /> დეტალები
+                </S.ActionButton>
+              </>
             ) : (
               <S.ActionButton variant="outline" onClick={onToggleResults}>
                 <UndoIcon size={16} /> ხმის მიცემის ფორმაზე დაბრუნება
@@ -263,36 +305,20 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
         </>
       )}
 
-      <S.ShareRow>
-        <S.ShareButton
-          type="button"
-          onClick={handleShareToFacebook}
-          aria-label="გაზიარება Facebook-ზე"
-          title="გაზიარება Facebook-ზე"
-        >
-          <FacebookIcon size={22} />
-        </S.ShareButton>
+      {detailsOpen && (
+        <S.DetailsOverlay onClick={() => setDetailsOpen(false)}>
+          <S.DetailsModal onClick={(e) => e.stopPropagation()}>
+            <S.DetailsModalHeader>
+              <S.DetailsModalTitle>დეტალები</S.DetailsModalTitle>
+              <S.DetailsCloseButton onClick={() => setDetailsOpen(false)} aria-label="დახურვა">
+                <CloseIcon size={16} />
+              </S.DetailsCloseButton>
+            </S.DetailsModalHeader>
 
-        <S.ShareButton
-          type="button"
-          onClick={handleCopyLink}
-          aria-label="ბმულის კოპირება"
-          title="ბმულის კოპირება"
-        >
-          <LinkIcon size={20} />
-        </S.ShareButton>
-
-        <S.FavoriteButton
-          type="button"
-          active={isFavorite}
-          disabled={favoriting}
-          onClick={onToggleFavorite}
-          aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
-          title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
-        >
-          <StarIcon size={22} filled={isFavorite} />
-        </S.FavoriteButton>
-      </S.ShareRow>
+            <S.DetailsBody>{renderResultsDetails(true)}</S.DetailsBody>
+          </S.DetailsModal>
+        </S.DetailsOverlay>
+      )}
     </S.QuestionCardWrapper>
   );
 };

@@ -4,10 +4,11 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import { QuestionCard } from "@/components/shared/QuestionCard";
-import { FavoritesAPI, UserAnswerAPI } from "@/API_Client";
+import { FavoritesAPI, StatsAPI, UserAnswerAPI } from "@/API_Client";
 import { PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
+import { QuestionDemographics } from "@/types/demographics";
 import { ProfileLayout } from "./ProfileLayout";
 import { BallotIcon, LockIcon, StarIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
@@ -27,6 +28,7 @@ export const FavoritesComponent: React.FC = () => {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number[]>>({});
   const [viewResultsSet, setViewResultsSet] = useState<Record<number, boolean>>({});
   const [questionResults, setQuestionResults] = useState<Record<number, ParsedResult>>({});
+  const [questionDemographics, setQuestionDemographics] = useState<Record<number, QuestionDemographics>>({});
   const [submittingId, setSubmittingId] = useState<number | null>(null);
   const [votedQuestionIds, setVotedQuestionIds] = useState<Set<number>>(new Set());
 
@@ -43,6 +45,18 @@ export const FavoritesComponent: React.FC = () => {
     }
   };
 
+  // /stats/questions/:id/demographics საჯარო (public) endpoint-ია, ავტორიზაცია არ სჭირდება
+  const fetchSingleDemographics = async (q: Question) => {
+    try {
+      const res = await StatsAPI(router.locale || "ka", session?.accessToken || "").statsControllerGetQuestionDemographics(
+        String(q.id)
+      );
+      setQuestionDemographics((prev) => ({ ...prev, [q.id]: res.data as unknown as QuestionDemographics }));
+    } catch (err) {
+      console.log(`Could not fetch demographics for question ${q.id}:`, err);
+    }
+  };
+
   const fetchFavorites = async () => {
     if (!session?.accessToken) return;
     setLoadingFavorites(true);
@@ -56,7 +70,10 @@ export const FavoritesComponent: React.FC = () => {
       setFavorites(qList);
       setFavoritesMeta(data?.meta || null);
 
-      qList.forEach((q) => fetchSingleResults(q));
+      qList.forEach((q) => {
+        fetchSingleResults(q);
+        fetchSingleDemographics(q);
+      });
 
       try {
         const votedRes = await UserAnswerAPI(
@@ -163,6 +180,7 @@ export const FavoritesComponent: React.FC = () => {
       const isShowingResults = !!prev[q.id];
       if (!isShowingResults) {
         fetchSingleResults(q);
+        fetchSingleDemographics(q);
       }
       return { ...prev, [q.id]: !isShowingResults };
     });
@@ -220,6 +238,7 @@ export const FavoritesComponent: React.FC = () => {
                 hasVoted={hasVoted}
                 isShowingResults={isShowingResults}
                 results={questionResults[q.id]}
+                demographics={questionDemographics[q.id]}
                 chosenIds={selectedAnswers[q.id] || []}
                 submitting={submittingId === q.id}
                 isFavorite

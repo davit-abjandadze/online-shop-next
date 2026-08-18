@@ -16,6 +16,7 @@ import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, User
 import { Category, PaginationMetaDto, Question, User } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
+import { QuestionDemographics } from "@/types/demographics";
 import { BallotIcon, ChartIcon, CheckCircleIcon, ClipboardIcon, CloseIcon, FireIcon, GridOneIcon, GridTwoIcon, LockIcon, PinIcon, PlusIcon, SearchIcon, ShieldIcon, TagIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
@@ -61,6 +62,9 @@ export const HomeComponent: React.FC = () => {
 
   // Parsed results per questionId: { [questionId]: ParsedResult }
   const [questionResults, setQuestionResults] = useState<Record<number, ParsedResult>>({});
+
+  // Demographics per questionId: { [questionId]: QuestionDemographics }
+  const [questionDemographics, setQuestionDemographics] = useState<Record<number, QuestionDemographics>>({});
 
   // Loading state during voting submission
   const [submittingId, setSubmittingId] = useState<number | null>(null);
@@ -125,6 +129,18 @@ export const HomeComponent: React.FC = () => {
       setQuestionResults((prev) => ({ ...prev, [q.id]: parsed }));
     } catch (err: any) {
       console.log(`Could not fetch results for question ${q.id}:`, err);
+    }
+  };
+
+  // /stats/questions/:id/demographics საჯარო (public) endpoint-ია, ავტორიზაცია არ სჭირდება
+  const fetchSingleDemographics = async (q: Question) => {
+    try {
+      const res = await StatsAPI(router.locale || "ka", session?.accessToken || "").statsControllerGetQuestionDemographics(
+        String(q.id)
+      );
+      setQuestionDemographics((prev) => ({ ...prev, [q.id]: res.data as unknown as QuestionDemographics }));
+    } catch (err) {
+      console.log(`Could not fetch demographics for question ${q.id}:`, err);
     }
   };
 
@@ -277,6 +293,7 @@ export const HomeComponent: React.FC = () => {
 
         qList.forEach((q: any) => {
           fetchSingleResults(q);
+          fetchSingleDemographics(q);
         });
       }
 
@@ -437,6 +454,7 @@ export const HomeComponent: React.FC = () => {
       const question = res.data as Question;
       setPopularModalQuestion(question);
       fetchSingleResults(question);
+      fetchSingleDemographics(question);
     } catch (err) {
       console.error(`Could not fetch question ${questionId}:`, err);
       toast.error("კითხვის ჩატვირთვა ვერ მოხერხდა");
@@ -533,6 +551,7 @@ export const HomeComponent: React.FC = () => {
       setVotedQuestionIds((prev) => new Set(prev).add(q.id));
 
       await fetchSingleResults(q);
+      await fetchSingleDemographics(q);
       setViewResultsSet((prev) => ({ ...prev, [q.id]: true }));
     } catch (err: any) {
       console.error("Error submitting vote:", err);
@@ -597,6 +616,7 @@ export const HomeComponent: React.FC = () => {
       const isShowingResults = !!prev[q.id];
       if (!isShowingResults) {
         fetchSingleResults(q);
+        fetchSingleDemographics(q);
       }
       return { ...prev, [q.id]: !isShowingResults };
     });
@@ -1011,6 +1031,7 @@ export const HomeComponent: React.FC = () => {
                     hasVoted={hasVoted}
                     isShowingResults={isShowingResults}
                     results={questionResults[q.id]}
+                    demographics={questionDemographics[q.id]}
                     chosenIds={selectedAnswers[q.id] || []}
                     submitting={submittingId === q.id}
                     isFavorite={favoriteQuestionIds.has(q.id)}
@@ -1092,6 +1113,7 @@ export const HomeComponent: React.FC = () => {
                 votedQuestionIds.has(popularModalQuestion.id) || !!viewResultsSet[popularModalQuestion.id]
               }
               results={questionResults[popularModalQuestion.id]}
+              demographics={questionDemographics[popularModalQuestion.id]}
               chosenIds={selectedAnswers[popularModalQuestion.id] || []}
               submitting={submittingId === popularModalQuestion.id}
               isFavorite={favoriteQuestionIds.has(popularModalQuestion.id)}
