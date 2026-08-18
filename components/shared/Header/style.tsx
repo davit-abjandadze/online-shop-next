@@ -47,14 +47,14 @@ export const LogoBadge = styled.div`
   overflow: hidden;
 
   img {
-    height: 38px;
+    height: 68px;
     width: auto;
     object-fit: contain;
   }
 
   @media (max-width: 600px) {
     img {
-      height: 30px;
+      height: 50px;
     }
   }
 `;
