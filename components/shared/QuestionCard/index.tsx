@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 import { Question } from "@/API_Client/client/models";
 import { ParsedResult } from "@/utils/parseQuestionResults";
 import { QuestionDemographics } from "@/types/demographics";
@@ -11,6 +12,7 @@ import {
   CheckSquareIcon,
   FacebookIcon,
   HourglassIcon,
+  LinkIcon,
   LockIcon,
   PeopleIcon,
   RadioIcon,
@@ -89,11 +91,24 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   const isMultiple = q.type === "multiple";
   const maxPct = results ? Math.max(...Object.values(results.answerPercentages), 0) : 0;
 
-  const handleShareToFacebook = () => {
+  const getShareUrl = () => {
     const localePrefix = router.locale && router.locale !== "default" ? `/${router.locale}` : "";
-    const shareUrl = `${window.location.origin}${localePrefix}/questions/${q.id}`;
-    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+    return `${window.location.origin}${localePrefix}/questions/${q.id}`;
+  };
+
+  const handleShareToFacebook = () => {
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(getShareUrl())}`;
     window.open(fbShareUrl, "_blank", "noopener,noreferrer,width=600,height=600");
+  };
+
+  const handleCopyLink = async () => {
+    const shareUrl = getShareUrl();
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("ბმული დაკოპირებულია");
+    } catch {
+      toast.error("ბმულის დაკოპირება ვერ მოხერხდა");
+    }
   };
 
   return (
@@ -126,6 +141,15 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             title="გაზიარება Facebook-ზე"
           >
             <FacebookIcon size={22} />
+          </S.ShareButton>
+
+          <S.ShareButton
+            type="button"
+            onClick={handleCopyLink}
+            aria-label="ბმულის კოპირება"
+            title="ბმულის კოპირება"
+          >
+            <LinkIcon size={20} />
           </S.ShareButton>
 
           <S.FavoriteButton

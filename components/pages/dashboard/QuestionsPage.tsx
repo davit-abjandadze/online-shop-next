@@ -380,7 +380,7 @@ export const QuestionsPage: React.FC = () => {
           text: data.text.trim(),
           type: data.type as any,
           categoryIds: data.categoryIds && data.categoryIds.length > 0 ? data.categoryIds : undefined,
-        } as any
+        }
       );
 
       for (const delId of deletedAnswerIds) {

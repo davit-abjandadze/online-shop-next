@@ -658,10 +658,12 @@ export const PopularCategoryLabel = styled("span")`
 `;
 
 export const Container = styled("div")`
+  width: 100%;
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 24px 64px 24px;
   margin-top:34px;
+  flex: 1 0 auto;
 
   @media (max-width: 640px) {
     padding: 0 16px 64px 16px;
@@ -933,5 +935,7 @@ export const SkeletonFooter = styled("div")`
 export const PageBackground = styled("div")`
   background: var(--ref-bg);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   transition: background 0.2s ease;
 `;

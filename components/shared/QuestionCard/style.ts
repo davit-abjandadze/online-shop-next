@@ -61,11 +61,13 @@ export const ShareButton = styled("button")`
   border-radius: 50%;
   border: none;
   background: transparent;
+  color: var(--ref-text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
     background-color: var(--ref-bg-subtle);
+    color: var(--ref-primary);
   }
 `;
 
