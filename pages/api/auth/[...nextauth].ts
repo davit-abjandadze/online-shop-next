@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 import GoogleProvider from "next-auth/providers/google"; // ← ეს
-import FacebookProvider from "next-auth/providers/facebook"; // ← ახალი იმპორტი
+// import FacebookProvider from "next-auth/providers/facebook"; // ⚠️ დროებით გამორთულია (Facebook App ჯერ Development/Unpublished რეჟიმშია)
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -14,15 +14,16 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
 
-     FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
-      authorization: {
-        params: {
-          scope: 'email,public_profile', // ← აუცილებელია email-ის მისაღებად
-        },
-      },
-    }),
+    // ⚠️ დროებით გამორთულია Facebook Provider (Facebook App ჯერ Development/Unpublished რეჟიმშია)
+    // FacebookProvider({
+    //   clientId: process.env.FACEBOOK_CLIENT_ID!,
+    //   clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    //   authorization: {
+    //     params: {
+    //       scope: 'email,public_profile', // ← აუცილებელია email-ის მისაღებად
+    //     },
+    //   },
+    // }),
 
     CredentialsProvider({
       name: "credentials",

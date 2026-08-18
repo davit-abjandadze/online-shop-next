@@ -263,6 +263,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             >
               <GoogleIcon size={18} /> Google-ით შესვლა
             </button>
+            {/* ⚠️ დროებით გამორთულია Facebook-ით შესვლა (Facebook App ჯერ Development/Unpublished რეჟიმშია)
             <button
               type="button"
               onClick={() => signIn("facebook", { callbackUrl: "/" })}
@@ -284,6 +285,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             >
               <FacebookIcon size={18} /> Facebook-ით შესვლა
             </button>
+            */}
 
             <S.FormGroup>
               <S.Label>ელფოსტა</S.Label>
