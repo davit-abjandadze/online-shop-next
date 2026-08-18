@@ -42,6 +42,9 @@ export default class MyDocument extends Document {
     return (
       <Html lang={locale}>
         <Head>
+          <link rel="icon" href="/favicon.ico" sizes="any" />
+          <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+          <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
           {/* TODO: Add third-party scripts here (Analytics, GTM, etc.) */}
         </Head>
         <body>
