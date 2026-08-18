@@ -107,3 +107,10 @@ export const MadeWith = styled.span`
   align-items: center;
   gap: 6px;
 `;
+
+export const CounterWrapper = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  opacity: 0.6;
+`;

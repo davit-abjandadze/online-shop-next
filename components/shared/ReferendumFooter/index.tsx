@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import Script from "next/script";
 import { useSession } from "next-auth/react";
 import { BallotIcon } from "@/components/ui/RefIcons";
 import AuthModal from "@/components/shared/AuthModal";
@@ -73,6 +74,11 @@ export const ReferendumFooter: React.FC = () => {
             <BallotIcon size={16} /> თქვენი ხმა მნიშვნელოვანია
           </S.MadeWith>
         </S.Bottom>
+
+        {/* top.ge სტატისტიკის მთვლელი */}
+        <S.CounterWrapper>
+          <div id="top-ge-counter-container" data-site-id="118906" />
+        </S.CounterWrapper>
       </S.Container>
 
       <AuthModal
@@ -80,6 +86,8 @@ export const ReferendumFooter: React.FC = () => {
         onClose={() => setAuthModalOpen(false)}
         initialMode="login"
       />
+
+      <Script src="//counter.top.ge/counter.js" strategy="lazyOnload" />
     </S.FooterWrapper>
   );
 };
