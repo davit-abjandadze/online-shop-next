@@ -283,3 +283,19 @@ export const FacebookIcon: React.FC<RefIconProps> = ({ size = 18, className, sty
     />
   </svg>
 );
+
+/* Grid-view toggle: 2-სვეტიანი (side-by-side) და 1-სვეტიანი (სრულ სიგანეზე) განლაგება.
+   მონოქრომული, `currentColor`-ზეა აგებული, რომ ღილაკის active/inactive ფერი CSS-იდან იმართებოდეს. */
+export const GridTwoIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="3" y="4" width="8" height="16" rx="1.4" stroke="currentColor" strokeWidth="1.8" />
+    <rect x="13" y="4" width="8" height="16" rx="1.4" stroke="currentColor" strokeWidth="1.8" />
+  </svg>
+);
+
+export const GridOneIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="3" y="4" width="18" height="6.5" rx="1.4" stroke="currentColor" strokeWidth="1.8" />
+    <rect x="3" y="13.5" width="18" height="6.5" rx="1.4" stroke="currentColor" strokeWidth="1.8" />
+  </svg>
+);

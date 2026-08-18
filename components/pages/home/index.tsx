@@ -15,7 +15,7 @@ import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, User
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
-import { BallotIcon, ChartIcon, CheckCircleIcon, ClipboardIcon, CloseIcon, FireIcon, LockIcon, PinIcon, PlusIcon, SearchIcon, ShieldIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BallotIcon, ChartIcon, CheckCircleIcon, ClipboardIcon, CloseIcon, FireIcon, GridOneIcon, GridTwoIcon, LockIcon, PinIcon, PlusIcon, SearchIcon, ShieldIcon, TagIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 6;
@@ -76,6 +76,9 @@ export const HomeComponent: React.FC = () => {
   // Categories for filter
   const [categories, setCategories] = useState<Category[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+
+  // აქტიური კითხვების გრიდის ხედი — დეფოლტად 2-სვეტიანი (გვერდიგვერდ)
+  const [gridColumns, setGridColumns] = useState<1 | 2>(2);
 
   // Sorting: "activity" (ხმების რაოდენობით) იზომება კლიენტის მხარეს,
   // დანარჩენი (createdAt/endDate) ბექენდზე გადადის sortBy/order პარამეტრებით
@@ -847,6 +850,25 @@ export const HomeComponent: React.FC = () => {
           <S.SectionTitle>
             <ClipboardIcon size={24} /> აქტიური კითხვები
           </S.SectionTitle>
+
+          <S.GridViewToggle>
+            <S.GridViewButton
+              type="button"
+              active={gridColumns === 2}
+              aria-label="2 სვეტიანი ხედი"
+              onClick={() => setGridColumns(2)}
+            >
+              <GridTwoIcon size={16} />
+            </S.GridViewButton>
+            <S.GridViewButton
+              type="button"
+              active={gridColumns === 1}
+              aria-label="1 სვეტიანი ხედი"
+              onClick={() => setGridColumns(1)}
+            >
+              <GridOneIcon size={16} />
+            </S.GridViewButton>
+          </S.GridViewToggle>
         </S.SectionHeader>
 
         {/* Category Filter Bar + Sorting */}
@@ -886,7 +908,7 @@ export const HomeComponent: React.FC = () => {
         </S.FilterBar>
 
         {loading ? (
-          <S.QuestionsGrid>
+          <S.QuestionsGrid columns={gridColumns}>
             {Array.from({ length: QUESTIONS_PAGE_SIZE }).map((_, idx) => (
               <S.SkeletonCard key={idx}>
                 <S.SkeletonCardHeader>
@@ -942,7 +964,7 @@ export const HomeComponent: React.FC = () => {
           }
 
           return (
-            <S.QuestionsGrid>
+            <S.QuestionsGrid columns={gridColumns}>
               {filteredQuestions.map((q) => {
                 const hasVoted = votedQuestionIds.has(q.id);
                 const isShowingResults = hasVoted || !!viewResultsSet[q.id];

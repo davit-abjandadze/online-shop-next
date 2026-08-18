@@ -403,10 +403,14 @@ export const HeroStatLabel = styled("span")`
 `;
 
 export const PopularSection = styled("section")`
-  max-width: 960px;
+  max-width: 1180px;
   margin: 0 auto 24px auto;
-  padding: 0 16px;
+  padding: 0 24px;
   margin-top: 15px;
+
+  @media (max-width: 640px) {
+    padding: 0 16px;
+  }
 
   .swiper {
     /* ზედა padding საკმარისი უნდა იყოს PopularTrendingTag ბეიჯის
@@ -618,16 +622,22 @@ export const PopularCategoryLabel = styled("span")`
 `;
 
 export const Container = styled("div")`
-  max-width: 680px;
+  max-width: 1180px;
   margin: 0 auto;
-  padding: 0 16px 64px 16px;
+  padding: 0 24px 64px 24px;
+
+  @media (max-width: 640px) {
+    padding: 0 16px 64px 16px;
+  }
 `;
 
 export const SectionHeader = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   margin-bottom: 24px;
+  flex-wrap: wrap;
 `;
 
 export const SectionTitle = styled("h2")`
@@ -640,10 +650,51 @@ export const SectionTitle = styled("h2")`
   gap: 10px;
 `;
 
-export const QuestionsGrid = styled("div")`
+/* 1/2-სვეტიანი გრიდის გადამრთველი — დეფოლტად 2-სვეტიანია მონიშნული.
+   ვიწრო ეკრანებზე იმალება, რადგან იქ QuestionsGrid ისედაც 1 სვეტზეა იძულებული. */
+export const GridViewToggle = styled("div")`
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--ref-bg-subtle);
+  border: 1px solid var(--ref-border-soft);
+  flex-shrink: 0;
+
+  @media (max-width: 860px) {
+    display: none;
+  }
+`;
+
+export const GridViewButton = styled("button")<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  border: none;
+  background: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "transparent")};
+  color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-secondary)")};
+  box-shadow: ${({ active }) => (active ? "var(--ref-shadow-sm)" : "none")};
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--ref-primary);
+  }
+`;
+
+export const QuestionsGrid = styled("div")<{ columns?: 1 | 2 }>`
+  display: grid;
+  grid-template-columns: ${({ columns }) => (columns === 1 ? "1fr" : "repeat(2, 1fr)")};
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const PaginationBar = styled("div")`
