@@ -46,14 +46,14 @@ export const ProfileComponent: React.FC = () => {
     setLoadingUser(true);
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(session.user.id);
-      const u = res.data;
+      const u = res.data as User;
       setUser(u);
       setEmail(u.email || "");
       reset({
         firstName: u.firstName || "",
         lastName: u.lastName || "",
         age: u.age != null ? String(u.age) : "",
-        gender: (u.gender as any) || "",
+        gender: (u.gender || "") as ProfileEditFormValues["gender"],
       });
     } catch {
       toast.error("მომხმარებლის ინფორმაციის ჩატვირთვა ვერ მოხერხდა");
@@ -122,7 +122,7 @@ export const ProfileComponent: React.FC = () => {
           age: data.age?.trim() ? Number(data.age) : undefined,
         }
       );
-      setUser(res.data);
+      setUser(res.data as User);
       await updateSession({ name: `${data.firstName.trim()} ${data.lastName.trim()}` });
       toast.success("პროფილი წარმატებით განახლდა!");
     } catch (err: any) {
