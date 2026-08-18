@@ -4,14 +4,22 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserAPI } from "@/API_Client";
-import { User } from "@/API_Client/client/models";
-import { CloseIcon, EditIcon, PeopleIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { PaginationMetaDto, User } from "@/API_Client/client/models";
+import {
+  UsersControllerSearchGenderEnum,
+  UsersControllerSearchOrderEnum,
+  UsersControllerSearchRoleEnum,
+} from "@/API_Client/client/apis/users-api";
+import { CloseIcon, ClipboardIcon, EditIcon, PeopleIcon, PlusIcon, SearchIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { getPaginationRange } from "@/utils/getPaginationRange";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import { UserCreateFormValues, userCreateFormSchema, UserEditFormValues, userEditFormSchema } from "./schemas";
 import * as S from "./style";
+
+const USERS_PAGE_SIZE = 10;
 
 const emptyCreateForm: UserCreateFormValues = {
   firstName: "",
@@ -29,6 +37,37 @@ export const UsersPage: React.FC = () => {
 
   const [users, setUsers] = useState<User[]>([]);
   const [loadingU, setLoadingU] = useState<boolean>(true);
+  const [usersPage, setUsersPage] = useState<number>(1);
+  const [usersMeta, setUsersMeta] = useState<PaginationMetaDto | null>(null);
+
+  // ─── გაფართოებული ძიება/ფილტრები ────────────────────────────────────────────
+  const [searchText, setSearchText] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [filterRole, setFilterRole] = useState<string>("");
+  const [filterGender, setFilterGender] = useState<string>("");
+  const [filterSortBy, setFilterSortBy] = useState<string>("createdAt");
+  const [filterOrder, setFilterOrder] = useState<string>("DESC");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchText.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  useEffect(() => {
+    setUsersPage(1);
+  }, [debouncedSearch, filterRole, filterGender, filterSortBy, filterOrder]);
+
+  const hasActiveFilters =
+    debouncedSearch !== "" || filterRole !== "" || filterGender !== "" || filterSortBy !== "createdAt" || filterOrder !== "DESC";
+
+  const handleResetFilters = () => {
+    setSearchText("");
+    setFilterRole("");
+    setFilterGender("");
+    setFilterSortBy("createdAt");
+    setFilterOrder("DESC");
+    setUsersPage(1);
+  };
 
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
@@ -53,9 +92,18 @@ export const UsersPage: React.FC = () => {
     if (!session?.accessToken) return;
     setLoadingU(true);
     try {
-      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindAll();
+      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerSearch(
+        usersPage,
+        USERS_PAGE_SIZE,
+        filterSortBy || undefined,
+        (filterOrder || undefined) as UsersControllerSearchOrderEnum | undefined,
+        debouncedSearch || undefined,
+        (filterRole || undefined) as UsersControllerSearchRoleEnum | undefined,
+        (filterGender || undefined) as UsersControllerSearchGenderEnum | undefined
+      );
       const data = res.data as any;
-      setUsers(Array.isArray(data) ? data : []);
+      setUsers(Array.isArray(data?.data) ? data.data : []);
+      setUsersMeta(data?.meta || null);
     } catch {
       toast.error("მომხმარებლების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -68,7 +116,7 @@ export const UsersPage: React.FC = () => {
       fetchUsers();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.accessToken]);
+  }, [session?.accessToken, usersPage, debouncedSearch, filterRole, filterGender, filterSortBy, filterOrder]);
 
   const handleOpenCreate = () => {
     createForm.reset(emptyCreateForm);
@@ -160,6 +208,74 @@ export const UsersPage: React.FC = () => {
         </S.ActionButton>
       }
     >
+      <S.FilterBar>
+        <S.FilterBarHeader>
+          <S.FilterBarTitle>
+            <ClipboardIcon size={16} />
+            გაფართოებული ძიება
+            {hasActiveFilters && <S.FilterCountBadge>აქტიური</S.FilterCountBadge>}
+          </S.FilterBarTitle>
+          <S.FilterActions>
+            <S.ActionButton type="button" variant="secondary" onClick={handleResetFilters} disabled={!hasActiveFilters}>
+              <CloseIcon size={14} /> ფილტრის გასუფთავება
+            </S.ActionButton>
+          </S.FilterActions>
+        </S.FilterBarHeader>
+
+        <S.FilterGrid>
+          <S.FilterGroup>
+            <S.FilterLabel>ძიება</S.FilterLabel>
+            <S.SearchInputWrapper>
+              <SearchIcon size={16} />
+              <S.Input
+                type="text"
+                placeholder="სახელით, გვარით ან ელ. ფოსტით..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </S.SearchInputWrapper>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>როლი</S.FilterLabel>
+            <S.Select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}>
+              <option value="">ყველა</option>
+              <option value="admin">ადმინისტრატორი</option>
+              <option value="user">მომხმარებელი</option>
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>სქესი</S.FilterLabel>
+            <S.Select value={filterGender} onChange={(e) => setFilterGender(e.target.value)}>
+              <option value="">ყველა</option>
+              <option value="male">მამრობითი</option>
+              <option value="female">მდედრობითი</option>
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>დალაგება</S.FilterLabel>
+            <S.Select value={filterSortBy} onChange={(e) => setFilterSortBy(e.target.value)}>
+              <option value="createdAt">დამატების თარიღი</option>
+              <option value="firstName">სახელი</option>
+              <option value="lastName">გვარი</option>
+              <option value="email">ელ. ფოსტა</option>
+              <option value="role">როლი</option>
+              <option value="age">ასაკი</option>
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>მიმართულება</S.FilterLabel>
+            <S.Select value={filterOrder} onChange={(e) => setFilterOrder(e.target.value)}>
+              <option value="DESC">კლებადობით</option>
+              <option value="ASC">ზრდადობით</option>
+            </S.Select>
+          </S.FilterGroup>
+        </S.FilterGrid>
+      </S.FilterBar>
+
       {loadingU ? (
         <ListSkeleton count={3} />
       ) : users.length === 0 ? (
@@ -208,6 +324,30 @@ export const UsersPage: React.FC = () => {
             </S.QuestionCard>
           ))}
         </S.QuestionsList>
+      )}
+
+      {usersMeta && usersMeta.totalPages > 1 && (
+        <S.PaginationBar>
+          <S.PageButton onClick={() => setUsersPage((p) => Math.max(1, p - 1))} disabled={!usersMeta.hasPrevious}>
+            ←
+          </S.PageButton>
+
+          <S.PageNumbers>
+            {getPaginationRange(usersMeta.page, usersMeta.totalPages).map((item, idx) =>
+              item === "..." ? (
+                <S.PageEllipsis key={`ellipsis-${idx}`}>...</S.PageEllipsis>
+              ) : (
+                <S.PageNumberButton key={item} active={item === usersMeta.page} onClick={() => setUsersPage(item)}>
+                  {item}
+                </S.PageNumberButton>
+              )
+            )}
+          </S.PageNumbers>
+
+          <S.PageButton onClick={() => setUsersPage((p) => p + 1)} disabled={!usersMeta.hasNext}>
+            →
+          </S.PageButton>
+        </S.PaginationBar>
       )}
 
       {/* ═══ CREATE USER MODAL ═══════════════════════════════════════════════ */}

@@ -161,6 +161,69 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {UsersControllerSearchOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [search] საძიებო ტექსტი — ეძებს firstName, lastName და email ველებში (case-insensitive, ნაწილობრივი დამთხვევაც კმარა)
+         * @param {UsersControllerSearchRoleEnum} [role] გაფილტვრა როლის მიხედვით
+         * @param {UsersControllerSearchGenderEnum} [gender] გაფილტვრა სქესის მიხედვით
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerSearch: async (page?: number, limit?: number, sortBy?: string, order?: UsersControllerSearchOrderEnum, search?: string, role?: UsersControllerSearchRoleEnum, gender?: UsersControllerSearchGenderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/users/search`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (order !== undefined) {
+                localVarQueryParameter['order'] = order;
+            }
+
+            if (search !== undefined) {
+                localVarQueryParameter['search'] = search;
+            }
+
+            if (role !== undefined) {
+                localVarQueryParameter['role'] = role;
+            }
+
+            if (gender !== undefined) {
+                localVarQueryParameter['gender'] = gender;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @param {string} id 
          * @param {UpdateUserDto} updateUserDto 
          * @param {*} [options] Override http request option.
@@ -255,6 +318,24 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {UsersControllerSearchOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [search] საძიებო ტექსტი — ეძებს firstName, lastName და email ველებში (case-insensitive, ნაწილობრივი დამთხვევაც კმარა)
+         * @param {UsersControllerSearchRoleEnum} [role] გაფილტვრა როლის მიხედვით
+         * @param {UsersControllerSearchGenderEnum} [gender] გაფილტვრა სქესის მიხედვით
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async usersControllerSearch(page?: number, limit?: number, sortBy?: string, order?: UsersControllerSearchOrderEnum, search?: string, role?: UsersControllerSearchRoleEnum, gender?: UsersControllerSearchGenderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerSearch(page, limit, sortBy, order, search, role, gender, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerSearch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {string} id 
          * @param {UpdateUserDto} updateUserDto 
          * @param {*} [options] Override http request option.
@@ -309,6 +390,21 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
          */
         usersControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<object> {
             return localVarFp.usersControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {UsersControllerSearchOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [search] საძიებო ტექსტი — ეძებს firstName, lastName და email ველებში (case-insensitive, ნაწილობრივი დამთხვევაც კმარა)
+         * @param {UsersControllerSearchRoleEnum} [role] გაფილტვრა როლის მიხედვით
+         * @param {UsersControllerSearchGenderEnum} [gender] გაფილტვრა სქესის მიხედვით
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        usersControllerSearch(page?: number, limit?: number, sortBy?: string, order?: UsersControllerSearchOrderEnum, search?: string, role?: UsersControllerSearchRoleEnum, gender?: UsersControllerSearchGenderEnum, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.usersControllerSearch(page, limit, sortBy, order, search, role, gender, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -368,6 +464,22 @@ export class UsersApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {UsersControllerSearchOrderEnum} [order] დალაგების მიმართულება
+     * @param {string} [search] საძიებო ტექსტი — ეძებს firstName, lastName და email ველებში (case-insensitive, ნაწილობრივი დამთხვევაც კმარა)
+     * @param {UsersControllerSearchRoleEnum} [role] გაფილტვრა როლის მიხედვით
+     * @param {UsersControllerSearchGenderEnum} [gender] გაფილტვრა სქესის მიხედვით
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public usersControllerSearch(page?: number, limit?: number, sortBy?: string, order?: UsersControllerSearchOrderEnum, search?: string, role?: UsersControllerSearchRoleEnum, gender?: UsersControllerSearchGenderEnum, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerSearch(page, limit, sortBy, order, search, role, gender, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @param {string} id 
      * @param {UpdateUserDto} updateUserDto 
      * @param {*} [options] Override http request option.
@@ -378,3 +490,18 @@ export class UsersApi extends BaseAPI {
     }
 }
 
+export const UsersControllerSearchOrderEnum = {
+    Asc: 'ASC',
+    Desc: 'DESC',
+} as const;
+export type UsersControllerSearchOrderEnum = typeof UsersControllerSearchOrderEnum[keyof typeof UsersControllerSearchOrderEnum];
+export const UsersControllerSearchRoleEnum = {
+    Admin: 'admin',
+    User: 'user',
+} as const;
+export type UsersControllerSearchRoleEnum = typeof UsersControllerSearchRoleEnum[keyof typeof UsersControllerSearchRoleEnum];
+export const UsersControllerSearchGenderEnum = {
+    Male: 'male',
+    Female: 'female',
+} as const;
+export type UsersControllerSearchGenderEnum = typeof UsersControllerSearchGenderEnum[keyof typeof UsersControllerSearchGenderEnum];
