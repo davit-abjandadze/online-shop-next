@@ -27,3 +27,28 @@ export const categoryFormSchema = z.object({
 });
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
+
+/** მომხმარებლის შექმნის ფორმის ვალიდაციის სქემა. */
+export const userCreateFormSchema = z.object({
+  firstName: z.string().trim().min(1, "გთხოვთ შეავსოთ სახელი"),
+  lastName: z.string().trim().min(1, "გთხოვთ შეავსოთ გვარი"),
+  email: z.string().trim().min(1, "გთხოვთ შეავსოთ ელ. ფოსტა").email("არასწორი ელ. ფოსტის ფორმატი"),
+  password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
+  role: z.enum(["admin", "user"]),
+  gender: z.enum(["male", "female"]).optional().or(z.literal("")),
+  age: z.string().optional(),
+});
+
+export type UserCreateFormValues = z.infer<typeof userCreateFormSchema>;
+
+/** მომხმარებლის რედაქტირების ფორმის ვალიდაციის სქემა (პაროლის გარეშე). */
+export const userEditFormSchema = z.object({
+  firstName: z.string().trim().min(1, "გთხოვთ შეავსოთ სახელი"),
+  lastName: z.string().trim().min(1, "გთხოვთ შეავსოთ გვარი"),
+  email: z.string().trim().min(1, "გთხოვთ შეავსოთ ელ. ფოსტა").email("არასწორი ელ. ფოსტის ფორმატი"),
+  role: z.enum(["admin", "user"]),
+  gender: z.enum(["male", "female"]).optional().or(z.literal("")),
+  age: z.string().optional(),
+});
+
+export type UserEditFormValues = z.infer<typeof userEditFormSchema>;
