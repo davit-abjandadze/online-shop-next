@@ -1,5 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import Header from '@/components/shared/Header';
+import ReferendumFooter from '@/components/shared/ReferendumFooter';
 
 // --- Styled Components Definition ---
 
@@ -24,7 +26,7 @@ const Container = styled.div`
   }
 `;
 
-const Header = styled.header`
+const PageHeader = styled.header`
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 20px;
   margin-bottom: 30px;
@@ -106,7 +108,7 @@ const ListItem = styled.li`
   font-size: 0.98rem;
 `;
 
-const Footer = styled.footer`
+const PageFooter = styled.footer`
   margin-top: 40px;
   padding-top: 20px;
   border-top: 1px solid #e2e8f0;
@@ -119,8 +121,10 @@ const Footer = styled.footer`
 
 export const TermsAndConditions = () => {
   return (
-    <Container>
-      <Header>
+    <>
+      <Header />
+      <Container>
+      <PageHeader>
         <Title>წესები და პირობები (Terms and Conditions)</Title>
         <MetaInfo>
           <MetaItem>
@@ -130,7 +134,7 @@ export const TermsAndConditions = () => {
             <strong>ბოლო განახლების თარიღი:</strong> 18 აგვისტო, 2026 წელი
           </MetaItem>
         </MetaInfo>
-      </Header>
+      </PageHeader>
 
       <IntroBox>
         <p>
@@ -243,10 +247,12 @@ export const TermsAndConditions = () => {
         </Paragraph>
       </Section>
 
-      <Footer>
+      <PageFooter>
         &copy; 2026 Evote.ge - ყველა უფლება დაცულია.
-      </Footer>
-    </Container>
+      </PageFooter>
+      </Container>
+      <ReferendumFooter />
+    </>
   );
 };
 

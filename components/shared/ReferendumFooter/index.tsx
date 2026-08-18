@@ -19,7 +19,7 @@ export const ReferendumFooter: React.FC = () => {
               </S.BrandSubtitle>
             </S.BrandText>
           </S.Brand>
-
+{/* 
           <S.LinksGroup>
             <S.LinkColumn>
               <S.LinkColumnTitle>ნავიგაცია</S.LinkColumnTitle>
@@ -43,7 +43,7 @@ export const ReferendumFooter: React.FC = () => {
                 <S.FooterLink>პაროლის შეცვლა</S.FooterLink>
               </Link>
             </S.LinkColumn>
-          </S.LinksGroup>
+          </S.LinksGroup> */}
         </S.Top>
 
         <S.Bottom>
