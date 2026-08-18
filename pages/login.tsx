@@ -9,7 +9,7 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F7F8FA" }}>
       <Head>
-        <title>ავტორიზაცია - სახალხო რეფერენდუმი</title>
+        <title>ავტორიზაცია - საზოგადოებრივი აზრის პლატფორმა</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <Header onOpenAuth={() => setModalOpen(true)} />

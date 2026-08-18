@@ -18,7 +18,7 @@ export default function NotFound() {
       }}
     >
       <Head>
-        <title>გვერდი ვერ მოიძებნა - სახალხო რეფერენდუმი</title>
+        <title>გვერდი ვერ მოიძებნა - საზოგადოებრივი აზრის პლატფორმა</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <BallotIcon size={56} />

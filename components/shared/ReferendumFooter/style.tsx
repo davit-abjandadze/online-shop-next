@@ -29,8 +29,8 @@ export const Brand = styled.div`
 `;
 
 export const BrandBadge = styled.div`
-  width: 36px;
-  height: 36px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--ref-primary);
   flex-shrink: 0;

@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
 
   const headTags = (
     <Head>
-      <title>პაროლის აღდგენა - სახალხო რეფერენდუმი</title>
+      <title>პაროლის აღდგენა - საზოგადოებრივი აზრის პლატფორმა</title>
       <meta name="robots" content="noindex, nofollow" />
     </Head>
   );

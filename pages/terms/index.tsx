@@ -8,6 +8,7 @@ import ReferendumFooter from '@/components/shared/ReferendumFooter';
 const Container = styled.div`
   max-width: 800px;
   margin: 0 auto;
+  margin-top: 40px;
   background: #ffffff;
   padding: 40px;
   border-radius: 12px;
@@ -168,7 +169,7 @@ export const TermsAndConditions = () => {
       <Section>
         <SectionTitle>3. რეგისტრაცია, ანგარიშის უსაფრთხოება და იდენტიფიკაცია</SectionTitle>
         <Paragraph>
-          <strong>3.1.</strong> რეგისტრაცია შესაძლებელია როგორც ელ-ფოსტითა და პაროლით, ასევე მესამე მხარის სერვისებით (OAuth — Google, Facebook).
+          <strong>3.1.</strong> რეგისტრაცია შესაძლებელია როგორც ელ-ფოსტითა და პაროლით, ასევე მესამე მხარის სერვისებით (OAuth — Google).
         </Paragraph>
         <Paragraph>
           <strong>3.2.</strong> მომხმარებელი ვალდებულია რეგისტრაციისას მიუთითოს რეალური და უტყუარი მონაცემები (მათ შორის: რეგიონი, ქალაქი, ასაკი/დაბადების თარიღი, სქესი), რაც აუცილებელია დემოგრაფიული და გეოგრაფიული შეზღუდვების მქონე გამოკითხვებში მონაწილეობისთვის.

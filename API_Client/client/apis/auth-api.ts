@@ -83,36 +83,6 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
         },
         /**
          * 
-         * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        authControllerFacebookLogin: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/auth/facebook`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            localVarHeaderParameter['Accept'] = 'application/json';
-
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
          * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
          * @param {ForgotPasswordDto} forgotPasswordDto 
          * @param {*} [options] Override http request option.
@@ -369,18 +339,6 @@ export const AuthApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async authControllerFacebookLogin(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoginResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerFacebookLogin(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AuthApi.authControllerFacebookLogin']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
          * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
          * @param {ForgotPasswordDto} forgotPasswordDto 
          * @param {*} [options] Override http request option.
@@ -488,15 +446,6 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
         },
         /**
          * 
-         * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        authControllerFacebookLogin(options?: RawAxiosRequestConfig): AxiosPromise<LoginResponseDto> {
-            return localVarFp.authControllerFacebookLogin(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
          * @summary პაროლის აღდგენის მოთხოვნა (email-ის გაგზავნა)
          * @param {ForgotPasswordDto} forgotPasswordDto 
          * @param {*} [options] Override http request option.
@@ -578,16 +527,6 @@ export class AuthApi extends BaseAPI {
      */
     public authControllerChangePassword(changePasswordDto: ChangePasswordDto, options?: RawAxiosRequestConfig) {
         return AuthApiFp(this.configuration).authControllerChangePassword(changePasswordDto, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Facebook-ით ავტორიზაცია/რეგისტრაცია
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public authControllerFacebookLogin(options?: RawAxiosRequestConfig) {
-        return AuthApiFp(this.configuration).authControllerFacebookLogin(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -23,7 +23,7 @@ const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => 
     return (
       <>
         <Head>
-          <title>კითხვა ვერ მოიძებნა - სახალხო რეფერენდუმი</title>
+          <title>კითხვა ვერ მოიძებნა - საზოგადოებრივი აზრის პლატფორმა</title>
         </Head>
         <main style={{ padding: "100px 20px", textAlign: "center" }}>
           <p style={{ fontSize: 18 }}>მოთხოვნილი კითხვა ვერ მოიძებნა.</p>
@@ -32,7 +32,7 @@ const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => 
     );
   }
 
-  const title = truncate(`${question.text} — სახალხო რეფერენდუმი`, 95);
+  const title = truncate(`${question.text} — საზოგადოებრივი აზრის პლატფორმა`, 95);
   const description = question.category?.name
     ? `კატეგორია: ${question.category.name}. მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.`
     : "მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.";

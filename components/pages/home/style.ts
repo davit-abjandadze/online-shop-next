@@ -375,10 +375,10 @@ export const PaginationBar = styled("div")`
 `;
 
 export const PageButton = styled("button")`
-  padding: 8px 16px;
+  padding: 7px 10px 10px 10px;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
   border: 1px solid var(--ref-border);

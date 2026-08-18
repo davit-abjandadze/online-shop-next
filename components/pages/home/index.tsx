@@ -605,7 +605,7 @@ export const HomeComponent: React.FC = () => {
 
       {/* Hero Banner */}
       <S.HeroSection>
-        <S.HeroTitle><BallotIcon size={32} /> სახალხო რეფერენდუმი</S.HeroTitle>
+        <S.HeroTitle><BallotIcon size={32} /> </S.HeroTitle>
         <S.HeroSubtitle>
           დააფიქსირეთ თქვენი პოზიცია მნიშვნელოვან საკითხებზე და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.
         </S.HeroSubtitle>
