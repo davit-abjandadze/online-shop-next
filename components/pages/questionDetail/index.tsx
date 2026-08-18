@@ -9,7 +9,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import CompleteProfileModal from "@/components/shared/CompleteProfileModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
 import { FavoritesAPI, StatsAPI, UserAnswerAPI, UserAPI } from "@/API_Client";
-import { Question } from "@/API_Client/client/models";
+import { Question, User } from "@/API_Client/client/models";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
 import { QuestionDemographics } from "@/types/demographics";
 import * as S from "@/components/pages/home/style";
@@ -107,8 +107,8 @@ export const QuestionDetailComponent: React.FC<QuestionDetailProps> = ({ questio
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(
         session.user.id
       );
-      const u = res.data;
-      return u.age != null && !!u.gender;
+      const u = res.data as User;
+      return u.age != null && u.gender != null;
     } catch {
       // თუ პროფილის შემოწმება ვერ მოხერხდა, ხმის მიცემას არ ვბლოკავთ
       return true;
