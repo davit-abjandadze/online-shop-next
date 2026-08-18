@@ -15,7 +15,7 @@ import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, User
 import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
-import { BallotIcon, ClipboardIcon, CloseIcon, FireIcon, PinIcon, PlusIcon, SearchIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BallotIcon, ChartIcon, CheckCircleIcon, ClipboardIcon, CloseIcon, FireIcon, LockIcon, PinIcon, PlusIcon, SearchIcon, ShieldIcon, TagIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 const QUESTIONS_PAGE_SIZE = 6;
@@ -605,23 +605,69 @@ export const HomeComponent: React.FC = () => {
 
       {/* Hero Banner */}
       <S.HeroSection>
-        <S.HeroTitle><BallotIcon size={32} /> </S.HeroTitle>
-        <S.HeroSubtitle>
-          დააფიქსირეთ თქვენი პოზიცია მნიშვნელოვან საკითხებზე და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.
-        </S.HeroSubtitle>
-        <S.HeroCTAButton
-          type="button"
-          onClick={() => {
-            if (status === "authenticated") {
-              router.push("/questions/ask");
-            } else {
-              toast.info("კითხვის დასამატებლად გთხოვთ გაიაროთ ავტორიზაცია");
-              setAuthModalOpen(true);
-            }
-          }}
-        >
-          <PlusIcon size={16} /> დასვით საკუთარი კითხვა
-        </S.HeroCTAButton>
+        <S.HeroContent>
+          <S.HeroEyebrow>
+            <CheckCircleIcon size={14} /> სანდო ციფრული გამოკითხვის პლატფორმა
+          </S.HeroEyebrow>
+
+          <S.HeroTitle>შენი ხმა. შენი გადაწყვეტილება.</S.HeroTitle>
+
+          <S.HeroSubtitle>
+            დააფიქსირეთ თქვენი პოზიცია მნიშვნელოვან საკითხებზე და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.
+          </S.HeroSubtitle>
+
+          <S.HeroButtonRow>
+            <S.HeroCTAButton
+              type="button"
+              onClick={() => {
+                if (status === "authenticated") {
+                  router.push("/questions/ask");
+                } else {
+                  toast.info("კითხვის დასამატებლად გთხოვთ გაიაროთ ავტორიზაცია");
+                  setAuthModalOpen(true);
+                }
+              }}
+            >
+              <PlusIcon size={16} /> დასვით საკუთარი კითხვა
+            </S.HeroCTAButton>
+            <S.HeroSecondaryButton href="#active-questions">
+              <BallotIcon size={16} /> აქტიური კითხვების დათვალიერება
+            </S.HeroSecondaryButton>
+          </S.HeroButtonRow>
+
+          <S.HeroTrustRow>
+            <S.HeroTrustItem>
+              <ShieldIcon size={18} /> ანონიმური ხმა
+            </S.HeroTrustItem>
+            <S.HeroTrustItem>
+              <LockIcon size={18} /> დაცული მონაცემები
+            </S.HeroTrustItem>
+            <S.HeroTrustItem>
+              <ChartIcon size={18} /> გამჭვირვალე შედეგები
+            </S.HeroTrustItem>
+          </S.HeroTrustRow>
+        </S.HeroContent>
+
+        {/* აბსტრაქტული ბალოთ/დემოგრაფიის მოტივი — არა ჰოლოგრამა/AI ხელი */}
+        <S.HeroVisual>
+          <S.HeroVisualBlob />
+          <BallotIcon size={140} style={{ position: "relative", filter: "drop-shadow(0 8px 18px rgba(26, 86, 219, 0.22))" }} />
+
+          <S.HeroFloatingCard>
+            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--ref-text-secondary)" }}>შედეგები</span>
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 48 }}>
+              <div style={{ width: 12, height: "55%", borderRadius: 4, background: "#0891b2" }} />
+              <div style={{ width: 12, height: "100%", borderRadius: 4, background: "var(--ref-primary)" }} />
+              <div style={{ width: 12, height: "70%", borderRadius: 4, background: "#0891b2" }} />
+              <div style={{ width: 12, height: "40%", borderRadius: 4, background: "var(--ref-border)" }} />
+            </div>
+          </S.HeroFloatingCard>
+
+          <S.HeroFloatingBadge>
+            <CheckCircleIcon size={24} />
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--ref-text-primary)" }}>ხმა დამოწმებულია</span>
+          </S.HeroFloatingBadge>
+        </S.HeroVisual>
       </S.HeroSection>
 
       {/* Popular Active Questions Slider */}
@@ -767,7 +813,7 @@ export const HomeComponent: React.FC = () => {
         </S.PopularSection>
       )}
 
-      <S.Container>
+      <S.Container id="active-questions">
         <S.SectionHeader>
           <S.SectionTitle>
             <ClipboardIcon size={24} /> აქტიური კითხვები

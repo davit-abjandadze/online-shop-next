@@ -7,6 +7,7 @@ export const FilterBar = styled("div")`
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 28px;
+  max-width: 100%;
 `;
 
 export const FilterChips = styled("div")`
@@ -19,7 +20,8 @@ export const SortControl = styled("div")`
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
 `;
 
 export const SortLabel = styled("span")`
@@ -33,6 +35,11 @@ export const SortSelect = styled("select")`
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding: 6px 30px 6px 14px;
   border-radius: 999px;
   border: 2px solid var(--ref-border-soft);
@@ -85,26 +92,56 @@ export const FilterChip = styled("button")<{ active?: boolean }>`
 `;
 
 export const HeroSection = styled("section")`
-  background: linear-gradient(135deg, var(--ref-primary) 0%, var(--ref-primary-hover) 100%);
-  color: var(--ref-text-on-primary);
-  padding: 44px 24px;
-  text-align: center;
-  margin-bottom: 24px;
+  max-width: 1120px;
+  margin: 0 auto 40px auto;
+  padding: 56px 24px 48px 24px;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  gap: 48px;
   border-bottom: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    padding: 40px 20px 32px 20px;
+    gap: 32px;
+  }
+`;
+
+export const HeroContent = styled("div")`
   display: flex;
   flex-direction: column;
+  gap: 20px;
+
+  @media (max-width: 900px) {
+     gap: 10px;
+  }
+`;
+
+export const HeroEyebrow = styled("div")`
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  padding: 6px 14px;
+  background: var(--ref-primary-soft);
+  border-radius: 20px;
+  width: fit-content;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-primary);
+
+   @media (max-width: 900px) {
+    display: none;
+  }
 `;
 
 export const HeroTitle = styled("h1")`
-  font-size: 28px;
+  font-size: 40px;
+  line-height: 1.15;
   font-weight: 800;
   margin: 0;
-  color: var(--ref-text-on-primary);
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  color: var(--ref-text-primary);
+  letter-spacing: -0.5px;
 
   @media (max-width: 640px) {
     font-size: 22px;
@@ -112,30 +149,166 @@ export const HeroTitle = styled("h1")`
 `;
 
 export const HeroSubtitle = styled("p")`
-  font-size: 15px;
-  color: rgba(255, 255, 255, 0.9);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.5;
+  font-size: 16px;
+  color: var(--ref-text-secondary);
+  max-width: 460px;
+  margin: 0;
+  line-height: 1.55;
+  @media (max-width: 640px) {
+    font-size: 13px;
+  }
+`;
+
+export const HeroButtonRow = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
 `;
 
 export const HeroCTAButton = styled("button")`
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 4px;
-  padding: 10px 20px;
+  height: 48px;
+  padding: 0 22px;
   border-radius: 8px;
   border: none;
-  background: var(--ref-bg-elevated);
-  color: var(--ref-primary);
-  font-size: 14px;
+  background: var(--ref-primary);
+  color: var(--ref-text-on-primary);
+  font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--ref-primary-hover);
+  }
+
+  
+   @media (max-width: 900px) {
+      height: 38px;
+  font-size: 13px;
+
+  }
+`;
+
+export const HeroSecondaryButton = styled("a")`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 8px;
+  border: 1px solid var(--ref-border);
+  background: transparent;
+  color: var(--ref-text-primary);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: var(--ref-bg-subtle);
+    border-color: var(--ref-primary);
+  }
+  
+   @media (max-width: 900px) {
+      height: 38px;
+  font-size: 13px;
+
+  }
+`;
+
+export const HeroTrustRow = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ref-border-soft);
+    @media (max-width: 900px) {
+      border-top: none;
+       margin-top: 0;
+  padding-top: 0;
+
+  }
+`;
+
+export const HeroTrustItem = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+`;
+
+/* Hero illustration: abstract ballot / data-viz motif — deliberately not
+   a literal hand or hologram (see design discussion) */
+export const HeroVisual = styled("div")`
+  position: relative;
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 900px) {
+    height: 260px;
+    display: none;
+  }
+`;
+
+export const HeroVisualBlob = styled("div")`
+  position: absolute;
+  width: 320px;
+  height: 320px;
+  border-radius: 28px;
+  background: var(--ref-primary-soft);
+  background-image: radial-gradient(var(--ref-border) 1px, transparent 1px);
+  background-size: 16px 16px;
+  background-position: center;
+
+  @media (max-width: 900px) {
+    width: 240px;
+    height: 240px;
+  }
+`;
+
+export const HeroFloatingCard = styled("div")`
+  position: absolute;
+  top: 12px;
+  right: 0;
+  width: 128px;
+  background: var(--ref-bg-elevated);
+  border-radius: 12px;
+  box-shadow: var(--ref-shadow-lg);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  @media (max-width: 900px) {
+    display: none;
+  }
+`;
+
+export const HeroFloatingBadge = styled("div")`
+  position: absolute;
+  bottom: 16px;
+  left: -8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ref-bg-elevated);
+  border-radius: 999px;
+  box-shadow: var(--ref-shadow-md);
+  padding: 10px 16px 10px 10px;
+
+  @media (max-width: 900px) {
+    left: 4px;
   }
 `;
 

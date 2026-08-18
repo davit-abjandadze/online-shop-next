@@ -146,7 +146,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
               </>
             ) : (
               <S.LoginBtn onClick={() => handleOpenLogin("login")} type="button">
-                <UserIcon size={18} style={{ filter: "brightness(0) invert(1)" }} /> შესვლა / ავტორიზაცია
+                <UserIcon size={18} style={{ filter: "brightness(0) invert(1)" }} /> შესვლა
+                <S.LoginBtnFullLabel> / ავტორიზაცია</S.LoginBtnFullLabel>
               </S.LoginBtn>
             )}
           </S.LeftSection>

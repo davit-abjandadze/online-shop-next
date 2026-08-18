@@ -50,6 +50,12 @@ export const LogoBadge = styled.div`
     height: 40px;
     object-fit: cover;
   }
+
+  @media (max-width: 600px) {
+    img {
+      height: 30px;
+    }
+  }
 `;
 
 export const LeftSection = styled.div`
@@ -89,11 +95,25 @@ export const LoginBtn = styled.button`
   border-radius: 8px;
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 0.15s ease;
+  flex-shrink: 0;
 
   &:hover {
     background: var(--ref-primary-hover);
+  }
+
+  @media (max-width: 420px) {
+    padding: 8px 12px;
+  }
+`;
+
+/* "/ ავტორიზაცია" იკუმშება ვიწრო ეკრანებზე, თორემ ღილაკის სრული ტექსტი
+   ჰედერის სივრცეს გადადის და გვერდს ჰორიზონტალურად ავრცელებს */
+export const LoginBtnFullLabel = styled.span`
+  @media (max-width: 420px) {
+    display: none;
   }
 `;
 
@@ -137,6 +157,11 @@ export const ProfileName = styled.span`
   font-size: 14px;
   font-weight: 600;
   color: var(--ref-text-primary);
+  white-space: nowrap;
+  text-overflow: ellipsis;  overflow: hidden;
+  @media (max-width: 600px) {
+    max-width: 70px;
+  }
 `;
 
 export const DropdownMenu = styled.div`
