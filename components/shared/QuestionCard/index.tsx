@@ -114,7 +114,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
   return (
     <S.QuestionCardWrapper id={`question-${q.id}`}>
       <S.CardTop>
-        <div>
+        <S.CardTopContent>
           <S.QuestionText>{q.text}</S.QuestionText>
           {/* <S.Badge variant={isMultiple ? "multiple" : "single"}>
             {isMultiple ? <CheckSquareIcon size={14} /> : <RadioIcon size={14} />}
@@ -131,7 +131,7 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
               <CheckCircleIcon size={14} /> თქვენ უკვე მიეცით ხმა
             </S.Badge>
           )}
-        </div>
+        </S.CardTopContent>
 
         <S.CardTopActions>
           <S.ShareButton
@@ -262,6 +262,37 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
           </S.CardFooter>
         </>
       )}
+
+      <S.ShareRow>
+        <S.ShareButton
+          type="button"
+          onClick={handleShareToFacebook}
+          aria-label="გაზიარება Facebook-ზე"
+          title="გაზიარება Facebook-ზე"
+        >
+          <FacebookIcon size={22} />
+        </S.ShareButton>
+
+        <S.ShareButton
+          type="button"
+          onClick={handleCopyLink}
+          aria-label="ბმულის კოპირება"
+          title="ბმულის კოპირება"
+        >
+          <LinkIcon size={20} />
+        </S.ShareButton>
+
+        <S.FavoriteButton
+          type="button"
+          active={isFavorite}
+          disabled={favoriting}
+          onClick={onToggleFavorite}
+          aria-label={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+          title={isFavorite ? "წაშლა ფავორიტებიდან" : "დამატება ფავორიტებში"}
+        >
+          <StarIcon size={22} filled={isFavorite} />
+        </S.FavoriteButton>
+      </S.ShareRow>
     </S.QuestionCardWrapper>
   );
 };

@@ -19,6 +19,15 @@ export const CardTop = styled("div")`
   align-items: flex-start;
   gap: 16px;
   margin-bottom: 16px;
+
+  @media (max-width: 480px) {
+    gap: 8px;
+  }
+`;
+
+export const CardTopContent = styled("div")`
+  min-width: 0;
+  flex: 1 1 auto;
 `;
 
 export const FavoriteButton = styled("button")<{ active?: boolean }>`
@@ -42,6 +51,11 @@ export const FavoriteButton = styled("button")<{ active?: boolean }>`
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+  }
 `;
 
 export const CardTopActions = styled("div")`
@@ -49,6 +63,10 @@ export const CardTopActions = styled("div")`
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+
+  @media (max-width: 480px) {
+    display: none;
+  }
 `;
 
 export const ShareButton = styled("button")`
@@ -69,6 +87,11 @@ export const ShareButton = styled("button")`
     background-color: var(--ref-bg-subtle);
     color: var(--ref-primary);
   }
+
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+  }
 `;
 
 export const QuestionText = styled("h3")`
@@ -77,6 +100,12 @@ export const QuestionText = styled("h3")`
   color: var(--ref-text-primary);
   margin: 0 0 8px 0;
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: break-word;
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 export const Badge = styled("span")<{ variant?: "single" | "multiple" | "countdown" | "expired" | "category" }>`
@@ -334,6 +363,20 @@ export const CardFooter = styled("div")`
   padding-top: 12px;
   margin-top: 4px;
   border-top: 1px solid var(--ref-border-soft);
+`;
+
+export const ShareRow = styled("div")`
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 480px) {
+    display: flex;
+  }
 `;
 
 export const ActionButton = styled("button")<{ variant?: "primary" | "secondary" | "outline" }>`
