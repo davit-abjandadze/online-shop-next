@@ -9,6 +9,7 @@ import ReferendumFooter from "@/components/shared/ReferendumFooter";
 import AuthModal from "@/components/shared/AuthModal";
 import CompleteProfileModal from "@/components/shared/CompleteProfileModal";
 import { QuestionCard } from "@/components/shared/QuestionCard";
+import Dropdown from "@/components/shared/Dropdown";
 import MobilePopup from "@/components/ui/MobilePopup";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
 import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, UserAPI } from "@/API_Client";
@@ -702,8 +703,9 @@ export const HomeComponent: React.FC = () => {
         </S.HeroStatsStrip>
       </S.HeroSection>
 
-      {/* Popular Active Questions Slider */}
-      {!loadingPopular && popularQuestions.length > 0 && (() => {
+      {/* Popular Active Questions Slider — მინიმუმ 3 პოპულარული კითხვა უნდა
+          იყოს, თორემ სექცია (და მისი slider ნავიგაცია) აზრს კარგავს */}
+      {!loadingPopular && popularQuestions.length >= 3 && (() => {
         const maxVotes = Math.max(...popularQuestions.map((pq) => pq.votes), 1);
 
         return (
@@ -873,7 +875,25 @@ export const HomeComponent: React.FC = () => {
 
         {/* Category Filter Bar + Sorting */}
         <S.FilterBar>
-          {categories.length > 0 ? (
+          {categories.length > 4 ? (
+            // 5-ზე მეტი კატეგორიის შემთხვევაში ჩიპები დიდ სივრცეს დაიკავებდა
+            // და ბადრაგად "დაითიშებოდა" — ამის ნაცვლად ლამაზ, კასტომ
+            // ჩამოსაშლელს ვიტანთ (ბუნებრივი <select>-ის ჩამოშლილი სია
+            // CSS-ით სრულად კონტროლდებადი არაა)
+            <S.CategorySelectWrap>
+              <S.SortLabel>კატეგორია:</S.SortLabel>
+              <Dropdown
+                ariaLabel="კატეგორია"
+                minWidth={170}
+                value={activeCategoryId === null ? "all" : String(activeCategoryId)}
+                onChange={(val) => handleCategorySelect(val === "all" ? null : Number(val))}
+                options={[
+                  { value: "all", label: "ყველა კატეგორია" },
+                  ...categories.map((cat) => ({ value: String(cat.id), label: cat.name })),
+                ]}
+              />
+            </S.CategorySelectWrap>
+          ) : categories.length > 0 ? (
             <S.FilterChips>
               <S.FilterChip active={activeCategoryId === null} onClick={() => handleCategorySelect(null)}>
                 <BallotIcon size={16} /> ყველა
@@ -894,16 +914,19 @@ export const HomeComponent: React.FC = () => {
 
           <S.SortControl>
             <S.SortLabel>დალაგება:</S.SortLabel>
-            <S.SortSelect
+            <Dropdown
+              ariaLabel="დალაგება"
+              minWidth={200}
               value={sortOption}
-              onChange={(e) => handleSortChange(e.target.value as typeof sortOption)}
-            >
-              <option value="createdAt_DESC">უახლესი დამატებული</option>
-              <option value="createdAt_ASC">ძველი დამატებული</option>
-              <option value="endDate_ASC">მალე დასრულებადი</option>
-              <option value="activity_DESC">ყველაზე აქტიური (ხმებით)</option>
-              <option value="activity_ASC">ყველაზე ნაკლებად აქტიური</option>
-            </S.SortSelect>
+              onChange={(val) => handleSortChange(val as typeof sortOption)}
+              options={[
+                { value: "createdAt_DESC", label: "უახლესი დამატებული" },
+                { value: "createdAt_ASC", label: "ძველი დამატებული" },
+                { value: "endDate_ASC", label: "მალე დასრულებადი" },
+                { value: "activity_DESC", label: "ყველაზე აქტიური (ხმებით)" },
+                { value: "activity_ASC", label: "ყველაზე ნაკლებად აქტიური" },
+              ]}
+            />
           </S.SortControl>
         </S.FilterBar>
 

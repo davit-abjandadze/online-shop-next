@@ -31,7 +31,13 @@ export const SortLabel = styled("span")`
   white-space: nowrap;
 `;
 
-export const SortSelect = styled("select")`
+// საერთო "ლამაზი" select-სტილი — დალაგების და კატეგორიის (>5 შემთხვევაში)
+// ჩამოსაშლელებისთვის. `option`-ების სტილიც აქვეა, რომ გახსნილი დროფდაუნიც
+// (Chrome/Firefox/Edge-ში მაინც) ერგებოდეს დიზაინს ბუნებრივი <select>-ის
+// ფარგლებში — სრული კროს-ბრაუზერული კონტროლი ჩამოშლილ სიაზე HTML-ის
+// სტანდარტული <select>-ით შეუძლებელია, ამიტომ ფონი/ფერი/padding-ია
+// ძირითადი სამიზნე.
+const selectBaseStyles = `
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -40,9 +46,9 @@ export const SortSelect = styled("select")`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 6px 30px 6px 14px;
+  padding: 10px 30px 10px 14px;
   border-radius: 999px;
-  border: 2px solid var(--ref-border-soft);
+  border: 1px solid var(--ref-border-soft);
   background-color: var(--ref-bg-elevated);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2365676b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -53,6 +59,13 @@ export const SortSelect = styled("select")`
   cursor: pointer;
   outline: none;
   transition: border-color 0.2s ease, color 0.2s ease;
+
+  option {
+    background-color: var(--ref-bg-elevated);
+    color: var(--ref-text-primary);
+    font-weight: 500;
+    padding: 8px 12px;
+  }
 
   &:hover,
   &:focus {
@@ -68,7 +81,30 @@ export const SortSelect = styled("select")`
     &:focus {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23685cec' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     }
+
+    option {
+      background-color: var(--ref-bg-surface, var(--ref-bg-elevated));
+    }
   }
+`;
+
+export const SortSelect = styled("select")`
+  ${selectBaseStyles}
+`;
+
+// კატეგორიის ჩამოსაშლელი — გამოიყენება, როცა კატეგორია 5-ზე მეტია და
+// ჩიპების ნაცვლად select-ში გამოგვიტანია (FilterBar-ში, index.tsx-ში)
+export const CategorySelectWrap = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+`;
+
+export const CategorySelect = styled("select")`
+  ${selectBaseStyles}
+  min-width: 160px;
 `;
 
 export const FilterChip = styled("button")<{ active?: boolean }>`
