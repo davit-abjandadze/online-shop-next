@@ -661,6 +661,7 @@ export const Container = styled("div")`
   max-width: 1180px;
   margin: 0 auto;
   padding: 0 24px 64px 24px;
+  margin-top:34px;
 
   @media (max-width: 640px) {
     padding: 0 16px 64px 16px;

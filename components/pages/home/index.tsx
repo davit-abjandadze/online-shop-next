@@ -691,10 +691,12 @@ export const HomeComponent: React.FC = () => {
               <S.HeroStatValue>{questionsMeta?.total ?? questions.length}</S.HeroStatValue>
               <S.HeroStatLabel>აქტიური კითხვა</S.HeroStatLabel>
             </S.HeroStatItem>
-            <S.HeroStatItem>
-              <S.HeroStatValue>{popularQuestions.reduce((sum, pq) => sum + pq.votes, 0).toLocaleString("ka-GE")}</S.HeroStatValue>
-              <S.HeroStatLabel>ხმა პოპულარულ კითხვებში</S.HeroStatLabel>
-            </S.HeroStatItem>
+            {popularQuestions.length > 0 && (
+              <S.HeroStatItem>
+                <S.HeroStatValue>{popularQuestions.reduce((sum, pq) => sum + pq.votes, 0).toLocaleString("ka-GE")}</S.HeroStatValue>
+                <S.HeroStatLabel>ხმა პოპულარულ კითხვებში</S.HeroStatLabel>
+              </S.HeroStatItem>
+            )}
             <S.HeroStatItem>
               <S.HeroStatValue>{categories.length}</S.HeroStatValue>
               <S.HeroStatLabel>კატეგორია</S.HeroStatLabel>
