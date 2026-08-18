@@ -362,10 +362,14 @@ export const HomeComponent: React.FC = () => {
 
       const mapped: PopularQuestion[] = list.map((item: any) => {
         const question = pickField(item, ["question"], item);
+        const categoriesList = pickField(question, ["categories"]);
+        const categoryName = Array.isArray(categoriesList) && categoriesList.length > 0
+          ? categoriesList.map((c: any) => c?.name).filter(Boolean).join(", ")
+          : pickField(question, ["category", "categoryName"]) || question?.category?.name;
         return {
           id: pickField(question, ["id", "questionId"]),
           text: pickField(question, ["text", "questionText", "title"], "—"),
-          categoryName: pickField(question, ["category", "categoryName"]) || question?.category?.name,
+          categoryName,
           votes: pickField(item, ["votes", "votesCount", "totalVotes", "count"], 0),
         };
       });
@@ -644,7 +648,13 @@ export const HomeComponent: React.FC = () => {
               >
                 <PlusIcon size={16} /> დასვით საკუთარი კითხვა
               </S.HeroCTAButton>
-              <S.HeroSecondaryButton href="#active-questions">
+              <S.HeroSecondaryButton
+                href="#active-questions"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById("active-questions")?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
                 <BallotIcon size={16} /> აქტიური კითხვების დათვალიერება
               </S.HeroSecondaryButton>
             </S.HeroButtonRow>
@@ -836,11 +846,11 @@ export const HomeComponent: React.FC = () => {
                     <S.PopularCardText>{pq.text}</S.PopularCardText>
                   </S.PopularCardTop>
                   <S.PopularCardFooter>
-                    {pq.category && (
-                      <S.PopularCategoryLabel>
-                        <TagIcon size={13} /> {pq.category.name}
+                    {pq.categories?.map((cat) => (
+                      <S.PopularCategoryLabel key={cat.id}>
+                        <TagIcon size={13} /> {cat.name}
                       </S.PopularCategoryLabel>
-                    )}
+                    ))}
                   </S.PopularCardFooter>
                 </S.PopularCard>
               </SwiperSlide>
@@ -975,7 +985,7 @@ export const HomeComponent: React.FC = () => {
           // და დაპეიჯინგებული მოდის — აქ მხოლოდ დამატებით დაცვას ვიტოვებთ.
           const filteredQuestions = activeCategoryId === null
             ? activeQuestions
-            : activeQuestions.filter((q) => (q as any).categoryId === activeCategoryId || q.category?.id === activeCategoryId);
+            : activeQuestions.filter((q) => q.categories?.some((cat) => cat.id === activeCategoryId));
 
           if (filteredQuestions.length === 0) {
             return (

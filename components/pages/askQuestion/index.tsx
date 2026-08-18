@@ -21,7 +21,7 @@ import * as S from "./style";
 const emptyForm: AskQuestionFormValues = {
   text: "",
   type: "single",
-  categoryId: "",
+  categoryIds: [],
   answers: [{ text: "" }, { text: "" }],
 };
 
@@ -107,7 +107,7 @@ export const AskQuestionComponent: React.FC = () => {
       await QuestionAPI(router.locale || "ka", session.accessToken).questionControllerCreate({
         text: data.text.trim(),
         type: data.type as any,
-        categoryId: Number(data.categoryId),
+        categoryIds: data.categoryIds,
         answers: validAnswers.map((text) => ({ text })),
       });
       setSuccess(true);
@@ -161,25 +161,36 @@ export const AskQuestionComponent: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>კატეგორია</S.Label>
+                <S.Label>კატეგორია (შესაძლებელია რამდენიმეს არჩევა)</S.Label>
                 <Controller
                   control={form.control}
-                  name="categoryId"
+                  name="categoryIds"
                   render={({ field }) => (
-                    <S.Select
-                      $invalid={!!form.formState.errors.categoryId}
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
-                    >
-                      <option value="">— აირჩიეთ კატეგორია —</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                      ))}
-                    </S.Select>
+                    <S.CategoryCheckboxGrid>
+                      {categories.map((cat) => {
+                        const checked = field.value.includes(cat.id);
+                        return (
+                          <S.CategoryCheckboxItem key={cat.id} checked={checked}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                field.onChange(
+                                  checked
+                                    ? field.value.filter((id) => id !== cat.id)
+                                    : [...field.value, cat.id]
+                                );
+                              }}
+                            />
+                            {cat.name}
+                          </S.CategoryCheckboxItem>
+                        );
+                      })}
+                    </S.CategoryCheckboxGrid>
                   )}
                 />
-                {form.formState.errors.categoryId && (
-                  <S.FieldError>{form.formState.errors.categoryId.message}</S.FieldError>
+                {form.formState.errors.categoryIds && (
+                  <S.FieldError>{form.formState.errors.categoryIds.message}</S.FieldError>
                 )}
               </S.FormGroup>
 

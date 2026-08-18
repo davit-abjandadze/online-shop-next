@@ -28,8 +28,7 @@ export interface Question {
     'text': string;
     'type': QuestionTypeEnum;
     'answers': Array<Answer>;
-    'category'?: Category;
-    'categoryId'?: number;
+    'categories'?: Array<Category>;
     'isActive': boolean;
     'endDate'?: string | null;
     'creatorType': QuestionCreatorTypeEnum;

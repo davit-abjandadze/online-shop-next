@@ -4,7 +4,7 @@ import { z } from "zod";
 export const questionFormSchema = z.object({
   text: z.string().trim().min(1, "გთხოვთ შეავსოთ კითხვის ტექსტი"),
   type: z.enum(["single", "multiple"]),
-  categoryId: z.union([z.number(), z.literal("")]).optional(),
+  categoryIds: z.array(z.number()).optional(),
   endDate: z.string().optional(),
   answers: z
     .array(

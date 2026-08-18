@@ -690,6 +690,32 @@ export const FieldError = styled("span")`
   color: var(--ref-danger);
 `;
 
+export const CategoryCheckboxGrid = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+export const CategoryCheckboxItem = styled("label")<{ checked?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid ${({ checked }) => (checked ? "var(--ref-primary)" : "var(--ref-border)")};
+  background: ${({ checked }) => (checked ? "var(--ref-primary-soft)" : "var(--ref-bg-elevated)")};
+  color: ${({ checked }) => (checked ? "var(--ref-primary)" : "var(--ref-text-primary)")};
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+
+  input {
+    accent-color: var(--ref-primary);
+  }
+`;
+
 export const Input = styled("input")`
   width: 100%;
   height: 40px;

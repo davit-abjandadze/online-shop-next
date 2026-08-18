@@ -105,11 +105,11 @@ export const QuestionCard: React.FC<QuestionCardProps> = ({
             {isMultiple ? <CheckSquareIcon size={14} /> : <RadioIcon size={14} />}
             {isMultiple ? "მრავალარჩევიანი" : "ერთარჩევიანი"}
           </S.Badge> */}
-          {q.category && (
-            <S.Badge variant="category">
-              <TagIcon size={14} /> {q.category.name}
+          {q.categories?.map((cat) => (
+            <S.Badge key={cat.id} variant="category">
+              <TagIcon size={14} /> {cat.name}
             </S.Badge>
-          )}
+          ))}
           {q.endDate && <CountdownBadge endDate={q.endDate} />}
           {hasVoted && (
             <S.Badge variant="single" style={{ marginTop: "8px", display: "inline-flex" }}>

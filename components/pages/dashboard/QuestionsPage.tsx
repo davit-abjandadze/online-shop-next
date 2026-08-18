@@ -43,7 +43,7 @@ const QUESTIONS_FETCH_PAGE_SIZE = 100; // backend-ის მაქსიმა�
 const emptyQuestionForm: QuestionFormValues = {
   text: "",
   type: "single",
-  categoryId: "",
+  categoryIds: [],
   endDate: "",
   answers: [{ text: "" }, { text: "" }],
 };
@@ -330,7 +330,7 @@ export const QuestionsPage: React.FC = () => {
       await QuestionAPI(router.locale || "ka", session!.accessToken!).questionControllerCreate({
         text: data.text.trim(),
         type: data.type as any,
-        categoryId: data.categoryId !== "" ? Number(data.categoryId) : undefined,
+        categoryIds: data.categoryIds && data.categoryIds.length > 0 ? data.categoryIds : undefined,
         answers: validAnswers.map((text) => ({ text })),
         endDate: data.endDate ? new Date(data.endDate).toISOString() : undefined,
       });
@@ -352,7 +352,7 @@ export const QuestionsPage: React.FC = () => {
     editForm.reset({
       text: q.text,
       type: ((q.type as any) || "single"),
-      categoryId: q.categoryId ?? "",
+      categoryIds: (q.categories || []).map((c) => c.id),
       endDate: "",
       answers: (q.answers || []).map((a) => ({ id: a.id, text: a.text })),
     });
@@ -376,7 +376,11 @@ export const QuestionsPage: React.FC = () => {
 
       await qApi.questionControllerUpdate(
         String(editingQuestion.id),
-        { text: data.text.trim(), type: data.type as any, categoryId: data.categoryId !== "" ? Number(data.categoryId) : undefined } as any
+        {
+          text: data.text.trim(),
+          type: data.type as any,
+          categoryIds: data.categoryIds && data.categoryIds.length > 0 ? data.categoryIds : undefined,
+        } as any
       );
 
       for (const delId of deletedAnswerIds) {
@@ -641,9 +645,9 @@ export const QuestionsPage: React.FC = () => {
                         <PinIcon size={12} /> დაპინული
                       </S.Badge>
                     )}
-                    {q.category && (
-                      <S.Badge variant="date"><TagIcon size={13} /> {q.category.name}</S.Badge>
-                    )}
+                    {q.categories?.map((cat) => (
+                      <S.Badge key={cat.id} variant="date"><TagIcon size={13} /> {cat.name}</S.Badge>
+                    ))}
                     {q.creatorType === "user" && q.createdById && (
                       <S.Badge variant="date">User ID: {q.createdById}</S.Badge>
                     )}
@@ -765,20 +769,31 @@ export const QuestionsPage: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>კატეგორია (არასავალდებულო)</S.Label>
+                <S.Label>კატეგორია (არასავალდებულო, შესაძლებელია რამდენიმეს არჩევა)</S.Label>
                 <Controller
                   control={createForm.control}
-                  name="categoryId"
+                  name="categoryIds"
                   render={({ field }) => (
-                    <S.Select
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
-                    >
-                      <option value="">— კატეგორიის გარეშე —</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                      ))}
-                    </S.Select>
+                    <S.CategoryCheckboxGrid>
+                      {categories.map((cat) => {
+                        const checked = (field.value || []).includes(cat.id);
+                        return (
+                          <S.CategoryCheckboxItem key={cat.id} checked={checked}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                const current = field.value || [];
+                                field.onChange(
+                                  checked ? current.filter((id) => id !== cat.id) : [...current, cat.id]
+                                );
+                              }}
+                            />
+                            {cat.name}
+                          </S.CategoryCheckboxItem>
+                        );
+                      })}
+                    </S.CategoryCheckboxGrid>
                   )}
                 />
               </S.FormGroup>
@@ -855,20 +870,31 @@ export const QuestionsPage: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>კატეგორია (არასავალდებულო)</S.Label>
+                <S.Label>კატეგორია (არასავალდებულო, შესაძლებელია რამდენიმეს არჩევა)</S.Label>
                 <Controller
                   control={editForm.control}
-                  name="categoryId"
+                  name="categoryIds"
                   render={({ field }) => (
-                    <S.Select
-                      value={field.value}
-                      onChange={(e) => field.onChange(e.target.value === "" ? "" : Number(e.target.value))}
-                    >
-                      <option value="">— კატეგორიის გარეშე —</option>
-                      {categories.map((cat) => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
-                      ))}
-                    </S.Select>
+                    <S.CategoryCheckboxGrid>
+                      {categories.map((cat) => {
+                        const checked = (field.value || []).includes(cat.id);
+                        return (
+                          <S.CategoryCheckboxItem key={cat.id} checked={checked}>
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                const current = field.value || [];
+                                field.onChange(
+                                  checked ? current.filter((id) => id !== cat.id) : [...current, cat.id]
+                                );
+                              }}
+                            />
+                            {cat.name}
+                          </S.CategoryCheckboxItem>
+                        );
+                      })}
+                    </S.CategoryCheckboxGrid>
                   )}
                 />
               </S.FormGroup>

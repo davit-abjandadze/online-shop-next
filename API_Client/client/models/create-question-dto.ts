@@ -19,9 +19,9 @@ import type { CreateAnswerDto } from './create-answer-dto';
 
 export interface CreateQuestionDto {
     /**
-     * კატეგორიის ID (optional)
+     * კატეგორიების ID-ები (optional, ერთ კითხვას შეიძლება რამდენიმე კატეგორია ჰქონდეს)
      */
-    'categoryId'?: number;
+    'categoryIds'?: Array<number>;
     /**
      * აქტიურია თუ არა კითხვა (მხოლოდ admin-ის შექმნილ კითხვას ეხება — user-ის კითხვისთვის ეს ველი იგნორირდება)
      */

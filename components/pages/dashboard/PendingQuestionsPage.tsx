@@ -152,9 +152,9 @@ export const PendingQuestionsPage: React.FC = () => {
                     <S.Badge variant="pending">
                       <HourglassIcon size={13} /> მოლოდინში
                     </S.Badge>
-                    {q.category && (
-                      <S.Badge variant="date"><TagIcon size={13} /> {q.category.name}</S.Badge>
-                    )}
+                    {q.categories?.map((cat) => (
+                      <S.Badge key={cat.id} variant="date"><TagIcon size={13} /> {cat.name}</S.Badge>
+                    ))}
                     {q.createdBy && (
                       <S.Badge variant="date">
                         {q.createdBy.firstName || q.createdBy.email} მიერ

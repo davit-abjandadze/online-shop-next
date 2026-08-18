@@ -4,7 +4,7 @@ describe("questionFormSchema", () => {
   const baseValues = {
     text: "რომელ ქალაქს ანიჭებთ უპირატესობას?",
     type: "single" as const,
-    categoryId: "" as const,
+    categoryIds: [] as number[],
     endDate: "",
     answers: [{ text: "თბილისი" }, { text: "ბათუმი" }],
   };

@@ -33,8 +33,9 @@ const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => 
   }
 
   const title = truncate(`${question.text} — საზოგადოებრივი აზრის პლატფორმა`, 95);
-  const description = question.category?.name
-    ? `კატეგორია: ${question.category.name}. მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.`
+  const categoryNames = (question.categories || []).map((c) => c.name).join(", ");
+  const description = categoryNames
+    ? `კატეგორია: ${categoryNames}. მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.`
     : "მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.";
   const url = `${BASEPATH}/${currentLocale}/questions/${question.id}`;
   const ogImage = `${BASEPATH}/images/og-share.jpg`;

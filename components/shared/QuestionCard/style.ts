@@ -86,6 +86,7 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "countdo
   font-size: 12px;
   font-weight: 600;
   margin-right: 6px;
+  margin-bottom: 6px;
 
   ${({ variant }) => {
     switch (variant) {

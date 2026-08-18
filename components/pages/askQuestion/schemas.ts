@@ -9,9 +9,7 @@ import { z } from "zod";
 export const askQuestionSchema = z.object({
   text: z.string().trim().min(1, "გთხოვთ შეავსოთ კითხვის ტექსტი"),
   type: z.enum(["single", "multiple"]),
-  categoryId: z.union([z.number(), z.literal("")]).refine((val) => val !== "", {
-    message: "გთხოვთ მიუთითოთ კატეგორია",
-  }),
+  categoryIds: z.array(z.number()).min(1, "გთხოვთ მიუთითოთ მინიმუმ 1 კატეგორია"),
   answers: z
     .array(z.object({ text: z.string().trim() }))
     .max(4, "მაქსიმუმ 4 სავარაუდო პასუხის დამატებაა შესაძლებელი")

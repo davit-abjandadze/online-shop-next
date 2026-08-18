@@ -178,9 +178,9 @@ export const UserQuestionsPage: React.FC = () => {
                       {filter === "approved" ? <CheckCircleIcon size={13} /> : <CloseIcon size={13} />}
                       {filter === "approved" ? "დამტკიცებული" : "უარყოფილი"}
                     </S.Badge>
-                    {q.category && (
-                      <S.Badge variant="date"><TagIcon size={13} /> {q.category.name}</S.Badge>
-                    )}
+                    {q.categories?.map((cat) => (
+                      <S.Badge key={cat.id} variant="date"><TagIcon size={13} /> {cat.name}</S.Badge>
+                    ))}
                     {q.createdBy && (
                       <S.Badge variant="date">
                         {q.createdBy.firstName || q.createdBy.email} მიერ
