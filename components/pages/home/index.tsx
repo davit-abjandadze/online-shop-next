@@ -13,7 +13,7 @@ import Dropdown from "@/components/shared/Dropdown";
 import MobilePopup from "@/components/ui/MobilePopup";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
 import { CategoriesAPI, FavoritesAPI, QuestionAPI, StatsAPI, UserAnswerAPI, UserAPI } from "@/API_Client";
-import { Category, PaginationMetaDto, Question } from "@/API_Client/client/models";
+import { Category, PaginationMetaDto, Question, User } from "@/API_Client/client/models";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { ParsedResult, parseResultsData } from "@/utils/parseQuestionResults";
 import { BallotIcon, ChartIcon, CheckCircleIcon, ClipboardIcon, CloseIcon, FireIcon, GridOneIcon, GridTwoIcon, LockIcon, PinIcon, PlusIcon, SearchIcon, ShieldIcon, TagIcon } from "@/components/ui/RefIcons";
@@ -483,8 +483,8 @@ export const HomeComponent: React.FC = () => {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(
         session.user.id
       );
-      const u = res.data;
-      return u.age != null && !!u.gender;
+      const u = res.data as User;
+      return u.age != null && u.gender != null;
     } catch {
       // თუ პროფილის შემოწმება ვერ მოხერხდა, ხმის მიცემას არ ვბლოკავთ
       return true;
