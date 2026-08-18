@@ -179,6 +179,7 @@ export const ResultOptionText = styled("span")``;
 
 export const ResultPercentageText = styled("span")`
   color: var(--ref-primary);
+  white-space: nowrap;
 `;
 
 export const ProgressBarTrack = styled("div")`

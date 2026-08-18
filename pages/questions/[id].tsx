@@ -37,6 +37,7 @@ const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => 
     ? `კატეგორია: ${question.category.name}. მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.`
     : "მიეცით ხმა და იხილეთ საზოგადოებრივი აზრის რეალური შედეგები.";
   const url = `${BASEPATH}/${currentLocale}/questions/${question.id}`;
+  const ogImage = `${BASEPATH}/images/og-share.jpg`;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -66,6 +67,12 @@ const QuestionDetailPage: NextPage<QuestionDetailPageProps> = ({ question }) => 
         <meta property="og:title" content={title} key="title" />
         <meta property="og:description" content={description} key="description" />
         <meta property="og:url" content={url} key="ogUrl" />
+        <meta property="og:image" content={ogImage} key="ogImage" />
+        <meta property="og:image:secure_url" content={ogImage} key="ogImageSecure" />
+        <meta property="og:image:width" content="1200" key="ogImageWidth" />
+        <meta property="og:image:height" content="630" key="ogImageHeight" />
+        <meta name="twitter:card" content="summary_large_image" key="twitterCard" />
+        <meta name="twitter:image" content={ogImage} key="twitterImage" />
         <link rel="canonical" href={url} key="canonical" />
         {SEO_LOCALES.map((loc) => (
           <link
