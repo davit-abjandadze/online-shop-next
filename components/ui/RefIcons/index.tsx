@@ -324,3 +324,15 @@ export const GridOneIcon: React.FC<RefIconProps> = ({ size = 18, className, styl
     <rect x="3" y="13.5" width="18" height="6.5" rx="1.4" stroke="currentColor" strokeWidth="1.8" />
   </svg>
 );
+
+/* დრეგის სახელური (grip) - სავარაუდო პასუხების drag&drop-ით გადალაგებისთვის. მონოქრომული, currentColor-ზეა აგებული. */
+export const DragHandleIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <circle cx="9" cy="6" r="1.5" fill="currentColor" />
+    <circle cx="15" cy="6" r="1.5" fill="currentColor" />
+    <circle cx="9" cy="12" r="1.5" fill="currentColor" />
+    <circle cx="15" cy="12" r="1.5" fill="currentColor" />
+    <circle cx="9" cy="18" r="1.5" fill="currentColor" />
+    <circle cx="15" cy="18" r="1.5" fill="currentColor" />
+  </svg>
+);

@@ -789,11 +789,28 @@ export const Textarea = styled("textarea")`
   }
 `;
 
-export const AnswerInputRow = styled("div")`
+export const AnswerInputRow = styled("div")<{ dragging?: boolean }>`
   display: flex;
   gap: 10px;
   align-items: center;
   margin-bottom: 10px;
+  border-radius: 8px;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+  opacity: ${({ dragging }) => (dragging ? 0.4 : 1)};
+  background-color: ${({ dragging }) => (dragging ? "var(--ref-bg-soft)" : "transparent")};
+`;
+
+export const DragHandle = styled("span")`
+  display: flex;
+  align-items: center;
+  color: var(--ref-text-secondary);
+  cursor: grab;
+  touch-action: none;
+  flex-shrink: 0;
+
+  &:active {
+    cursor: grabbing;
+  }
 `;
 
 export const ModalFooter = styled("div")`

@@ -18,6 +18,7 @@ import {
   CheckSquareIcon,
   ClipboardIcon,
   CloseIcon,
+  DragHandleIcon,
   EditIcon,
   HourglassIcon,
   PauseIcon,
@@ -136,6 +137,26 @@ export const QuestionsPage: React.FC = () => {
     defaultValues: emptyQuestionForm,
   });
   const editAnswersField = useFieldArray({ control: editForm.control, name: "answers" });
+
+  // ─── Answer reorder (drag & drop) ──────────────────────────────────────────────
+  // ერთი "საწყისი" ინდექსი გადმოგვაქვს drag-ის დაწყებისას, drag-ისას (dragover) კი
+  // ვცვლით ველების თანმიმდევრობას ცოცხლად, რომ დათრევისას ვიზუალურად თანავე ჩანდეს გადალაგება.
+  const [draggedAnswerIndex, setDraggedAnswerIndex] = useState<number | null>(null);
+
+  const handleAnswerDragStart = (index: number) => () => {
+    setDraggedAnswerIndex(index);
+  };
+
+  const handleAnswerDragOver = (index: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    if (draggedAnswerIndex === null || draggedAnswerIndex === index) return;
+    editAnswersField.move(draggedAnswerIndex, index);
+    setDraggedAnswerIndex(index);
+  };
+
+  const handleAnswerDragEnd = () => {
+    setDraggedAnswerIndex(null);
+  };
 
   // მიმდინარე გვერდზე ჩვენებული კითხვების აქტივობის (მიცემული ხმების) რაოდენობა.
   // აბრუნებს დათვლილ მნიშვნელობებს, რომ საჯარისო (activity) დალაგებას დაუყოვნებლივ დასჭირდეს.
@@ -357,6 +378,7 @@ export const QuestionsPage: React.FC = () => {
       answers: (q.answers || []).map((a) => ({ id: a.id, text: a.text })),
     });
     setDeletedAnswerIds([]);
+    setDraggedAnswerIndex(null);
   };
 
   const handleRemoveEditAnswerRow = (index: number) => {
@@ -388,14 +410,36 @@ export const QuestionsPage: React.FC = () => {
       }
 
       const originalAnswersMap = new Map((editingQuestion.answers || []).map((a) => [a.id, a.text]));
+      // reorder-ისთვის საჭიროა თითოეული პასუხის რეალური (backend) ID, ფორმაში ნაჩვენები
+      // თანმიმდევრობით — ახლად დამატებულებს ID-ს ვიღებთ create-response-იდან
+      const orderedAnswerIds: number[] = [];
+      let answersOrderChanged = false;
       for (const ans of validAnswers) {
         if (ans.id) {
           if (originalAnswersMap.get(ans.id) !== ans.text.trim()) {
             await aApi.answerControllerUpdate(String(ans.id), { text: ans.text.trim() });
           }
+          orderedAnswerIds.push(ans.id);
         } else {
-          await aApi.answerControllerAddAnswer(String(editingQuestion.id), { text: ans.text.trim() });
+          const res = await aApi.answerControllerAddAnswer(String(editingQuestion.id), { text: ans.text.trim() });
+          const created = res.data as any;
+          if (created?.id) orderedAnswerIds.push(created.id);
+          answersOrderChanged = true;
         }
+      }
+
+      // თუ არსებული პასუხების თანმიმდევრობა (drag&drop-ით) შეიცვალა, ვაცხადებთ
+      // ბექენდში ახალ ორდერს. ახალი პასუხის დამატება/წაშლაც ითვლება ცვლილებად.
+      const originalIdsOrder = (editingQuestion.answers || []).map((a) => a.id);
+      const existingIdsOrder = orderedAnswerIds.filter((id) =>
+        originalIdsOrder.includes(id)
+      );
+      if (
+        deletedAnswerIds.length > 0 ||
+        answersOrderChanged ||
+        existingIdsOrder.some((id, idx) => id !== originalIdsOrder[idx])
+      ) {
+        await aApi.answerControllerReorder(String(editingQuestion.id), { answerIds: orderedAnswerIds });
       }
 
       toast.success("კითხვა წარმატებით განახლდა!");
@@ -908,9 +952,20 @@ export const QuestionsPage: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>სავარაუდო პასუხები (მინიმუმ 2)</S.Label>
+                <S.Label>სავარაუდო პასუხები (მინიმუმ 2) — გადაათრიეთ თანმიმდევრობის შესაცვლელად</S.Label>
                 {editAnswersField.fields.map((field, index) => (
-                  <S.AnswerInputRow key={field.id}>
+                  <S.AnswerInputRow
+                    key={field.id}
+                    dragging={draggedAnswerIndex === index}
+                    draggable
+                    onDragStart={handleAnswerDragStart(index)}
+                    onDragOver={handleAnswerDragOver(index)}
+                    onDragEnd={handleAnswerDragEnd}
+                    onDrop={(e) => e.preventDefault()}
+                  >
+                    <S.DragHandle title="გადათრევით გადაალაგეთ">
+                      <DragHandleIcon size={18} />
+                    </S.DragHandle>
                     <S.Input
                       type="text"
                       placeholder={`პასუხის ვარიანტი ${index + 1}`}
