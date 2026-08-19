@@ -50,8 +50,7 @@ export const CountdownBadge: React.FC<{ endDate: Date | string }> = ({ endDate }
 
   return (
     <S.Badge variant="countdown">
-      {/* <HourglassIcon size={14} /> {days > 0 && `დარჩენილია ${days}დღე და `}{pad(hours)}:{pad(minutes)}:{pad(seconds)} */}
-      <HourglassIcon size={14} /> {days > 0 && `${days} დღე და `}{pad(hours)}:{pad(minutes)}:{pad(seconds)}
+      <HourglassIcon size={14} /> {days > 0 && `${days} დღე`}{days < 1 && `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`}
     </S.Badge>
   );
 };
