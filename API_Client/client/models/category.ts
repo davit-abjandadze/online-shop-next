@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * My First Nest API
- * The API description
+ * Online Shop API
+ * REST API for the online shop backend
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -13,14 +13,10 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { Question } from './question';
 
 export interface Category {
     'id': number;
     'name': string;
     'description'?: string;
-    'questions'?: Array<Question>;
 }
 

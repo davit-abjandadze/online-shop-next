@@ -21,7 +21,7 @@
     "lint": "next lint",
     "analyze": "cross-env ANALYZE=true next build",
     "generate:api": "node scripts/generate-api.js",
-    "watch:api": "chokidar \"../my-first-nest-app/swagger.json\" -c \"yarn generate:api\" --initial",
+    "watch:api": "chokidar \"../online-shop-nest/swagger.json\" -c \"yarn generate:api\" --initial",
     "test": "jest",
     "test:watch": "jest --watch"
   },

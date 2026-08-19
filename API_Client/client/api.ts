@@ -1,8 +1,8 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
- * My First Nest API
- * The API description
+ * Online Shop API
+ * REST API for the online shop backend
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -14,13 +14,7 @@
 
 
 
-export * from './apis/answer-api';
 export * from './apis/auth-api';
 export * from './apis/categories-api';
-export * from './apis/favorites-api';
-export * from './apis/questions-api';
-export * from './apis/stats-api';
-export * from './apis/tasks-api';
-export * from './apis/user-answer-api';
 export * from './apis/users-api';
 

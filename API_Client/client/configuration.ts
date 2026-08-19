@@ -1,7 +1,7 @@
 /* tslint:disable */
 /**
- * My First Nest API
- * The API description
+ * Online Shop API
+ * REST API for the online shop backend
  *
  * The version of the OpenAPI document: 1.0
  * 

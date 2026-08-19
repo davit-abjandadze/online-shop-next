@@ -1,8 +1,8 @@
 /**
- * აგენერირებს/ანახლებს API_Client/client-ს backend-ის (my-first-nest-app) swagger.json-იდან.
+ * აგენერირებს/ანახლებს API_Client/client-ს backend-ის (online-shop-nest) swagger.json-იდან.
  * გამოიყენება ხელით ("yarn generate:api") და ავტომატურადაც watcher-იდან ("yarn watch:api").
  *
- * backend-ის მხარეს src/main.ts ყოველ სტარტზე თავად წერს/ანახლებს ../my-first-nest-app/swagger.json-ს,
+ * backend-ის მხარეს src/main.ts ყოველ სტარტზე თავად წერს/ანახლებს ../online-shop-nest/swagger.json-ს,
  * ასე რომ აქ საკმარისია ის ფაილი წავიკითხოთ და კლიენტი გადმოვაგენერიროთ.
  */
 const { execSync } = require('child_process');
@@ -10,7 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const SPEC_PATH = path.resolve(__dirname, '../../my-first-nest-app/swagger.json');
+const SPEC_PATH = path.resolve(__dirname, '../../online-shop-nest/swagger.json');
 const OUT_DIR = path.resolve(__dirname, '../API_Client/client');
 const TMP_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'api-client-gen-'));
 
@@ -22,7 +22,7 @@ const KEEP = ['api.ts', 'apis', 'base.ts', 'common.ts', 'configuration.ts', 'ind
 function main() {
   if (!fs.existsSync(SPEC_PATH)) {
     console.error(`❌ ვერ ვიპოვე swagger.json: ${SPEC_PATH}`);
-    console.error('   ჯერ გაუშვი backend (my-first-nest-app), რომ ეს ფაილი დაგენერირდეს.');
+    console.error('   ჯერ გაუშვი backend (online-shop-nest), რომ ეს ფაილი დაგენერირდეს.');
     process.exit(1);
   }
 
