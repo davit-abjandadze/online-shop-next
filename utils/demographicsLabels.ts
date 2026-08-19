@@ -4,15 +4,13 @@ import { AgeGroupKey, GenderKey } from "@/types/demographics";
 // chart-ებისთვის საჭირო ფიქსირებული, ერთმანეთისგან განსხვავებული ფერები.
 
 export const GENDER_LABELS: Record<GenderKey, string> = {
-  male: "მამრობითი",
-  female: "მდედრობითი",
-  unknown: "უცნობი",
+  male: "კაცი",
+  female: "ქალი",
 };
 
 export const GENDER_COLORS: Record<GenderKey, string> = {
   male: "#1877F2",
   female: "#F43E50",
-  unknown: "#8952FF",
 };
 
 export const AGE_GROUP_LABELS: Record<AgeGroupKey, string> = {
@@ -23,5 +21,4 @@ export const AGE_GROUP_LABELS: Record<AgeGroupKey, string> = {
   "45_54": "45-54",
   "55_64": "55-64",
   "65_plus": "65+",
-  unknown: "უცნობი",
 };

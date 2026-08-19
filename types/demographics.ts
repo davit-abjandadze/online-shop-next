@@ -3,7 +3,7 @@
 // ჯერჯერობით `void`-ადაა მონიშნული, ამიტომ ტიპები ხელით არის აღწერილი
 // ბექის დოკუმენტაციის მიხედვით (იხ. task-ის აღწერა).
 
-export type GenderKey = "male" | "female" | "unknown";
+export type GenderKey = "male" | "female";
 
 export type AgeGroupKey =
   | "under_18"
@@ -12,8 +12,7 @@ export type AgeGroupKey =
   | "35_44"
   | "45_54"
   | "55_64"
-  | "65_plus"
-  | "unknown";
+  | "65_plus";
 
 export interface GenderStat {
   gender: GenderKey;

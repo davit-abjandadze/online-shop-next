@@ -13,7 +13,7 @@ export interface DemographicsBreakdownProps {
 }
 
 // სქესისა და ასაკის მიხედვით ხმების განაწილება — სქესი ერთი stacked ზოლის
-// სახით (male/female/unknown), ასაკობრივი ჯგუფები კი ჩამონათვალის სახით,
+// სახით (male/female), ასაკობრივი ჯგუფები კი ჩამონათვალის სახით,
 // ორივე თითო-ხმის რაოდენობებით და პროცენტებით.
 export const DemographicsBreakdown: React.FC<DemographicsBreakdownProps> = ({
   data,
@@ -22,9 +22,14 @@ export const DemographicsBreakdown: React.FC<DemographicsBreakdownProps> = ({
   title,
 }) => {
   const [expanded, setExpanded] = useState(!compact);
-  const genderTotal = data.byGender.reduce((sum, g) => sum + g.votes, 0);
-  const ageTotal = data.byAge.reduce((sum, a) => sum + a.votes, 0);
-  const maxAgeVotes = Math.max(...data.byAge.map((a) => a.votes), 0);
+  // ბექიდან ისტორიულად შემორჩენილი "unknown" ჩანაწერები (ძველი, ასაკის/სქესის
+  // გარეშე ხმები) აქ ვფილტრავთ — ახალი მომხმარებლები ვერ ხმას მისცემენ ამის
+  // შევსების გარეშე, ამიტომ ასეთი ბაკეტი აღარ უნდა გამოჩნდეს დეტალებში.
+  const byGender = data.byGender.filter((g) => (g.gender as string) !== "unknown");
+  const byAge = data.byAge.filter((a) => (a.ageGroup as string) !== "unknown");
+  const genderTotal = byGender.reduce((sum, g) => sum + g.votes, 0);
+  const ageTotal = byAge.reduce((sum, a) => sum + a.votes, 0);
+  const maxAgeVotes = Math.max(...byAge.map((a) => a.votes), 0);
 
   if (totalVotes === 0) {
     return null;
@@ -47,7 +52,7 @@ export const DemographicsBreakdown: React.FC<DemographicsBreakdownProps> = ({
             {genderTotal === 0 ? (
               <S.GenderStackSegment style={{ width: "100%" }} color="var(--ref-border-soft)" />
             ) : (
-              data.byGender
+              byGender
                 .filter((g) => g.votes > 0)
                 .map((g) => (
                   <S.GenderStackSegment
@@ -61,7 +66,7 @@ export const DemographicsBreakdown: React.FC<DemographicsBreakdownProps> = ({
           </S.GenderStackTrack>
 
           <S.GenderLegend>
-            {data.byGender.map((g) => (
+            {byGender.map((g) => (
               <S.GenderLegendItem key={g.gender}>
                 <S.GenderLegendDot color={GENDER_COLORS[g.gender]} />
                 {GENDER_LABELS[g.gender]}: {g.votes}
@@ -71,7 +76,7 @@ export const DemographicsBreakdown: React.FC<DemographicsBreakdownProps> = ({
           </S.GenderLegend>
 
           <S.AgeGroupList>
-            {data.byAge.map((a) => (
+            {byAge.map((a) => (
               <S.AgeGroupRow key={a.ageGroup}>
                 <S.AgeGroupLabel>{AGE_GROUP_LABELS[a.ageGroup]}</S.AgeGroupLabel>
                 <S.AgeGroupBarTrack>

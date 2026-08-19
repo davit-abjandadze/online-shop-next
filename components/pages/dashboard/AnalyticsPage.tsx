@@ -395,11 +395,19 @@ export const AnalyticsPage: React.FC = () => {
                 <S.ChartCanvasWrapper>
                   <Pie
                     data={{
-                      labels: demographics.byGender.map((g) => GENDER_LABELS[g.gender]),
+                      // ისტორიული "unknown" ჩანაწერები აქაც გამოვრიცხოთ, რადგან
+                      // ასაკი/სქესის გარეშე ხმა ახალ მომხმარებელს აღარ შეუძლია
+                      labels: demographics.byGender
+                        .filter((g) => (g.gender as string) !== "unknown")
+                        .map((g) => GENDER_LABELS[g.gender]),
                       datasets: [
                         {
-                          data: demographics.byGender.map((g) => g.votes),
-                          backgroundColor: demographics.byGender.map((g) => GENDER_COLORS[g.gender]),
+                          data: demographics.byGender
+                            .filter((g) => (g.gender as string) !== "unknown")
+                            .map((g) => g.votes),
+                          backgroundColor: demographics.byGender
+                            .filter((g) => (g.gender as string) !== "unknown")
+                            .map((g) => GENDER_COLORS[g.gender]),
                           borderColor: "var(--ref-bg-elevated)",
                           borderWidth: 2,
                         },
@@ -427,11 +435,15 @@ export const AnalyticsPage: React.FC = () => {
                 <S.ChartCanvasWrapper>
                   <Bar
                     data={{
-                      labels: demographics.byAge.map((a) => AGE_GROUP_LABELS[a.ageGroup]),
+                      labels: demographics.byAge
+                        .filter((a) => (a.ageGroup as string) !== "unknown")
+                        .map((a) => AGE_GROUP_LABELS[a.ageGroup]),
                       datasets: [
                         {
                           label: "ხმები",
-                          data: demographics.byAge.map((a) => a.votes),
+                          data: demographics.byAge
+                            .filter((a) => (a.ageGroup as string) !== "unknown")
+                            .map((a) => a.votes),
                           backgroundColor: "#1877F2",
                           borderRadius: 6,
                         },

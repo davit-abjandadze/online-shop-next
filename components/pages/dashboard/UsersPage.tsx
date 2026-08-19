@@ -249,8 +249,8 @@ export const UsersPage: React.FC = () => {
             <S.FilterLabel>სქესი</S.FilterLabel>
             <S.Select value={filterGender} onChange={(e) => setFilterGender(e.target.value)}>
               <option value="">ყველა</option>
-              <option value="male">მამრობითი</option>
-              <option value="female">მდედრობითი</option>
+              <option value="male">კაცი</option>
+              <option value="female">ქალი</option>
             </S.Select>
           </S.FilterGroup>
 
@@ -302,7 +302,7 @@ export const UsersPage: React.FC = () => {
                       {user.role === "admin" ? "ადმინისტრატორი" : "მომხმარებელი"}
                     </S.Badge>
                     {user.gender && (
-                      <S.Badge variant="date">{user.gender === "male" ? "მამრობითი" : "მდედრობითი"}</S.Badge>
+                      <S.Badge variant="date">{user.gender === "male" ? "კაცი" : "ქალი"}</S.Badge>
                     )}
                     {user.age != null && <S.Badge variant="date">{user.age} წლის</S.Badge>}
                   </S.BadgeGroup>
@@ -392,8 +392,8 @@ export const UsersPage: React.FC = () => {
                 <S.Label>სქესი (არასავალდებულო)</S.Label>
                 <S.Select {...createForm.register("gender")}>
                   <option value="">არ არის მითითებული</option>
-                  <option value="male">მამრობითი</option>
-                  <option value="female">მდედრობითი</option>
+                  <option value="male">კაცი</option>
+                  <option value="female">ქალი</option>
                 </S.Select>
               </S.FormGroup>
               <S.FormGroup>
@@ -451,8 +451,8 @@ export const UsersPage: React.FC = () => {
                 <S.Label>სქესი (არასავალდებულო)</S.Label>
                 <S.Select {...editForm.register("gender")}>
                   <option value="">არ არის მითითებული</option>
-                  <option value="male">მამრობითი</option>
-                  <option value="female">მდედრობითი</option>
+                  <option value="male">კაცი</option>
+                  <option value="female">ქალი</option>
                 </S.Select>
               </S.FormGroup>
               <S.FormGroup>

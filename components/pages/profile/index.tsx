@@ -204,8 +204,8 @@ export const ProfileComponent: React.FC = () => {
                   <option value="" disabled hidden>
                     აირჩიეთ სქესი
                   </option>
-                  <option value={UserGenderEnum.Male}>მამრობითი</option>
-                  <option value={UserGenderEnum.Female}>მდედრობითი</option>
+                  <option value={UserGenderEnum.Male}>კაცი</option>
+                  <option value={UserGenderEnum.Female}>ქალი</option>
                 </S.Select>
                 {errors.gender && <S.FieldError>{errors.gender.message as string}</S.FieldError>}
               </S.FormGroup>
