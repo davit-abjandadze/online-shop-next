@@ -19,6 +19,7 @@ export * from './question';
 export * from './register-dto';
 export * from './register-response-dto';
 export * from './reject-question-dto';
+export * from './reorder-answers-dto';
 export * from './reset-password-dto';
 export * from './submit-answer-dto';
 export * from './task';

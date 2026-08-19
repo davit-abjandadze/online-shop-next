@@ -26,6 +26,8 @@ import type { Answer } from '../models';
 // @ts-ignore
 import type { CreateAnswerDto } from '../models';
 // @ts-ignore
+import type { ReorderAnswersDto } from '../models';
+// @ts-ignore
 import type { UpdateAnswerDto } from '../models';
 /**
  * AnswerApi - axios parameter creator
@@ -97,6 +99,49 @@ export const AnswerApiAxiosParamCreator = function (configuration?: Configuratio
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary კითხვის პასუხების თანმიმდევრობის ცვლილება დრაგ-ენდ-დროპით (მხოლოდ admin)
+         * @param {string} questionId 
+         * @param {ReorderAnswersDto} reorderAnswersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        answerControllerReorder: async (questionId: string, reorderAnswersDto: ReorderAnswersDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'questionId' is not null or undefined
+            assertParamExists('answerControllerReorder', 'questionId', questionId)
+            // verify required parameter 'reorderAnswersDto' is not null or undefined
+            assertParamExists('answerControllerReorder', 'reorderAnswersDto', reorderAnswersDto)
+            const localVarPath = `/questions/{questionId}/answers/reorder`
+                .replace('{questionId}', encodeURIComponent(String(questionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PATCH', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+            localVarHeaderParameter['Accept'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(reorderAnswersDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -177,6 +222,20 @@ export const AnswerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary კითხვის პასუხების თანმიმდევრობის ცვლილება დრაგ-ენდ-დროპით (მხოლოდ admin)
+         * @param {string} questionId 
+         * @param {ReorderAnswersDto} reorderAnswersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async answerControllerReorder(questionId: string, reorderAnswersDto: ReorderAnswersDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.answerControllerReorder(questionId, reorderAnswersDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AnswerApi.answerControllerReorder']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {string} id 
          * @param {UpdateAnswerDto} updateAnswerDto 
          * @param {*} [options] Override http request option.
@@ -218,6 +277,17 @@ export const AnswerApiFactory = function (configuration?: Configuration, basePat
         },
         /**
          * 
+         * @summary კითხვის პასუხების თანმიმდევრობის ცვლილება დრაგ-ენდ-დროპით (მხოლოდ admin)
+         * @param {string} questionId 
+         * @param {ReorderAnswersDto} reorderAnswersDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        answerControllerReorder(questionId: string, reorderAnswersDto: ReorderAnswersDto, options?: RawAxiosRequestConfig): AxiosPromise<Array<object>> {
+            return localVarFp.answerControllerReorder(questionId, reorderAnswersDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {string} id 
          * @param {UpdateAnswerDto} updateAnswerDto 
          * @param {*} [options] Override http request option.
@@ -252,6 +322,18 @@ export class AnswerApi extends BaseAPI {
      */
     public answerControllerRemove(id: string, options?: RawAxiosRequestConfig) {
         return AnswerApiFp(this.configuration).answerControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary კითხვის პასუხების თანმიმდევრობის ცვლილება დრაგ-ენდ-დროპით (მხოლოდ admin)
+     * @param {string} questionId 
+     * @param {ReorderAnswersDto} reorderAnswersDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public answerControllerReorder(questionId: string, reorderAnswersDto: ReorderAnswersDto, options?: RawAxiosRequestConfig) {
+        return AnswerApiFp(this.configuration).answerControllerReorder(questionId, reorderAnswersDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

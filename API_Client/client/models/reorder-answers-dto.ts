@@ -13,14 +13,11 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { Question } from './question';
 
-export interface Answer {
-    'id': number;
-    'text': string;
-    'order': number;
-    'question': Question;
+export interface ReorderAnswersDto {
+    /**
+     * ამ კითხვის ყველა პასუხის ID, ახალი თანმიმდევრობით (ზუსტად ერთხელ თითოეული)
+     */
+    'answerIds': Array<number>;
 }
 
