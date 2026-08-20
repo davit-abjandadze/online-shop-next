@@ -13,11 +13,13 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { Product } from './product';
 
-export * from './apis/auth-api';
-export * from './apis/cart-api';
-export * from './apis/categories-api';
-export * from './apis/orders-api';
-export * from './apis/products-api';
-export * from './apis/users-api';
+export interface ProductResponseDto {
+    'statusCode': number;
+    'message': string;
+    'data'?: Product | null;
+}
 

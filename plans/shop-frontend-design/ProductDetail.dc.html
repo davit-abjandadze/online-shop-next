@@ -1,0 +1,132 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --ref-bg:#f0f2f5; --ref-bg-elevated:#ffffff; --ref-bg-subtle:#f7f8fa;
+    --ref-text-primary:#050505; --ref-text-secondary:#65676b; --ref-text-disabled:#bcc0c4; --ref-text-on-primary:#ffffff;
+    --ref-border:#ced0d4; --ref-border-soft:#e4e6eb;
+    --ref-primary:#1a56db; --ref-primary-hover:#1240a8; --ref-primary-soft:#e7f3ff;
+    --ref-success:#30c582; --ref-success-soft:#dff7ec;
+    --ref-warning:#ffcb47; --ref-warning-soft:#fff4dd;
+    --ref-danger:#f43e50; --ref-danger-soft:#fde8ea;
+    --ref-shadow-sm:0 1px 2px rgba(0,0,0,.12); --ref-shadow-md:0 4px 14px rgba(0,0,0,.1);
+  }
+  body { margin:0; font-family:"Helvetica Neue",-apple-system,"Segoe UI",Arial,sans-serif; background:var(--ref-bg); color:var(--ref-text-primary); }
+  a { color: var(--ref-primary); text-decoration:none; }
+  a:hover { color: var(--ref-primary-hover); }
+</style>
+</helmet>
+
+<div style="width:1280px;min-height:100%;background:var(--ref-bg);">
+
+  <!-- Header -->
+  <div style="height:64px;background:var(--ref-bg-elevated);border-bottom:1px solid var(--ref-border-soft);box-shadow:var(--ref-shadow-sm);display:flex;align-items:center;">
+    <div style="max-width:1232px;width:100%;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--ref-primary),var(--ref-primary-hover));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;">მ</div>
+        <span style="font-size:18px;font-weight:700;">მაღაზია</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:28px;">
+        <nav style="display:flex;gap:24px;">
+          <a href="#" style="font-size:14px;font-weight:600;color:var(--ref-text-secondary);">კატალოგი</a>
+          <a href="#" style="font-size:14px;font-weight:600;color:var(--ref-text-secondary);">ჩემი შეკვეთები</a>
+        </nav>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <button type="button" style="position:relative;width:40px;height:40px;border:none;border-radius:50%;background:var(--ref-bg-subtle);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ref-text-primary);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <span style="position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--ref-danger);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">3</span>
+          </button>
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--ref-primary-soft);color:var(--ref-primary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">დბ</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1232px;margin:0 auto;padding:28px 24px 64px;">
+
+    <!-- Breadcrumb -->
+    <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ref-text-secondary);margin-bottom:20px;">
+      <a href="#" style="color:var(--ref-text-secondary);">კატალოგი</a>
+      <span>/</span>
+      <a href="#" style="color:var(--ref-text-secondary);">ტექნიკა</a>
+      <span>/</span>
+      <span style="color:var(--ref-text-primary);font-weight:600;">უსადენო ყურსასმენები Pro X200</span>
+    </div>
+
+    <div style="display:grid;grid-template-columns:480px 1fr;gap:40px;">
+
+      <!-- Gallery -->
+      <div>
+        <div style="aspect-ratio:1/1;border-radius:12px;background:linear-gradient(135deg,#eef2f8,#dfe6f0);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="var(--ref-text-disabled)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v8a2 2 0 0 1-1 1.73l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 16V8"/><path d="M3.27 6.96 12 12l8.73-5.04"/><path d="M12 22V12"/><path d="M17 4.5 7 10"/></svg>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+          <div style="aspect-ratio:1/1;border-radius:8px;background:#eef2f8;border:2px solid var(--ref-primary);"></div>
+          <div style="aspect-ratio:1/1;border-radius:8px;background:#eef2f8;border:1px solid var(--ref-border-soft);"></div>
+          <div style="aspect-ratio:1/1;border-radius:8px;background:#eef2f8;border:1px solid var(--ref-border-soft);"></div>
+          <div style="aspect-ratio:1/1;border-radius:8px;background:#eef2f8;border:1px solid var(--ref-border-soft);"></div>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div style="display:flex;flex-direction:column;">
+        <span style="align-self:flex-start;background:var(--ref-bg-subtle);color:var(--ref-text-secondary);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:12px;">ტექნიკა</span>
+        <h1 style="margin:0 0 12px;font-size:26px;font-weight:700;line-height:1.3;">უსადენო ყურსასმენები Pro X200</h1>
+        <div style="font-size:32px;font-weight:700;margin-bottom:16px;">₾249</div>
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:24px;">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--ref-warning);"></span>
+          <span style="font-size:14px;font-weight:600;color:#b45309;">მარაგშია — ბოლო 3 ცალი</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
+          <span style="font-size:14px;font-weight:600;color:var(--ref-text-secondary);">რაოდენობა</span>
+          <div style="display:flex;align-items:center;border:1px solid var(--ref-border);border-radius:8px;overflow:hidden;">
+            <button style="width:36px;height:36px;border:none;background:var(--ref-bg-subtle);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ref-text-primary);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg>
+            </button>
+            <span style="width:44px;text-align:center;font-size:14px;font-weight:700;">1</span>
+            <button style="width:36px;height:36px;border:none;background:var(--ref-bg-subtle);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ref-text-primary);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button style="width:100%;height:52px;border:none;border-radius:10px;background:var(--ref-primary);color:#fff;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          კალათში დამატება
+        </button>
+
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ref-text-secondary);margin-bottom:28px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.7"/><circle cx="17.5" cy="18" r="1.7"/></svg>
+          მიწოდება 2–4 სამუშაო დღეში, თბილისის მასშტაბით
+        </div>
+
+        <div style="border-top:1px solid var(--ref-border-soft);padding-top:20px;">
+          <h3 style="margin:0 0 10px;font-size:15px;font-weight:700;">აღწერა</h3>
+          <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:var(--ref-text-secondary);">
+            აქტიური ხმაურდაცვის ფუნქციით აღჭურვილი უსადენო ყურსასმენები 40 საათამდე ბატარეის მუშაობით.
+            Bluetooth 5.3 კავშირი, სწრაფი დამუხტვა და მოხერხებული ჩაკეცვადი დიზაინი ყოველდღიური გამოყენებისთვის.
+          </p>
+          <div style="display:grid;grid-template-columns:140px 1fr;gap:10px 16px;font-size:14px;">
+            <span style="color:var(--ref-text-secondary);">ბრენდი</span><span style="font-weight:600;">SoundCore</span>
+            <span style="color:var(--ref-text-secondary);">ფერი</span><span style="font-weight:600;">შავი</span>
+            <span style="color:var(--ref-text-secondary);">წონა</span><span style="font-weight:600;">245გ</span>
+            <span style="color:var(--ref-text-secondary);">გარანტია</span><span style="font-weight:600;">24 თვე</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

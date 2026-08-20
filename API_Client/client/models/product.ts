@@ -15,12 +15,18 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { Product } from './product';
+import type { Category } from './category';
 
-export interface Category {
+export interface Product {
     'id': number;
     'name': string;
     'description'?: string;
-    'products'?: Array<Product>;
+    'price': string;
+    'stock': number;
+    'images'?: Array<string>;
+    'isActive': boolean;
+    'category'?: Category;
+    'createdAt': string;
+    'updatedAt': string;
 }
 

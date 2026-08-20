@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --ref-bg:#f0f2f5; --ref-bg-elevated:#ffffff; --ref-bg-subtle:#f7f8fa;
+    --ref-text-primary:#050505; --ref-text-secondary:#65676b; --ref-text-disabled:#bcc0c4;
+    --ref-border:#ced0d4; --ref-border-soft:#e4e6eb;
+    --ref-primary:#1a56db; --ref-primary-hover:#1240a8; --ref-primary-soft:#e7f3ff;
+    --ref-success-soft:#dff7ec; --ref-warning-soft:#fff4dd; --ref-danger:#f43e50; --ref-danger-soft:#fde8ea;
+    --ref-accent-soft:#fff8d6;
+    --ref-shadow-sm:0 1px 2px rgba(0,0,0,.12);
+  }
+  body { margin:0; font-family:"Helvetica Neue",-apple-system,"Segoe UI",Arial,sans-serif; background:var(--ref-bg); color:var(--ref-text-primary); }
+  a { color: var(--ref-primary); text-decoration:none; }
+  a:hover { color: var(--ref-primary-hover); }
+</style>
+</helmet>
+
+<div style="width:1280px;min-height:100%;background:var(--ref-bg);">
+
+  <!-- Header -->
+  <div style="height:64px;background:var(--ref-bg-elevated);border-bottom:1px solid var(--ref-border-soft);box-shadow:var(--ref-shadow-sm);display:flex;align-items:center;">
+    <div style="max-width:1232px;width:100%;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--ref-primary),var(--ref-primary-hover));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px;">მ</div>
+          <span style="font-size:18px;font-weight:700;">მაღაზია</span>
+        </div>
+        <span style="background:#050505;color:#fff;font-size:10px;font-weight:700;letter-spacing:.04em;padding:3px 8px;border-radius:5px;">ADMIN</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:28px;">
+        <nav style="display:flex;gap:24px;">
+          <a href="#" style="font-size:14px;font-weight:600;color:var(--ref-text-secondary);">პროდუქტები</a>
+          <a href="#" style="font-size:14px;font-weight:600;color:var(--ref-primary);">შეკვეთები</a>
+          <a href="#" style="font-size:14px;font-weight:600;color:var(--ref-text-secondary);">კატალოგში დაბრუნება</a>
+        </nav>
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--ref-primary-soft);color:var(--ref-primary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">დბ</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1232px;margin:0 auto;padding:32px 24px 64px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <h1 style="margin:0;font-size:24px;font-weight:700;">შეკვეთების მართვა</h1>
+      <div style="display:flex;gap:12px;">
+        <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:1px solid var(--ref-border);border-radius:8px;background:var(--ref-bg-elevated);min-width:220px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ref-text-secondary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <span style="font-size:13px;color:var(--ref-text-disabled);">შეკვეთის ნომრით ძებნა...</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:1px solid var(--ref-border);border-radius:8px;background:var(--ref-bg-elevated);cursor:pointer;">
+          <span style="font-size:14px;font-weight:600;">სტატუსი: ყველა</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--ref-bg-elevated);border:1px solid var(--ref-border-soft);border-radius:12px;box-shadow:var(--ref-shadow-sm);overflow:hidden;">
+      <div style="display:grid;grid-template-columns:110px 1fr 120px 90px 100px 170px 40px;align-items:center;padding:12px 20px;font-size:12px;font-weight:700;color:var(--ref-text-secondary);border-bottom:1px solid var(--ref-border-soft);text-transform:uppercase;letter-spacing:.03em;">
+        <span>ნომერი</span><span>მომხმარებელი</span><span>თარიღი</span><span>ნივთები</span><span>ჯამი</span><span>სტატუსი</span><span></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:110px 1fr 120px 90px 100px 170px 40px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--ref-border-soft);">
+        <span style="font-size:14px;font-weight:700;">#10234</span>
+        <span style="font-size:14px;">დავით აბჯანძე</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">20.08.2026</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">3</span>
+        <span style="font-size:14px;font-weight:700;">₾618</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;width:150px;height:32px;padding:0 10px;border-radius:8px;background:var(--ref-warning-soft);color:#b45309;font-size:12px;font-weight:700;cursor:pointer;">
+          <span>მოლოდინში</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:110px 1fr 120px 90px 100px 170px 40px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--ref-border-soft);">
+        <span style="font-size:14px;font-weight:700;">#10221</span>
+        <span style="font-size:14px;">ნინო კვარაცხელია</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">18.08.2026</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">1</span>
+        <span style="font-size:14px;font-weight:700;">₾189</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;width:150px;height:32px;padding:0 10px;border-radius:8px;background:var(--ref-success-soft);color:#1f9d6b;font-size:12px;font-weight:700;cursor:pointer;">
+          <span>გადახდილი</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:110px 1fr 120px 90px 100px 170px 40px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--ref-border-soft);">
+        <span style="font-size:14px;font-weight:700;">#10198</span>
+        <span style="font-size:14px;">გიორგი მაისურაძე</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">14.08.2026</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">2</span>
+        <span style="font-size:14px;font-weight:700;">₾355</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;width:150px;height:32px;padding:0 10px;border-radius:8px;background:var(--ref-primary-soft);color:var(--ref-primary);font-size:12px;font-weight:700;cursor:pointer;">
+          <span>მუშავდება</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:110px 1fr 120px 90px 100px 170px 40px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--ref-border-soft);">
+        <span style="font-size:14px;font-weight:700;">#10176</span>
+        <span style="font-size:14px;">თამარ ბერიძე</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">10.08.2026</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">4</span>
+        <span style="font-size:14px;font-weight:700;">₾742</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;width:150px;height:32px;padding:0 10px;border-radius:8px;background:var(--ref-accent-soft);color:#8a6d00;font-size:12px;font-weight:700;cursor:pointer;">
+          <span>გაგზავნილია</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:110px 1fr 120px 90px 100px 170px 40px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--ref-border-soft);">
+        <span style="font-size:14px;font-weight:700;">#10152</span>
+        <span style="font-size:14px;">ლუკა წიკლაური</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">02.08.2026</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">1</span>
+        <span style="font-size:14px;font-weight:700;">₾110</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;width:150px;height:32px;padding:0 10px;border-radius:8px;background:#30c582;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">
+          <span>ჩაბარებულია</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span></span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:110px 1fr 120px 90px 100px 170px 40px;align-items:center;padding:14px 20px;">
+        <span style="font-size:14px;font-weight:700;">#10140</span>
+        <span style="font-size:14px;">ანა ხატიაშვილი</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">28.07.2026</span>
+        <span style="font-size:13px;color:var(--ref-text-secondary);">2</span>
+        <span style="font-size:14px;font-weight:700;">₾275</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;width:150px;height:32px;padding:0 10px;border-radius:8px;background:var(--ref-danger-soft);color:var(--ref-danger);font-size:12px;font-weight:700;cursor:pointer;">
+          <span>გაუქმებული</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <span></span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>
