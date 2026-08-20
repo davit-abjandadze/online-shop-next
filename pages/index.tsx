@@ -1,6 +1,6 @@
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
-import HomeComponent from "@/components/pages/home";
+import CatalogComponent from "@/components/pages/catalog";
 
 export default function Home() {
   const { t } = useTranslation("common");
@@ -13,7 +13,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <HomeComponent />
+        <CatalogComponent />
       </main>
     </>
   );

@@ -39,6 +39,23 @@ export const TagIcon: React.FC<RefIconProps> = ({ size = 24, className, style })
   </svg>
 );
 
+/* პროდუქტი/ყუთი — ადმინის პროდუქტების ჩანართისთვის */
+export const BoxIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M12 3l8 4.2v9.6L12 21l-8-4.2V7.2L12 3z" fill="#ffffff" stroke="#0347a0" strokeWidth="1.6" strokeLinejoin="round" />
+    <path d="M4 7.2L12 11l8-3.8M12 11v10" stroke="#0347a0" strokeWidth="1.6" strokeLinejoin="round" />
+  </svg>
+);
+
+/* საყიდლების კალათა — Header-ის კალათის ხატულა/ბეჯი */
+export const CartIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M3 4h2l2.2 11.5a2 2 0 002 1.6h7.6a2 2 0 002-1.6L20 8H6" stroke="#0347a0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <circle cx="10" cy="20" r="1.4" fill="#0347a0" />
+    <circle cx="17" cy="20" r="1.4" fill="#0347a0" />
+  </svg>
+);
+
 export const SearchIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="10.5" cy="10.5" r="6.5" fill="#E7F3FF" stroke="#1877F2" strokeWidth="1.8" />
@@ -176,6 +193,13 @@ export const PlusIcon: React.FC<RefIconProps> = ({ size = 18, className, style }
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="12" cy="12" r="10" fill="#1877F2" />
     <path d="M12 7.5v9M7.5 12h9" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" />
+  </svg>
+);
+
+export const MinusIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <circle cx="12" cy="12" r="10" fill="#65676B" />
+    <path d="M7.5 12h9" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" />
   </svg>
 );
 

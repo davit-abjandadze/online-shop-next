@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Header from "@/components/shared/Header";
 import { UserAPI } from "@/API_Client";
-import { User, UserGenderEnum } from "@/API_Client/client/models";
+import { User, UserGenderEnum } from "@/API_Client/types";
 import { ProfileLayout } from "./ProfileLayout";
 import { CalendarIcon, LockIcon, ShieldIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
@@ -204,8 +204,8 @@ export const ProfileComponent: React.FC = () => {
                   <option value="" disabled hidden>
                     აირჩიეთ სქესი
                   </option>
-                  <option value={UserGenderEnum.Male}>კაცი</option>
-                  <option value={UserGenderEnum.Female}>ქალი</option>
+                  <option value="male">კაცი</option>
+                  <option value="female">ქალი</option>
                 </S.Select>
                 {errors.gender && <S.FieldError>{errors.gender.message as string}</S.FieldError>}
               </S.FormGroup>

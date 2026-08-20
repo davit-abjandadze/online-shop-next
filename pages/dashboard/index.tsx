@@ -5,7 +5,7 @@ export default function DashboardIndexPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace("/dashboard/questions");
+    router.replace("/dashboard/products");
   }, [router]);
 
   return null;

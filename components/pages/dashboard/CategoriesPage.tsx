@@ -157,7 +157,7 @@ export const CategoriesPage: React.FC = () => {
                     <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "var(--ref-text-secondary)" }}>{cat.description}</p>
                   )}
                   <S.Badge variant="date" style={{ marginTop: "8px", display: "inline-block" }}>
-                    {cat.questions?.length || 0} კითხვა
+                    {cat.products?.length || 0} პროდუქტი
                   </S.Badge>
                 </div>
                 <S.CardActions>

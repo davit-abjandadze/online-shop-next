@@ -3,8 +3,9 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import AuthModal from "@/components/shared/AuthModal";
+import CartButton from "@/components/shared/CartButton";
 import { useThemeMode } from "@/context/ThemeMode";
-import { ChartIcon, ChevronDownIcon, KeyIcon, LogoutIcon, MoonIcon, PlusIcon, QuestionMarkIcon, SunIcon, UserIcon } from "@/components/ui/RefIcons";
+import { ChartIcon, ChevronDownIcon, ClipboardIcon, KeyIcon, LogoutIcon, MoonIcon, SunIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 interface HeaderProps {
@@ -89,6 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
 
             {status === "authenticated" && session?.user ? (
               <>
+                <CartButton />
                 <S.ProfileTrigger
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   type="button"
@@ -126,12 +128,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                       <UserIcon size={18} /> პროფილი
                     </S.DropdownItem>
 
-                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/questions/ask"); }}>
-                      <PlusIcon size={18} /> კითხვის დამატება
-                    </S.DropdownItem>
-
-                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/my-questions"); }}>
-                      <QuestionMarkIcon size={18} /> ჩემი დასმული კითხვები
+                    <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/orders"); }}>
+                      <ClipboardIcon size={18} /> ჩემი შეკვეთები
                     </S.DropdownItem>
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/change-password"); }}>

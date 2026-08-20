@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Header from "@/components/shared/Header";
-import { ChartIcon, CheckCircleIcon, HourglassIcon, LockIcon, PeopleIcon, QuestionMarkIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BoxIcon, ClipboardIcon, LockIcon, PeopleIcon, TagIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import * as S from "./style";
 
@@ -13,12 +13,10 @@ interface DashboardTabConfig {
 }
 
 const TABS: DashboardTabConfig[] = [
-  { href: "/dashboard/questions", label: "კითხვები", icon: QuestionMarkIcon },
-  { href: "/dashboard/pending-questions", label: "დასადასტურებელი კითხვები", icon: HourglassIcon },
-  { href: "/dashboard/user-questions", label: "მომხმარებლების კითხვები", icon: CheckCircleIcon },
+  { href: "/dashboard/products", label: "პროდუქტები", icon: BoxIcon },
   { href: "/dashboard/category", label: "კატეგორიები", icon: TagIcon },
+  { href: "/dashboard/orders", label: "შეკვეთები", icon: ClipboardIcon },
   { href: "/dashboard/users", label: "მომხმარებლები", icon: PeopleIcon },
-  { href: "/dashboard/analitics", label: "ანალიტიკა", icon: ChartIcon },
 ];
 
 interface DashboardLayoutProps {

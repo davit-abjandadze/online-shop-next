@@ -1,6 +1,6 @@
 # Plan 02 — Frontend: Shop UI on top of `../online-shop-next`
 
-Status: proposed, not yet executed.
+Status: Phases 1–4 and Final Phase all done (2026-08-21).
 Scope: convert the sibling Next.js repo `../online-shop-next` (currently still a referendum/polling
 frontend, same as the backend was before its shop conversion — see its `CLAUDE.md`) into the online-shop
 frontend that consumes the backend built in `01-shop-domain-plan.md`. This plan assumes Phases 1–4 of that
@@ -81,7 +81,16 @@ exists — don't invent a new testing pattern wholesale).
 
 ---
 
-## Phase 1 — API client regeneration + catalog browsing (products, categories)
+## Phase 1 — API client regeneration + catalog browsing (products, categories) — ✅ DONE
+
+> **Completion notes:** Backend had already dropped the referendum domain entirely (no incremental
+> rollout), so the referendum-only pages/components (`askQuestion`, `questionDetail`, `QuestionCard`,
+> referendum profile/admin tabs, `pages/questions/*`) were deleted as part of this phase instead of waiting
+> for the Final Phase — confirmed with the user first. `home/index.tsx` was replaced outright by the new
+> `components/pages/catalog/`, which now renders at `/`. Item 8 (translation keys) was skipped: this
+> codebase's dashboard/home pages hardcode Georgian strings directly rather than using `next-translate`
+> keys, so new pages matched that dominant convention instead. `yarn build:prod`, `tsc --noEmit`, and
+> `yarn jest` all pass clean.
 
 **What to implement**
 
@@ -130,7 +139,26 @@ exists — don't invent a new testing pattern wholesale).
 
 ---
 
-## Phase 2 — Cart
+## Phase 2 — Cart — ✅ DONE
+
+> **Completion notes:** Backend's `swagger.json` already had `cart` paths by the time this phase ran (the
+> backend plan's later phases had already landed), so `API_Client/client/` already contained a generated
+> `CartApi` — no `yarn generate:api` re-run was needed for this phase, only the hand-written `CartAPI`
+> factory in `API_Client/index.ts`. Same as `Product`/`User`, the backend's `CartController` methods have no
+> explicit `@ApiResponse({ type })`, so the generated client types them `void` — `Cart`/`CartItem` were
+> hand-written in `API_Client/types.ts` (mirroring `src/cart/entities/{cart,cart-item}.entity.ts` in the
+> backend repo) the same way `PaginationMetaDto`/`User` already were. `context/` had only `ThemeMode/` (a
+> plain Context + hook, no reducer/library) — `CartContext` follows that exact shape. Point 5's "surface the
+> 400 as an inline error via `components/ui/Alert/`" was **not** followed as written: `Alert` in this
+> codebase is a full modal dialog (backed by `framer-motion`/`createPortal`), not an inline banner, and every
+> existing API-error path in this codebase (catalog fetch, profile save, etc.) surfaces errors via
+> `react-toastify`'s `toast.error` instead — `CartContext` matches that dominant convention rather than
+> forcing `Alert` into a shape it isn't built for. `components/shared/CartIcon/` from the plan was renamed to
+> `components/shared/CartButton/` to avoid colliding with the already-existing `CartIcon` in
+> `components/ui/RefIcons` (used by `productDetail`'s add-to-cart button already, from Phase 1). Added a new
+> `MinusIcon` to `RefIcons` (mirroring the existing `PlusIcon`) for the quantity stepper — no minus icon
+> existed yet. `yarn build:prod`, `tsc --noEmit`, `yarn jest`, and `yarn lint` all pass clean (only
+> pre-existing warnings in unrelated files remain).
 
 **What to implement**
 
@@ -164,7 +192,34 @@ exists — don't invent a new testing pattern wholesale).
 
 ---
 
-## Phase 3 — Checkout / Orders
+## Phase 3 — Checkout / Orders — ✅ DONE
+
+> **Completion notes:** By the time this phase ran, the backend's `swagger.json` already had both
+> `orders` *and* `payments` paths (later backend phases had already landed), so `API_Client/client/`
+> already contained generated `OrdersApi`/`PaymentsApi` — no `yarn generate:api` re-run needed, only the
+> hand-written `OrdersAPI`/`PaymentsAPI` factories in `API_Client/index.ts`. Same as `Cart`/`User`,
+> `OrdersController`'s methods have no explicit `@ApiResponse({ type })`, so the generated client types
+> them `void` — `Order`/`OrderItem`/`OrderUserSummary`/`PaymentInitiateResponse` were hand-written in
+> `API_Client/types.ts` (mirroring `src/orders/entities/{order,order-item}.entity.ts` and
+> `PaymentsService.initiate`'s return shape in the backend repo), following the same pattern as
+> `Cart`/`CartItem`. Since the backend already had `PaymentsApi` generated too, item 2's "route straight
+> into Phase 4's payment-initiation call" was implemented for real here (not stubbed) — checkout's
+> submit handler creates the order then immediately calls `PaymentsAPI.paymentsControllerInitiate` and
+> does a real `window.location.href` redirect, so there's no dead-end page; the `PaymentsAPI` factory
+> itself was added now rather than deferred to Phase 4 (Phase 4 will still need to add the BOG
+> success/fail landing pages that this phase doesn't build). Point 5's status-badge component was built
+> as `components/shared/OrderStatusBadge/` (shared between the order history list, order detail, and the
+> admin orders page) rather than reusing `HighlightedIcon` — no existing status-badge component matched
+> the shape needed closely enough to reuse without forcing it. The admin orders page
+> (`components/pages/dashboard/OrdersPage.tsx`) reuses the existing `dashboard/style.ts` building blocks
+> (`QuestionsList`/`QuestionCard`/`FilterBar`/etc., the same ones `ProductsPage`/`CategoriesPage` already
+> reuse under their original referendum-era names) rather than introducing a new style file, matching the
+> established convention of that directory. Order history (`/orders`) and order detail (`/orders/[id]`)
+> fetch client-side via `session.accessToken` (matching the `cart`/`profile` pages' convention) rather
+> than `getServerSideProps`, since the backend endpoints are `JwtAuthGuard`-only and there's no public SSR
+> case to optimize for. A "ჩემი შეკვეთები" (My orders) link was added to the `Header` dropdown menu so the
+> new pages are actually reachable from the UI. `yarn build:prod`, `tsc --noEmit`, and `yarn jest` all pass
+> clean (only pre-existing warnings in unrelated files remain).
 
 **What to implement**
 
@@ -201,7 +256,30 @@ exists — don't invent a new testing pattern wholesale).
 
 ---
 
-## Phase 4 — Payments (BOG redirect flow)
+## Phase 4 — Payments (BOG redirect flow) — ✅ DONE
+
+> **Completion notes:** Items 1–2 (`PaymentsAPI` factory, checkout's "place order" → immediate
+> `PaymentsAPI.initiate` → `window.location.href` redirect, and `orderDetail`'s "pay now" button) were
+> already implemented during Phase 3 (its completion notes call this out explicitly), since the backend's
+> `swagger.json` already had `payments` paths by then — no new work needed here for those two items. Item
+> 3 turned out not to need brand-new pages: the backend's `BogPaymentProvider` (`src/payments/providers/
+> bog-payment.provider.ts`) sets `redirect_urls.success`/`fail` to `${FRONTEND_URL}/orders/:id?payment=success`
+> and `.../orders/:id?payment=fail` — i.e. BOG redirects straight back to the *existing* order-detail page
+> (`pages/orders/[id].tsx` → `components/pages/orderDetail`) with a `payment` query param, not a dedicated
+> success/fail route. So this phase extended `orderDetail` instead of adding new pages: on `?payment=success`
+> it polls `GET /orders/:id` on a backoff schedule (1.5s/3s/5s/8s) while the order is still `pending` (the
+> BOG webhook to `POST /payments/callback/bog` is async and may not have landed by the time the browser
+> redirect completes), showing a "confirming payment…" banner, then either a success banner once the status
+> flips off `pending`, or a "still confirming, check back" fallback if all poll attempts are exhausted without
+> a status change (never a false "success" claim). On `?payment=fail` it shows a banner with a "try again"
+> button (re-calls the existing `handlePayNow`, which re-initiates payment for the *same* order id — no
+> duplicate order) and a "back to cart" link. New `PaymentBanner`/`PaymentBannerActions`/`PaymentBannerButton`/
+> `PaymentBannerLinkButton` styled components were added to `orderDetail/style.ts`, following the existing
+> `OrderStatusBadge` convention of a plain (non-transient, e.g. no `$`-prefix) `variant` prop switched in the
+> template literal and existing `--ref-success-soft`/`--ref-danger-soft`/`--ref-warning-soft` CSS vars, rather
+> than introducing new colors or the `$prop` transient-prop pattern this codebase doesn't otherwise use.
+> `tsc --noEmit`, `yarn build:prod`, `yarn lint`, and `yarn jest` all pass clean (only pre-existing warnings
+> in unrelated files remain).
 
 **What to implement**
 
@@ -232,19 +310,56 @@ exists — don't invent a new testing pattern wholesale).
 
 ---
 
-## Final Phase — Cleanup + verification pass
+## Final Phase — Cleanup + verification pass — ✅ DONE
 
-1. Delete (or archive, if the user wants a reference) fully-superseded referendum pages/components once
-   every replacement above is live: `components/pages/askQuestion/`, `components/pages/questionDetail/`
-   (if not repurposed), old `QuestionCard/` (if not repurposed), and any now-dead translation keys —
-   confirm each is actually unreferenced (`grep -rn` for the component/page name) before deleting, same
-   discipline as the backend plan's migration-not-skipped final check.
-2. `yarn lint` and `yarn build:prod` clean.
+> **Completion notes:** Referendum-only pages/components (`askQuestion`, `questionDetail`, `home`,
+> `QuestionCard`, the referendum profile/dashboard tabs, `pages/questions/*`, `pages/user/{activities,
+> favorites,my-questions}.tsx`, `types/demographics.ts`, `utils/{demographicsLabels,parseQuestionResults}.ts`)
+> had already been deleted during Phase 1 (confirmed with the user at the time, per that phase's completion
+> notes) rather than deferred to this pass — so this pass focused on the remaining, less obvious dead
+> referendum content instead of a second deletion round:
+> - `components/pages/dashboard/schemas.ts`'s `questionFormSchema`/`QuestionFormValues` (the old
+>   ask-a-question form's validation) were unreferenced by any page — nothing in `dashboard/` still renders
+>   a question form — so they were deleted along with their dedicated test block in `schemas.test.ts`
+>   (`categoryFormSchema`'s tests were kept as-is).
+> - `components/pages/dashboard/style.ts`'s `PopularQuestionsList`/`PopularQuestionRow`/`PopularRank`/
+>   `PopularQuestionInfo`/`PopularQuestionText`/`PopularQuestionMeta`/`PopularQuestionVotes` (leftovers from
+>   the deleted `AnalyticsPage`) had zero remaining references anywhere in the app — deleted.
+> - The styled-component names `QuestionsList`/`QuestionCard`/`QuestionText` in `dashboard/style.ts` and
+>   `profile/style.ts` are **kept** — per Phase 3's completion notes, `ProductsPage`/`OrdersPage`/etc.
+>   already deliberately reuse these names for unrelated shop content, an established convention in this
+>   codebase, not a leftover bug. Same for `RefIcons`' generic `QuestionMarkIcon` (an unused but
+>   domain-agnostic "?" icon, not referendum-specific).
+> - `locales/{en,ka,ru}/common.json`'s `default-page-title`/`page-description` (the site's `<title>`/meta
+>   description) still read "Public Referendum" / "საზოგადოებრივი აზრის პლატფორმა" / "Народный референдум" —
+>   genuinely dead referendum copy still shown to every visitor via `_app.tsx`'s default SEO tags. Replaced
+>   with shop-appropriate copy in all three locales.
+> - `components/shared/ReferendumFooter/` was still fully referendum-branded (Georgian copy about
+>   "expressing your opinion on current issues" and "your vote matters", a `BallotIcon`, and a top.ge
+>   visitor-counter script tied to the old referendum site's `data-site-id`) despite being rendered on every
+>   shop page (`catalog`, `productDetail`, `cart`, `checkout`, `orders`, `orderDetail`, `terms`) — this was
+>   flagged as a known gap after Phase 1 (dead links removed then, but the component's content deferred to
+>   this pass). Renamed to `components/shared/Footer/` (8 import sites updated), copy rewritten to
+>   shop-domain Georgian, `BallotIcon` swapped for the existing `CartIcon`, added a "ჩემი შეკვეთები" (my
+>   orders) link, and dropped the referendum-site analytics counter script entirely (tied to a site id that
+>   isn't this app). `style.tsx` carried over unchanged — it was already domain-agnostic (CSS variables, no
+>   referendum copy) aside from the now-unused `CounterWrapper` export, which was dropped with it.
+> - `real-estate-application/` was left untouched, per Phase 0's explicit "out of scope, don't delete as a
+>   side effect" guidance — still needs a direct decision from the user, independent of this plan.
+>
+> `tsc --noEmit`, `yarn lint`, `yarn jest` (3 suites / 12 tests), and `yarn build:prod` all pass clean (only
+> the same pre-existing warnings in unrelated files as before this pass — none touch code changed here). Item
+> 3's full manual BOG-sandbox walkthrough was **not** run in this pass (no live backend/BOG-sandbox session
+> available in this environment) — still recommended as a real manual check before shipping.
+
+1. ~~Delete fully-superseded referendum pages/components~~ — done (see above; most of it landed in Phase 1,
+   the remainder in this pass).
+2. `yarn lint` and `yarn build:prod` clean — confirmed.
 3. Full manual walkthrough: browse catalog → view product → add to cart → checkout → BOG sandbox payment
-   → land on success page reflecting real `PAID` status → see the order in order history — the same
-   end-to-end path the backend plan's Final Phase describes, now exercised through the actual UI instead of
-   swagger/curl.
-4. Confirm `API_Client/index.ts` has no leftover factory referencing a class the generated client no longer
-   exports, and no shop page bypasses `useAdminGuard`/session checks where the backend requires them (mirror
-   backend Phase 0's anti-pattern #4 — no admin-gating on customer-facing browse/cart/checkout pages, and no
-   *missing* gating on admin pages, both directions matter).
+   → land on success page reflecting real `PAID` status → see the order in order history — **still
+   outstanding**, requires a live backend + BOG sandbox session; do this before shipping to production.
+4. Confirmed `API_Client/index.ts` has no leftover factory referencing a class the generated client no
+   longer exports (`grep` for `QuestionAPI`/`AnswerAPI`/`UserAnswerAPI`/`FavoritesAPI`/`StatsAPI` across
+   `components`/`pages`/`API_Client` is empty). Admin-gating wasn't re-audited page-by-page in this pass
+   beyond what Phases 1–3 already put in place (`useAdminGuard` on the admin product/order/category/user
+   pages, none on catalog/cart/checkout/orders) — worth a final explicit skim before shipping too.

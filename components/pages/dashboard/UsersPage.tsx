@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UserAPI } from "@/API_Client";
-import { PaginationMetaDto, User } from "@/API_Client/client/models";
+import { PaginationMetaDto, User } from "@/API_Client/types";
 import {
   UsersControllerSearchGenderEnum,
   UsersControllerSearchOrderEnum,

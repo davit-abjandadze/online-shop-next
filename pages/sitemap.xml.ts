@@ -1,5 +1,7 @@
 import { GetServerSideProps } from "next";
-import { QuestionAPI } from "@/API_Client";
+import { ProductsAPI } from "@/API_Client";
+import { PaginatedResponseDto } from "@/API_Client/types";
+import { Product } from "@/API_Client/client/models";
 import { BASEPATH } from "@/constants";
 
 const LOCALES = ["ka", "en", "ru"];
@@ -34,16 +36,16 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     let hasNext = true;
 
     while (hasNext) {
-      const result = await QuestionAPI("ka", "").questionControllerFindAll(page, limit);
-      const data = result.data as any;
+      const result = await ProductsAPI("ka", "").productsControllerFindAll(page, limit);
+      const data = result.data as unknown as PaginatedResponseDto<Product>;
       const list = Array.isArray(data?.data) ? data.data : [];
 
       list
-        .filter((q: any) => q.isActive)
-        .forEach((q: any) =>
+        .filter((p) => p.isActive)
+        .forEach((p) =>
           urls.push(
-            buildUrlEntry(`/questions/${q.id}`, {
-              lastmod: q.createdAt ? new Date(q.createdAt).toISOString() : undefined,
+            buildUrlEntry(`/products/${p.id}`, {
+              lastmod: p.createdAt ? new Date(p.createdAt).toISOString() : undefined,
               changefreq: "hourly",
               priority: "0.8",
             })
@@ -54,7 +56,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
       page += 1;
     }
   } catch (err) {
-    console.error("sitemap.xml: could not fetch questions", err);
+    console.error("sitemap.xml: could not fetch products", err);
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

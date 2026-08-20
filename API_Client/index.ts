@@ -1,12 +1,11 @@
 import {
-  AnswerApi,
   AuthApi,
+  CartApi,
   CategoriesApi,
   Configuration,
-  FavoritesApi,
-  QuestionsApi,
-  StatsApi,
-  UserAnswerApi,
+  OrdersApi,
+  PaymentsApi,
+  ProductsApi,
   UsersApi,
 } from "./client";
 import axios from "axios";
@@ -86,29 +85,14 @@ export const AuthAPI = (acceptLanguage: string, accessToken: string) => {
   return new AuthApi(ApiConfig, API_URL, axiosInstance);
 };
 
-export const QuestionAPI = (acceptLanguage: string, accessToken: string) => {
-  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
-  return new QuestionsApi(ApiConfig, API_URL, axiosInstance);
-};
-
-export const AnswerAPI = (acceptLanguage: string, accessToken: string) => {
-  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
-  return new AnswerApi(ApiConfig, API_URL, axiosInstance);
-};
-
-export const UserAnswerAPI = (acceptLanguage: string, accessToken: string) => {
-  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
-  return new UserAnswerApi(ApiConfig, API_URL, axiosInstance);
-};
-
 export const CategoriesAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new CategoriesApi(ApiConfig, API_URL, axiosInstance);
 };
 
-export const FavoritesAPI = (acceptLanguage: string, accessToken: string) => {
+export const ProductsAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
-  return new FavoritesApi(ApiConfig, API_URL, axiosInstance);
+  return new ProductsApi(ApiConfig, API_URL, axiosInstance);
 };
 
 export const UserAPI = (acceptLanguage: string, accessToken: string) => {
@@ -116,9 +100,19 @@ export const UserAPI = (acceptLanguage: string, accessToken: string) => {
   return new UsersApi(ApiConfig, API_URL, axiosInstance);
 };
 
-export const StatsAPI = (acceptLanguage: string, accessToken: string) => {
+export const CartAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
-  return new StatsApi(ApiConfig, API_URL, axiosInstance);
+  return new CartApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const OrdersAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new OrdersApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const PaymentsAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new PaymentsApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

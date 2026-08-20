@@ -1,25 +1,5 @@
 import { z } from "zod";
 
-/** კითხვის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა (react-hook-form + zod). */
-export const questionFormSchema = z.object({
-  text: z.string().trim().min(1, "გთხოვთ შეავსოთ კითხვის ტექსტი"),
-  type: z.enum(["single", "multiple"]),
-  categoryIds: z.array(z.number()).optional(),
-  endDate: z.string().optional(),
-  answers: z
-    .array(
-      z.object({
-        id: z.number().optional(),
-        text: z.string().trim(),
-      })
-    )
-    .refine((answers) => answers.filter((a) => a.text.trim().length > 0).length >= 2, {
-      message: "გთხოვთ მიუთითოთ მინიმუმ 2 სავარაუდო პასუხი",
-    }),
-});
-
-export type QuestionFormValues = z.infer<typeof questionFormSchema>;
-
 /** კატეგორიის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. */
 export const categoryFormSchema = z.object({
   name: z.string().trim().min(1, "გთხოვთ შეავსოთ კატეგორიის სახელი"),
@@ -52,3 +32,25 @@ export const userEditFormSchema = z.object({
 });
 
 export type UserEditFormValues = z.infer<typeof userEditFormSchema>;
+
+/** პროდუქტის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. ფასი/მარაგი ფორმაში
+ * სტრინგებადაა (input-ის ბუნებრივი ტიპი), submit-ის დროს გარდაიქმნება რიცხვებად. */
+export const productFormSchema = z.object({
+  name: z.string().trim().min(1, "გთხოვთ შეავსოთ პროდუქტის სახელი"),
+  description: z.string().trim().optional(),
+  price: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ ფასი")
+    .refine((v) => !isNaN(Number(v)) && Number(v) >= 0, "ფასი უნდა იყოს დადებითი რიცხვი"),
+  stock: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ მარაგი")
+    .refine((v) => !isNaN(Number(v)) && Number.isInteger(Number(v)) && Number(v) >= 0, "მარაგი უნდა იყოს დადებითი მთელი რიცხვი"),
+  categoryId: z.string().optional(),
+  images: z.string().trim().optional(),
+  isActive: z.boolean(),
+});
+
+export type ProductFormValues = z.infer<typeof productFormSchema>;

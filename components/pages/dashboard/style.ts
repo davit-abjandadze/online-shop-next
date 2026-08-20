@@ -896,63 +896,6 @@ export const PeriodButton = styled("button")<{ active?: boolean }>`
   box-shadow: ${({ active }) => (active ? "0 1px 4px rgba(0,0,0,0.08)" : "none")};
 `;
 
-export const PopularQuestionsList = styled("div")`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-export const PopularQuestionRow = styled("div")`
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  background: var(--ref-bg-subtle);
-  border: 1px solid var(--ref-border-soft);
-  border-radius: 10px;
-`;
-
-export const PopularRank = styled("div")`
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  border-radius: 50%;
-  background: var(--ref-primary-soft);
-  color: var(--ref-primary);
-  font-size: 13px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-export const PopularQuestionInfo = styled("div")`
-  flex: 1;
-  min-width: 0;
-`;
-
-export const PopularQuestionText = styled("div")`
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ref-text-primary);
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-export const PopularQuestionMeta = styled("div")`
-  font-size: 12px;
-  color: var(--ref-text-secondary);
-`;
-
-export const PopularQuestionVotes = styled("div")`
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ref-primary);
-  white-space: nowrap;
-`;
-
 export const AccessDeniedCard = styled("div")`
   max-width: 480px;
   margin: 100px auto 0 auto;

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Header from '@/components/shared/Header';
-import ReferendumFooter from '@/components/shared/ReferendumFooter';
+import Footer from '@/components/shared/Footer';
 
 // --- Styled Components Definition ---
 
@@ -252,7 +252,7 @@ export const TermsAndConditions = () => {
         &copy; 2026 Evote.ge - ყველა უფლება დაცულია.
       </PageFooter>
       </Container>
-      <ReferendumFooter />
+      <Footer />
     </>
   );
 };

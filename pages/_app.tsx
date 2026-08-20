@@ -19,6 +19,7 @@ import { withTranslateRoutes } from "next-translate-routes";
 import useTranslation from "next-translate/useTranslation";
 import Head from "next/head";
 import { ThemeModeProvider } from "@/context/ThemeMode";
+import { CartProvider } from "@/context/Cart";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
 NProgress.configure({ showSpinner: false });
@@ -159,9 +160,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
           >
             {/* <GlobalProvider> */}
               <ThemeModeProvider>
-                <ErrorBoundary>
-                  <Component {...pageProps} />
-                </ErrorBoundary>
+                <CartProvider>
+                  <ErrorBoundary>
+                    <Component {...pageProps} />
+                  </ErrorBoundary>
+                </CartProvider>
                 <ToastContainer
                   autoClose={3000}
                   transition={ToastAnimation}
