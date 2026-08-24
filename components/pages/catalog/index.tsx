@@ -28,13 +28,20 @@ export const CatalogComponent: React.FC = () => {
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
 
   // `page`-ს ვასინქრონებთ URL-ის `?page=` პარამეტრთან, გაზიარებული/დაბუქმარკებული
-  // ბმული იმავე გვერდიდან გახსნას რომ იძლეოდეს
+  // ბმული იმავე გვერდიდან გახსნას რომ იძლეოდეს. `?category=` კი საშუალებას
+  // აძლევს მთავარი გვერდის კატეგორიის ბარათებს პირდაპირ გაფილტრულ კატალოგზე
+  // გადაიყვანონ მომხმარებელი.
   useEffect(() => {
     if (!router.isReady) return;
     const queryPage = parseInt(router.query.page as string, 10);
     if (!isNaN(queryPage) && queryPage > 0 && queryPage !== page) {
       setPage(queryPage);
     }
+    const queryCategory = parseInt(router.query.category as string, 10);
+    if (!isNaN(queryCategory) && queryCategory !== activeCategoryId) {
+      setActiveCategoryId(queryCategory);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady]);
 
   const goToPage = (newPage: number) => {

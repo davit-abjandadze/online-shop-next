@@ -18,8 +18,8 @@ import { Router, useRouter } from "next/router";
 import { withTranslateRoutes } from "next-translate-routes";
 import useTranslation from "next-translate/useTranslation";
 import Head from "next/head";
-import { ThemeModeProvider } from "@/context/ThemeMode";
 import { CartProvider } from "@/context/Cart";
+import { WishlistProvider } from "@/context/Wishlist";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
 NProgress.configure({ showSpinner: false });
@@ -159,28 +159,28 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
             refetchOnWindowFocus={false}
           >
             {/* <GlobalProvider> */}
-              <ThemeModeProvider>
-                <CartProvider>
+              <CartProvider>
+                <WishlistProvider>
                   <ErrorBoundary>
                     <Component {...pageProps} />
                   </ErrorBoundary>
-                </CartProvider>
-                <ToastContainer
-                  autoClose={3000}
-                  transition={ToastAnimation}
-                  theme="colored"
-                  closeButton={<Icon name="close" />}
-                  icon={({ type }) => {
-                    if (type === "success") {
-                      return <Icon name="check" />;
-                    } else if (type === "error") {
-                      return <Icon name="cancel" filled />;
-                    } else {
-                      return <Icon name={type} filled />;
-                    }
-                  }}
-                />
-              </ThemeModeProvider>
+                </WishlistProvider>
+              </CartProvider>
+              <ToastContainer
+                autoClose={3000}
+                transition={ToastAnimation}
+                theme="colored"
+                closeButton={<Icon name="close" />}
+                icon={({ type }) => {
+                  if (type === "success") {
+                    return <Icon name="check" />;
+                  } else if (type === "error") {
+                    return <Icon name="cancel" filled />;
+                  } else {
+                    return <Icon name={type} filled />;
+                  }
+                }}
+              />
             {/* </GlobalProvider> */}
           </SessionProvider>
         </ScreenClassProvider>

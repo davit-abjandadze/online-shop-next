@@ -2,9 +2,9 @@ import styled from "styled-components";
 
 export const HeaderWrapper = styled.header`
   width: 100%;
-  height: 68px;
+  height: 76px;
   /* მინის ეფექტი: სქროლისას ქვედა კონტენტი ოდნავ გაჩანს ბლურის მიღმა */
-  background: color-mix(in srgb, var(--ref-bg-elevated) 82%, transparent);
+  background: color-mix(in srgb, var(--ref-bg-elevated) 88%, transparent);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   position: sticky;
@@ -15,19 +15,17 @@ export const HeaderWrapper = styled.header`
 `;
 
 export const Container = styled.div`
-  max-width: 1280px;
+  max-width: 1320px;
   height: 100%;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-`;
-
-export const RightSection = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 16px;
+  /* justify-content: space-between-ის ნაცვლად ლოგო და მენიუ მარცხნივ ერთად
+     ვამაგრეთ fixed gap-ით, Actions კი margin-left: auto-თი მარჯვნივ ვისვამთ —
+     ასე სერჩის გაფართოებისას (focus-within) მენიუ აღარ იძვრება ადგილიდან */
+  justify-content: flex-start;
+  gap: 40px;
 `;
 
 export const LogoLink = styled.a`
@@ -36,6 +34,7 @@ export const LogoLink = styled.a`
   gap: 10px;
   text-decoration: none;
   cursor: pointer;
+  flex-shrink: 0;
 `;
 
 export const LogoBadge = styled.div`
@@ -47,26 +46,88 @@ export const LogoBadge = styled.div`
   overflow: hidden;
 
   img {
-    height: 68px;
+    height: 60px;
     width: auto;
     object-fit: contain;
   }
 
   @media (max-width: 600px) {
     img {
-      height: 50px;
+      height: 44px;
     }
   }
 `;
 
-export const LeftSection = styled.div`
+export const Nav = styled.nav`
   display: flex;
   align-items: center;
-  gap: 12px;
-  position: relative;
+  gap: 30px;
+  flex-shrink: 0;
+
+  @media (max-width: 960px) {
+    display: none;
+  }
 `;
 
-export const ThemeToggleButton = styled.button`
+export const NavLink = styled.a<{ active?: boolean }>`
+  font-size: 14px;
+  font-weight: ${({ active }) => (active ? 700 : 500)};
+  color: ${({ active }) => (active ? "var(--ref-text-primary)" : "var(--ref-text-secondary)")};
+  white-space: nowrap;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: var(--ref-primary);
+  }
+`;
+
+export const Actions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  flex-shrink: 0;
+  margin-left: auto;
+`;
+
+export const SearchForm = styled.form`
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--ref-bg-subtle);
+  border-radius: 12px;
+  padding: 9px 14px;
+  width: 220px;
+  color: var(--ref-text-disabled);
+  transition: width 0.2s ease;
+
+  &:focus-within {
+    width: 260px;
+    color: var(--ref-primary);
+  }
+
+  @media (max-width: 1100px) {
+    display: none;
+  }
+`;
+
+export const SearchInput = styled.input`
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 13px;
+  color: var(--ref-text-primary);
+  font-family: inherit;
+
+  &::placeholder {
+    color: var(--ref-text-disabled);
+  }
+`;
+
+export const WishlistButton = styled.button`
+  position: relative;
   width: 40px;
   height: 40px;
   display: flex;
@@ -75,26 +136,43 @@ export const ThemeToggleButton = styled.button`
   border: 1px solid var(--ref-border-soft);
   border-radius: 50%;
   background: var(--ref-bg-subtle);
+  color: var(--ref-text-secondary);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   flex-shrink: 0;
 
   &:hover {
     background: var(--ref-border-soft);
     border-color: var(--ref-primary);
-    transform: rotate(12deg);
+    color: var(--ref-primary);
   }
+`;
+
+export const WishlistBadge = styled.span`
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--ref-primary);
+  color: var(--ref-text-on-primary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
 `;
 
 export const LoginBtn = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 18px;
+  padding: 10px 20px;
   background: var(--ref-primary);
   color: var(--ref-text-on-primary);
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
@@ -159,21 +237,10 @@ export const AvatarCircle = styled.div`
   }
 `;
 
-export const ProfileName = styled.span`
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ref-text-primary);
-  white-space: nowrap;
-  text-overflow: ellipsis;  overflow: hidden;
-  @media (max-width: 600px) {
-    max-width: 70px;
-  }
-`;
-
 export const DropdownMenu = styled.div`
   position: absolute;
   top: calc(100% + 10px);
-  left: 0;
+  right: 0;
   width: 240px;
   background: var(--ref-bg-elevated);
   border: 1px solid var(--ref-border-soft);

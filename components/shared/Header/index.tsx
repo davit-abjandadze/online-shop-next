@@ -4,8 +4,17 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import AuthModal from "@/components/shared/AuthModal";
 import CartButton from "@/components/shared/CartButton";
-import { useThemeMode } from "@/context/ThemeMode";
-import { ChartIcon, ChevronDownIcon, ClipboardIcon, KeyIcon, LogoutIcon, MoonIcon, SunIcon, UserIcon } from "@/components/ui/RefIcons";
+import { useWishlist } from "@/context/Wishlist";
+import {
+  ChartIcon,
+  ChevronDownIcon,
+  ClipboardIcon,
+  HeartIcon,
+  KeyIcon,
+  LogoutIcon,
+  SearchIcon,
+  UserIcon,
+} from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 interface HeaderProps {
@@ -15,11 +24,12 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { mode, toggleMode } = useThemeMode();
+  const { count: wishlistCount } = useWishlist();
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register" | "forgot">("login");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -52,6 +62,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
     window.location.replace("/")
   };
 
+  // ორდერების ბმული ავტორიზაციას მოითხოვს — არაავტორიზებულს ავტორიზაციის
+  // მოდალს ვუხსნით ნავიგაციის ნაცვლად (იგივე პატერნი, რაც Footer-ს აქვს).
+  const handleOrdersClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (status !== "authenticated") {
+      e.preventDefault();
+      handleOpenLogin("login");
+    }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchValue.trim();
+    router.push(query ? `/products?search=${encodeURIComponent(query)}` : "/products");
+  };
+
   // Get User Initials
   const getUserInitials = () => {
     if (!session?.user) return "U";
@@ -67,26 +92,48 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
     <>
       <S.HeaderWrapper>
         <S.Container>
-          {/* მარცხნივ (Left Side): პროფილის სურათი ან შესვლის ღილაკი */}
-          {/* მარჯვნივ (Right Side): ლოგო */}
-          <S.RightSection>
+          <Link href="/" passHref legacyBehavior>
+            <S.LogoLink>
+              <S.LogoBadge>
+                <img src="/icons/logo.svg" alt="" />
+              </S.LogoBadge>
+            </S.LogoLink>
+          </Link>
+
+          <S.Nav>
             <Link href="/" passHref legacyBehavior>
-              <S.LogoLink>
-                <S.LogoBadge>
-                  <img src="/icons/logo.svg" alt="" />
-                </S.LogoBadge>
-              </S.LogoLink>
+              <S.NavLink active={router.pathname === "/"}>მთავარი</S.NavLink>
             </Link>
-          </S.RightSection>
-          <S.LeftSection ref={dropdownRef}>
-            <S.ThemeToggleButton
+            <Link href="/products" passHref legacyBehavior>
+              <S.NavLink active={router.pathname.startsWith("/products")}>კატალოგი</S.NavLink>
+            </Link>
+            <Link href="/orders" passHref legacyBehavior>
+              <S.NavLink active={router.pathname.startsWith("/orders")} onClick={handleOrdersClick}>
+                ჩემი შეკვეთები
+              </S.NavLink>
+            </Link>
+          </S.Nav>
+
+          <S.Actions ref={dropdownRef}>
+            <S.SearchForm onSubmit={handleSearchSubmit}>
+              <SearchIcon size={16} />
+              <S.SearchInput
+                type="text"
+                placeholder="მოძებნეთ პროდუქტი…"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </S.SearchForm>
+
+            <S.WishlistButton
               type="button"
-              onClick={toggleMode}
-              aria-label={mode === "dark" ? "ღია რეჟიმზე გადართვა" : "ბნელ რეჟიმზე გადართვა"}
-              title={mode === "dark" ? "ღია რეჟიმი" : "ბნელი რეჟიმი"}
+              onClick={() => router.push("/wishlist")}
+              aria-label="სასურველი პროდუქტები"
+              title="სასურველი პროდუქტები"
             >
-              {mode === "dark" ? <SunIcon size={20} /> : <MoonIcon size={20} />}
-            </S.ThemeToggleButton>
+              <HeartIcon size={20} filled={wishlistCount > 0} />
+              {wishlistCount > 0 && <S.WishlistBadge>{wishlistCount > 99 ? "99+" : wishlistCount}</S.WishlistBadge>}
+            </S.WishlistButton>
 
             {status === "authenticated" && session?.user ? (
               <>
@@ -96,15 +143,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                   type="button"
                 >
                   <S.AvatarCircle>
-                    {/* {session.user.image ? (
-                      <img src={session.user.image} alt={session.user.name || "User"} />
-                    ) : ( */}
                     {getUserInitials()}
-                    {/* )} */}
                   </S.AvatarCircle>
-                  <S.ProfileName>
-                    {session.user.name || session.user.email}
-                  </S.ProfileName>
+                
                   <ChevronDownIcon size={14} />
                 </S.ProfileTrigger>
 
@@ -144,11 +185,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
               </>
             ) : (
               <S.LoginBtn onClick={() => handleOpenLogin("login")} type="button">
-                <UserIcon size={18} style={{ filter: "brightness(0) invert(1)" }} /> შესვლა
+                <UserIcon size={18} /> შესვლა
                 <S.LoginBtnFullLabel> / ავტორიზაცია</S.LoginBtnFullLabel>
               </S.LoginBtn>
             )}
-          </S.LeftSection>
+          </S.Actions>
         </S.Container>
       </S.HeaderWrapper>
 

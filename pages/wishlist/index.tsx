@@ -1,8 +1,8 @@
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
-import HomeComponent from "@/components/pages/home";
+import WishlistComponent from "@/components/pages/wishlist";
 
-export default function Home() {
+export default function WishlistPage() {
   const { t } = useTranslation("common");
 
   return (
@@ -13,7 +13,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <HomeComponent />
+        <WishlistComponent />
       </main>
     </>
   );

@@ -49,8 +49,7 @@ export const DropdownChevron = styled("span")<{ open?: boolean }>`
 `;
 
 // ჩამოსაშლელი მენიუ — ბუნებრივი <select>-ისგან განსხვავებით, სრულად
-// ჩვენი კონტროლის ქვეშაა (ფონი/ფერი/hover/ანიმაცია), ამიტომ ლამაზად
-// გამოსდის ორივე თემაში.
+// ჩვენი კონტროლის ქვეშაა (ფონი/ფერი/hover/ანიმაცია).
 export const DropdownMenu = styled("div")`
   position: absolute;
   top: calc(100% + 8px);
@@ -77,10 +76,6 @@ export const DropdownMenu = styled("div")`
       opacity: 1;
       transform: translateY(0) scale(1);
     }
-  }
-
-  :root[data-theme="dark"] & {
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 `;
 

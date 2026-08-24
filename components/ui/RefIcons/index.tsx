@@ -47,26 +47,27 @@ export const BoxIcon: React.FC<RefIconProps> = ({ size = 24, className, style })
   </svg>
 );
 
-/* საყიდლების კალათა — Header-ის კალათის ხატულა/ბეჯი */
+/* საყიდლების კალათა — Header-ის კალათის ხატულა/ბეჯი. მონოქრომული (currentColor),
+   Nova-დიზაინის outline სტილის მიხედვით — ფერს იღებს მშობელი კონტეინერის `color`-იდან. */
 export const CartIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M3 4h2l2.2 11.5a2 2 0 002 1.6h7.6a2 2 0 002-1.6L20 8H6" stroke="#0347a0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="10" cy="20" r="1.4" fill="#0347a0" />
-    <circle cx="17" cy="20" r="1.4" fill="#0347a0" />
+    <circle cx="9" cy="21" r="1.1" fill="currentColor" />
+    <circle cx="19" cy="21" r="1.1" fill="currentColor" />
+    <path d="M1.5 1.5h3l2.6 13.2a2 2 0 0 0 2 1.6h9a2 2 0 0 0 2-1.6L22 6H5.6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 export const SearchIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="10.5" cy="10.5" r="6.5" fill="#E7F3FF" stroke="#1877F2" strokeWidth="1.8" />
-    <path d="M15.5 15.5L20 20" stroke="#65676B" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
 
 export const UserIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="12" cy="8" r="4" fill="#1877F2" />
-    <path d="M4 20c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" fill="#4293FA" />
+    <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M4 20c0-4.4 3.6-6.5 8-6.5s8 2.1 8 6.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
 
@@ -333,6 +334,103 @@ export const LinkIcon: React.FC<RefIconProps> = ({ size = 18, className, style }
   </svg>
 );
 
+/* ქვემოთ — მონოქრომული, currentColor-ზე აგებული ხაზოვანი (outline) აიკონები, Nova-დიზაინის
+   canvas-ის (Header/Footer/Hero Slider) სტილის მიხედვით: ერთგვაროვანი stroke-width, ფერს
+   იღებენ მშობელი ელემენტის `color`-იდან, არა საკუთარი ჩაშენებული hex-კოდიდან. */
+
+export const ArrowRightIcon: React.FC<RefIconProps> = ({ size = 16, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <path d="M13 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/* Hero Slider-ის წინა/შემდეგი ისრები */
+export const ChevronLeftIcon: React.FC<RefIconProps> = ({ size = 16, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const ChevronRightIcon: React.FC<RefIconProps> = ({ size = 16, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+/* გულის ხატულა — სასურველი პროდუქტების (wishlist) ღილაკისთვის. `filled` პროპით
+   ავსება (currentColor) ან მხოლოდ კონტური. */
+export const HeartIcon: React.FC<RefIconProps & { filled?: boolean }> = ({ size = 20, className, style, filled }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path
+      d="M12 21s-7.2-4.4-9.5-8.8C.8 8.4 2.4 4.5 6.3 4.5c2.1 0 3.6 1.1 5.7 3.4 2.1-2.3 3.6-3.4 5.7-3.4 3.9 0 5.5 3.9 3.8 7.7C19.2 16.6 12 21 12 21z"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const TruckIcon: React.FC<RefIconProps> = ({ size = 22, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="1" y="6" width="13" height="10" rx="1" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M14 10h4l3 3v3h-3" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    <circle cx="6.5" cy="19.3" r="1.8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <circle cx="17.5" cy="19.3" r="1.8" fill="none" stroke="currentColor" strokeWidth="1.6" />
+  </svg>
+);
+
+export const RefreshCcwIcon: React.FC<RefIconProps> = ({ size = 22, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M20 11a8 8 0 1 0-2.6 6.3" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    <polyline points="20 4 20 11 13 11" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const HeadsetIcon: React.FC<RefIconProps> = ({ size = 22, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M4 13v-1a8 8 0 0 1 16 0v1" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <rect x="2" y="13" width="4" height="6" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <rect x="18" y="13" width="4" height="6" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M20 19v1a3 3 0 0 1-3 3h-2.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+);
+
+/* Facebook "f" გლიფის მონოქრომული ვერსია — სოციალური ბმულების ბეჯებისთვის.
+   ბრენდირებული ფერადი FacebookIcon (თეთრი წრე + ლურჯი "f") ცალკეა დატოვებული
+   OAuth ღილაკებისთვის (AuthModal), სადაც ბრენდის ფერი მოსალოდნელი კონვენციაა. */
+export const FacebookGlyphIcon: React.FC<RefIconProps> = ({ size = 16, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path
+      d="M14.5 21v-7.6H17l.4-3h-2.9v-1.9c0-.9.25-1.5 1.5-1.5H17.5V5.1c-.28-.04-1.24-.12-2.36-.12-2.33 0-3.93 1.42-3.93 4.03v2.25H8.6v3h2.6V21z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+export const InstagramIcon: React.FC<RefIconProps> = ({ size = 16, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
+  </svg>
+);
+
+export const XIcon: React.FC<RefIconProps> = ({ size = 14, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <line x1="4.5" y1="4.5" x2="19.5" y2="19.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    <line x1="19.5" y1="4.5" x2="4.5" y2="19.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
+export const MailIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 /* Grid-view toggle: 2-სვეტიანი (side-by-side) და 1-სვეტიანი (სრულ სიგანეზე) განლაგება.
    მონოქრომული, `currentColor`-ზეა აგებული, რომ ღილაკის active/inactive ფერი CSS-იდან იმართებოდეს. */
 export const GridTwoIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
@@ -360,3 +458,4 @@ export const DragHandleIcon: React.FC<RefIconProps> = ({ size = 18, className, s
     <circle cx="15" cy="18" r="1.5" fill="currentColor" />
   </svg>
 );
+

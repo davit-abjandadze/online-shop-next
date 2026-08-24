@@ -280,6 +280,7 @@ export const FooterLinks = styled.div`
   justify-content: space-between;
   margin-top: 4px;
   font-size: 13px;
+  color:white;
 `;
 
 export const LinkBtn = styled.button`

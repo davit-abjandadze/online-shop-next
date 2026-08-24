@@ -1,31 +1,34 @@
 import styled from "styled-components";
 
-export const Card = styled("a")`
+export const Card = styled("a")<{ out?: boolean }>`
   display: flex;
   flex-direction: column;
   background: var(--ref-bg-elevated);
-  border: 1px solid var(--ref-border-soft);
-  border-radius: 14px;
+  border-radius: 20px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
+  box-shadow: var(--ref-shadow-sm);
+  opacity: ${({ out }) => (out ? 0.55 : 1)};
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--ref-shadow-md);
   }
 `;
 
 export const ImageWrap = styled("div")`
   position: relative;
-  width: 100%;
+  width: calc(100% - 20px);
   aspect-ratio: 1 / 1;
+  margin: 10px;
+  border-radius: 14px;
   background: var(--ref-bg);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  color: var(--ref-text-secondary);
 
   img {
     width: 100%;
@@ -34,38 +37,52 @@ export const ImageWrap = styled("div")`
   }
 `;
 
-export const StockBadge = styled("span")<{ out?: boolean }>`
+export const DiscountBadge = styled("span")`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--ref-danger);
+`;
+
+export const WishlistToggle = styled("button")<{ active?: boolean }>`
   position: absolute;
   top: 10px;
   right: 10px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #fff;
-  background: ${({ out }) => (out ? "#c0392b" : "var(--ref-primary)")};
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.92);
+  color: ${({ active }) => (active ? "var(--ref-danger)" : "var(--ref-text-secondary)")};
+  box-shadow: var(--ref-shadow-sm);
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    transform: scale(1.08);
+    color: var(--ref-danger);
+  }
 `;
 
 export const Body = styled("div")`
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 14px;
-  flex: 1;
-`;
-
-export const CategoryLabel = styled("span")`
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--ref-text-secondary);
-  display: inline-flex;
-  align-items: center;
   gap: 4px;
+  padding: 4px 14px 14px;
+  flex: 1;
 `;
 
 export const Name = styled("h3")`
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--ref-text-primary);
   line-height: 1.35;
@@ -76,32 +93,50 @@ export const Name = styled("h3")`
 `;
 
 export const Footer = styled("div")`
-  margin-top: auto;
+  margin-top: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 `;
 
+export const PriceGroup = styled("div")`
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+`;
+
 export const Price = styled("span")`
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
-  color: var(--ref-primary);
+  color: var(--ref-text-primary);
+`;
+
+export const OldPrice = styled("span")`
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+  text-decoration: line-through;
 `;
 
 export const AddButton = styled("button")`
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
   border: none;
-  border-radius: 8px;
-  background: var(--ref-primary);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
+  border-radius: 10px;
+  background: var(--ref-primary-soft);
+  color: var(--ref-primary);
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--ref-primary);
+    color: #fff;
+  }
 
   &:disabled {
     opacity: 0.5;
