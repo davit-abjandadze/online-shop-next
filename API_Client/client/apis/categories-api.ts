@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { AddCategoryAttributeDto } from '../models';
+// @ts-ignore
 import type { CategoryResponseDto } from '../models';
 // @ts-ignore
 import type { CreateCategoryDto } from '../models';
@@ -32,6 +34,48 @@ import type { UpdateCategoryDto } from '../models';
  */
 export const CategoriesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @summary მახასიათებლის მიბმა კატეგორიაზე (ADMIN)
+         * @param {string} id 
+         * @param {AddCategoryAttributeDto} addCategoryAttributeDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoryControllerAddAttribute: async (id: string, addCategoryAttributeDto: AddCategoryAttributeDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('categoryControllerAddAttribute', 'id', id)
+            // verify required parameter 'addCategoryAttributeDto' is not null or undefined
+            assertParamExists('categoryControllerAddAttribute', 'addCategoryAttributeDto', addCategoryAttributeDto)
+            const localVarPath = `/categories/{id}/attributes`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(addCategoryAttributeDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary ახალი კატეგორიის შექმნა (ADMIN)
@@ -114,6 +158,39 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
             if (parentId !== undefined) {
                 localVarQueryParameter['parentId'] = parentId;
             }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary კატეგორიაზე მიბმული attribute set (წინაპრებისგან მემკვიდრეობით მიღებულის ჩათვლით)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoryControllerFindAttributes: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('categoryControllerFindAttributes', 'id', id)
+            const localVarPath = `/categories/{id}/attributes`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -259,6 +336,47 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
         },
         /**
          * 
+         * @summary მახასიათებლის მოხსნა კატეგორიიდან (ADMIN)
+         * @param {string} id 
+         * @param {string} attributeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoryControllerRemoveAttribute: async (id: string, attributeId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('categoryControllerRemoveAttribute', 'id', id)
+            // verify required parameter 'attributeId' is not null or undefined
+            assertParamExists('categoryControllerRemoveAttribute', 'attributeId', attributeId)
+            const localVarPath = `/categories/{id}/attributes/{attributeId}`
+                .replace('{id}', encodeURIComponent(String(id)))
+                .replace('{attributeId}', encodeURIComponent(String(attributeId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary კატეგორიის განახლება (ADMIN)
          * @param {string} id 
          * @param {UpdateCategoryDto} updateCategoryDto 
@@ -311,6 +429,20 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
+         * @summary მახასიათებლის მიბმა კატეგორიაზე (ADMIN)
+         * @param {string} id 
+         * @param {AddCategoryAttributeDto} addCategoryAttributeDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoryControllerAddAttribute(id: string, addCategoryAttributeDto: AddCategoryAttributeDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoryControllerAddAttribute(id, addCategoryAttributeDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoryControllerAddAttribute']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary ახალი კატეგორიის შექმნა (ADMIN)
          * @param {CreateCategoryDto} createCategoryDto 
          * @param {*} [options] Override http request option.
@@ -337,6 +469,19 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.categoryControllerFindAll(page, limit, sortBy, order, parentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoryControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary კატეგორიაზე მიბმული attribute set (წინაპრებისგან მემკვიდრეობით მიღებულის ჩათვლით)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoryControllerFindAttributes(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoryControllerFindAttributes(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoryControllerFindAttributes']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -392,6 +537,20 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary მახასიათებლის მოხსნა კატეგორიიდან (ADMIN)
+         * @param {string} id 
+         * @param {string} attributeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async categoryControllerRemoveAttribute(id: string, attributeId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoryControllerRemoveAttribute(id, attributeId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoryControllerRemoveAttribute']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary კატეგორიის განახლება (ADMIN)
          * @param {string} id 
          * @param {UpdateCategoryDto} updateCategoryDto 
@@ -415,6 +574,17 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
     return {
         /**
          * 
+         * @summary მახასიათებლის მიბმა კატეგორიაზე (ADMIN)
+         * @param {string} id 
+         * @param {AddCategoryAttributeDto} addCategoryAttributeDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoryControllerAddAttribute(id: string, addCategoryAttributeDto: AddCategoryAttributeDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.categoryControllerAddAttribute(id, addCategoryAttributeDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary ახალი კატეგორიის შექმნა (ADMIN)
          * @param {CreateCategoryDto} createCategoryDto 
          * @param {*} [options] Override http request option.
@@ -436,6 +606,16 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
          */
         categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.categoryControllerFindAll(page, limit, sortBy, order, parentId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary კატეგორიაზე მიბმული attribute set (წინაპრებისგან მემკვიდრეობით მიღებულის ჩათვლით)
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoryControllerFindAttributes(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.categoryControllerFindAttributes(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -478,6 +658,17 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
         },
         /**
          * 
+         * @summary მახასიათებლის მოხსნა კატეგორიიდან (ADMIN)
+         * @param {string} id 
+         * @param {string} attributeId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        categoryControllerRemoveAttribute(id: string, attributeId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.categoryControllerRemoveAttribute(id, attributeId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary კატეგორიის განახლება (ADMIN)
          * @param {string} id 
          * @param {UpdateCategoryDto} updateCategoryDto 
@@ -494,6 +685,18 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
  * CategoriesApi - object-oriented interface
  */
 export class CategoriesApi extends BaseAPI {
+    /**
+     * 
+     * @summary მახასიათებლის მიბმა კატეგორიაზე (ADMIN)
+     * @param {string} id 
+     * @param {AddCategoryAttributeDto} addCategoryAttributeDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public categoryControllerAddAttribute(id: string, addCategoryAttributeDto: AddCategoryAttributeDto, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoryControllerAddAttribute(id, addCategoryAttributeDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary ახალი კატეგორიის შექმნა (ADMIN)
@@ -518,6 +721,17 @@ export class CategoriesApi extends BaseAPI {
      */
     public categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, options?: RawAxiosRequestConfig) {
         return CategoriesApiFp(this.configuration).categoryControllerFindAll(page, limit, sortBy, order, parentId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary კატეგორიაზე მიბმული attribute set (წინაპრებისგან მემკვიდრეობით მიღებულის ჩათვლით)
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public categoryControllerFindAttributes(id: string, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoryControllerFindAttributes(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -561,6 +775,18 @@ export class CategoriesApi extends BaseAPI {
      */
     public categoryControllerRemove(id: string, options?: RawAxiosRequestConfig) {
         return CategoriesApiFp(this.configuration).categoryControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary მახასიათებლის მოხსნა კატეგორიიდან (ADMIN)
+     * @param {string} id 
+     * @param {string} attributeId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public categoryControllerRemoveAttribute(id: string, attributeId: string, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoryControllerRemoveAttribute(id, attributeId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

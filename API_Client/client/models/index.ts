@@ -1,4 +1,5 @@
 export * from './add-cart-item-dto';
+export * from './add-category-attribute-dto';
 export * from './category';
 export * from './category-response-dto';
 export * from './change-password-dto';
