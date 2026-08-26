@@ -16,12 +16,44 @@
 
 export interface CreateCategoryDto {
     /**
-     * კატეგორიის სახელი
+     * კატეგორიის სახელი ქართულად
      */
-    'name': string;
+    'nameKa': string;
     /**
-     * კატეგორიის მოკლე აღწერა
+     * კატეგორიის სახელი ინგლისურად
      */
-    'description'?: string;
+    'nameEn': string;
+    /**
+     * უნიკალური slug URL-ისთვის (მხოლოდ ლათინური ასოები, ციფრები, ტირე)
+     */
+    'slug': string;
+    /**
+     * მშობელი კატეგორიის ID (ცარიელი — root კატეგორია)
+     */
+    'parentId'?: string;
+    /**
+     * აქტიურია თუ არა კატეგორია
+     */
+    'isActive'?: boolean;
+    /**
+     * დალაგების რიგი
+     */
+    'sortOrder'?: number;
+    /**
+     * კატეგორიის სურათის URL
+     */
+    'image'?: string;
+    /**
+     * SEO სათაური
+     */
+    'seoTitle'?: string;
+    /**
+     * SEO აღწერა
+     */
+    'seoDescription'?: string;
+    /**
+     * SEO საკვანძო სიტყვები
+     */
+    'seoKeywords'?: string;
 }
 

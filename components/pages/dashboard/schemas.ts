@@ -2,8 +2,15 @@ import { z } from "zod";
 
 /** კატეგორიის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. */
 export const categoryFormSchema = z.object({
-  name: z.string().trim().min(1, "გთხოვთ შეავსოთ კატეგორიის სახელი"),
-  description: z.string().trim().optional(),
+  nameKa: z.string().trim().min(1, "გთხოვთ შეავსოთ კატეგორიის სახელი ქართულად"),
+  nameEn: z.string().trim().min(1, "გთხოვთ შეავსოთ კატეგორიის სახელი ინგლისურად"),
+  slug: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ slug")
+    .regex(/^[a-z0-9-]+$/, "slug უნდა შეიცავდეს მხოლოდ ლათინურ პატარა ასოებს, ციფრებს და ტირეს"),
+  parentId: z.string().optional(),
+  isActive: z.boolean(),
 });
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
@@ -49,7 +56,14 @@ export const productFormSchema = z.object({
     .min(1, "გთხოვთ მიუთითოთ მარაგი")
     .refine((v) => !isNaN(Number(v)) && Number.isInteger(Number(v)) && Number(v) >= 0, "მარაგი უნდა იყოს დადებითი მთელი რიცხვი"),
   categoryId: z.string().optional(),
-  images: z.string().trim().optional(),
+  // თითო სურათის URL — ცალკე მწკრივია ფორმაში (რამდენიმე სურათის დამატება/წაშლა
+  // შესაძლებელია პირდაპირ), ცარიელი სტრიქონები submit-ის წინ ფილტრდება.
+  images: z.array(z.string()).optional(),
+  videoUrl: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || /^https?:\/\//.test(v), "ვიდეოს ლინკი უნდა იწყებოდეს http(s)://-ით"),
   isActive: z.boolean(),
 });
 

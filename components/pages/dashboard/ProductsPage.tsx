@@ -7,7 +7,9 @@ import { ProductsAPI, CategoriesAPI } from "@/API_Client";
 import { Category, Product } from "@/API_Client/client/models";
 import { PaginatedResponseDto } from "@/API_Client/types";
 import { BoxIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
@@ -22,7 +24,8 @@ const emptyProductForm: ProductFormValues = {
   price: "",
   stock: "",
   categoryId: "",
-  images: "",
+  images: [],
+  videoUrl: "",
   isActive: true,
 };
 
@@ -31,24 +34,37 @@ const toFormValues = (p: Product): ProductFormValues => ({
   description: p.description || "",
   price: String(p.price),
   stock: String(p.stock),
-  categoryId: p.category?.id != null ? String(p.category.id) : "",
-  images: (p.images || []).join(", "),
+  categoryId: p.category?.id || "",
+  images: p.images || [],
+  videoUrl: p.videoUrl || "",
   isActive: p.isActive,
 });
 
 // ფორმის მნიშვნელობებს ბექენდის Create/UpdateProductDto-ს ფორმაში გარდაქმნის —
-// images კომა-გამოყოფილი სტრინგიდან მასივში, ცარიელი categoryId/images კი undefined-ში.
-const toDto = (data: ProductFormValues) => ({
-  name: data.name.trim(),
-  description: data.description?.trim() || undefined,
-  price: Number(data.price),
-  stock: Number(data.stock),
-  categoryId: data.categoryId ? Number(data.categoryId) : undefined,
-  images: data.images
-    ? data.images.split(",").map((s) => s.trim()).filter(Boolean)
-    : undefined,
-  isActive: data.isActive,
-});
+// ცარიელი/გაწმენდილი images მწკრივები ცარიელდება, ცარიელი categoryId/images/videoUrl კი undefined-ში.
+const toDto = (data: ProductFormValues) => {
+  const images = (data.images || []).map((url) => url.trim()).filter(Boolean);
+  return {
+    name: data.name.trim(),
+    description: data.description?.trim() || undefined,
+    price: Number(data.price),
+    stock: Number(data.stock),
+    categoryId: data.categoryId || undefined,
+    images: images.length ? images : undefined,
+    videoUrl: data.videoUrl?.trim() || undefined,
+    isActive: data.isActive,
+  };
+};
+
+// სურათის URL-ს CDN-ის საბაზო მისამართთან აერთებს (თუ უკვე absolute არაა) —
+// იგივე ლოგიკა, რაც productDetail-ის გალერეაშია.
+const resolveImage = (url: string) => (url.startsWith("http") ? url : `${CDN_URL}${url}`);
+
+// კატეგორიის სახელს იერარქიის სიღრმის მიხედვით შეწევს (ერთი დონე root-ის
+// ქვეშ) — /categories?page=1&limit=100-ის ბრტყელ სიაშიც parent ველი
+// მოდის, ამიტომ select-ში ქვეკატეგორია მშობლის ქვემოთ ცხადად ჩანს.
+const categoryOptionLabel = (cat: Category, locale?: string) =>
+  (cat.parent ? "— " : "") + getCategoryName(cat, locale);
 
 export const ProductsPage: React.FC = () => {
   const { session } = useAdminGuard();
@@ -100,9 +116,9 @@ export const ProductsPage: React.FC = () => {
   const fetchCategories = async () => {
     if (!session?.accessToken) return;
     try {
-      const res = await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerFindAll();
-      const data = res.data as unknown as Category[];
-      setCategories(Array.isArray(data) ? data : []);
+      const res = await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerFindAll(1, 100);
+      const data = res.data as unknown as PaginatedResponseDto<Category>;
+      setCategories(Array.isArray(data?.data) ? data.data : []);
     } catch {
       // კატეგორიები არასავალდებულოა ფორმისთვის (categoryId ველი optional-ია)
     }
@@ -182,6 +198,50 @@ export const ProductsPage: React.FC = () => {
     }
   };
 
+  // "რამდენიმე სურათის" დინამიური სია — useFieldArray-ს ნაცვლად
+  // watch/setValue-ით ვმართავთ, რადგან images ველი უბრალო string[]-ია და
+  // ერთი renderForm createForm-საც ემსახურება და editForm-საც.
+  const renderImagesField = (form: typeof createForm) => {
+    const images = form.watch("images") || [];
+
+    const updateImage = (idx: number, value: string) => {
+      const next = [...images];
+      next[idx] = value;
+      form.setValue("images", next, { shouldDirty: true });
+    };
+
+    const addImage = () => form.setValue("images", [...images, ""], { shouldDirty: true });
+
+    const removeImage = (idx: number) =>
+      form.setValue(
+        "images",
+        images.filter((_, i) => i !== idx),
+        { shouldDirty: true }
+      );
+
+    return (
+      <S.ImageList>
+        {images.map((url, idx) => (
+          <S.ImageRow key={idx}>
+            <S.ImageThumb>{url ? <img src={resolveImage(url)} alt="" /> : <BoxIcon size={16} />}</S.ImageThumb>
+            <S.Input
+              type="text"
+              placeholder="https://.../product.jpg"
+              value={url}
+              onChange={(e) => updateImage(idx, e.target.value)}
+            />
+            <S.CloseButton type="button" aria-label="სურათის წაშლა" onClick={() => removeImage(idx)}>
+              <CloseIcon size={16} />
+            </S.CloseButton>
+          </S.ImageRow>
+        ))}
+        <S.AddImageButton type="button" onClick={addImage}>
+          <PlusIcon size={14} /> სურათის დამატება
+        </S.AddImageButton>
+      </S.ImageList>
+    );
+  };
+
   const renderForm = (form: typeof createForm, onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>, submitting: boolean, submitLabel: string) => (
     <form onSubmit={onSubmit} noValidate>
       <S.FormGroup>
@@ -208,15 +268,20 @@ export const ProductsPage: React.FC = () => {
         <S.Select {...form.register("categoryId")}>
           <option value="">— კატეგორიის გარეშე —</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={String(cat.id)}>
-              {cat.name}
+            <option key={cat.id} value={cat.id}>
+              {categoryOptionLabel(cat, router.locale)}
             </option>
           ))}
         </S.Select>
       </S.FormGroup>
       <S.FormGroup>
-        <S.Label>სურათების URL-ები (მძიმით გამოყოფილი, არასავალდებულო)</S.Label>
-        <S.Input type="text" placeholder="https://.../1.jpg, https://.../2.jpg" {...form.register("images")} />
+        <S.Label>სურათები (არასავალდებულო)</S.Label>
+        {renderImagesField(form)}
+      </S.FormGroup>
+      <S.FormGroup>
+        <S.Label>YouTube ვიდეოს ლინკი (არასავალდებულო)</S.Label>
+        <S.Input type="text" placeholder="https://www.youtube.com/watch?v=..." {...form.register("videoUrl")} />
+        {form.formState.errors.videoUrl && <S.FieldError>{form.formState.errors.videoUrl.message}</S.FieldError>}
       </S.FormGroup>
       <S.CategoryCheckboxItem checked={form.watch("isActive")}>
         <input type="checkbox" {...form.register("isActive")} /> აქტიურია (გამოჩნდება კატალოგში)
@@ -269,7 +334,9 @@ export const ProductsPage: React.FC = () => {
                       </S.Badge>
                       <S.Badge variant="date">{Number(product.price).toFixed(2)} ₾</S.Badge>
                       <S.Badge variant="date">მარაგი: {product.stock}</S.Badge>
-                      {product.category && <S.Badge variant="date">{product.category.name}</S.Badge>}
+                      {product.category && (
+                        <S.Badge variant="date">{getCategoryName(product.category, router.locale)}</S.Badge>
+                      )}
                     </S.BadgeGroup>
                   </div>
                   <S.CardActions>

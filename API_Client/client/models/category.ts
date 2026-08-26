@@ -18,9 +18,20 @@
 import type { Product } from './product';
 
 export interface Category {
-    'id': number;
-    'name': string;
-    'description'?: string;
+    'id': string;
+    'nameKa': string;
+    'nameEn': string;
+    'slug': string;
+    'isActive': boolean;
+    'sortOrder': number;
+    'image'?: string;
+    'seoTitle'?: string;
+    'seoDescription'?: string;
+    'seoKeywords'?: string;
+    'parent'?: Category | null;
+    'children'?: Array<Category>;
     'products'?: Array<Product>;
+    'createdAt': string;
+    'updatedAt': string;
 }
 

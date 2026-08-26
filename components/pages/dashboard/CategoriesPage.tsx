@@ -5,15 +5,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoriesAPI } from "@/API_Client";
 import { Category } from "@/API_Client/client/models";
+import { PaginatedResponseDto } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import { CategoryFormValues, categoryFormSchema } from "./schemas";
 import * as S from "./style";
 
-const emptyCategoryForm: CategoryFormValues = { name: "", description: "" };
+const emptyCategoryForm: CategoryFormValues = { nameKa: "", nameEn: "", slug: "", parentId: "", isActive: true };
 
 export const CategoriesPage: React.FC = () => {
   const { session } = useAdminGuard();
@@ -45,9 +47,9 @@ export const CategoriesPage: React.FC = () => {
     if (!session?.accessToken) return;
     setLoadingC(true);
     try {
-      const res = await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerFindAll();
-      const data = res.data as any;
-      setCategories(Array.isArray(data) ? data : []);
+      const res = await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerFindAll(1, 100);
+      const data = res.data as unknown as PaginatedResponseDto<Category>;
+      setCategories(Array.isArray(data?.data) ? data.data : []);
     } catch {
       toast.error("კატეგორიების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -71,8 +73,11 @@ export const CategoriesPage: React.FC = () => {
     setCatCreateSubmitting(true);
     try {
       await CategoriesAPI(router.locale || "ka", session!.accessToken!).categoryControllerCreate({
-        name: data.name.trim(),
-        description: data.description?.trim() || undefined,
+        nameKa: data.nameKa.trim(),
+        nameEn: data.nameEn.trim(),
+        slug: data.slug.trim(),
+        parentId: data.parentId || undefined,
+        isActive: data.isActive,
       });
       toast.success("კატეგორია წარმატებით დაემატა!");
       setIsCatCreateOpen(false);
@@ -87,7 +92,13 @@ export const CategoriesPage: React.FC = () => {
 
   const handleOpenEditCat = (cat: Category) => {
     setEditingCat(cat);
-    editForm.reset({ name: cat.name, description: cat.description || "" });
+    editForm.reset({
+      nameKa: cat.nameKa,
+      nameEn: cat.nameEn,
+      slug: cat.slug,
+      parentId: cat.parent?.id || "",
+      isActive: cat.isActive,
+    });
   };
 
   const handleCatEditSubmit = editForm.handleSubmit(async (data) => {
@@ -96,7 +107,13 @@ export const CategoriesPage: React.FC = () => {
     try {
       await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerUpdate(
         String(editingCat.id),
-        { name: data.name.trim(), description: data.description?.trim() || undefined }
+        {
+          nameKa: data.nameKa.trim(),
+          nameEn: data.nameEn.trim(),
+          slug: data.slug.trim(),
+          parentId: data.parentId || undefined,
+          isActive: data.isActive,
+        }
       );
       toast.success("კატეგორია წარმატებით განახლდა!");
       setEditingCat(null);
@@ -151,14 +168,18 @@ export const CategoriesPage: React.FC = () => {
               <S.CardHeader>
                 <div>
                   <S.QuestionText style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <TagIcon size={18} /> {cat.name}
+                    <TagIcon size={18} /> {getCategoryName(cat, router.locale)}
                   </S.QuestionText>
-                  {cat.description && (
-                    <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "var(--ref-text-secondary)" }}>{cat.description}</p>
-                  )}
-                  <S.Badge variant="date" style={{ marginTop: "8px", display: "inline-block" }}>
-                    {cat.products?.length || 0} პროდუქტი
-                  </S.Badge>
+                  <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "var(--ref-text-secondary)" }}>
+                    /{cat.slug}
+                    {cat.parent && ` · მშობელი: ${getCategoryName(cat.parent, router.locale)}`}
+                  </p>
+                  <S.BadgeGroup style={{ marginTop: "8px" }}>
+                    <S.Badge variant={cat.isActive ? "active" : "inactive"}>
+                      {cat.isActive ? "აქტიური" : "არააქტიური"}
+                    </S.Badge>
+                    <S.Badge variant="date">{cat.products?.length || 0} პროდუქტი</S.Badge>
+                  </S.BadgeGroup>
                 </div>
                 <S.CardActions>
                   <S.ActionButton variant="outline" onClick={() => handleOpenEditCat(cat)}>
@@ -186,14 +207,34 @@ export const CategoriesPage: React.FC = () => {
             </S.ModalHeader>
             <form onSubmit={handleCatCreateSubmit} noValidate>
               <S.FormGroup>
-                <S.Label>კატეგორიის სახელი</S.Label>
-                <S.Input type="text" placeholder="მაგ: პოლიტიკა" {...createForm.register("name")} />
-                {createForm.formState.errors.name && <S.FieldError>{createForm.formState.errors.name.message}</S.FieldError>}
+                <S.Label>სახელი (ქართულად)</S.Label>
+                <S.Input type="text" placeholder="მაგ: ელექტრონიკა" {...createForm.register("nameKa")} />
+                {createForm.formState.errors.nameKa && <S.FieldError>{createForm.formState.errors.nameKa.message}</S.FieldError>}
               </S.FormGroup>
               <S.FormGroup>
-                <S.Label>მოკლე აღწერა (არასავალდებულო)</S.Label>
-                <S.Input type="text" placeholder="მაგ: პოლიტიკური თემატიკის კითხვები" {...createForm.register("description")} />
+                <S.Label>სახელი (ინგლისურად)</S.Label>
+                <S.Input type="text" placeholder="e.g. Electronics" {...createForm.register("nameEn")} />
+                {createForm.formState.errors.nameEn && <S.FieldError>{createForm.formState.errors.nameEn.message}</S.FieldError>}
               </S.FormGroup>
+              <S.FormGroup>
+                <S.Label>Slug</S.Label>
+                <S.Input type="text" placeholder="მაგ: electronics" {...createForm.register("slug")} />
+                {createForm.formState.errors.slug && <S.FieldError>{createForm.formState.errors.slug.message}</S.FieldError>}
+              </S.FormGroup>
+              <S.FormGroup>
+                <S.Label>მშობელი კატეგორია (არასავალდებულო)</S.Label>
+                <S.Select {...createForm.register("parentId")}>
+                  <option value="">— root კატეგორია —</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {getCategoryName(cat, router.locale)}
+                    </option>
+                  ))}
+                </S.Select>
+              </S.FormGroup>
+              <S.CategoryCheckboxItem checked={createForm.watch("isActive")}>
+                <input type="checkbox" {...createForm.register("isActive")} /> აქტიურია
+              </S.CategoryCheckboxItem>
               <S.ModalFooter>
                 <S.ActionButton type="button" variant="secondary" onClick={() => setIsCatCreateOpen(false)}>გაუქმება</S.ActionButton>
                 <S.ActionButton type="submit" variant="primary" disabled={catCreateSubmitting}>{catCreateSubmitting ? "ემატება..." : "შენახვა"}</S.ActionButton>
@@ -215,14 +256,36 @@ export const CategoriesPage: React.FC = () => {
             </S.ModalHeader>
             <form onSubmit={handleCatEditSubmit} noValidate>
               <S.FormGroup>
-                <S.Label>კატეგორიის სახელი</S.Label>
-                <S.Input type="text" {...editForm.register("name")} />
-                {editForm.formState.errors.name && <S.FieldError>{editForm.formState.errors.name.message}</S.FieldError>}
+                <S.Label>სახელი (ქართულად)</S.Label>
+                <S.Input type="text" {...editForm.register("nameKa")} />
+                {editForm.formState.errors.nameKa && <S.FieldError>{editForm.formState.errors.nameKa.message}</S.FieldError>}
               </S.FormGroup>
               <S.FormGroup>
-                <S.Label>მოკლე აღწერა (არასავალდებულო)</S.Label>
-                <S.Input type="text" {...editForm.register("description")} />
+                <S.Label>სახელი (ინგლისურად)</S.Label>
+                <S.Input type="text" {...editForm.register("nameEn")} />
+                {editForm.formState.errors.nameEn && <S.FieldError>{editForm.formState.errors.nameEn.message}</S.FieldError>}
               </S.FormGroup>
+              <S.FormGroup>
+                <S.Label>Slug</S.Label>
+                <S.Input type="text" {...editForm.register("slug")} />
+                {editForm.formState.errors.slug && <S.FieldError>{editForm.formState.errors.slug.message}</S.FieldError>}
+              </S.FormGroup>
+              <S.FormGroup>
+                <S.Label>მშობელი კატეგორია (არასავალდებულო)</S.Label>
+                <S.Select {...editForm.register("parentId")}>
+                  <option value="">— root კატეგორია —</option>
+                  {categories
+                    .filter((cat) => cat.id !== editingCat?.id)
+                    .map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {getCategoryName(cat, router.locale)}
+                      </option>
+                    ))}
+                </S.Select>
+              </S.FormGroup>
+              <S.CategoryCheckboxItem checked={editForm.watch("isActive")}>
+                <input type="checkbox" {...editForm.register("isActive")} /> აქტიურია
+              </S.CategoryCheckboxItem>
               <S.ModalFooter>
                 <S.ActionButton type="button" variant="secondary" onClick={() => setEditingCat(null)}>გაუქმება</S.ActionButton>
                 <S.ActionButton type="submit" variant="primary" disabled={catEditSubmitting}>{catEditSubmitting ? "ინახება..." : "ცვლილებების შენახვა"}</S.ActionButton>

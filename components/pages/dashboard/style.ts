@@ -789,6 +789,61 @@ export const Textarea = styled("textarea")`
   }
 `;
 
+// პროდუქტის ფორმის "რამდენიმე სურათი" ველი — თითო URL-ს თავისი მწკრივი აქვს
+// (thumbnail-ი + input + წაშლის ღილაკი), ახალი მწკრივი AddImageButton-ით ემატება.
+export const ImageList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const ImageRow = styled("div")`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+`;
+
+export const ImageThumb = styled("div")`
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-subtle);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ref-text-secondary);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+export const AddImageButton = styled("button")`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  background: transparent;
+  border: 1px dashed var(--ref-border);
+  color: var(--ref-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: var(--ref-primary);
+    background: var(--ref-primary-soft);
+  }
+`;
+
 export const AnswerInputRow = styled("div")<{ dragging?: boolean }>`
   display: flex;
   gap: 10px;

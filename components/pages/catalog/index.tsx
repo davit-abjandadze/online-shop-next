@@ -1,18 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import Dropdown from "@/components/shared/Dropdown";
 import ProductCard from "@/components/shared/ProductCard";
-import { SearchIcon } from "@/components/ui/RefIcons";
+import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI, ProductsAPI } from "@/API_Client";
 import { Category, Product } from "@/API_Client/client/models";
+import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { PaginatedResponseDto } from "@/API_Client/types";
+import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 const PRODUCTS_PAGE_SIZE = 12;
+
+// დალაგების ხელმისაწვდომი ვარიანტები — Dropdown-ის მნიშვნელობა ორ ველად
+// (sortBy/order) იშლება SORT_OPTIONS-იდან SELECTED-ის მიხედვით.
+const SORT_OPTIONS: { value: string; label: string; sortBy?: string; order?: ProductsControllerFindAllOrderEnum }[] = [
+  { value: "default", label: "სტანდარტული" },
+  { value: "new", label: "ახალი ჩამოსული", sortBy: "createdAt", order: ProductsControllerFindAllOrderEnum.Desc },
+  { value: "price_asc", label: "ფასი: დაბლიდან მაღლა", sortBy: "price", order: ProductsControllerFindAllOrderEnum.Asc },
+  { value: "price_desc", label: "ფასი: მაღლიდან დაბლა", sortBy: "price", order: ProductsControllerFindAllOrderEnum.Desc },
+];
 
 export const CatalogComponent: React.FC = () => {
   const router = useRouter();
@@ -22,9 +34,10 @@ export const CatalogComponent: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
 
   const [page, setPage] = useState<number>(1);
+  const [sort, setSort] = useState<string>("default");
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
 
   // `page`-ს ვასინქრონებთ URL-ის `?page=` პარამეტრთან, გაზიარებული/დაბუქმარკებული
@@ -37,8 +50,8 @@ export const CatalogComponent: React.FC = () => {
     if (!isNaN(queryPage) && queryPage > 0 && queryPage !== page) {
       setPage(queryPage);
     }
-    const queryCategory = parseInt(router.query.category as string, 10);
-    if (!isNaN(queryCategory) && queryCategory !== activeCategoryId) {
+    const queryCategory = router.query.category as string | undefined;
+    if (queryCategory && queryCategory !== activeCategoryId) {
       setActiveCategoryId(queryCategory);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,24 +67,27 @@ export const CatalogComponent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleCategorySelect = (categoryId: number | null) => {
+  const handleCategorySelect = (categoryId: string | null) => {
     setActiveCategoryId(categoryId);
     setPage(1);
-    router.push(
-      { pathname: router.pathname, query: { ...router.query, page: "1" } },
-      undefined,
-      { shallow: true }
-    );
+    const query: Record<string, string> = { ...(router.query as Record<string, string>), page: "1" };
+    if (categoryId === null) {
+      delete query.category;
+    } else {
+      query.category = categoryId;
+    }
+    router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
   };
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      const sortOption = SORT_OPTIONS.find((option) => option.value === sort);
       const res = await ProductsAPI(router.locale || "ka", "").productsControllerFindAll(
         page,
         PRODUCTS_PAGE_SIZE,
-        undefined,
-        undefined,
+        sortOption?.sortBy,
+        sortOption?.order,
         undefined,
         activeCategoryId ?? undefined
       );
@@ -88,9 +104,11 @@ export const CatalogComponent: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await CategoriesAPI(router.locale || "ka", "").categoryControllerFindAll();
-      const data = res.data as unknown as Category[];
-      setCategories(Array.isArray(data) ? data : []);
+      // categoryControllerFindAll ახლა გვერდიანია (PaginatedResponseDto<Category>) —
+      // ფილტრის სრული სიისთვის დიდი limit-ით ვითხოვთ (იხ. API_Client/types.ts).
+      const res = await CategoriesAPI(router.locale || "ka", "").categoryControllerFindAll(1, 100);
+      const data = res.data as unknown as PaginatedResponseDto<Category>;
+      setCategories(Array.isArray(data?.data) ? data.data : []);
     } catch {
       // კატეგორიების ფილტრი არასავალდებულოა, შეცდომას ჩუმად ვტოვებთ
     }
@@ -99,85 +117,153 @@ export const CatalogComponent: React.FC = () => {
   useEffect(() => {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, activeCategoryId, router.locale]);
+  }, [page, activeCategoryId, sort, router.locale]);
 
   useEffect(() => {
     fetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.locale]);
 
+  const activeCategory = categories.find((cat) => cat.id === activeCategoryId);
+  const categoryDropdownOptions = [
+    { value: "all", label: "ყველა კატეგორია" },
+    ...categories.map((cat) => ({ value: cat.id, label: getCategoryName(cat, router.locale) })),
+  ];
+
   return (
     <S.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
 
       <S.Container>
+        <S.Breadcrumb>
+          <Link href="/">მთავარი</Link>
+          <span>/</span>
+          <span>{activeCategory ? getCategoryName(activeCategory, router.locale) : "მაღაზია"}</span>
+        </S.Breadcrumb>
+
         <S.PageHeader>
-          <S.PageTitle>მაღაზია</S.PageTitle>
-          <S.PageSubtitle>დაათვალიერეთ ჩვენი პროდუქტების კატალოგი</S.PageSubtitle>
+          <div>
+            <S.PageTitle>{activeCategory ? getCategoryName(activeCategory, router.locale) : "მაღაზია"}</S.PageTitle>
+            <S.PageSubtitle>დაათვალიერეთ ჩვენი პროდუქტების კატალოგი</S.PageSubtitle>
+          </div>
+          {meta && <S.ResultsCount>{meta.total} პროდუქტი</S.ResultsCount>}
         </S.PageHeader>
 
-        <S.FilterBar>
-          <S.CategorySelectWrap>
-            <S.SortLabel>კატეგორია:</S.SortLabel>
-            <Dropdown
-              ariaLabel="კატეგორია"
-              minWidth={180}
-              value={activeCategoryId === null ? "all" : String(activeCategoryId)}
-              onChange={(val) => handleCategorySelect(val === "all" ? null : Number(val))}
-              options={[
-                { value: "all", label: "ყველა კატეგორია" },
-                ...categories.map((cat) => ({ value: String(cat.id), label: cat.name })),
-              ]}
-            />
-          </S.CategorySelectWrap>
-        </S.FilterBar>
+        <S.Layout>
+          {/* გვერდითი კატეგორიის პანელი — მთავარი გვერდის HeroFilterPanel-ის
+              იმავე "ბარათის" ენით (bg-elevated, closed კუთხეები, shadow). */}
+          <S.Sidebar>
+            <S.SidebarCard>
+              <S.SidebarCardTitle>კატეგორიები</S.SidebarCardTitle>
+              <S.SidebarCardBody>
+                <S.CategoryOption active={activeCategoryId === null} onClick={() => handleCategorySelect(null)}>
+                  <S.CategoryOptionLabel>
+                    <TagIcon size={16} />
+                    ყველა კატეგორია
+                  </S.CategoryOptionLabel>
+                </S.CategoryOption>
 
-        {loading ? (
-          <S.ProductsGrid>
-            {Array.from({ length: PRODUCTS_PAGE_SIZE }).map((_, idx) => (
-              <S.SkeletonCard key={idx}>
-                <S.SkeletonBlock height="220px" />
-                <div style={{ padding: 14 }}>
-                  <S.SkeletonBlock height="14px" />
-                  <div style={{ marginTop: 8 }}>
-                    <S.SkeletonBlock height="18px" />
-                  </div>
-                </div>
-              </S.SkeletonCard>
-            ))}
-          </S.ProductsGrid>
-        ) : products.length === 0 ? (
-          <S.EmptyState>
-            <SearchIcon size={48} />
-            <S.EmptyStateTitle>
-              {activeCategoryId === null ? "პროდუქტები არ არის" : "ამ კატეგორიაში პროდუქტები არ არის"}
-            </S.EmptyStateTitle>
-          </S.EmptyState>
-        ) : (
-          <S.ProductsGrid>
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </S.ProductsGrid>
-        )}
+                {categories.length === 0 ? (
+                  <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
+                ) : (
+                  categories.map((category) => (
+                    <S.CategoryOption
+                      key={category.id}
+                      active={activeCategoryId === category.id}
+                      onClick={() => handleCategorySelect(category.id)}
+                    >
+                      <S.CategoryOptionLabel>
+                        <TagIcon size={16} />
+                        {getCategoryName(category, router.locale)}
+                      </S.CategoryOptionLabel>
+                    </S.CategoryOption>
+                  ))
+                )}
+              </S.SidebarCardBody>
+            </S.SidebarCard>
+          </S.Sidebar>
 
-        {meta && meta.totalPages > 1 && (
-          <S.PaginationBar>
-            <S.PageButton onClick={() => goToPage(Math.max(1, meta.page - 1))} disabled={!meta.hasPrevious}>
-              ←
-            </S.PageButton>
-            <S.PageNumbers>
-              {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((n) => (
-                <S.PageNumberButton key={n} active={n === meta.page} onClick={() => goToPage(n)}>
-                  {n}
-                </S.PageNumberButton>
-              ))}
-            </S.PageNumbers>
-            <S.PageButton onClick={() => goToPage(meta.page + 1)} disabled={!meta.hasNext}>
-              →
-            </S.PageButton>
-          </S.PaginationBar>
-        )}
+          <S.Main>
+            <S.Toolbar>
+              <S.MobileCategorySelect>
+                <Dropdown
+                  ariaLabel="კატეგორია"
+                  minWidth={180}
+                  value={activeCategoryId === null ? "all" : activeCategoryId}
+                  onChange={(val) => handleCategorySelect(val === "all" ? null : val)}
+                  options={categoryDropdownOptions}
+                />
+              </S.MobileCategorySelect>
+
+              {meta && (
+                <S.ToolbarCount>
+                  ნაჩვენებია <strong>{products.length}</strong> / {meta.total}-დან
+                </S.ToolbarCount>
+              )}
+
+              <S.SortWrap>
+                <S.SortLabel>დალაგება:</S.SortLabel>
+                <Dropdown
+                  ariaLabel="დალაგება"
+                  minWidth={200}
+                  value={sort}
+                  onChange={(val) => {
+                    setSort(val);
+                    setPage(1);
+                  }}
+                  options={SORT_OPTIONS.map(({ value, label }) => ({ value, label }))}
+                />
+              </S.SortWrap>
+            </S.Toolbar>
+
+            {loading ? (
+              <S.ProductsGrid>
+                {Array.from({ length: PRODUCTS_PAGE_SIZE }).map((_, idx) => (
+                  <S.SkeletonCard key={idx}>
+                    <S.SkeletonBlock height="220px" />
+                    <div style={{ padding: 14 }}>
+                      <S.SkeletonBlock height="14px" />
+                      <div style={{ marginTop: 8 }}>
+                        <S.SkeletonBlock height="18px" />
+                      </div>
+                    </div>
+                  </S.SkeletonCard>
+                ))}
+              </S.ProductsGrid>
+            ) : products.length === 0 ? (
+              <S.EmptyState>
+                <SearchIcon size={48} />
+                <S.EmptyStateTitle>
+                  {activeCategoryId === null ? "პროდუქტები არ არის" : "ამ კატეგორიაში პროდუქტები არ არის"}
+                </S.EmptyStateTitle>
+              </S.EmptyState>
+            ) : (
+              <S.ProductsGrid>
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </S.ProductsGrid>
+            )}
+
+            {meta && meta.totalPages > 1 && (
+              <S.PaginationBar>
+                <S.PageButton onClick={() => goToPage(Math.max(1, meta.page - 1))} disabled={!meta.hasPrevious}>
+                  ←
+                </S.PageButton>
+                <S.PageNumbers>
+                  {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((n) => (
+                    <S.PageNumberButton key={n} active={n === meta.page} onClick={() => goToPage(n)}>
+                      {n}
+                    </S.PageNumberButton>
+                  ))}
+                </S.PageNumbers>
+                <S.PageButton onClick={() => goToPage(meta.page + 1)} disabled={!meta.hasNext}>
+                  →
+                </S.PageButton>
+              </S.PaginationBar>
+            )}
+          </S.Main>
+        </S.Layout>
       </S.Container>
 
       <Footer />

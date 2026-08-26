@@ -25,6 +25,7 @@ import { CategoriesAPI, ProductsAPI } from "@/API_Client";
 import { Category, Product } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { PaginatedResponseDto } from "@/API_Client/types";
+import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 const FEATURED_LIMIT = 8;
@@ -39,16 +40,9 @@ const BENEFITS = [
   { icon: ClipboardIcon, title: "მხარდაჭერა", text: "დაგვიკავშირდით ნებისმიერი კითხვისთვის" },
 ];
 
-// ჰერო სლაიდერის მარცხნივ განთავსებული ფილტრის სტატიკური ჯგუფები — კატეგორიების
-// ჯგუფი ქვემოთ დინამიურად ივსება რეალური კატეგორიების მონაცემით.
-//
-// კატეგორიის ბექენდის მოდელს (Category) parent/subcategory ველი არ აქვს, ამიტომ
-// 3-დონიანი hover-ფლაუთისთვის (კატეგორია → ქვეკატეგორია → ქვე-ქვეკატეგორია)
-// ქვედა ორი დონე პლეისჰოლდერული, ზოგადი დაზუსტების ბმულებია — ყველა ერთსა და
-// იმავე კატეგორიაზე გადადის; რეალურ ქვეკატეგორიის მონაცემზე გადასვლისას საკმარისია
-// ამ მასივების ჩანაცვლება ბექენდიდან წამოსული subcategory-ებით.
-const SUBCATEGORY_TEMPLATE = ["ბესტსელერები", "ახალი ჩამოსული", "ფასდაკლებული"];
-const SUBSUBCATEGORY_TEMPLATE = ["პოპულარული", "ტოპ შეფასებული", "იაფიდან ძვირისკენ"];
+// გვერდითი ფილტრის ჩამონათვალში პირდაპირ რამდენი კატეგორია გამოჩნდეს; დანარჩენი
+// "ყველა კატეგორია" ღილაკის ქვემოთ იმალება და hover-ზე იშლება (იხ. MoreCategoriesGroup).
+const CATEGORIES_VISIBLE_LIMIT = 6;
 
 const POPULAR_FILTERS = [
   { label: "ახალი ჩამოსული", href: "/products?sort=createdAt&order=desc" },
@@ -111,7 +105,9 @@ export const HomeComponent: React.FC = () => {
       setLoading(true);
       try {
         const [categoriesRes, featuredRes, newArrivalsRes] = await Promise.all([
-          CategoriesAPI(router.locale || "ka", "").categoryControllerFindAll(),
+          // /categories/tree — root კატეგორიები ნესთებული children-ით, რომ
+          // hover-ზე გახსნილ მეგა-მენიუში რეალური ქვეკატეგორიები გამოჩნდეს.
+          CategoriesAPI(router.locale || "ka", "").categoryControllerFindTree(),
           ProductsAPI(router.locale || "ka", "").productsControllerFindAll(
             1,
             FEATURED_LIMIT,
@@ -155,18 +151,59 @@ export const HomeComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.locale]);
 
+  // ერთი კატეგორიის მწკრივი გვერდით ფილტრში — hover-ზე მარჯვნივ იშლება
+  // მრავალსვეტიანი მეგა-მენიუ (MEGA_MENU_COLUMNS). გამოიყენება როგორც პირდაპირ
+  // ხილული, ისე "ყველა კატეგორია" ღილაკის ქვემოთ დამალული კატეგორიებისთვის.
+  // /categories/tree-დან წამოსული ქვეკატეგორიები (category.children) მეგა-მენიუს
+  // ერთადერთ სვეტში ივსება — თუ ქვეკატეგორია არ აქვს, flyout საერთოდ არ იშლება.
+  const renderCategoryRow = (category: Category) => {
+    const children = category.children || [];
+    return (
+      <S.CategoryRow key={category.id}>
+        <Link href={`/products?category=${category.id}`} passHref legacyBehavior>
+          <S.CategoryFlyoutTrigger>
+            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <TagIcon size={16} />
+              {getCategoryName(category, router.locale)}
+            </span>
+            {children.length > 0 && <ChevronRightIcon size={14} />}
+          </S.CategoryFlyoutTrigger>
+        </Link>
+
+        {children.length > 0 && (
+          <S.MegaMenu data-role="flyout">
+            <S.MegaMenuColumn>
+              <S.MegaMenuColumnTitle>{getCategoryName(category, router.locale)}</S.MegaMenuColumnTitle>
+              <S.MegaMenuList>
+                {children.map((child) => (
+                  <Link key={child.id} href={`/products?category=${child.id}`} passHref legacyBehavior>
+                    <S.MegaMenuLink>{getCategoryName(child, router.locale)}</S.MegaMenuLink>
+                  </Link>
+                ))}
+              </S.MegaMenuList>
+              <Link href={`/products?category=${category.id}`} passHref legacyBehavior>
+                <S.MegaMenuViewAll>ყველას ნახვა →</S.MegaMenuViewAll>
+              </Link>
+            </S.MegaMenuColumn>
+          </S.MegaMenu>
+        )}
+      </S.CategoryRow>
+    );
+  };
+
   return (
     <S.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
 
       {/* Hero Slider — swiper-ით, 1 სლაიდი ერთ ხედში, ავტომატური გადართვით.
-          მარცხნივ დამატებული "3 ჩაშლიანი" ფილტრის პანელი (კატეგორიები/ფასი/პოპულარული). */}
+          მარცხნივ დამატებული ფილტრის პანელი (კატეგორიები). */}
       <S.Hero>
         <S.HeroRow>
           <S.HeroFilterPanel>
-            {/* ჯგუფი 1 — კატეგორიები (რეალური მონაცემი), ყოველთვის პირდაპირ
-                ჩამოწერილი, აკორდეონის გარეშე. hover-ზე იშლება 3-დონიანი
-                ქვეკატეგორია/ქვე-ქვეკატეგორიის ფლაუთი. */}
+            {/* ჯგუფი — კატეგორიები (რეალური მონაცემი). თითოეულზე hover-ისას
+                მარჯვნივ იშლება მრავალსვეტიანი მეგა-მენიუ (იხ. renderCategoryRow).
+                თუ კატეგორია CATEGORIES_VISIBLE_LIMIT-ზე მეტია, დანარჩენი "ყველა
+                კატეგორია" ღილაკის ქვემოთ იმალება და მასზე/მასზე ქვემოთ hover-ისას იშლება. */}
             <S.FilterSection>
               <S.FilterSectionLabel style={{ padding: "0px 18px 6px 18px" }}>
               </S.FilterSectionLabel>
@@ -174,47 +211,21 @@ export const HomeComponent: React.FC = () => {
                 {categories.length === 0 ? (
                   <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
                 ) : (
-                  categories.map((category) => (
-                    <S.CategoryRow key={category.id}>
-                      <Link href={`/products?category=${category.id}`} passHref legacyBehavior>
-                        <S.CategoryFlyoutTrigger>
-                          <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                            <TagIcon size={16} />
-                            {category.name}
-                          </span>
-                          <ChevronRightIcon size={14} />
-                        </S.CategoryFlyoutTrigger>
-                      </Link>
+                  <>
+                    {categories.slice(0, CATEGORIES_VISIBLE_LIMIT).map(renderCategoryRow)}
 
-                      {/* დონე 2 — ქვეკატეგორია (placeholder) */}
-                      <S.FlyoutPanel data-role="flyout">
-                        {SUBCATEGORY_TEMPLATE.map((sub) => (
-                          <S.SubcategoryRow key={sub}>
-                            <Link href={`/products?category=${category.id}`} passHref legacyBehavior>
-                              <S.CategoryFlyoutTrigger>
-                                {sub}
-                                <ChevronRightIcon size={13} />
-                              </S.CategoryFlyoutTrigger>
-                            </Link>
-
-                            {/* დონე 3 — ქვე-ქვეკატეგორია (placeholder) */}
-                            <S.FlyoutPanel data-role="flyout">
-                              {SUBSUBCATEGORY_TEMPLATE.map((subsub) => (
-                                <Link
-                                  key={subsub}
-                                  href={`/products?category=${category.id}`}
-                                  passHref
-                                  legacyBehavior
-                                >
-                                  <S.FilterItem>{subsub}</S.FilterItem>
-                                </Link>
-                              ))}
-                            </S.FlyoutPanel>
-                          </S.SubcategoryRow>
-                        ))}
-                      </S.FlyoutPanel>
-                    </S.CategoryRow>
-                  ))
+                    {categories.length > CATEGORIES_VISIBLE_LIMIT && (
+                      <>
+                        <S.MoreCategoriesToggle type="button">
+                          ყველა კატეგორია
+                          <ChevronDownIcon size={14} />
+                        </S.MoreCategoriesToggle>
+                        <S.MoreCategoriesGroup>
+                          {categories.slice(CATEGORIES_VISIBLE_LIMIT).map(renderCategoryRow)}
+                        </S.MoreCategoriesGroup>
+                      </>
+                    )}
+                  </>
                 )}
               </S.FilterSectionBody>
             </S.FilterSection>
@@ -316,7 +327,9 @@ export const HomeComponent: React.FC = () => {
                       <S.CategoryIconBadge active={isActive}>
                         <TagIcon size={22} />
                       </S.CategoryIconBadge>
-                      <S.CategoryName active={isActive}>{category?.name || ""}</S.CategoryName>
+                      <S.CategoryName active={isActive}>
+                        {category ? getCategoryName(category, router.locale) : ""}
+                      </S.CategoryName>
                     </S.CategoryCard>
                   </Link>
                 );

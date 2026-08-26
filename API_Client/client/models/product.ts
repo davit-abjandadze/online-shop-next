@@ -24,6 +24,7 @@ export interface Product {
     'price': string;
     'stock': number;
     'images'?: Array<string>;
+    'videoUrl'?: string;
     'isActive': boolean;
     'category'?: Category;
     'createdAt': string;

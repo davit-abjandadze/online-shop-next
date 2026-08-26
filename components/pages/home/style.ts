@@ -83,7 +83,10 @@ export const HeroRow = styled("div")`
   max-width: 1320px;
   margin: 0 auto;
   display: flex;
-  align-items: flex-start;
+  /* stretch (და არა flex-start) — HeroFilterPanel სლაიდერის (HeroSliderArea)
+     სიმაღლეს ყოველთვის მთლიანად იმეორებს, თუნდაც კატეგორია ცოტა იყოს და
+     პანელის საკუთარი კონტენტი ნაკლებ სივრცეს იკავებდეს. */
+  align-items: stretch;
   gap: 24px;
   padding: 30px 24px;
 
@@ -200,11 +203,12 @@ export const FilterEmpty = styled("span")`
   color: var(--ref-text-secondary);
 `;
 
-/* ---------- 3-დონიანი კატეგორიის hover-ფლაუთი ---------- */
-/* კატეგორია → (hover) ქვეკატეგორია → (hover) ქვე-ქვეკატეგორია. ყოველი დონე
-   `position: relative` კონტეინერშია, ხოლო მომდევნო დონის პანელი მასში
-   `data-role="flyout"`-ითაა მონიშნული — ასე hover მხოლოდ CSS-ითაა მართული,
-   React state-ის გარეშე, და ჩაშენებული ფლაუთები ერთმანეთს არ ეჯახება. */
+/* ---------- კატეგორიაზე hover-ით გამოსახული "მეგა-მენიუ" ---------- */
+/* კატეგორიაზე ხელის მიტანისას (hover) მარჯვნივ იშლება მრავალსვეტიანი პანელი —
+   ერთი კატეგორიის ყველა ქვეჯგუფი ერთბაშად ჩანს, ცალკეული სვეტების სახით
+   (ბრენდები/ტიპები/აქსესუარები და ა.შ.), საიტის რეფერენს დიზაინის მსგავსად.
+   `position: relative` მშობელში `data-role="flyout"`-იანი შვილი ჩვეულებრივ
+   CSS hover-ითაა მართული, React state საჭირო არაა. */
 export const CategoryRow = styled("div")`
   position: relative;
 
@@ -222,31 +226,105 @@ export const CategoryFlyoutTrigger = styled(FilterItem)`
   justify-content: space-between;
 `;
 
-export const FlyoutPanel = styled("div")`
+export const MegaMenu = styled("div")`
   display: none;
   position: absolute;
   top: 0;
-  left: calc(100% + 8px);
-  min-width: 200px;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px;
-  border-radius: 14px;
+  /* left: 100% (და არა calc(100% + 8px)) განზრახ — შორის დარჩენილი ცარიელი ზოლი
+     კურსორისთვის "მკვდარი ზონაა": ტრიგერიდან პანელისკენ გადაადგილებისას კურსორი
+     ვერცერთ ელემენტს არ ეხება, :hover წყდება და პანელი დახურვამდე ასწრებდა.
+     პანელი ტრიგერს პირდაპირ ეხება, ვიზუალური დაშორება კი padding-ითაა მიღწეული. */
+  left: 100%;
+  align-items: flex-start;
+  gap: 32px;
+  min-width: 680px;
+  padding: 24px 28px;
+  border-radius: 18px;
   background: var(--ref-bg-elevated);
   box-shadow: var(--ref-shadow-lg);
   border: 1px solid var(--ref-border-soft);
   z-index: 20;
+
+  @media (max-width: 1440px) {
+    min-width: 560px;
+  }
 `;
 
-export const SubcategoryRow = styled("div")`
-  position: relative;
+export const MegaMenuColumn = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 130px;
+`;
 
-  &:hover > a {
-    background: var(--ref-primary-soft);
+export const MegaMenuColumnTitle = styled("h4")`
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ref-text-primary);
+`;
+
+export const MegaMenuList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+export const MegaMenuLink = styled("a")`
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ref-text-secondary);
+  text-decoration: none;
+  padding: 4px 0;
+  transition: color 0.12s ease;
+
+  &:hover {
     color: var(--ref-primary);
   }
+`;
 
-  &:hover > [data-role="flyout"] {
+export const MegaMenuViewAll = styled("a")`
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ref-primary);
+  text-decoration: none;
+`;
+
+/* ---------- "ყველა კატეგორია" გაშლის ღილაკი ---------- */
+/* როცა კატეგორია მეტია ხილულ ლიმიტზე, ჩამონათვალის ბოლოს ჩნდება ეს ღილაკი.
+   მასზე ან მის ქვემოთ დამალულ ჯგუფზე (MoreCategoriesGroup) ხელის მიტანისას
+   მთლიანი დარჩენილი კატეგორია ჩვეულებრივ ნაკადში იშლება — React state კი არა,
+   მხოლოდ მომდევნო-და-hover CSS სელექტორით. */
+export const MoreCategoriesToggle = styled("button")<{ open?: boolean }>`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ref-primary);
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background: var(--ref-primary-soft);
+  }
+`;
+
+export const MoreCategoriesGroup = styled("div")`
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+
+  ${MoreCategoriesToggle}:hover + &,
+  &:hover {
     display: flex;
   }
 `;

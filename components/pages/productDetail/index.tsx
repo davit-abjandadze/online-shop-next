@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -6,6 +7,7 @@ import { Product } from "@/API_Client/client/models";
 import { CartIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
+import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 interface ProductDetailProps {
@@ -17,6 +19,7 @@ const resolveImage = (image?: string) =>
 
 // პროდუქტის დეტალური გვერდი.
 export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }) => {
+  const router = useRouter();
   const { addItem } = useCart();
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
@@ -53,7 +56,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
           <S.Info>
             {product.category && (
               <S.CategoryLabel>
-                <TagIcon size={14} /> {product.category.name}
+                <TagIcon size={14} /> {getCategoryName(product.category, router.locale)}
               </S.CategoryLabel>
             )}
             <S.Title>{product.name}</S.Title>

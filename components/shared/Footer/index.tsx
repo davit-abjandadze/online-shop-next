@@ -7,6 +7,8 @@ import { CartIcon, FacebookGlyphIcon, InstagramIcon, MailIcon, XIcon } from "@/c
 import AuthModal from "@/components/shared/AuthModal";
 import { CategoriesAPI } from "@/API_Client";
 import { Category } from "@/API_Client/client/models";
+import { PaginatedResponseDto } from "@/API_Client/types";
+import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 const FOOTER_CATEGORIES_LIMIT = 5;
@@ -31,10 +33,10 @@ export const Footer: React.FC = () => {
 
   useEffect(() => {
     CategoriesAPI(router.locale || "ka", "")
-      .categoryControllerFindAll()
+      .categoryControllerFindAll(1, FOOTER_CATEGORIES_LIMIT)
       .then((res) => {
-        const data = res.data as unknown as Category[];
-        if (Array.isArray(data)) setCategories(data.slice(0, FOOTER_CATEGORIES_LIMIT));
+        const data = res.data as unknown as PaginatedResponseDto<Category>;
+        if (Array.isArray(data?.data)) setCategories(data.data);
       })
       .catch(() => {
         // კატეგორიების ბმულები არასავალდებულოა Footer-ისთვის — ჩუმად ვტოვებთ
@@ -79,7 +81,7 @@ export const Footer: React.FC = () => {
                 <S.LinkColumnTitle>კატეგორიები</S.LinkColumnTitle>
                 {categories.map((category) => (
                   <Link key={category.id} href={`/products?category=${category.id}`} passHref legacyBehavior>
-                    <S.FooterLink>{category.name}</S.FooterLink>
+                    <S.FooterLink>{getCategoryName(category, router.locale)}</S.FooterLink>
                   </Link>
                 ))}
               </S.LinkColumn>

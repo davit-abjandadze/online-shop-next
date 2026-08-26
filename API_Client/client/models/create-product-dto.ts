@@ -36,12 +36,16 @@ export interface CreateProductDto {
      */
     'images'?: Array<string>;
     /**
+     * YouTube ვიდეოს ლინკი (მიმოხილვა/ინსტრუქცია პროდუქტის გვერდზე)
+     */
+    'videoUrl'?: string;
+    /**
      * აქტიურია თუ არა პროდუქტი
      */
     'isActive'?: boolean;
     /**
      * კატეგორიის ID
      */
-    'categoryId'?: number;
+    'categoryId'?: string;
 }
 
