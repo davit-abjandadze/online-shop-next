@@ -24,6 +24,7 @@ const emptyProductForm: ProductFormValues = {
   description: "",
   price: "",
   stock: "",
+  discountPercent: "",
   categoryId: "",
   images: [],
   videoUrl: "",
@@ -35,6 +36,7 @@ const toFormValues = (p: Product): ProductFormValues => ({
   description: p.description || "",
   price: String(p.price),
   stock: String(p.stock),
+  discountPercent: p.discountPercent != null ? String(p.discountPercent) : "",
   categoryId: p.category?.id || "",
   images: p.images || [],
   videoUrl: p.videoUrl || "",
@@ -50,6 +52,7 @@ const toDto = (data: ProductFormValues) => {
     description: data.description?.trim() || undefined,
     price: Number(data.price),
     stock: Number(data.stock),
+    discountPercent: data.discountPercent?.trim() ? Number(data.discountPercent) : undefined,
     categoryId: data.categoryId || undefined,
     images: images.length ? images : undefined,
     videoUrl: data.videoUrl?.trim() || undefined,
@@ -321,6 +324,13 @@ export const ProductsPage: React.FC = () => {
         {form.formState.errors.stock && <S.FieldError>{form.formState.errors.stock.message}</S.FieldError>}
       </S.FormGroup>
       <S.FormGroup>
+        <S.Label>ფასდაკლება % (არასავალდებულო)</S.Label>
+        <S.Input type="text" inputMode="decimal" placeholder="მაგ: 15" {...form.register("discountPercent")} />
+        {form.formState.errors.discountPercent && (
+          <S.FieldError>{form.formState.errors.discountPercent.message}</S.FieldError>
+        )}
+      </S.FormGroup>
+      <S.FormGroup>
         <S.Label>კატეგორია</S.Label>
         <S.Select {...form.register("categoryId")}>
           <option value="">— კატეგორიის გარეშე —</option>
@@ -391,6 +401,9 @@ export const ProductsPage: React.FC = () => {
                       </S.Badge>
                       <S.Badge variant="date">{Number(product.price).toFixed(2)} ₾</S.Badge>
                       <S.Badge variant="date">მარაგი: {product.stock}</S.Badge>
+                      {!!product.discountPercent && (
+                        <S.Badge variant="date">ფასდაკლება: {product.discountPercent}%</S.Badge>
+                      )}
                       {product.category && (
                         <S.Badge variant="date">{getCategoryName(product.category, router.locale)}</S.Badge>
                       )}

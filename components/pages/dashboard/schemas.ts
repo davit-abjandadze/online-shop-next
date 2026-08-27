@@ -55,6 +55,15 @@ export const productFormSchema = z.object({
     .trim()
     .min(1, "გთხოვთ მიუთითოთ მარაგი")
     .refine((v) => !isNaN(Number(v)) && Number.isInteger(Number(v)) && Number(v) >= 0, "მარაგი უნდა იყოს დადებითი მთელი რიცხვი"),
+  // ფასდაკლება პროცენტებში (0-100), არასავალდებულო — ცარიელი ველი ნიშნავს ფასდაკლების არარსებობას.
+  discountPercent: z
+    .string()
+    .trim()
+    .optional()
+    .refine(
+      (v) => !v || (!isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100),
+      "ფასდაკლება უნდა იყოს 0-დან 100-მდე რიცხვი"
+    ),
   categoryId: z.string().optional(),
   // თითო სურათის URL — ცალკე მწკრივია ფორმაში (რამდენიმე სურათის დამატება/წაშლა
   // შესაძლებელია პირდაპირ), ცარიელი სტრიქონები submit-ის წინ ფილტრდება.

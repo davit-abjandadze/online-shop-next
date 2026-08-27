@@ -83,6 +83,26 @@ export const ItemName = styled("a")`
 export const ItemUnitPrice = styled("span")`
   font-size: 13px;
   color: var(--ref-text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+// ფასდაკლების დროს ორიგინალი ფასი — ხაზგადასმული, ერთეულის ფასის გვერდით.
+export const ItemOldPrice = styled("span")`
+  text-decoration: line-through;
+  color: var(--ref-text-secondary);
+  opacity: 0.7;
+  font-size: 12px;
+`;
+
+export const ItemDiscountBadge = styled("span")`
+  font-size: 11px;
+  font-weight: 700;
+  color: #c0392b;
+  background: rgba(192, 57, 43, 0.1);
+  border-radius: 6px;
+  padding: 1px 6px;
 `;
 
 export const ItemStockWarning = styled("span")`

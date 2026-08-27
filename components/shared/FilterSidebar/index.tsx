@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CategoryFilterEntry } from "@/API_Client/types";
 import * as S from "./style";
 
@@ -52,21 +52,97 @@ const PriceFilter: React.FC<{
     filters.maxPrice ? Number(filters.maxPrice) : boundMax
   );
 
+  // ტექსტური "დან"/"მდე" ველების საკუთარი controlled state — `key`-ზე
+  // დაფუძნებული remount-ის ნაცვლად, რომელიც draft-ის ყოველ keystroke-ზე
+  // ცვლილებას ველს ხელახლა ქმნიდა და focus-ს კარგავდა.
+  const [minText, setMinText] = useState(filters.minPrice || "");
+  const [maxText, setMaxText] = useState(filters.maxPrice || "");
+
   useEffect(() => {
-    setMinVal(filters.minPrice ? Number(filters.minPrice) : boundMin);
-    setMaxVal(filters.maxPrice ? Number(filters.maxPrice) : boundMax);
+    // `minVal`/`maxVal` (slider-ის ვიზუალი) ყოველთვის [boundMin, boundMax]
+    // დიაპაზონშია clamp-ული — თუ draft-ში (ტექსტური ველიდან, blur-მდე)
+    // საზღვრებს გარეთა მნიშვნელობა მოხვდა, SliderRange არ უნდა გავიდეს
+    // track-ის კიდეზე გარეთ.
+    const nextMin = filters.minPrice ? Number(filters.minPrice) : boundMin;
+    const nextMax = filters.maxPrice ? Number(filters.maxPrice) : boundMax;
+    setMinVal(Number.isNaN(nextMin) ? boundMin : Math.min(Math.max(nextMin, boundMin), boundMax));
+    setMaxVal(Number.isNaN(nextMax) ? boundMax : Math.min(Math.max(nextMax, boundMin), boundMax));
+    setMinText(filters.minPrice || "");
+    setMaxText(filters.maxPrice || "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.minPrice, filters.maxPrice, boundMin, boundMax]);
 
+  // სლაიდერის ჩავლების დროს `minVal`/`maxVal`-ს ვამზადებთ ref-შიც, რომ
+  // pointer-up-ზე ზუსტად ბოლო მნიშვნელობა წავიდეს draft-ში — closure-ში
+  // `minVal`/`maxVal` შეიძლება ჯერ ძველი იყოს, ref კი ყოველთვის განახლებულია.
+  const minValRef = useRef(minVal);
+  const maxValRef = useRef(maxVal);
+  minValRef.current = minVal;
+  maxValRef.current = maxVal;
+
+  // ჩავლებისას (drag) მხოლოდ ლოკალურ state-ს ვცვლით — thumb-ი მაშინვე,
+  // მთელი `FilterSidebar`-ის (ყველა facet-ით) გადარენდერის გარეშე
+  // მოძრაობს ხაზზე. `onChange`-ით draft-ში (parent-ში) ვწერთ მხოლოდ
+  // pointer-up/keyup-ზე — რომ მძიმე re-render ყოველ pixel-ზე არ გამოიწვიოს
+  // და ბულეტების მოძრაობა არ "გაიჭედოს".
   const commitMin = (raw: number) => {
     const clamped = Math.min(Math.max(raw, boundMin), maxVal);
     setMinVal(clamped);
-    onChange("minPrice", clamped > boundMin ? String(clamped) : undefined);
   };
 
   const commitMax = (raw: number) => {
     const clamped = Math.max(Math.min(raw, boundMax), minVal);
     setMaxVal(clamped);
+  };
+
+  const flushMin = () => {
+    const clamped = minValRef.current;
+    onChange("minPrice", clamped > boundMin ? String(clamped) : undefined);
+    setMinText(clamped > boundMin ? String(clamped) : "");
+  };
+
+  const flushMax = () => {
+    const clamped = maxValRef.current;
+    onChange("maxPrice", clamped < boundMax ? String(clamped) : undefined);
+    setMaxText(clamped < boundMax ? String(clamped) : "");
+  };
+
+  // ტექსტური "დან"/"მდე" ველების ვალიდაცია — არ დაუშვას პროდუქციის
+  // რეალურ ფასის დიაპაზონზე (`boundMin`/`boundMax`) ნაკლები/მეტი მნიშვნელობა.
+  // ზედა ზღვარს (და მეორე thumb-ს) მაშინვე ვზღუდავთ — მეტი ციფრის აკრეფაც
+  // მხოლოდ გააუარესებდა; ქვედას კი blur-ზე, რადგან აკრეფის დროს (მაგ. "1"
+  // "150"-დან) ნაადრევი ჩარევა შეუძლებელს გახდიდა ნორმალურ აკრეფას.
+  const applyMinText = (raw: string) => {
+    if (raw === "") {
+      setMinVal(boundMin);
+      onChange("minPrice", undefined);
+      return;
+    }
+    const num = Number(raw);
+    if (Number.isNaN(num)) {
+      setMinText(filters.minPrice || "");
+      return;
+    }
+    const clamped = Math.min(Math.max(num, boundMin), maxVal);
+    setMinVal(clamped);
+    setMinText(clamped > boundMin ? String(clamped) : "");
+    onChange("minPrice", clamped > boundMin ? String(clamped) : undefined);
+  };
+
+  const applyMaxText = (raw: string) => {
+    if (raw === "") {
+      setMaxVal(boundMax);
+      onChange("maxPrice", undefined);
+      return;
+    }
+    const num = Number(raw);
+    if (Number.isNaN(num)) {
+      setMaxText(filters.maxPrice || "");
+      return;
+    }
+    const clamped = Math.max(Math.min(num, boundMax), minVal);
+    setMaxVal(clamped);
+    setMaxText(clamped < boundMax ? String(clamped) : "");
     onChange("maxPrice", clamped < boundMax ? String(clamped) : undefined);
   };
 
@@ -74,31 +150,90 @@ const PriceFilter: React.FC<{
   const leftPercent = ((minVal - boundMin) / span) * 100;
   const rightPercent = 100 - ((maxVal - boundMin) / span) * 100;
 
+  // ორი გადაფარული `input[type=range]`-იდან pointer-events:auto მხოლოდ
+  // thumb-ის ვიწრო წრეზეა (style.ts) — ტრეკის დანარჩენ ნაწილზე (SliderTrack)
+  // დაჭერა/გადათრევა native input-ს საერთოდ არ სწვდება. ამიტომ SliderWrap-ზე
+  // საკუთარი pointer-based drag გვაქვს: სად დააჭირა → უახლოეს thumb-ს ვარჩევთ
+  // და ვაჭერთ იქამდე, შემდეგ window-ზე pointermove/pointerup-ით ვაგრძელებთ
+  // გადათრევას მიუხედავად იმისა, სად დაიწყო დაჭერა ტრეკზე.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const dragThumbRef = useRef<"min" | "max" | null>(null);
+
+  const valueFromClientX = (clientX: number) => {
+    const rect = wrapRef.current?.getBoundingClientRect();
+    if (!rect || rect.width === 0) return boundMin;
+    const ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+    return Math.round(boundMin + ratio * span);
+  };
+
+  const handleTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const val = valueFromClientX(e.clientX);
+    const thumb: "min" | "max" = Math.abs(val - minVal) <= Math.abs(val - maxVal) ? "min" : "max";
+    dragThumbRef.current = thumb;
+    if (thumb === "min") commitMin(val);
+    else commitMax(val);
+
+    const handleMove = (ev: PointerEvent) => {
+      const v = valueFromClientX(ev.clientX);
+      if (dragThumbRef.current === "min") commitMin(v);
+      else if (dragThumbRef.current === "max") commitMax(v);
+    };
+    const handleUp = () => {
+      if (dragThumbRef.current === "min") flushMin();
+      else if (dragThumbRef.current === "max") flushMax();
+      dragThumbRef.current = null;
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerup", handleUp);
+    };
+    window.addEventListener("pointermove", handleMove);
+    window.addEventListener("pointerup", handleUp);
+  };
+
   return (
     <S.FilterCard>
       <S.FilterCardTitle>ფასი</S.FilterCardTitle>
       <S.FilterCardBody>
         <S.RangeRow>
           <S.RangeInput
-            key={`min-${filters.minPrice || ""}`}
             type="text"
             inputMode="decimal"
             placeholder={String(boundMin)}
-            defaultValue={filters.minPrice || ""}
-            onChange={(e) => onChange("minPrice", e.target.value || undefined)}
+            value={minText}
+            onChange={(e) => {
+              const raw = e.target.value;
+              const num = Number(raw);
+              // ზედა ზღვარს (ამ shorter-thumb-ის boundMax/maxVal) მაშინვე
+              // ვზღუდავთ — მეტი ციფრის აკრეფაც მხოლოდ გააუარესებდა.
+              if (raw !== "" && !Number.isNaN(num) && num > boundMax) {
+                applyMinText(raw);
+              } else {
+                setMinText(raw);
+                onChange("minPrice", raw || undefined);
+              }
+            }}
+            onBlur={(e) => applyMinText(e.target.value)}
           />
           <span style={{ color: "var(--ref-text-secondary)", fontSize: 12 }}>—</span>
           <S.RangeInput
-            key={`max-${filters.maxPrice || ""}`}
             type="text"
             inputMode="decimal"
             placeholder={String(boundMax)}
-            defaultValue={filters.maxPrice || ""}
-            onChange={(e) => onChange("maxPrice", e.target.value || undefined)}
+            value={maxText}
+            onChange={(e) => {
+              const raw = e.target.value;
+              const num = Number(raw);
+              if (raw !== "" && !Number.isNaN(num) && num > boundMax) {
+                applyMaxText(raw);
+              } else {
+                setMaxText(raw);
+                onChange("maxPrice", raw || undefined);
+              }
+            }}
+            onBlur={(e) => applyMaxText(e.target.value)}
           />
         </S.RangeRow>
 
-        <S.SliderWrap>
+        <S.SliderWrap ref={wrapRef} onPointerDown={handleTrackPointerDown}>
           <S.SliderTrack />
           <S.SliderRange left={leftPercent} right={rightPercent} />
           <S.SliderInput
@@ -107,6 +242,9 @@ const PriceFilter: React.FC<{
             max={boundMax}
             value={minVal}
             onChange={(e) => commitMin(Number(e.target.value))}
+            onMouseUp={flushMin}
+            onTouchEnd={flushMin}
+            onKeyUp={flushMin}
           />
           <S.SliderInput
             type="range"
@@ -114,6 +252,9 @@ const PriceFilter: React.FC<{
             max={boundMax}
             value={maxVal}
             onChange={(e) => commitMax(Number(e.target.value))}
+            onMouseUp={flushMax}
+            onTouchEnd={flushMax}
+            onKeyUp={flushMax}
           />
         </S.SliderWrap>
         <S.PriceBoundsLabel>
@@ -186,15 +327,15 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   };
 
   return (
-    <>
-      {hasDraftFilters && (
-        <S.FilterCard>
-          <S.FilterCardBody style={{ padding: "10px 14px" }}>
-            <S.ClearButton onClick={handleClear}>ფილტრების გასუფთავება</S.ClearButton>
-          </S.FilterCardBody>
-        </S.FilterCard>
-      )}
-
+    // ფორმა — Enter-ზე ნებისმიერი ველიდან ფილტრი დაუყოვნებლივ გაეშვება
+    // (ისევე, როგორც "გაფილტვრა" ღილაკზე დაჭერისას), ხოლო ტოგლის/გასუფთავების
+    // ღილაკებს `type="button"` აქვთ, რომ შემთხვევით submit არ გამოიწვიონ.
+    <S.FilterForm
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleApply();
+      }}
+    >
       <S.FilterCard>
         <S.FilterCardTitle>ძებნა დასახელებით</S.FilterCardTitle>
         <S.FilterCardBody>
@@ -276,18 +417,21 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               {attribute.type === "boolean" && (
                 <S.BooleanRow>
                   <S.BooleanOption
+                    type="button"
                     active={!draft[attribute.code]}
                     onClick={() => handleChange(attribute.code, undefined)}
                   >
                     ყველა
                   </S.BooleanOption>
                   <S.BooleanOption
+                    type="button"
                     active={draft[attribute.code] === "true"}
                     onClick={() => handleChange(attribute.code, "true")}
                   >
                     კი {facet.counts ? `(${facet.counts.true})` : ""}
                   </S.BooleanOption>
                   <S.BooleanOption
+                    type="button"
                     active={draft[attribute.code] === "false"}
                     onClick={() => handleChange(attribute.code, "false")}
                   >
@@ -311,11 +455,28 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       })}
 
       <S.ApplyBar>
-        <S.ApplyButton pending={isDirty} onClick={handleApply}>
+        <S.ApplyButton type="submit" pending={isDirty}>
           გაფილტვრა
         </S.ApplyButton>
+          <S.ClearFilterButton
+            type="button"
+            onClick={() => hasDraftFilters && handleClear()}
+            title="ფილტრების გასუფთავება"
+            aria-label="ფილტრების გასუფთავება"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path d="M3 21 21 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </S.ClearFilterButton>
       </S.ApplyBar>
-    </>
+    </S.FilterForm>
   );
 };
 

@@ -81,7 +81,10 @@ export const useCategoryFilters = () => {
     setState((prev) => ({ ...prev, filters: nextFilters, page: 1 }));
     const query: Record<string, string> = {};
     Object.entries(router.query as Record<string, string>).forEach(([key, value]) => {
-      if (RESERVED_KEYS.has(key) && key !== "page" && value) query[key] = value;
+      // `slug` — დინამიური route param-ი (`/categories/[slug]`) — ყოველთვის
+      // უნდა შენარჩუნდეს, თორემ router.push-ს [slug]-ის ინტერპოლაცია არ შეუძლია.
+      if (key === "slug" && value) query[key] = value;
+      else if (RESERVED_KEYS.has(key) && key !== "page" && value) query[key] = value;
     });
     Object.entries(nextFilters).forEach(([key, value]) => {
       if (value) query[key] = value;
@@ -107,7 +110,9 @@ export const useCategoryFilters = () => {
   const clearFilters = () => {
     setState((prev) => ({ ...prev, filters: {}, page: 1 }));
     const query: Record<string, string> = {};
-    (["subcategory", "sortBy", "order"] as const).forEach((k) => {
+    // `slug` — დინამიური route param-ი (`/categories/[slug]`) — ყოველთვის
+    // უნდა შენარჩუნდეს, თორემ router.push-ს [slug]-ის ინტერპოლაცია არ შეუძლია.
+    (["slug", "subcategory", "sortBy", "order"] as const).forEach((k) => {
       const v = (router.query as Record<string, string>)[k];
       if (v) query[k] = v;
     });

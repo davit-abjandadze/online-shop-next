@@ -3,6 +3,14 @@ import styled from "styled-components";
 // FilterSidebar-ის სტილები catalog-ის SidebarCard-ის (components/pages/catalog/style.ts)
 // იმავე ვიზუალურ ენას იმეორებს — თითო attribute-ფილტრი ცალკე "ბარათია".
 
+// მთლიანი ფილტრი ერთ `<form>`-შია გახვეული, რომ ნებისმიერი ველიდან Enter-ზე
+// დაჭერამ "გაფილტვრა" ღილაკის ეკვივალენტური submit გამოიწვიოს.
+export const FilterForm = styled("form")`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
 export const FilterCard = styled("div")`
   border-radius: 20px;
   background: var(--ref-bg-elevated);
@@ -132,6 +140,8 @@ export const SliderWrap = styled("div")`
   position: relative;
   height: 28px;
   margin-top: 6px;
+  cursor: pointer;
+  touch-action: none;
 `;
 
 export const SliderTrack = styled("div")`
@@ -176,8 +186,12 @@ export const SliderInput = styled("input")`
     background: transparent;
   }
 
+  // thumb-ის pointer-events აღარაა auto — SliderWrap-ის საკუთარი
+  // pointer-based drag (index.tsx-ის handleTrackPointerDown) მთელ ტრეკზე
+  // (მათ შორის thumb-ის ადგილზეც) ერთნაირად ამუშავებს დაჭერას/გადათრევას;
+  // ეს input-ები visual thumb-ს (value-ის მიხედვით) და keyboard/a11y
+  // ნავიგაციას (Tab + arrow keys) მხოლოდ ემსახურებიან.
   &::-webkit-slider-thumb {
-    pointer-events: auto;
     -webkit-appearance: none;
     appearance: none;
     width: 16px;
@@ -186,18 +200,15 @@ export const SliderInput = styled("input")`
     background: var(--ref-primary);
     border: 2px solid var(--ref-bg-elevated);
     box-shadow: var(--ref-shadow-sm);
-    cursor: pointer;
   }
 
   &::-moz-range-thumb {
-    pointer-events: auto;
     width: 16px;
     height: 16px;
     border-radius: 50%;
     background: var(--ref-primary);
     border: 2px solid var(--ref-bg-elevated);
     box-shadow: var(--ref-shadow-sm);
-    cursor: pointer;
   }
 `;
 
@@ -218,10 +229,35 @@ export const ApplyBar = styled("div")`
   bottom: 16px;
   z-index: 5;
   padding-top: 4px;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+`;
+
+// ფილტრების გასუფთავების ღილაკი — "გაფილტვრა" ღილაკის გვერდით, მხოლოდ
+// მაშინ ჩანს, როცა draft-ში მონიშნული ფილტრი არსებობს.
+export const ClearFilterButton = styled("button")`
+  flex: 0 0 45px;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ref-border);
+  border-radius: 14px;
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: var(--ref-primary);
+    color: var(--ref-primary);
+  }
 `;
 
 export const ApplyButton = styled("button")<{ pending?: boolean }>`
-  width: 100%;
+  flex: 1;
   padding: 13px 0;
   border: none;
   border-radius: 14px;

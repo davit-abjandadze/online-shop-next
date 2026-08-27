@@ -8,6 +8,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import { useCart } from "@/context/Cart";
 import { CDN_URL } from "@/constants";
 import { CartIcon, LockIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import * as S from "./style";
 
 const resolveImage = (image?: string) =>
@@ -58,7 +59,7 @@ export const CartComponent: React.FC = () => {
   }
 
   const items = cart?.items || [];
-  const total = items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + getDiscountedPrice(item.product).price * item.quantity, 0);
 
   const handleQuantityChange = async (itemId: number, nextQuantity: number) => {
     if (nextQuantity < 1) return;
@@ -95,6 +96,7 @@ export const CartComponent: React.FC = () => {
                   const image = resolveImage(item.product.images?.[0]);
                   const disabled = pendingItemId === item.id;
                   const atStockLimit = item.quantity >= item.product.stock;
+                  const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(item.product);
 
                   return (
                     <S.Item key={item.id}>
@@ -104,7 +106,11 @@ export const CartComponent: React.FC = () => {
                         <Link href={`/products/${item.product.id}`} passHref legacyBehavior>
                           <S.ItemName>{item.product.name}</S.ItemName>
                         </Link>
-                        <S.ItemUnitPrice>{Number(item.product.price).toFixed(2)} ₾ / ცალი</S.ItemUnitPrice>
+                        <S.ItemUnitPrice>
+                          {unitPrice.toFixed(2)} ₾ / ცალი
+                          {originalPrice && <S.ItemOldPrice>{originalPrice.toFixed(2)} ₾</S.ItemOldPrice>}
+                          {discountPercent && <S.ItemDiscountBadge>-{discountPercent}%</S.ItemDiscountBadge>}
+                        </S.ItemUnitPrice>
                         {atStockLimit && <S.ItemStockWarning>მარაგის ლიმიტი მიღწეულია</S.ItemStockWarning>}
                       </S.ItemInfo>
 
@@ -126,7 +132,7 @@ export const CartComponent: React.FC = () => {
                         </S.StepperButton>
                       </S.QuantityStepper>
 
-                      <S.ItemSubtotal>{(Number(item.product.price) * item.quantity).toFixed(2)} ₾</S.ItemSubtotal>
+                      <S.ItemSubtotal>{(unitPrice * item.quantity).toFixed(2)} ₾</S.ItemSubtotal>
 
                       <S.RemoveButton type="button" disabled={disabled} onClick={() => handleRemove(item.id)}>
                         <TrashIcon size={18} />

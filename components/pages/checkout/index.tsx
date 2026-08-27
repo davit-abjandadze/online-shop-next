@@ -12,6 +12,7 @@ import { OrdersAPI, PaymentsAPI } from "@/API_Client";
 import { Order, PaymentInitiateResponse } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { CartIcon, LockIcon } from "@/components/ui/RefIcons";
+import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import { CheckoutFormValues, checkoutFormSchema } from "./schemas";
 import * as S from "./style";
 
@@ -73,7 +74,7 @@ export const CheckoutComponent: React.FC = () => {
   }
 
   const items = cart?.items || [];
-  const total = items.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
+  const total = items.reduce((sum, item) => sum + getDiscountedPrice(item.product).price * item.quantity, 0);
   const isEmpty = !loading && items.length === 0;
 
   const onSubmit = handleSubmit(async (data) => {
@@ -122,16 +123,17 @@ export const CheckoutComponent: React.FC = () => {
               <S.SummaryList>
                 {items.map((item) => {
                   const image = resolveImage(item.product.images?.[0]);
+                  const { price: unitPrice } = getDiscountedPrice(item.product);
                   return (
                     <S.SummaryItem key={item.id}>
                       <S.ItemImage>{image && <img src={image} alt={item.product.name} />}</S.ItemImage>
                       <S.ItemInfo>
                         <S.ItemName>{item.product.name}</S.ItemName>
                         <S.ItemMeta>
-                          {item.quantity} x {Number(item.product.price).toFixed(2)} ₾
+                          {item.quantity} x {unitPrice.toFixed(2)} ₾
                         </S.ItemMeta>
                       </S.ItemInfo>
-                      <S.ItemSubtotal>{(Number(item.product.price) * item.quantity).toFixed(2)} ₾</S.ItemSubtotal>
+                      <S.ItemSubtotal>{(unitPrice * item.quantity).toFixed(2)} ₾</S.ItemSubtotal>
                     </S.SummaryItem>
                   );
                 })}

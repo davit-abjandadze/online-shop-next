@@ -5,6 +5,7 @@ import { CartIcon, HeartIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons
 import { CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
+import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import * as S from "./style";
 
 export interface ProductCardProps {
@@ -12,24 +13,21 @@ export interface ProductCardProps {
 }
 
 // 0-დან 1-მდე დეტერმინისტული "შემთხვევითი" რიცხვი პროდუქტის id-დან — იგივე
-// პროდუქტს ყოველთვის იგივე rating/ფასდაკლება რომ ჰქონდეს, გვერდის ხელახლა
-// ჩატვირთვისას რომ არ იცვლებოდეს.
+// პროდუქტს ყოველთვის იგივე rating ჰქონდეს, გვერდის ხელახლა ჩატვირთვისას
+// რომ არ იცვლებოდეს.
 const seededRandom = (seed: number) => {
   const x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
 };
 
-// TODO: rating/reviewsCount/oldPrice ბექენდის Product მოდელს ჯერ არ აქვს —
-// სანამ ეს ველები API-დან არ მოვა, დიზაინის მოთხოვნით ვაჩვენებთ
-// დეტერმინისტულ placeholder მონაცემებს (იხ. product.id-ზე დამოკიდებული seed).
+// TODO: rating/reviewsCount ბექენდის Product მოდელს ჯერ არ აქვს — სანამ ეს
+// ველები API-დან არ მოვა, დიზაინის მოთხოვნით ვაჩვენებთ დეტერმინისტულ
+// placeholder მონაცემებს (იხ. product.id-ზე დამოკიდებული seed). ფასდაკლება
+// კი უკვე რეალურია — `product.discountPercent`-იდან, `getDiscountedPrice`-ით.
 const getDisplayStats = (product: Product) => {
   const rating = (4.5 + seededRandom(product.id * 7 + 1) * 0.5).toFixed(1);
   const reviews = 40 + Math.floor(seededRandom(product.id * 13 + 2) * 500);
-  const hasDiscount = seededRandom(product.id * 17 + 3) < 0.35;
-  const discountPercent = [10, 15, 20, 25][Math.floor(seededRandom(product.id * 19 + 4) * 4)];
-  const price = Number(product.price);
-  const oldPrice = hasDiscount ? price / (1 - discountPercent / 100) : null;
-  return { rating, reviews, discountPercent, oldPrice };
+  return { rating, reviews };
 };
 
 // კატალოგის/მთავარი გვერდის პროდუქტის ბარათი — ბმული პროდუქტის დეტალურ
@@ -42,7 +40,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const imageSrc = image ? (image.startsWith("http") ? image : `${CDN_URL}${image}`) : undefined;
   const outOfStock = product.stock <= 0;
   const saved = isSaved(product.id);
-  const { rating, reviews, discountPercent, oldPrice } = getDisplayStats(product);
+  const { rating, reviews } = getDisplayStats(product);
+  const { price: displayPrice, originalPrice: oldPrice, discountPercent } = getDiscountedPrice(product);
 
   // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
@@ -84,7 +83,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
          
           <S.Footer>
             <S.PriceGroup>
-              <S.Price>{Number(product.price).toFixed(2)} ₾</S.Price>
+              <S.Price>{displayPrice.toFixed(2)} ₾</S.Price>
               {oldPrice && <S.OldPrice>{oldPrice.toFixed(2)} ₾</S.OldPrice>}
             </S.PriceGroup>
             <S.AddButton
