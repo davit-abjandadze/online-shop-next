@@ -160,7 +160,7 @@ export const HomeComponent: React.FC = () => {
     const children = category.children || [];
     return (
       <S.CategoryRow key={category.id}>
-        <Link href={`/products?category=${category.id}`} passHref legacyBehavior>
+        <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
           <S.CategoryFlyoutTrigger>
             <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <TagIcon size={16} />
@@ -176,12 +176,12 @@ export const HomeComponent: React.FC = () => {
               <S.MegaMenuColumnTitle>{getCategoryName(category, router.locale)}</S.MegaMenuColumnTitle>
               <S.MegaMenuList>
                 {children.map((child) => (
-                  <Link key={child.id} href={`/products?category=${child.id}`} passHref legacyBehavior>
+                  <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
                     <S.MegaMenuLink>{getCategoryName(child, router.locale)}</S.MegaMenuLink>
                   </Link>
                 ))}
               </S.MegaMenuList>
-              <Link href={`/products?category=${category.id}`} passHref legacyBehavior>
+              <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
                 <S.MegaMenuViewAll>ყველას ნახვა →</S.MegaMenuViewAll>
               </Link>
             </S.MegaMenuColumn>
@@ -315,11 +315,11 @@ export const HomeComponent: React.FC = () => {
           ) : (
             <S.CategoryGrid>
               {(loading ? Array.from({ length: CATEGORIES_LIMIT }) : categories).map((category: any, idx) => {
-                const isActive = category && String(router.query.category) === String(category.id);
+                const isActive = category && router.query.slug === category.slug;
                 return (
                   <Link
                     key={category?.id ?? idx}
-                    href={category ? `/products?category=${category.id}` : "/products"}
+                    href={category ? `/categories/${category.slug}` : "/products"}
                     passHref
                     legacyBehavior
                   >

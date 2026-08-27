@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 import GoogleProvider from "next-auth/providers/google"; // ← ეს
 // import FacebookProvider from "next-auth/providers/facebook"; // ⚠️ დროებით გამორთულია (Facebook App ჯერ Development/Unpublished რეჟიმშია)
 

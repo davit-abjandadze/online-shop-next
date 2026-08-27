@@ -4,15 +4,16 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductsAPI, CategoriesAPI } from "@/API_Client";
-import { Category, Product } from "@/API_Client/client/models";
-import { PaginatedResponseDto } from "@/API_Client/types";
-import { BoxIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { Category, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
+import { CategoryAttribute, PaginatedResponseDto, ProductAttributeValue } from "@/API_Client/types";
+import { BoxIcon, CheckSquareIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
+import DynamicAttributeForm from "./DynamicAttributeForm";
 import { ProductFormValues, productFormSchema } from "./schemas";
 import * as S from "./style";
 
@@ -85,6 +86,12 @@ export const ProductsPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
 
+  // ─── Product ↔ Attribute values (მხოლოდ edit-ისთვის, productId-ს მოითხოვს) ──
+  const [editCategoryAttrs, setEditCategoryAttrs] = useState<CategoryAttribute[]>([]);
+  const [editAttrValues, setEditAttrValues] = useState<ProductAttributeValue[]>([]);
+  const [attrsLoading, setAttrsLoading] = useState<boolean>(false);
+  const [attrsSaving, setAttrsSaving] = useState<boolean>(false);
+
   const createForm = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: emptyProductForm,
@@ -138,6 +145,54 @@ export const ProductsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
 
+  // ─── Product ↔ Attribute values ────────────────────────────────────────────
+  const editCategoryId = editForm.watch("categoryId");
+
+  const fetchEditAttrValues = async (productId: number | string) => {
+    if (!session?.accessToken) return;
+    try {
+      const res = await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerGetAttributeValues(
+        String(productId)
+      );
+      setEditAttrValues((res.data as unknown as ProductAttributeValue[]) || []);
+    } catch {
+      toast.error("პროდუქტის მახასიათებლების ჩატვირთვა ვერ მოხერხდა");
+    }
+  };
+
+  // editingProduct-ის კატეგორიის (ან ფორმაში ცოცხლად შერჩეული ახალი
+  // კატეგორიის) ეფექტური attribute set — მემკვიდრეობის ჩათვლით.
+  useEffect(() => {
+    if (!editingProduct || !session?.accessToken || !editCategoryId) {
+      setEditCategoryAttrs([]);
+      return;
+    }
+    setAttrsLoading(true);
+    CategoriesAPI(router.locale || "ka", session.accessToken)
+      .categoryControllerFindAttributes(editCategoryId)
+      .then((res) => setEditCategoryAttrs((res.data as unknown as CategoryAttribute[]) || []))
+      .catch(() => toast.error("კატეგორიის მახასიათებლების ჩატვირთვა ვერ მოხერხდა"))
+      .finally(() => setAttrsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingProduct?.id, editCategoryId, session?.accessToken]);
+
+  const handleSaveAttrValues = async (items: ProductAttributeValueItemDto[]) => {
+    if (!editingProduct || !session?.accessToken) return;
+    setAttrsSaving(true);
+    try {
+      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerSetAttributeValues(
+        String(editingProduct.id),
+        { values: items }
+      );
+      toast.success("მახასიათებლები წარმატებით შეინახა!");
+      fetchEditAttrValues(editingProduct.id);
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "მახასიათებლების შენახვა ვერ მოხერხდა");
+    } finally {
+      setAttrsSaving(false);
+    }
+  };
+
   const handleOpenCreate = () => {
     createForm.reset(emptyProductForm);
     setIsCreateOpen(true);
@@ -163,6 +218,8 @@ export const ProductsPage: React.FC = () => {
   const handleOpenEdit = (product: Product) => {
     setEditingProduct(product);
     editForm.reset(toFormValues(product));
+    setEditAttrValues([]);
+    fetchEditAttrValues(product.id);
   };
 
   const handleEditSubmit = editForm.handleSubmit(async (data) => {
@@ -400,6 +457,24 @@ export const ProductsPage: React.FC = () => {
               </S.CloseButton>
             </S.ModalHeader>
             {renderForm(editForm, handleEditSubmit, editSubmitting, "ცვლილებების შენახვა")}
+
+            {editCategoryId && (
+              <div style={{ marginTop: "20px", borderTop: "1px solid var(--ref-border)", paddingTop: "16px" }}>
+                <S.Label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <CheckSquareIcon size={16} /> მახასიათებლები
+                </S.Label>
+                {attrsLoading ? (
+                  <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+                ) : (
+                  <DynamicAttributeForm
+                    categoryAttrs={editCategoryAttrs}
+                    values={editAttrValues}
+                    saving={attrsSaving}
+                    onSave={handleSaveAttrValues}
+                  />
+                )}
+              </div>
+            )}
           </S.ModalContent>
         </S.ModalOverlay>
       )}

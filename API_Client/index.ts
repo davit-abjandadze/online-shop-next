@@ -1,4 +1,5 @@
 import {
+  AttributesApi,
   AuthApi,
   CartApi,
   CategoriesApi,
@@ -113,6 +114,11 @@ export const OrdersAPI = (acceptLanguage: string, accessToken: string) => {
 export const PaymentsAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new PaymentsApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const AttributesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new AttributesApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

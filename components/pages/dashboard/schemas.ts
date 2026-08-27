@@ -68,3 +68,42 @@ export const productFormSchema = z.object({
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
+
+/** attribute-ის (მახასიათებლის) შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა.
+ * `sortOrder` სტრინგადაა (input-ის ბუნებრივი ტიპი), submit-ის დროს რიცხვად გარდაიქმნება. */
+export const attributeFormSchema = z.object({
+  nameKa: z.string().trim().min(1, "გთხოვთ შეავსოთ მახასიათებლის სახელი ქართულად"),
+  nameEn: z.string().trim().min(1, "გთხოვთ შეავსოთ მახასიათებლის სახელი ინგლისურად"),
+  code: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ code")
+    .regex(/^[a-z0-9_-]+$/, "code უნდა შეიცავდეს მხოლოდ ლათინურ პატარა ასოებს, ციფრებს, ტირეს და ქვედა ტირეს"),
+  type: z.enum(["select", "multi_select", "number", "text", "boolean", "range"]),
+  unit: z.string().trim().optional(),
+  isFilterable: z.boolean(),
+  isRequired: z.boolean(),
+  sortOrder: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (!isNaN(Number(v)) && Number.isInteger(Number(v))), "sortOrder უნდა იყოს მთელი რიცხვი"),
+});
+
+export type AttributeFormValues = z.infer<typeof attributeFormSchema>;
+
+/** attribute-ის option-ის (მხოლოდ select/multi_select ტიპისთვის) ფორმის ვალიდაციის სქემა. */
+export const attributeOptionFormSchema = z.object({
+  valueKa: z.string().trim().min(1, "გთხოვთ შეავსოთ მნიშვნელობა ქართულად"),
+  valueEn: z.string().trim().min(1, "გთხოვთ შეავსოთ მნიშვნელობა ინგლისურად"),
+  code: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ code")
+    .regex(/^[a-z0-9_-]+$/, "code უნდა შეიცავდეს მხოლოდ ლათინურ პატარა ასოებს, ციფრებს, ტირეს და ქვედა ტირეს"),
+  sortOrder: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (!isNaN(Number(v)) && Number.isInteger(Number(v))), "sortOrder უნდა იყოს მთელი რიცხვი"),
+});
+
+export type AttributeOptionFormValues = z.infer<typeof attributeOptionFormSchema>;

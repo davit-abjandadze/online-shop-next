@@ -10,7 +10,7 @@ import {
   resetPasswordSchema,
 } from "@/components/shared/validation/schemas";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const inputStyle = {
   width: "100%",

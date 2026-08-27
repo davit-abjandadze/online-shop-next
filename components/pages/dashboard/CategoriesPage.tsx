@@ -3,10 +3,10 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CategoriesAPI } from "@/API_Client";
+import { AttributesAPI, CategoriesAPI } from "@/API_Client";
 import { Category } from "@/API_Client/client/models";
-import { PaginatedResponseDto } from "@/API_Client/types";
-import { CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { Attribute, CategoryAttribute, PaginatedResponseDto } from "@/API_Client/types";
+import { CheckSquareIcon, CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
@@ -32,6 +32,14 @@ export const CategoriesPage: React.FC = () => {
 
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
+
+  // ─── Attribute-ების მიბმა (category ↔ attribute) ───────────────────────────
+  const [managingCat, setManagingCat] = useState<Category | null>(null);
+  const [categoryAttrs, setCategoryAttrs] = useState<CategoryAttribute[]>([]);
+  const [allAttributes, setAllAttributes] = useState<Attribute[]>([]);
+  const [attrsLoading, setAttrsLoading] = useState<boolean>(false);
+  const [selectedAttributeId, setSelectedAttributeId] = useState<string>("");
+  const [attrMutating, setAttrMutating] = useState<boolean>(false);
 
   const createForm = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
@@ -140,6 +148,76 @@ export const CategoriesPage: React.FC = () => {
     }
   };
 
+  // ─── Attribute-ების მიბმა (category ↔ attribute) ───────────────────────────
+  const fetchCategoryAttrs = async (categoryId: string) => {
+    if (!session?.accessToken) return;
+    setAttrsLoading(true);
+    try {
+      const res = await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerFindAttributes(
+        categoryId
+      );
+      setCategoryAttrs((res.data as unknown as CategoryAttribute[]) || []);
+    } catch {
+      toast.error("მახასიათებლების ჩატვირთვა ვერ მოხერხდა");
+    } finally {
+      setAttrsLoading(false);
+    }
+  };
+
+  const handleOpenManageAttributes = async (cat: Category) => {
+    setManagingCat(cat);
+    setSelectedAttributeId("");
+    fetchCategoryAttrs(String(cat.id));
+    if (allAttributes.length === 0 && session?.accessToken) {
+      try {
+        const res = await AttributesAPI(router.locale || "ka", session.accessToken).attributeControllerFindAll(1, 100);
+        const data = res.data as unknown as PaginatedResponseDto<Attribute>;
+        setAllAttributes(Array.isArray(data?.data) ? data.data : []);
+      } catch {
+        toast.error("მახასიათებლების სიის ჩატვირთვა ვერ მოხერხდა");
+      }
+    }
+  };
+
+  const handleAddAttribute = async () => {
+    if (!managingCat || !selectedAttributeId || !session?.accessToken) return;
+    setAttrMutating(true);
+    try {
+      await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerAddAttribute(
+        String(managingCat.id),
+        { attributeId: selectedAttributeId }
+      );
+      toast.success("მახასიათებელი წარმატებით მიემატა კატეგორიას!");
+      setSelectedAttributeId("");
+      fetchCategoryAttrs(String(managingCat.id));
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "მახასიათებლის მიმაგრება ვერ მოხერხდა");
+    } finally {
+      setAttrMutating(false);
+    }
+  };
+
+  const handleRemoveAttribute = async (attributeId: string) => {
+    if (!managingCat || !session?.accessToken) return;
+    setAttrMutating(true);
+    try {
+      await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerRemoveAttribute(
+        String(managingCat.id),
+        attributeId
+      );
+      toast.success("მახასიათებელი წარმატებით მოხსნილია!");
+      fetchCategoryAttrs(String(managingCat.id));
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "მახასიათებლის მოხსნა ვერ მოხერხდა");
+    } finally {
+      setAttrMutating(false);
+    }
+  };
+
+  // მიბმული attribute-ების id-ები — dropdown-ში მხოლოდ ჯერ არ მიბმულები ჩნდება.
+  const linkedAttributeIds = new Set(categoryAttrs.map((ca) => ca.attributeId));
+  const availableToAdd = allAttributes.filter((a) => !linkedAttributeIds.has(a.id));
+
   return (
     <DashboardLayout
       title="ადმინ დეშბორდი"
@@ -182,6 +260,9 @@ export const CategoriesPage: React.FC = () => {
                   </S.BadgeGroup>
                 </div>
                 <S.CardActions>
+                  <S.ActionButton variant="secondary" onClick={() => handleOpenManageAttributes(cat)}>
+                    <CheckSquareIcon size={16} /> მახასიათებლები
+                  </S.ActionButton>
                   <S.ActionButton variant="outline" onClick={() => handleOpenEditCat(cat)}>
                     <EditIcon size={16} /> რედაქტირება
                   </S.ActionButton>
@@ -291,6 +372,95 @@ export const CategoriesPage: React.FC = () => {
                 <S.ActionButton type="submit" variant="primary" disabled={catEditSubmitting}>{catEditSubmitting ? "ინახება..." : "ცვლილებების შენახვა"}</S.ActionButton>
               </S.ModalFooter>
             </form>
+          </S.ModalContent>
+        </S.ModalOverlay>
+      )}
+
+      {/* ═══ MANAGE ATTRIBUTES MODAL ═══════════════════════════════════════ */}
+      {managingCat && (
+        <S.ModalOverlay onClick={() => setManagingCat(null)}>
+          <S.ModalContent onClick={(e) => e.stopPropagation()}>
+            <S.ModalHeader>
+              <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <CheckSquareIcon size={18} /> {getCategoryName(managingCat, router.locale)} — მახასიათებლები
+              </S.ModalTitle>
+              <S.CloseButton onClick={() => setManagingCat(null)}>
+                <CloseIcon size={16} />
+              </S.CloseButton>
+            </S.ModalHeader>
+
+            {attrsLoading ? (
+              <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            ) : categoryAttrs.length === 0 ? (
+              <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>
+                ამ კატეგორიაზე მახასიათებელი არ არის მიმაგრებული.
+              </p>
+            ) : (
+              <S.ImageList>
+                {categoryAttrs.map((ca) => {
+                  const isOwn = ca.categoryId === String(managingCat.id);
+                  return (
+                    <S.ImageRow key={ca.id}>
+                      <span style={{ flex: 1, fontSize: "14px" }}>
+                        {getCategoryName(ca.attribute, router.locale)}{" "}
+                        <span style={{ color: "var(--ref-text-secondary)" }}>({ca.attribute.code})</span>
+                        {!isOwn && (
+                          <S.Badge variant="date" style={{ marginLeft: "8px" }}>
+                            მემკვიდრეობით
+                          </S.Badge>
+                        )}
+                      </span>
+                      {isOwn ? (
+                        <S.ActionButton
+                          type="button"
+                          variant="danger"
+                          disabled={attrMutating}
+                          onClick={() => handleRemoveAttribute(ca.attributeId)}
+                        >
+                          <TrashIcon size={14} /> მოხსნა
+                        </S.ActionButton>
+                      ) : (
+                        <span style={{ fontSize: "12px", color: "var(--ref-text-secondary)" }}>
+                          მოეხსენოს მშობელი კატეგორიიდან
+                        </span>
+                      )}
+                    </S.ImageRow>
+                  );
+                })}
+              </S.ImageList>
+            )}
+
+            <S.FormGroup style={{ marginTop: "16px" }}>
+              <S.Label>მახასიათებლის დამატება</S.Label>
+              <S.ImageRow>
+                <S.Select value={selectedAttributeId} onChange={(e) => setSelectedAttributeId(e.target.value)}>
+                  <option value="">— აირჩიეთ მახასიათებელი —</option>
+                  {availableToAdd.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {getCategoryName(a, router.locale)} ({a.code})
+                    </option>
+                  ))}
+                </S.Select>
+                <S.ActionButton
+                  type="button"
+                  variant="primary"
+                  disabled={!selectedAttributeId || attrMutating}
+                  onClick={handleAddAttribute}
+                >
+                  <PlusIcon size={14} /> დამატება
+                </S.ActionButton>
+              </S.ImageRow>
+              {availableToAdd.length === 0 && allAttributes.length > 0 && (
+                <p style={{ margin: "8px 0 0 0", fontSize: "13px", color: "var(--ref-text-secondary)" }}>
+                  ყველა არსებული მახასიათებელი უკვე მიმაგრებულია.
+                </p>
+              )}
+              {allAttributes.length === 0 && (
+                <p style={{ margin: "8px 0 0 0", fontSize: "13px", color: "var(--ref-text-secondary)" }}>
+                  ჯერ არ არსებობს არცერთი მახასიათებელი — შექმენით &quot;მახასიათებლები&quot; გვერდზე.
+                </p>
+              )}
+            </S.FormGroup>
           </S.ModalContent>
         </S.ModalOverlay>
       )}

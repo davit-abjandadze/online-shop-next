@@ -113,6 +113,31 @@ export const Description = styled("p")`
   white-space: pre-wrap;
 `;
 
+// პროდუქტის attribute-value-ების (მახასიათებლების) ცხრილი — description-ის ქვეშ.
+export const SpecTable = styled("dl")`
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) 2fr;
+  gap: 8px 16px;
+  margin: 4px 0 0 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+`;
+
+export const SpecLabel = styled("dt")`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+`;
+
+export const SpecValue = styled("dd")`
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+`;
+
 export const AddToCartButton = styled("button")`
   align-self: flex-start;
   display: inline-flex;

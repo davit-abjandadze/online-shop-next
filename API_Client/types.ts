@@ -109,3 +109,108 @@ export interface Order {
 export interface PaymentInitiateResponse {
   redirectUrl: string;
 }
+
+// AttributeController/CategoryController-ის (attribute-set/filter) endpoint-ებს
+// OpenAPI-ში ცხადი @ApiResponse({ type }) არ აქვს, ამიტომ generate-api.js-ის
+// გენერირებულ კლიენტში ეს ყველა `AxiosPromise<void>`-ია — ხელით ვაფიქსირებთ
+// ბექენდზე რეალურად გადამოწმებულ (curl) response shape-ს
+// (src/attribute/, src/category/, src/products/ online-shop-nest-ში).
+export type AttributeType =
+  | "select"
+  | "multi_select"
+  | "number"
+  | "text"
+  | "boolean"
+  | "range";
+
+export interface AttributeOption {
+  id: string;
+  attributeId: string;
+  valueKa: string;
+  valueEn: string;
+  code: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Attribute {
+  id: string;
+  nameKa: string;
+  nameEn: string;
+  code: string;
+  type: AttributeType;
+  unit?: string | null;
+  isFilterable: boolean;
+  isRequired: boolean;
+  sortOrder: number;
+  options?: AttributeOption[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET /categories/:id/attributes-ის row — `categoryId` ყოველთვის იმ
+// კატეგორიის id-ია, სადაც attribute პირდაპირ არის მიბმული (არა querying
+// კატეგორია) — ამის შედარებით queried category.id-თან შორისდება
+// "საკუთარი" vs "მემკვიდრეობით მიღებული" row (იხ. CategoryService.
+// findAttributesForCategory).
+export interface CategoryAttribute {
+  id: string;
+  categoryId: string;
+  attributeId: string;
+  sortOrder: number;
+  isRequiredOverride: boolean | null;
+  attribute: Attribute;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET/PUT /products/:id/attribute-values row.
+export interface ProductAttributeValue {
+  id: string;
+  productId: number;
+  attributeId: string;
+  attributeOptionId?: string | null;
+  valueText?: string | null;
+  valueNumber?: number | null;
+  valueBoolean?: boolean | null;
+  attribute?: Attribute;
+  attributeOption?: AttributeOption | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET /categories/:slug/filters — მთელი პასუხი ერთი flat მასივია (არა
+// `{ data, meta }`-ის მსგავსი envelope), თითო filterable attribute-ზე ერთი
+// row, `attribute.type`-ის მიხედვით სხვადასხვა დამატებითი ველით
+// (CategoryService.getFilters).
+export interface CategoryFilterAttributeSummary {
+  id: string;
+  nameKa: string;
+  nameEn: string;
+  code: string;
+  type: AttributeType;
+  unit?: string | null;
+}
+
+export interface CategoryFilterOptionCount {
+  id: string;
+  valueKa: string;
+  valueEn: string;
+  code: string;
+  count: number;
+}
+
+export interface CategoryFilterEntry {
+  attribute: CategoryFilterAttributeSummary;
+  // select/multi_select
+  options?: CategoryFilterOptionCount[];
+  // number/range
+  min?: number | null;
+  max?: number | null;
+  // boolean
+  counts?: { true: number; false: number };
+  // text — მხოლოდ attribute-ის ჩვენებისთვის, count-ის გარეშე
+}
+
+export type CategoryFiltersResponse = CategoryFilterEntry[];

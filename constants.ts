@@ -10,10 +10,10 @@ export const SSR = typeof window === "undefined";
 export const BASEPATH = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 // ბექენდის მთავარი API მისამართი
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 // ავტორიზაციის მისამართი (შესაბამისობაშია NestJS AuthController-თან)
-export const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:4000/auth/login";
+export const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:5000/auth/login";
 
 export const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL || "";
 
