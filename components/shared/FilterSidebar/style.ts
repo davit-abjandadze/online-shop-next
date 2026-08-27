@@ -124,3 +124,121 @@ export const EmptyFacets = styled("span")`
   font-size: 12px;
   color: var(--ref-text-secondary);
 `;
+
+// ფასის დიაპაზონის dual-thumb სლაიდერი — ორი გადაფარული `input[type=range]`
+// (თითო thumb-ისთვის), pointer-events: none ტრეკზე და auto მხოლოდ thumb-ზე,
+// რომ ორივე ცალ-ცალკე გადაადგილდეს ერთმანეთის დაბლოკვის გარეშე.
+export const SliderWrap = styled("div")`
+  position: relative;
+  height: 28px;
+  margin-top: 6px;
+`;
+
+export const SliderTrack = styled("div")`
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: var(--ref-border);
+`;
+
+export const SliderRange = styled("div")<{ left: number; right: number }>`
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: var(--ref-primary);
+  left: ${({ left }) => left}%;
+  right: ${({ right }) => right}%;
+`;
+
+export const SliderInput = styled("input")`
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transform: translateY(-50%);
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+  &::-moz-range-track {
+    background: transparent;
+  }
+
+  &::-webkit-slider-thumb {
+    pointer-events: auto;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ref-primary);
+    border: 2px solid var(--ref-bg-elevated);
+    box-shadow: var(--ref-shadow-sm);
+    cursor: pointer;
+  }
+
+  &::-moz-range-thumb {
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--ref-primary);
+    border: 2px solid var(--ref-bg-elevated);
+    box-shadow: var(--ref-shadow-sm);
+    cursor: pointer;
+  }
+`;
+
+export const PriceBoundsLabel = styled("div")`
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--ref-text-secondary);
+  margin-top: 4px;
+`;
+
+// გაფილტვრის ღილაკის სტიკი კონტეინერი — filter card-ების ბოლოში, ეკრანის
+// ბოლოში სულ ჩანს (position: sticky), რომ ცვლილებების გამოყენება
+// ყოველი input-ის შეხებაზე გვერდის refresh-ის/URL-ის ცვლილების გარეშე
+// ერთი დაჭერით მოხდეს.
+export const ApplyBar = styled("div")`
+  position: sticky;
+  bottom: 16px;
+  z-index: 5;
+  padding-top: 4px;
+`;
+
+export const ApplyButton = styled("button")<{ pending?: boolean }>`
+  width: 100%;
+  padding: 13px 0;
+  border: none;
+  border-radius: 14px;
+  background: var(--ref-primary);
+  color: var(--ref-bg-elevated);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--ref-shadow-md, var(--ref-shadow-sm));
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  opacity: ${({ pending }) => (pending ? 1 : 0.85)};
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;

@@ -32,6 +32,10 @@ export interface CreateProductDto {
      */
     'stock'?: number;
     /**
+     * ფასდაკლება პროცენტებში (0-100)
+     */
+    'discountPercent'?: number;
+    /**
      * სურათების URL-ების სია
      */
     'images'?: Array<string>;

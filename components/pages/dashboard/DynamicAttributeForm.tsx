@@ -46,8 +46,13 @@ export const DynamicAttributeForm: React.FC<DynamicAttributeFormProps> = ({
     for (const ca of categoryAttrs) {
       const type = ca.attribute.type;
       if (type === "multi_select") {
+        // ზოგიერთ product-attribute-value ჩანაწერს attributeOptionId შეიძლება
+        // არ ჰქონდეს (მაგ. ცარიელი/დაზიანებული row) — ასეთის ჩართვა null-ს
+        // აგზავნის ბექენდზე და 400-ს იწვევს, ამიტომ ცხადად ვფილტრავთ.
         next[ca.attributeId] = {
-          attributeOptionIds: values.filter((v) => v.attributeId === ca.attributeId).map((v) => v.attributeOptionId!),
+          attributeOptionIds: values
+            .filter((v) => v.attributeId === ca.attributeId && v.attributeOptionId)
+            .map((v) => v.attributeOptionId as string),
         };
         continue;
       }

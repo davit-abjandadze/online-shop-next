@@ -42,6 +42,8 @@ const TYPE_LABELS: Record<AttributeType, string> = {
 
 const hasOptions = (type: AttributeType) => type === "select" || type === "multi_select";
 
+const UNIT_OPTIONS = ["Ah", "V", "W", "A", "mm", "cm", "m", "kg", "g", "l", "ml", "%"];
+
 export const AttributesPage: React.FC = () => {
   const { session } = useAdminGuard();
   const router = useRouter();
@@ -285,8 +287,15 @@ export const AttributesPage: React.FC = () => {
         </S.Select>
       </S.FormGroup>
       <S.FormGroup>
-        <S.Label>ერთეული (არასავალდებულო, მაგ: Ah, V, mm)</S.Label>
-        <S.Input type="text" placeholder="მაგ: Ah" {...form.register("unit")} />
+        <S.Label>ერთეული (არასავალდებულო)</S.Label>
+        <S.Select {...form.register("unit")}>
+          <option value="">არცერთი</option>
+          {UNIT_OPTIONS.map((u) => (
+            <option key={u} value={u}>
+              {u}
+            </option>
+          ))}
+        </S.Select>
       </S.FormGroup>
       <S.FormGroup>
         <S.Label>რიგითობა (sortOrder)</S.Label>

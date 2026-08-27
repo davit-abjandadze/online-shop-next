@@ -6,7 +6,7 @@ export const PageBackground = styled("div")`
 `;
 
 export const Container = styled("div")`
-  max-width: 1100px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 32px 24px 64px 24px;
 
@@ -31,9 +31,9 @@ export const Gallery = styled("div")`
   gap: 10px;
 `;
 
-export const MainImage = styled("div")`
+export const MainImage = styled("div")<{ clickable?: boolean }>`
+  position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1;
   border-radius: 16px;
   overflow: hidden;
   background: var(--ref-bg-elevated);
@@ -41,21 +41,177 @@ export const MainImage = styled("div")`
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: ${({ clickable }) => (clickable ? "zoom-in" : "default")};
+  max-height: 400px;
+  padding: 10px;
 
   img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    border-radius: 16px;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+`;
+
+// ვიდეო-thumbnail-ის შუაში play-ღილაკის ხატულა.
+export const PlayBadge = styled("div")`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+
+  svg {
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  }
+`;
+
+// გალერეის ლაითბოქსი — მთავარ სურათზე დაჭერისას იშლება.
+export const LightboxOverlay = styled("div")`
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+`;
+
+export const LightboxClose = styled("button")`
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 1;
+`;
+
+export const LightboxNav = styled("button")<{ side: "left" | "right" }>`
+  position: absolute;
+  top: 50%;
+  ${({ side }) => (side === "left" ? "left: 16px;" : "right: 16px;")}
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+`;
+
+export const LightboxContent = styled("div")`
+  max-width: 1000px;
+  width: 100%;
+  max-height: 80vh;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  iframe {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+  }
+`;
+
+export const LightboxThumbnails = styled("div")`
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  justify-content: flex-start;
+  max-width: 100%;
+`;
+
+// thumbnail-სლაიდერის გარსი — ისრები + სქროლვადი ზოლი.
+export const ThumbnailsWrap = styled("div")`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const ThumbnailsNavBtn = styled("button")`
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--ref-border-soft);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 26px;
+  line-height: 1;
+
+  &:hover {
+    background: #2563eb;
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
   }
 `;
 
 export const Thumbnails = styled("div")`
   display: flex;
+  flex: 1;
+  min-width: 0;
   gap: 8px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  padding-bottom: 4px;
+
+  /* scrollbar დამალვა — თავად ისრებით ვნავიგირებთ */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export const Thumbnail = styled("button")<{ active?: boolean }>`
+  position: relative;
+  flex-shrink: 0;
+  scroll-snap-align: start;
   width: 64px;
   height: 64px;
   border-radius: 8px;

@@ -36,7 +36,7 @@ const getDisplayStats = (product: Product) => {
 // გვერდზე. Wishlist და "კალათაში დამატება" ღილაკები ბმულის default
 // ნავიგაციას აჩერებენ (preventDefault/stopPropagation).
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addItem } = useCart();
+  const { cart, addItem, removeItem } = useCart();
   const { isSaved, toggle } = useWishlist();
   const image = product.images?.[0];
   const imageSrc = image ? (image.startsWith("http") ? image : `${CDN_URL}${image}`) : undefined;
@@ -44,10 +44,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const saved = isSaved(product.id);
   const { rating, reviews, discountPercent, oldPrice } = getDisplayStats(product);
 
+  // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
+  const cartItem = cart?.items?.find((item) => item.product.id === product.id);
+  const isInCart = Boolean(cartItem);
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem(product.id, 1);
+    if (cartItem) {
+      removeItem(cartItem.id);
+    } else {
+      addItem(product.id, 1);
+    }
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -81,11 +89,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </S.PriceGroup>
             <S.AddButton
               type="button"
-              aria-label="კალათაში დამატება"
-              disabled={outOfStock}
+              aria-label={isInCart ? "წაშლა კალათიდან" : "კალათაში დამატება"}
+              active={isInCart}
+              disabled={outOfStock && !isInCart}
               onClick={handleAddToCart}
             >
               <CartIcon size={16} />
+              <S.AddButtonLabel active={isInCart}>წაშლა</S.AddButtonLabel>
             </S.AddButton>
           </S.Footer>
         </S.Body>

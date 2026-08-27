@@ -74,6 +74,21 @@ export const useCategoryFilters = () => {
     }
   };
 
+  // FilterSidebar-ის "გაფილტვრა" ღილაკზე დაჭერისას draft-ში დაგროვილი
+  // ყველა ცვლილება ერთბაშად გამოიყენება — თითო ველის ცვლილებაზე
+  // ცალ-ცალკე `setFilter`/router.push-ის ნაცვლად ერთი push-ით.
+  const applyFilters = (nextFilters: Record<string, string>) => {
+    setState((prev) => ({ ...prev, filters: nextFilters, page: 1 }));
+    const query: Record<string, string> = {};
+    Object.entries(router.query as Record<string, string>).forEach(([key, value]) => {
+      if (RESERVED_KEYS.has(key) && key !== "page" && value) query[key] = value;
+    });
+    Object.entries(nextFilters).forEach(([key, value]) => {
+      if (value) query[key] = value;
+    });
+    router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
+  };
+
   const setSubcategory = (slug: string | null) => {
     setState((prev) => ({ ...prev, subcategory: slug, page: 1 }));
     pushQuery({ subcategory: slug || undefined });
@@ -99,7 +114,7 @@ export const useCategoryFilters = () => {
     router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
   };
 
-  return { ...state, setFilter, setSubcategory, setPage, setSort, clearFilters };
+  return { ...state, setFilter, applyFilters, setSubcategory, setPage, setSort, clearFilters };
 };
 
 export default useCategoryFilters;

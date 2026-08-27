@@ -20,7 +20,7 @@ export const Card = styled("a")<{ out?: boolean }>`
 export const ImageWrap = styled("div")`
   position: relative;
   width: calc(100% - 20px);
-  aspect-ratio: 1 / 1;
+  height:250px;
   margin: 10px;
   border-radius: 14px;
   background: var(--ref-bg);
@@ -119,27 +119,45 @@ export const OldPrice = styled("span")`
   text-decoration: line-through;
 `;
 
-export const AddButton = styled("button")`
+export const AddButton = styled("button")<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
+  gap: ${({ active }) => (active ? "6px" : "0")};
+  max-width: ${({ active }) => (active ? "120px" : "34px")};
   height: 34px;
+  min-width: 34px;
+  padding: ${({ active }) => (active ? "0 12px" : "0")};
   flex-shrink: 0;
+  overflow: hidden;
   border: none;
   border-radius: 10px;
-  background: var(--ref-primary-soft);
-  color: var(--ref-primary);
+  background: ${({ active }) => (active ? "var(--ref-danger)" : "var(--ref-primary-soft)")};
+  color: ${({ active }) => (active ? "#fff" : "var(--ref-primary)")};
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s ease;
+  /* horizontal-only ცვლილება — width/padding/gap-ს ვანიმაციურებთ, ვერტიკალურად ღილაკი არ იძვრის */
+  transition: max-width 0.25s ease, padding 0.25s ease, gap 0.25s ease, background 0.2s ease,
+    color 0.2s ease;
 
   &:hover {
-    background: var(--ref-primary);
-    color: #fff;
+    /* background:#d9e4fb; */
+    /* color: #ffffff; */
   }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
+`;
+
+export const AddButtonLabel = styled("span")<{ active?: boolean }>`
+  display: inline-block;
+  overflow: hidden;
+  max-width: ${({ active }) => (active ? "60px" : "0")};
+  opacity: ${({ active }) => (active ? 1 : 0)};
+  white-space: nowrap;
+  transition: max-width 0.25s ease, opacity 0.2s ease ${({ active }) => (active ? "0.1s" : "0s")};
 `;

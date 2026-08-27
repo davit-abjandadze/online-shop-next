@@ -23,6 +23,7 @@ export interface Product {
     'description'?: string;
     'price': string;
     'stock': number;
+    'discountPercent'?: number;
     'images'?: Array<string>;
     'videoUrl'?: string;
     'isActive': boolean;

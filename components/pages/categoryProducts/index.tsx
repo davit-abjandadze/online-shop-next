@@ -7,7 +7,7 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import Dropdown from "@/components/shared/Dropdown";
 import ProductCard from "@/components/shared/ProductCard";
-import FilterSidebar from "@/components/shared/FilterSidebar";
+import FilterSidebar, { PriceBounds } from "@/components/shared/FilterSidebar";
 import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI } from "@/API_Client";
 import { Category, Product } from "@/API_Client/client/models";
@@ -31,14 +31,22 @@ interface CategoryProductsPageProps {
   slug: string;
 }
 
+// useEffect dependency-სთვის — ფასის ფილტრები (minPrice/maxPrice) გამორიცხული,
+// რომ ფასის ბორდერის refetch საკუთარ ცვლილებაზე არ გამოწვეულიყო.
+const restFiltersForBounds = (filters: Record<string, string>) => {
+  const { minPrice, maxPrice, ...rest } = filters;
+  return rest;
+};
+
 export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug }) => {
   const router = useRouter();
-  const { filters, subcategory, page, sortBy, order, setFilter, setSubcategory, setPage, setSort, clearFilters } =
+  const { filters, subcategory, page, sortBy, order, applyFilters, setSubcategory, setPage, setSort, clearFilters } =
     useCategoryFilters();
 
   const [category, setCategory] = useState<Category | null>(null);
   const [children, setChildren] = useState<Category[]>([]);
   const [facets, setFacets] = useState<CategoryFiltersResponse>([]);
+  const [priceBounds, setPriceBounds] = useState<PriceBounds | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [meta, setMeta] = useState<PaginatedResponseDto<Product>["meta"] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -48,7 +56,11 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
   const sortValue =
     SORT_OPTIONS.find((o) => o.sortBy === sortBy && o.order === order)?.value || (sortBy ? "default" : "default");
 
-  // საბაზო კატეგორია + პირდაპირი ქვეკატეგორიები — slug-ის ცვლილებაზე ერთხელ.
+  // საბაზო კატეგორია + ქვეკატეგორიები — slug-ის ცვლილებაზე ერთხელ.
+  // თუ მიმდინარე კატეგორიას აქვს parent (ანუ თავად უკვე ქვეკატეგორიაა/ლიფ-კატეგორიაა),
+  // ვაჩვენებთ მის და-ძმა კატეგორიებს (parent-ის ქვეკატეგორიები) — რომ ფილტრში
+  // ("zetis-filtri"-ის მსგავს კატეგორიაზეც, რომელსაც საკუთარი შვილები არ ჰყავს)
+  // ქვეკატეგორიების ნავიგაცია არ ქრებოდეს. root კატეგორიაზე კი — თავისივე შვილები.
   useEffect(() => {
     let active = true;
     CategoriesAPI(router.locale || "ka", "")
@@ -62,7 +74,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
           100,
           undefined,
           undefined,
-          String(cat.id)
+          String(cat.parent ? cat.parent.id : cat.id)
         );
         if (!active) return;
         const childrenData = childrenRes.data as unknown as PaginatedResponseDto<Category>;
@@ -89,6 +101,39 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, slug, JSON.stringify(filters), subcategory, router.locale]);
 
+  // ფასის დიაპაზონის საზღვრები (სლაიდერისთვის) — ორი მსუბუქი, limit=1,
+  // sortBy=price მოთხოვნა (ASC/DESC) იმავე filter/subcategory scope-ში,
+  // მაგრამ `minPrice`/`maxPrice` საკუთარი ფილტრის გამორიცხვით (facet
+  // endpoint-ის `excludeAttributeCode`-ის იმავე პრინციპით), რომ სლაიდერის
+  // ბორდერი მიმდინარე ფასის შერჩევის მიხედვით არ ვიწროვდებოდეს.
+  useEffect(() => {
+    if (!category) return;
+    const { minPrice, maxPrice, ...restFilters } = filters;
+    const baseParams = { ...restFilters, ...(subcategory ? { subcategory } : {}) };
+    const api = CategoriesAPI(router.locale || "ka", "");
+    Promise.all([
+      api.categoryControllerGetProducts(slug, {
+        params: { ...baseParams, limit: "1", sortBy: "price", order: "ASC" },
+      } as any),
+      api.categoryControllerGetProducts(slug, {
+        params: { ...baseParams, limit: "1", sortBy: "price", order: "DESC" },
+      } as any),
+    ])
+      .then(([minRes, maxRes]) => {
+        const minData = (minRes.data as unknown as PaginatedResponseDto<Product>)?.data;
+        const maxData = (maxRes.data as unknown as PaginatedResponseDto<Product>)?.data;
+        const minPriceVal = minData?.[0]?.price != null ? Number(minData[0].price) : null;
+        const maxPriceVal = maxData?.[0]?.price != null ? Number(maxData[0].price) : null;
+        if (minPriceVal != null && maxPriceVal != null) {
+          setPriceBounds({ min: Math.floor(minPriceVal), max: Math.ceil(maxPriceVal) });
+        } else {
+          setPriceBounds(null);
+        }
+      })
+      .catch(() => setPriceBounds(null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, slug, JSON.stringify(restFiltersForBounds(filters)), subcategory, router.locale]);
+
   // პროდუქტების სია — ფილტრები/subcategory/page/sort ცვლილებაზე.
   useEffect(() => {
     if (!category) return;
@@ -114,8 +159,6 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, slug, JSON.stringify(filters), subcategory, page, sortBy, order, router.locale]);
 
-  const activeChild = children.find((c) => c.slug === subcategory);
-
   if (notFound) {
     return (
       <C.PageBackground>
@@ -138,31 +181,29 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
       <C.Container>
         <C.Breadcrumb>
           <Link href="/">მთავარი</Link>
-          <span>/</span>
-          <Link href="/products">მაღაზია</Link>
+          {category?.parent && (
+            <>
+              <span>/</span>
+              <Link href={`/categories/${category.parent.slug}`}>
+                {getCategoryName(category.parent, router.locale)}
+              </Link>
+            </>
+          )}
           {category && (
             <>
               <span>/</span>
               <span>{getCategoryName(category, router.locale)}</span>
             </>
           )}
-          {activeChild && (
-            <>
-              <span>/</span>
-              <span>{getCategoryName(activeChild, router.locale)}</span>
-            </>
-          )}
         </C.Breadcrumb>
 
-        <C.PageHeader>
+        {/* <C.PageHeader>
           <div>
-            <C.PageTitle>
-              {activeChild ? getCategoryName(activeChild, router.locale) : category ? getCategoryName(category, router.locale) : ""}
-            </C.PageTitle>
+            <C.PageTitle>{category ? getCategoryName(category, router.locale) : ""}</C.PageTitle>
             <C.PageSubtitle>დაათვალიერეთ ქვეკატეგორიები და ფილტრები</C.PageSubtitle>
           </div>
           {meta && <C.ResultsCount>{meta.total} პროდუქტი</C.ResultsCount>}
-        </C.PageHeader>
+        </C.PageHeader> */}
 
         <C.Layout>
           <C.Sidebar>
@@ -170,17 +211,26 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
               <C.SidebarCard>
                 <C.SidebarCardTitle>ქვეკატეგორიები</C.SidebarCardTitle>
                 <C.SidebarCardBody>
-                  <C.CategoryOption active={!subcategory} onClick={() => setSubcategory(null)}>
-                    <C.CategoryOptionLabel>
-                      <TagIcon size={16} />
-                      ყველა
-                    </C.CategoryOptionLabel>
-                  </C.CategoryOption>
+                  {category?.parent ? (
+                    <C.CategoryOption active={false} onClick={() => router.push(`/categories/${category.parent!.slug}`)}>
+                      <C.CategoryOptionLabel>
+                        <TagIcon size={16} />
+                        ყველა
+                      </C.CategoryOptionLabel>
+                    </C.CategoryOption>
+                  ) : (
+                    <C.CategoryOption active={!subcategory} onClick={() => setSubcategory(null)}>
+                      <C.CategoryOptionLabel>
+                        <TagIcon size={16} />
+                        ყველა
+                      </C.CategoryOptionLabel>
+                    </C.CategoryOption>
+                  )}
                   {children.map((child) => (
                     <C.CategoryOption
                       key={child.id}
-                      active={subcategory === child.slug}
-                      onClick={() => setSubcategory(child.slug)}
+                      active={category?.parent ? child.slug === category.slug : subcategory === child.slug}
+                      onClick={() => router.push(`/categories/${child.slug}`)}
                     >
                       <C.CategoryOptionLabel>
                         <TagIcon size={16} />
@@ -196,8 +246,9 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
               facets={facets}
               filters={filters}
               locale={router.locale}
-              onChange={setFilter}
+              onApply={applyFilters}
               onClear={clearFilters}
+              priceBounds={priceBounds}
             />
           </C.Sidebar>
 
