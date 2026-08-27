@@ -5,10 +5,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductsAPI, CategoriesAPI } from "@/API_Client";
 import { Category, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
+import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { CategoryAttribute, PaginatedResponseDto, ProductAttributeValue } from "@/API_Client/types";
-import { BoxIcon, CheckSquareIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PlusIcon, SearchIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
@@ -73,12 +75,74 @@ const categoryOptionLabel = (cat: Category, locale?: string) =>
 export const ProductsPage: React.FC = () => {
   const { session } = useAdminGuard();
   const router = useRouter();
+  const { getOverlayProps } = useOverlayCloseHandlers();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+
+  // ─── ძიება/ფილტრები ────────────────────────────────────────────────────────
+  const [searchText, setSearchText] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
+  const [filterCategoryId, setFilterCategoryId] = useState<string>("");
+  const [filterIsActive, setFilterIsActive] = useState<string>("");
+  const [minPriceText, setMinPriceText] = useState<string>("");
+  const [maxPriceText, setMaxPriceText] = useState<string>("");
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState<string>("");
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState<string>("");
+  const [filterHasDiscount, setFilterHasDiscount] = useState<string>("");
+  const [filterSortBy, setFilterSortBy] = useState<string>("createdAt");
+  const [filterOrder, setFilterOrder] = useState<string>("DESC");
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchText.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedMinPrice(minPriceText.trim());
+      setDebouncedMaxPrice(maxPriceText.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [minPriceText, maxPriceText]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [
+    debouncedSearch,
+    filterCategoryId,
+    filterIsActive,
+    debouncedMinPrice,
+    debouncedMaxPrice,
+    filterHasDiscount,
+    filterSortBy,
+    filterOrder,
+  ]);
+
+  const hasActiveFilters =
+    debouncedSearch !== "" ||
+    filterCategoryId !== "" ||
+    filterIsActive !== "" ||
+    debouncedMinPrice !== "" ||
+    debouncedMaxPrice !== "" ||
+    filterHasDiscount !== "" ||
+    filterSortBy !== "createdAt" ||
+    filterOrder !== "DESC";
+
+  const handleResetFilters = () => {
+    setSearchText("");
+    setFilterCategoryId("");
+    setFilterIsActive("");
+    setMinPriceText("");
+    setMaxPriceText("");
+    setFilterHasDiscount("");
+    setFilterSortBy("createdAt");
+    setFilterOrder("DESC");
+    setPage(1);
+  };
 
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
@@ -111,7 +175,15 @@ export const ProductsPage: React.FC = () => {
     try {
       const res = await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerFindAll(
         page,
-        PAGE_SIZE
+        PAGE_SIZE,
+        filterSortBy || undefined,
+        (filterOrder || undefined) as ProductsControllerFindAllOrderEnum | undefined,
+        debouncedSearch || undefined,
+        filterCategoryId || undefined,
+        debouncedMinPrice === "" ? undefined : Number(debouncedMinPrice),
+        debouncedMaxPrice === "" ? undefined : Number(debouncedMaxPrice),
+        filterIsActive === "" ? undefined : filterIsActive === "true",
+        filterHasDiscount === "" ? undefined : filterHasDiscount === "true"
       );
       const data = res.data as unknown as PaginatedResponseDto<Product>;
       setProducts(Array.isArray(data?.data) ? data.data : []);
@@ -139,7 +211,18 @@ export const ProductsPage: React.FC = () => {
       fetchProducts();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.accessToken, page]);
+  }, [
+    session?.accessToken,
+    page,
+    debouncedSearch,
+    filterCategoryId,
+    filterIsActive,
+    debouncedMinPrice,
+    debouncedMaxPrice,
+    filterHasDiscount,
+    filterSortBy,
+    filterOrder,
+  ]);
 
   useEffect(() => {
     if (session?.accessToken) {
@@ -374,16 +457,123 @@ export const ProductsPage: React.FC = () => {
         </S.ActionButton>
       }
     >
+      <S.FilterBar>
+        <S.FilterBarHeader>
+          <S.FilterBarTitle>
+            <ClipboardIcon size={16} />
+            გაფართოებული ძიება
+            {hasActiveFilters && <S.FilterCountBadge>აქტიური</S.FilterCountBadge>}
+          </S.FilterBarTitle>
+          <S.FilterActions>
+            <S.ActionButton type="button" variant="secondary" onClick={handleResetFilters} disabled={!hasActiveFilters}>
+              <CloseIcon size={14} /> ფილტრის გასუფთავება
+            </S.ActionButton>
+          </S.FilterActions>
+        </S.FilterBarHeader>
+
+        <S.FilterGrid>
+          <S.FilterGroup>
+            <S.FilterLabel>ძიება</S.FilterLabel>
+            <S.SearchInputWrapper>
+              <SearchIcon size={16} />
+              <S.Input
+                type="text"
+                placeholder="დასახელებით ან აღწერით..."
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </S.SearchInputWrapper>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>კატეგორია</S.FilterLabel>
+            <S.Select value={filterCategoryId} onChange={(e) => setFilterCategoryId(e.target.value)}>
+              <option value="">ყველა</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {categoryOptionLabel(cat, router.locale)}
+                </option>
+              ))}
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>სტატუსი</S.FilterLabel>
+            <S.Select value={filterIsActive} onChange={(e) => setFilterIsActive(e.target.value)}>
+              <option value="">ყველა</option>
+              <option value="true">აქტიური</option>
+              <option value="false">არააქტიური</option>
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>ფასის დიაპაზონი</S.FilterLabel>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <S.Input
+                type="text"
+                inputMode="decimal"
+                placeholder="დან"
+                value={minPriceText}
+                onChange={(e) => setMinPriceText(e.target.value)}
+              />
+              <span style={{ color: "var(--ref-text-secondary)" }}>—</span>
+              <S.Input
+                type="text"
+                inputMode="decimal"
+                placeholder="მდე"
+                value={maxPriceText}
+                onChange={(e) => setMaxPriceText(e.target.value)}
+              />
+            </div>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>ფასდაკლება</S.FilterLabel>
+            <S.Select value={filterHasDiscount} onChange={(e) => setFilterHasDiscount(e.target.value)}>
+              <option value="">ყველა</option>
+              <option value="true">ფასდაკლებით</option>
+              <option value="false">ფასდაკლების გარეშე</option>
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>დალაგება</S.FilterLabel>
+            <S.Select value={filterSortBy} onChange={(e) => setFilterSortBy(e.target.value)}>
+              <option value="createdAt">დამატების თარიღი</option>
+              <option value="name">დასახელება</option>
+              <option value="price">ფასი</option>
+              <option value="stock">მარაგი</option>
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>მიმართულება</S.FilterLabel>
+            <S.Select value={filterOrder} onChange={(e) => setFilterOrder(e.target.value)}>
+              <option value="DESC">კლებადობით</option>
+              <option value="ASC">ზრდადობით</option>
+            </S.Select>
+          </S.FilterGroup>
+        </S.FilterGrid>
+      </S.FilterBar>
+
       {loading ? (
         <ListSkeleton count={PAGE_SIZE} />
       ) : products.length === 0 ? (
         <S.EmptyState>
           <BoxIcon size={48} />
-          <S.EmptyTitle>პროდუქტები არ არის</S.EmptyTitle>
-          <S.EmptyText>დაამატეთ პირველი პროდუქტი კატალოგისთვის.</S.EmptyText>
-          <S.ActionButton variant="primary" onClick={handleOpenCreate}>
-            <PlusIcon size={16} /> პროდუქტის დამატება
-          </S.ActionButton>
+          <S.EmptyTitle>{hasActiveFilters ? "შედეგები არ მოიძებნა" : "პროდუქტები არ არის"}</S.EmptyTitle>
+          <S.EmptyText>
+            {hasActiveFilters ? "სცადეთ სხვა საძიებო სიტყვა ან გაასუფთავეთ ფილტრი." : "დაამატეთ პირველი პროდუქტი კატალოგისთვის."}
+          </S.EmptyText>
+          {hasActiveFilters ? (
+            <S.ActionButton variant="secondary" onClick={handleResetFilters}>
+              <CloseIcon size={16} /> ფილტრის გასუფთავება
+            </S.ActionButton>
+          ) : (
+            <S.ActionButton variant="primary" onClick={handleOpenCreate}>
+              <PlusIcon size={16} /> პროდუქტის დამატება
+            </S.ActionButton>
+          )}
         </S.EmptyState>
       ) : (
         <>
@@ -443,7 +633,7 @@ export const ProductsPage: React.FC = () => {
       )}
 
       {isCreateOpen && (
-        <S.ModalOverlay onClick={() => setIsCreateOpen(false)}>
+        <S.ModalOverlay {...getOverlayProps(() => setIsCreateOpen(false))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -459,7 +649,7 @@ export const ProductsPage: React.FC = () => {
       )}
 
       {editingProduct && (
-        <S.ModalOverlay onClick={() => setEditingProduct(null)}>
+        <S.ModalOverlay {...getOverlayProps(() => setEditingProduct(null))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>

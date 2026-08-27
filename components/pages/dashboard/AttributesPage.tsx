@@ -7,6 +7,7 @@ import { AttributesAPI } from "@/API_Client";
 import { Attribute, AttributeOption, AttributeType, PaginatedResponseDto } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PlusIcon, CheckSquareIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
@@ -47,6 +48,7 @@ const UNIT_OPTIONS = ["Ah", "V", "W", "A", "mm", "cm", "m", "kg", "g", "l", "ml"
 export const AttributesPage: React.FC = () => {
   const { session } = useAdminGuard();
   const router = useRouter();
+  const { getOverlayProps } = useOverlayCloseHandlers();
 
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -373,7 +375,7 @@ export const AttributesPage: React.FC = () => {
 
       {/* ═══ CREATE MODAL ═══════════════════════════════════════════════ */}
       {isCreateOpen && (
-        <S.ModalOverlay onClick={() => setIsCreateOpen(false)}>
+        <S.ModalOverlay {...getOverlayProps(() => setIsCreateOpen(false))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -390,7 +392,7 @@ export const AttributesPage: React.FC = () => {
 
       {/* ═══ EDIT MODAL (+ OPTIONS) ═════════════════════════════════════ */}
       {editingAttr && (
-        <S.ModalOverlay onClick={() => setEditingAttr(null)}>
+        <S.ModalOverlay {...getOverlayProps(() => setEditingAttr(null))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>

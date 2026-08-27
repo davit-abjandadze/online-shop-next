@@ -1,5 +1,6 @@
 import React from "react";
 import { CloseIcon, WarningIcon } from "@/components/ui/RefIcons";
+import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import * as S from "./style";
 
 interface ConfirmDialogProps {
@@ -29,10 +30,12 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { getOverlayProps } = useOverlayCloseHandlers();
+
   if (!open) return null;
 
   return (
-    <S.ModalOverlay onClick={onCancel}>
+    <S.ModalOverlay {...getOverlayProps(onCancel)}>
       <S.ModalContent style={{ maxWidth: "420px" }} onClick={(e) => e.stopPropagation()}>
         <S.ModalHeader>
           <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8, color: variant === "danger" ? "var(--ref-danger)" : undefined }}>

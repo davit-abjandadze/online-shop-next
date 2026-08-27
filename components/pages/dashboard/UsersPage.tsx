@@ -13,6 +13,7 @@ import {
 import { CloseIcon, ClipboardIcon, EditIcon, PeopleIcon, PlusIcon, SearchIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
@@ -34,6 +35,7 @@ const emptyCreateForm: UserCreateFormValues = {
 export const UsersPage: React.FC = () => {
   const { session } = useAdminGuard();
   const router = useRouter();
+  const { getOverlayProps } = useOverlayCloseHandlers();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loadingU, setLoadingU] = useState<boolean>(true);
@@ -352,7 +354,7 @@ export const UsersPage: React.FC = () => {
 
       {/* ═══ CREATE USER MODAL ═══════════════════════════════════════════════ */}
       {isCreateOpen && (
-        <S.ModalOverlay onClick={() => setIsCreateOpen(false)}>
+        <S.ModalOverlay {...getOverlayProps(() => setIsCreateOpen(false))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -411,7 +413,7 @@ export const UsersPage: React.FC = () => {
 
       {/* ═══ EDIT USER MODAL ═════════════════════════════════════════════════ */}
       {editingUser && (
-        <S.ModalOverlay onClick={() => setEditingUser(null)}>
+        <S.ModalOverlay {...getOverlayProps(() => setEditingUser(null))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>

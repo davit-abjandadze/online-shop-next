@@ -8,6 +8,7 @@ import { Category } from "@/API_Client/client/models";
 import { Attribute, CategoryAttribute, PaginatedResponseDto } from "@/API_Client/types";
 import { CheckSquareIcon, CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
@@ -20,6 +21,7 @@ const emptyCategoryForm: CategoryFormValues = { nameKa: "", nameEn: "", slug: ""
 export const CategoriesPage: React.FC = () => {
   const { session } = useAdminGuard();
   const router = useRouter();
+  const { getOverlayProps } = useOverlayCloseHandlers();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingC, setLoadingC] = useState<boolean>(true);
@@ -278,7 +280,7 @@ export const CategoriesPage: React.FC = () => {
 
       {/* ═══ CREATE CATEGORY MODAL ═══════════════════════════════════════════════ */}
       {isCatCreateOpen && (
-        <S.ModalOverlay onClick={() => setIsCatCreateOpen(false)}>
+        <S.ModalOverlay {...getOverlayProps(() => setIsCatCreateOpen(false))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -327,7 +329,7 @@ export const CategoriesPage: React.FC = () => {
 
       {/* ═══ EDIT CATEGORY MODAL ═════════════════════════════════════════════════ */}
       {editingCat && (
-        <S.ModalOverlay onClick={() => setEditingCat(null)}>
+        <S.ModalOverlay {...getOverlayProps(() => setEditingCat(null))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -378,7 +380,7 @@ export const CategoriesPage: React.FC = () => {
 
       {/* ═══ MANAGE ATTRIBUTES MODAL ═══════════════════════════════════════ */}
       {managingCat && (
-        <S.ModalOverlay onClick={() => setManagingCat(null)}>
+        <S.ModalOverlay {...getOverlayProps(() => setManagingCat(null))}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
