@@ -45,12 +45,14 @@ export default class MyDocument extends Document {
           <link rel="icon" href="/favicon.ico" sizes="any" />
           <link rel="icon" type="image/svg+xml" href="/favicon.png" />
           <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-          {/* Nova-დიზაინის სათაურის შრიფტი (Instrument Serif) — ქართული ტექსტისთვის
-              ავტომატურად უკან ვარდება --ref-font-display-ის fallback-ზე, ლათინურ/ციფრულ
-              შემცველობაზე (ფასები, ბრენდის სახელი) კი აძლევს დიზაინის სერიფულ იერს. */}
+          {/* Noto Sans / Noto Serif — მთელი საიტის ძირითადი შრიფტები. Google Fonts-ზე
+              Noto ოჯახი სცრიპტების მიხედვითაა დაყოფილი, ამიტომ ცალკე ვტვირთავთ
+              ქართული სცრიპტის ვარიანტებსაც (Noto Sans/Serif Georgian) — ლათინურ/
+              რუსულ ტექსტზე მთავარი ოჯახი მუშაობს, ქართულზე კი ავტომატურად
+              გადადის Georgian ვარიანტზე font-family fallback-ის მეშვეობით. */}
           <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital@0;1&family=Noto+Serif+Georgian&family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap"
           />
           {/* TODO: Add third-party scripts here (Analytics, GTM, etc.) */}
         </Head>

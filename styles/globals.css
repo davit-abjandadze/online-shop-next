@@ -69,8 +69,8 @@ html {
   --ref-shadow-md: 0 14px 32px -18px rgba(11, 20, 38, 0.28);
   --ref-shadow-lg: 0 20px 44px -16px rgba(11, 20, 38, 0.32);
   --ref-overlay: rgba(11, 20, 38, 0.5);
-  --ref-font-display: "Instrument Serif", "Helvetica Neue", serif;
-  --ref-font-body: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --ref-font-display: "Noto Serif", "Noto Serif Georgian", "Helvetica Neue", serif;
+  --ref-font-body: "Noto Sans", "Noto Sans Georgian", "Helvetica Neue", Arial, sans-serif;
   color-scheme: light;
 }
 
@@ -106,9 +106,9 @@ main {
 }
 
 * {
-  /* Manrope — Google-ის შრიფტი ძირითადი ტექსტისთვის (ლათინური/ციფრული კონტენტი);
-     ქართული ტექსტისთვის ავტომატურად ვარდება Helvetica Neue-ზე, რადგან Manrope-ს
-     ქართული სიმბოლოები არ აქვს. */
+  /* Noto Sans — Google-ის შრიფტი ძირითადი ტექსტისთვის; ქართული სცრიპტისთვის
+     ცალკე ვტვირთეთ Noto Sans Georgian, რომელზეც ავტომატურად გადადის fallback-ის
+     მეშვეობით, თუ არადა Helvetica Neue-ზე. */
   font-family: var(--ref-font-body);
   box-sizing: border-box;
 }

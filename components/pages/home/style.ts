@@ -265,7 +265,6 @@ export const HeroEyebrowBar = styled("span")`
 
 export const HeroTitle = styled("h1")`
   margin: 0 0 16px 0;
-  font-family: var(--ref-font-display);
   font-weight: 400;
   font-size: 46px;
   line-height: 1.14;
@@ -386,7 +385,6 @@ export const CategoryHeader = styled("div")`
 
 export const CategoryTitle = styled("h2")`
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
   font-size: 28px;
   font-weight: 600;
   color: var(--ref-text-primary);
