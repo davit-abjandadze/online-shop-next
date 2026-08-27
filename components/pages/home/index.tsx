@@ -40,10 +40,6 @@ const BENEFITS = [
   { icon: ClipboardIcon, title: "მხარდაჭერა", text: "დაგვიკავშირდით ნებისმიერი კითხვისთვის" },
 ];
 
-// გვერდითი ფილტრის ჩამონათვალში პირდაპირ რამდენი კატეგორია გამოჩნდეს; დანარჩენი
-// "ყველა კატეგორია" ღილაკის ქვემოთ იმალება და hover-ზე იშლება (იხ. MoreCategoriesGroup).
-const CATEGORIES_VISIBLE_LIMIT = 6;
-
 const POPULAR_FILTERS = [
   { label: "ახალი ჩამოსული", href: "/products?sort=createdAt&order=desc" },
   { label: "ფასდაკლებული", href: "/products?sort=sale" },
@@ -94,11 +90,20 @@ export const HomeComponent: React.FC = () => {
   const [heroIndex, setHeroIndex] = useState(0);
   const heroSwiperRef = useRef<SwiperType | null>(null);
 
-  // ჰერო-ს გვერდითი ფილტრის აკორდეონი — რომელი ჯგუფებია გაშლილი (0 — პოპულარული
-  // ფილტრები). კატეგორიები ყოველთვის პირდაპირაა ჩამოწერილი, აკორდეონს არ საჭიროებს.
-  const [openFilterSections, setOpenFilterSections] = useState<number[]>([0]);
-  const toggleFilterSection = (idx: number) =>
-    setOpenFilterSections((prev) => (prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]));
+  // ჰედერის ქვემოთ კატეგორიების დროპდაუნ-ზოლი — რომელი კატეგორიის დროპდაუნია
+  // გახსნილი (id ან null). ერთდროულად მხოლოდ ერთი შეიძლება იყოს გახსნილი.
+  const [openCategoryDropdown, setOpenCategoryDropdown] = useState<number | string | null>(null);
+  const categoryFilterBarRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (categoryFilterBarRef.current && !categoryFilterBarRef.current.contains(event.target as Node)) {
+        setOpenCategoryDropdown(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const fetchHomeData = async () => {
@@ -151,43 +156,52 @@ export const HomeComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.locale]);
 
-  // ერთი კატეგორიის მწკრივი გვერდით ფილტრში — hover-ზე მარჯვნივ იშლება
-  // მრავალსვეტიანი მეგა-მენიუ (MEGA_MENU_COLUMNS). გამოიყენება როგორც პირდაპირ
-  // ხილული, ისე "ყველა კატეგორია" ღილაკის ქვემოთ დამალული კატეგორიებისთვის.
-  // /categories/tree-დან წამოსული ქვეკატეგორიები (category.children) მეგა-მენიუს
-  // ერთადერთ სვეტში ივსება — თუ ქვეკატეგორია არ აქვს, flyout საერთოდ არ იშლება.
-  const renderCategoryRow = (category: Category) => {
+  // ერთი კატეგორიის დროპდაუნი ჰედერის ქვემოთ ზოლში. თუ ქვეკატეგორია აქვს,
+  // ხელის დაჭერისას იშლება "ყველა" + ქვეკატეგორიების სია — "ყველა" ისევე
+  // ფილტრავს, როგორც ადრე კატეგორიაზე დაჭერა ფილტრავდა. თუ ქვეკატეგორია არ
+  // აქვს (მაგ. აკუმულატორი), პირდაპირ ბმულია კატეგორიის გვერდზე, დროპდაუნის გარეშე.
+  const renderCategoryFilter = (category: Category) => {
     const children = category.children || [];
-    return (
-      <S.CategoryRow key={category.id}>
-        <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
-          <S.CategoryFlyoutTrigger>
-            <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <TagIcon size={16} />
-              {getCategoryName(category, router.locale)}
-            </span>
-            {children.length > 0 && <ChevronRightIcon size={14} />}
-          </S.CategoryFlyoutTrigger>
-        </Link>
+    const name = getCategoryName(category, router.locale);
 
-        {children.length > 0 && (
-          <S.MegaMenu data-role="flyout">
-            <S.MegaMenuColumn>
-              <S.MegaMenuColumnTitle>{getCategoryName(category, router.locale)}</S.MegaMenuColumnTitle>
-              <S.MegaMenuList>
-                {children.map((child) => (
-                  <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
-                    <S.MegaMenuLink>{getCategoryName(child, router.locale)}</S.MegaMenuLink>
-                  </Link>
-                ))}
-              </S.MegaMenuList>
-              <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
-                <S.MegaMenuViewAll>ყველას ნახვა →</S.MegaMenuViewAll>
+    if (children.length === 0) {
+      return (
+        <Link key={category.id} href={`/categories/${category.slug}`} passHref legacyBehavior>
+          <S.FilterBarLink>{name}</S.FilterBarLink>
+        </Link>
+      );
+    }
+
+    const isOpen = openCategoryDropdown === category.id;
+
+    return (
+      <S.FilterDropdown key={category.id}>
+        <S.FilterDropdownTrigger
+          type="button"
+          open={isOpen}
+          onClick={() => setOpenCategoryDropdown((prev) => (prev === category.id ? null : category.id))}
+        >
+          {name}
+          <S.FilterDropdownChevron open={isOpen}>
+            <ChevronDownIcon size={14} />
+          </S.FilterDropdownChevron>
+        </S.FilterDropdownTrigger>
+
+        {isOpen && (
+          <S.FilterDropdownPanel>
+            <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
+              <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>ყველა</S.FilterDropdownItem>
+            </Link>
+            {children.map((child) => (
+              <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
+                <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>
+                  {getCategoryName(child, router.locale)}
+                </S.FilterDropdownItem>
               </Link>
-            </S.MegaMenuColumn>
-          </S.MegaMenu>
+            ))}
+          </S.FilterDropdownPanel>
         )}
-      </S.CategoryRow>
+      </S.FilterDropdown>
     );
   };
 
@@ -195,42 +209,21 @@ export const HomeComponent: React.FC = () => {
     <S.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
 
-      {/* Hero Slider — swiper-ით, 1 სლაიდი ერთ ხედში, ავტომატური გადართვით.
-          მარცხნივ დამატებული ფილტრის პანელი (კატეგორიები). */}
+      {/* კატეგორიების დროპდაუნ-ზოლი ჰედერის ქვემოთ — ჰერო სლაიდერის ყოფილი
+          გვერდითი ფილტრის ნაცვლად (იხ. renderCategoryFilter). */}
+      <S.CategoryFilterBar ref={categoryFilterBarRef}>
+        <S.CategoryFilterBarInner>
+          {categories.length === 0 ? (
+            <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
+          ) : (
+            categories.map(renderCategoryFilter)
+          )}
+        </S.CategoryFilterBarInner>
+      </S.CategoryFilterBar>
+
+      {/* Hero Slider — swiper-ით, 1 სლაიდი ერთ ხედში, ავტომატური გადართვით. */}
       <S.Hero>
         <S.HeroRow>
-          <S.HeroFilterPanel>
-            {/* ჯგუფი — კატეგორიები (რეალური მონაცემი). თითოეულზე hover-ისას
-                მარჯვნივ იშლება მრავალსვეტიანი მეგა-მენიუ (იხ. renderCategoryRow).
-                თუ კატეგორია CATEGORIES_VISIBLE_LIMIT-ზე მეტია, დანარჩენი "ყველა
-                კატეგორია" ღილაკის ქვემოთ იმალება და მასზე/მასზე ქვემოთ hover-ისას იშლება. */}
-            <S.FilterSection>
-              <S.FilterSectionLabel style={{ padding: "0px 18px 6px 18px" }}>
-              </S.FilterSectionLabel>
-              <S.FilterSectionBody>
-                {categories.length === 0 ? (
-                  <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
-                ) : (
-                  <>
-                    {categories.slice(0, CATEGORIES_VISIBLE_LIMIT).map(renderCategoryRow)}
-
-                    {categories.length > CATEGORIES_VISIBLE_LIMIT && (
-                      <>
-                        <S.MoreCategoriesToggle type="button">
-                          ყველა კატეგორია
-                          <ChevronDownIcon size={14} />
-                        </S.MoreCategoriesToggle>
-                        <S.MoreCategoriesGroup>
-                          {categories.slice(CATEGORIES_VISIBLE_LIMIT).map(renderCategoryRow)}
-                        </S.MoreCategoriesGroup>
-                      </>
-                    )}
-                  </>
-                )}
-              </S.FilterSectionBody>
-            </S.FilterSection>
-          </S.HeroFilterPanel>
-
           <S.HeroSliderArea>
             <Swiper
               modules={[Autoplay]}

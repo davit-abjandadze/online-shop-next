@@ -95,97 +95,98 @@ export const HeroRow = styled("div")`
   }
 `;
 
-/* გვერდითი "3 ჩაშლიანი" ფილტრის პანელი — ჰერო სლაიდერის მარცხნივ, ბრენდის
-   ღია ბარათის სტილში (თეთრი/elevated ფონი, closed კუთხეები, shadow), ისევე
-   როგორც საიტის სხვა ბარათები. ვიწრო ეკრანებზე ადგილს ვზოგავთ და ვმალავთ. */
-export const HeroFilterPanel = styled("div")`
-  flex-shrink: 0;
-  width: 268px;
-  display: flex;
-  flex-direction: column;
-  border-radius: 20px;
+/* ---------- ჰედერის ქვემოთ კატეგორიების დროპდაუნ-ზოლი ---------- */
+/* ჰერო სლაიდერის გვერდითი ფილტრის ნაცვლად — ჰორიზონტალური ზოლი ჰედერის
+   ქვემოთ, სლაიდერამდე. თითოეული კატეგორია ცალკე დროპდაუნია: თუ ქვეკატეგორია
+   აქვს, ხელის დაჭერისას იშლება "ყველა" + ქვეკატეგორიების სია; თუ არა,
+   პირდაპირ ბმულია კატეგორიის გვერდზე (მაგ. აკუმულატორი). */
+export const CategoryFilterBar = styled("div")`
+  position: relative;
+  z-index: 5;
   background: var(--ref-bg-elevated);
-  box-shadow: var(--ref-shadow-lg);
-  /* overflow აღარაა hidden — კატეგორიის hover-ფლაუთები (ქვეკატეგორია/ქვე-ქვეკატეგორია)
-     პანელის ფარგლებს გარეთ, მარჯვნივ იშლება და მოჭრილი არ უნდა იყოს. */
-  overflow: visible;
-
-  @media (max-width: 1100px) {
-    display: none;
-  }
-`;
-
-export const FilterSection = styled("div")`
   border-bottom: 1px solid var(--ref-border-soft);
-
-  &:last-child {
-    border-bottom: none;
-  }
 `;
 
-export const FilterSectionHeader = styled("button")<{ open?: boolean }>`
-  width: 100%;
+export const CategoryFilterBarInner = styled("div")`
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 15px 18px;
+  gap: 4px;
+
+  @media (max-width: 900px) {
+    padding: 0 16px;
+  }
+`;
+
+export const FilterDropdown = styled("div")`
+  position: relative;
+  flex-shrink: 0;
+`;
+
+export const FilterDropdownTrigger = styled("button")<{ open?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 14px;
   border: none;
   background: none;
   cursor: pointer;
-  text-align: left;
-  color: var(--ref-text-primary);
-  transition: background 0.15s ease;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${({ open }) => (open ? "var(--ref-primary)" : "var(--ref-text-primary)")};
+  transition: color 0.12s ease;
 
   &:hover {
-    background: var(--ref-bg);
+    color: var(--ref-primary);
   }
 `;
 
-export const FilterSectionLabel = styled("span")`
+export const FilterBarLink = styled("a")`
   display: flex;
   align-items: center;
-  gap: 10px;
+  padding: 14px 14px;
+  white-space: nowrap;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+  text-decoration: none;
+  transition: color 0.12s ease;
+
+  &:hover {
+    color: var(--ref-primary);
+  }
 `;
 
-export const FilterIconBadge = styled("span")`
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--ref-primary-soft);
-  color: var(--ref-primary);
-`;
-
-export const FilterChevron = styled("span")<{ open?: boolean }>`
+export const FilterDropdownChevron = styled("span")<{ open?: boolean }>`
   display: inline-flex;
-  flex-shrink: 0;
   color: var(--ref-text-secondary);
   transition: transform 0.2s ease;
   transform: ${({ open }) => (open ? "rotate(180deg)" : "rotate(0deg)")};
 `;
 
-export const FilterSectionBody = styled("div")`
-  padding: 2px 10px 12px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+export const FilterDropdownPanel = styled("div")`
+  position: absolute;
+  top: 110%;
+  left: 0;
+  min-width: 200px;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--ref-bg-elevated);
+  box-shadow: var(--ref-shadow-lg);
+  border: 1px solid var(--ref-border-soft);
+  z-index: 20;
 `;
 
-export const FilterItem = styled("a")`
-  display: flex;
-  align-items: center;
-  gap: 10px;
+export const FilterDropdownItem = styled("a")`
+  display: block;
   padding: 9px 12px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 500;
-  color: black;
+  color: var(--ref-text-primary);
   text-decoration: none;
   cursor: pointer;
   transition: background 0.12s ease, color 0.12s ease;
@@ -198,135 +199,9 @@ export const FilterItem = styled("a")`
 
 export const FilterEmpty = styled("span")`
   display: block;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: var(--ref-text-secondary);
-`;
-
-/* ---------- კატეგორიაზე hover-ით გამოსახული "მეგა-მენიუ" ---------- */
-/* კატეგორიაზე ხელის მიტანისას (hover) მარჯვნივ იშლება მრავალსვეტიანი პანელი —
-   ერთი კატეგორიის ყველა ქვეჯგუფი ერთბაშად ჩანს, ცალკეული სვეტების სახით
-   (ბრენდები/ტიპები/აქსესუარები და ა.შ.), საიტის რეფერენს დიზაინის მსგავსად.
-   `position: relative` მშობელში `data-role="flyout"`-იანი შვილი ჩვეულებრივ
-   CSS hover-ითაა მართული, React state საჭირო არაა. */
-export const CategoryRow = styled("div")`
-  position: relative;
-
-  &:hover > a {
-    background: var(--ref-primary-soft);
-    color: var(--ref-primary);
-  }
-
-  &:hover > [data-role="flyout"] {
-    display: flex;
-  }
-`;
-
-export const CategoryFlyoutTrigger = styled(FilterItem)`
-  justify-content: space-between;
-`;
-
-export const MegaMenu = styled("div")`
-  display: none;
-  position: absolute;
-  top: 0;
-  /* left: 100% (და არა calc(100% + 8px)) განზრახ — შორის დარჩენილი ცარიელი ზოლი
-     კურსორისთვის "მკვდარი ზონაა": ტრიგერიდან პანელისკენ გადაადგილებისას კურსორი
-     ვერცერთ ელემენტს არ ეხება, :hover წყდება და პანელი დახურვამდე ასწრებდა.
-     პანელი ტრიგერს პირდაპირ ეხება, ვიზუალური დაშორება კი padding-ითაა მიღწეული. */
-  left: 100%;
-  align-items: flex-start;
-  gap: 32px;
-  min-width: 680px;
-  padding: 24px 28px;
-  border-radius: 18px;
-  background: var(--ref-bg-elevated);
-  box-shadow: var(--ref-shadow-lg);
-  border: 1px solid var(--ref-border-soft);
-  z-index: 20;
-
-  @media (max-width: 1440px) {
-    min-width: 560px;
-  }
-`;
-
-export const MegaMenuColumn = styled("div")`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 130px;
-`;
-
-export const MegaMenuColumnTitle = styled("h4")`
-  margin: 0 0 6px 0;
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--ref-text-primary);
-`;
-
-export const MegaMenuList = styled("div")`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`;
-
-export const MegaMenuLink = styled("a")`
+  padding: 12px 14px;
   font-size: 13px;
-  font-weight: 500;
   color: var(--ref-text-secondary);
-  text-decoration: none;
-  padding: 4px 0;
-  transition: color 0.12s ease;
-
-  &:hover {
-    color: var(--ref-primary);
-  }
-`;
-
-export const MegaMenuViewAll = styled("a")`
-  display: inline-block;
-  margin-top: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ref-primary);
-  text-decoration: none;
-`;
-
-/* ---------- "ყველა კატეგორია" გაშლის ღილაკი ---------- */
-/* როცა კატეგორია მეტია ხილულ ლიმიტზე, ჩამონათვალის ბოლოს ჩნდება ეს ღილაკი.
-   მასზე ან მის ქვემოთ დამალულ ჯგუფზე (MoreCategoriesGroup) ხელის მიტანისას
-   მთლიანი დარჩენილი კატეგორია ჩვეულებრივ ნაკადში იშლება — React state კი არა,
-   მხოლოდ მომდევნო-და-hover CSS სელექტორით. */
-export const MoreCategoriesToggle = styled("button")<{ open?: boolean }>`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 12px;
-  border: none;
-  background: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ref-primary);
-  cursor: pointer;
-  text-align: left;
-
-  &:hover {
-    background: var(--ref-primary-soft);
-  }
-`;
-
-export const MoreCategoriesGroup = styled("div")`
-  display: none;
-  flex-direction: column;
-  gap: 2px;
-
-  ${MoreCategoriesToggle}:hover + &,
-  &:hover {
-    display: flex;
-  }
 `;
 
 /* სლაიდერის ზონა HeroRow-ის შიგნით — ფილტრის პანელის გვერდით იკავებს დარჩენილ
