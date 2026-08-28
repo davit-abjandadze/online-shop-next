@@ -24,10 +24,34 @@ export interface UpdateUserDto {
      * მომხმარებლის ასაკი
      */
     'age'?: number;
+    /**
+     * პირადი ნომერი — ზუსტად 11 ციფრი
+     */
+    'personalNumber'?: string;
+    /**
+     * მომხმარებლის ტელეფონის ნომერი
+     */
+    'phoneNumber'?: string;
     'firstName'?: string;
     'lastName'?: string;
     'password'?: string;
     'email'?: string;
+    /**
+     * ახალი ელფოსტის დადასტურების requestId (საჭირო email ველის შეცვლისას)
+     */
+    'otpRequestId'?: string;
+    /**
+     * ახალ ელფოსტაზე მიღებული დადასტურების კოდი (საჭირო email ველის შეცვლისას)
+     */
+    'otpCode'?: string;
+    /**
+     * ახალი მობილურის ნომრის დადასტურების requestId (საჭირო phoneNumber ველის შეცვლისას)
+     */
+    'phoneOtpRequestId'?: string;
+    /**
+     * ახალ მობილურზე SMS-ით მიღებული დადასტურების კოდი (საჭირო phoneNumber ველის შეცვლისას)
+     */
+    'phoneOtpCode'?: string;
 }
 
 export const UpdateUserDtoRoleEnum = {

@@ -14,13 +14,14 @@
 
 
 
-export interface UserDataDto {
-    'id': number;
-    'email': string;
-    'firstName': string;
-    'lastName': string;
-    'age'?: number;
-    'personalNumber'?: string;
-    'phoneNumber': string;
+export interface VerifyEmailOtpDto {
+    /**
+     * send-email-ის პასუხიდან მიღებული requestId
+     */
+    'requestId': string;
+    /**
+     * მომხმარებლის ელფოსტაზე მიღებული კოდი
+     */
+    'code': string;
 }
 

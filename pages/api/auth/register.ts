@@ -9,9 +9,26 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const { firstName, lastName, email, password, gender, age } = req.body;
+  const {
+    firstName,
+    lastName,
+    email,
+    password,
+    gender,
+    phoneNumber,
+    personalNumber,
+    otpRequestId,
+    otpCode,
+  } = req.body;
 
-  if (!firstName || !lastName || !email || !password || !age) {
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !password ||
+    !phoneNumber ||
+    !personalNumber
+  ) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -25,9 +42,16 @@ export default async function handler(
       .json({ message: "Password must be at least 6 characters" });
   }
 
-  const parsedAge = Number(age);
-  if (!Number.isInteger(parsedAge) || parsedAge < 14 || parsedAge > 120) {
-    return res.status(400).json({ message: "Invalid age" });
+  if (typeof personalNumber !== "string" || !/^\d{11}$/.test(personalNumber)) {
+    return res.status(400).json({ message: "Invalid personal number" });
+  }
+
+  // მობილურის ვერიფიკაცია სავალდებულოა — otpRequestId/otpCode POST /otp/send-ისა
+  // და POST /otp/verify-ის შედეგად უნდა იყოს მიღებული ფრონტზე, ვიდრე რეგისტრაცია გაიგზავნება
+  if (!otpRequestId || !otpCode) {
+    return res
+      .status(400)
+      .json({ message: "Mobile phone verification is required" });
   }
 
   try {
@@ -38,7 +62,10 @@ export default async function handler(
       email,
       password,
       gender,
-      age: parsedAge,
+      phoneNumber,
+      personalNumber,
+      otpRequestId,
+      otpCode,
     };
     await authApi.authControllerRegister(payload);
 

@@ -6,8 +6,9 @@ import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { useCart } from "@/context/Cart";
+import { useWishlist } from "@/context/Wishlist";
 import { CDN_URL } from "@/constants";
-import { CartIcon, LockIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { CartIcon, HeartIcon, LockIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import * as S from "./style";
 
@@ -22,6 +23,7 @@ export const CartComponent: React.FC = () => {
   const { status } = useSession();
   const router = useRouter();
   const { cart, loading, updateItemQuantity, removeItem } = useCart();
+  const { isSaved, toggle: toggleWishlist } = useWishlist();
 
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [pendingItemId, setPendingItemId] = useState<number | null>(null);
@@ -59,7 +61,18 @@ export const CartComponent: React.FC = () => {
   }
 
   const items = cart?.items || [];
-  const total = items.reduce((sum, item) => sum + getDiscountedPrice(item.product).price * item.quantity, 0);
+  const { subtotal, total, itemsCount } = items.reduce(
+    (acc, item) => {
+      const { price, originalPrice } = getDiscountedPrice(item.product);
+      return {
+        subtotal: acc.subtotal + (originalPrice ?? price) * item.quantity,
+        total: acc.total + price * item.quantity,
+        itemsCount: acc.itemsCount + item.quantity,
+      };
+    },
+    { subtotal: 0, total: 0, itemsCount: 0 }
+  );
+  const discount = subtotal - total;
 
   const handleQuantityChange = async (itemId: number, nextQuantity: number) => {
     if (nextQuantity < 1) return;
@@ -90,13 +103,14 @@ export const CartComponent: React.FC = () => {
               </S.ActionButton>
             </S.EmptyState>
           ) : (
-            <>
+            <S.Layout>
               <S.ItemsList>
                 {items.map((item) => {
                   const image = resolveImage(item.product.images?.[0]);
                   const disabled = pendingItemId === item.id;
                   const atStockLimit = item.quantity >= item.product.stock;
                   const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(item.product);
+                  const saved = isSaved(item.product.id);
 
                   return (
                     <S.Item key={item.id}>
@@ -106,11 +120,6 @@ export const CartComponent: React.FC = () => {
                         <Link href={`/products/${item.product.id}`} passHref legacyBehavior>
                           <S.ItemName>{item.product.name}</S.ItemName>
                         </Link>
-                        <S.ItemUnitPrice>
-                          {unitPrice.toFixed(2)} ₾ / ცალი
-                          {originalPrice && <S.ItemOldPrice>{originalPrice.toFixed(2)} ₾</S.ItemOldPrice>}
-                          {discountPercent && <S.ItemDiscountBadge>-{discountPercent}%</S.ItemDiscountBadge>}
-                        </S.ItemUnitPrice>
                         {atStockLimit && <S.ItemStockWarning>მარაგის ლიმიტი მიღწეულია</S.ItemStockWarning>}
                       </S.ItemInfo>
 
@@ -132,26 +141,51 @@ export const CartComponent: React.FC = () => {
                         </S.StepperButton>
                       </S.QuantityStepper>
 
-                      <S.ItemSubtotal>{(unitPrice * item.quantity).toFixed(2)} ₾</S.ItemSubtotal>
+                      <S.ItemPrice>
+                        {(unitPrice * item.quantity).toFixed(2)} ₾
+                        {originalPrice && <S.ItemOldPrice>{(originalPrice * item.quantity).toFixed(2)} ₾</S.ItemOldPrice>}
+                        {discountPercent && <S.ItemDiscountBadge>-{discountPercent}%</S.ItemDiscountBadge>}
+                      </S.ItemPrice>
 
-                      <S.RemoveButton type="button" disabled={disabled} onClick={() => handleRemove(item.id)}>
-                        <TrashIcon size={18} />
-                      </S.RemoveButton>
+                      <S.ItemActions>
+                        <S.WishlistButton
+                          type="button"
+                          active={saved}
+                          aria-label={saved ? "სასურველებიდან წაშლა" : "სასურველებში დამატება"}
+                          onClick={() => toggleWishlist(item.product.id)}
+                        >
+                          <HeartIcon size={18} filled={saved} />
+                        </S.WishlistButton>
+                        <S.RemoveButton type="button" disabled={disabled} onClick={() => handleRemove(item.id)}>
+                          <TrashIcon size={18} />
+                        </S.RemoveButton>
+                      </S.ItemActions>
                     </S.Item>
                   );
                 })}
               </S.ItemsList>
 
               <S.SummaryCard>
+                <S.SummaryTitle>შეკვეთა</S.SummaryTitle>
+                <S.SummaryRow>
+                  <span>პროდუქტი ({itemsCount})</span>
+                  <span>{subtotal.toFixed(2)} ₾</span>
+                </S.SummaryRow>
+                {discount > 0 && (
+                  <S.SummaryRow discount>
+                    <span>ფასდაკლება:</span>
+                    <span>-{discount.toFixed(2)} ₾</span>
+                  </S.SummaryRow>
+                )}
                 <S.TotalRow>
-                  სულ ჯამი
+                  მთლიანი ჯამი
                   <S.TotalValue>{total.toFixed(2)} ₾</S.TotalValue>
                 </S.TotalRow>
                 <S.CheckoutButton type="button" disabled={items.length === 0} onClick={() => router.push("/checkout")}>
-                  შეკვეთის გაფორმება
+                  შეკვეთის გაგრძელება
                 </S.CheckoutButton>
               </S.SummaryCard>
-            </>
+            </S.Layout>
           )}
         </S.Container>
       </S.PageBackground>

@@ -23,10 +23,23 @@ export interface RegisterDto {
      * მომხმარებლის ასაკი
      */
     'age'?: number;
+    /**
+     * პირადი ნომერი — ზუსტად 11 ციფრი
+     */
+    'personalNumber'?: string;
+    /**
+     * POST /otp/send-ის პასუხიდან მიღებული requestId — თუ SMS ვერიფიკაცია ჩართულია, სავალდებულოა otpCode-თან ერთად
+     */
+    'otpRequestId'?: string;
+    /**
+     * მომხმარებლის მობილურზე მიღებული OTP კოდი
+     */
+    'otpCode'?: string;
     'firstName': string;
     'lastName': string;
     'email': string;
     'password': string;
+    'phoneNumber': string;
 }
 
 export const RegisterDtoGenderEnum = {

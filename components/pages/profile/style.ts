@@ -258,6 +258,11 @@ export const Input = styled("input")<{ $invalid?: boolean }>`
   }
 `;
 
+export const RequiredHint = styled("span")`
+  font-weight: 500;
+  color: var(--ref-danger);
+`;
+
 export const FieldError = styled("span")`
   display: block;
   font-size: 12px;
@@ -543,4 +548,52 @@ export const ToggleBtn = styled("button")`
     color: var(--ref-text-primary);
     background: var(--ref-bg-subtle);
   }
+`;
+
+/* ელფოსტის დადასტურების (OTP) ველი */
+export const FieldRow = styled("div")`
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+
+  ${InputWrapper} {
+    flex: 1;
+  }
+`;
+
+export const OtpActionBtn = styled("button")`
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--ref-primary-soft);
+    border-color: var(--ref-primary);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+export const VerifiedBadge = styled("span")`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--ref-success-soft);
+  color: var(--ref-success);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
 `;

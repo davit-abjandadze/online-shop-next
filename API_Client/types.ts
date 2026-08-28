@@ -34,6 +34,12 @@ export interface User {
   role: UserRoleEnum;
   gender?: UserGenderEnum;
   age?: number;
+  phoneNumber?: string;
+  personalNumber?: string;
+  // ბექენდზე დამოწმებული მხოლოდ OTP-ის წარმატებული გავლის შემდეგ (რეგისტრაცია/
+  // Google OAuth/პროფილის ცვლილება) — იხ. UsersService.create/update online-shop-nest-ში.
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
   createdAt: string;
 }
 

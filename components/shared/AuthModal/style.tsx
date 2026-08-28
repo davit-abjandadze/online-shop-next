@@ -24,7 +24,7 @@ export const Overlay = styled(motion.div)`
 export const ModalContainer = styled(motion.div)`
   background: var(--ref-bg-elevated);
   width: 100%;
-  max-width: 440px;
+  max-width: 380px;
   border-radius: 8px;
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -33,7 +33,7 @@ export const ModalContainer = styled(motion.div)`
 `;
 
 export const ModalHeader = styled.div`
-  padding: 24px 28px 16px;
+  padding: 16px 20px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -41,7 +41,7 @@ export const ModalHeader = styled.div`
 `;
 
 export const Title = styled.h3`
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--ref-text-primary);
   margin: 0;
@@ -51,15 +51,15 @@ export const Title = styled.h3`
 export const CloseButton = styled.button`
   background: var(--ref-bg-subtle);
   border: none;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: var(--ref-text-secondary);
-  font-size: 18px;
+  font-size: 16px;
   transition: all 0.2s ease;
 
   &:hover {
@@ -72,21 +72,21 @@ export const CloseButton = styled.button`
 export const TabBar = styled.div`
   display: flex;
   background: var(--ref-bg);
-  padding: 4px;
-  margin: 16px 28px 0;
-  border-radius: 8px;
-  gap: 4px;
+  padding: 3px;
+  margin: 12px 20px 0;
+  border-radius: 7px;
+  gap: 3px;
 `;
 
 export const TabButton = styled.button<{ active: boolean }>`
   flex: 1;
-  padding: 10px 14px;
+  padding: 7px 12px;
   border: none;
   background: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "transparent")};
   color: ${({ active }) => (active ? "var(--ref-text-primary)" : "var(--ref-text-secondary)")};
   font-weight: ${({ active }) => (active ? "600" : "500")};
-  font-size: 14px;
-  border-radius: 6px;
+  font-size: 13px;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: ${({ active }) =>
@@ -98,20 +98,20 @@ export const TabButton = styled.button<{ active: boolean }>`
 `;
 
 export const FormContainer = styled.form`
-  padding: 24px 28px 28px;
+  padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 `;
 
 export const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 `;
 
 export const Label = styled.label`
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--ref-text-primary);
 `;
@@ -124,10 +124,10 @@ export const InputWrapper = styled.div`
 
 export const Input = styled.input<{ $invalid?: boolean }>`
   width: 100%;
-  padding: 12px 16px;
+  padding: 8px 12px;
   border: 1.5px solid ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-border-soft)")};
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ref-text-primary);
   outline: none;
   transition: all 0.2s ease;
@@ -135,7 +135,7 @@ export const Input = styled.input<{ $invalid?: boolean }>`
 
   &:focus {
     border-color: ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-primary)")};
-    box-shadow: 0 0 0 4px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.15)" : "rgba(24, 119, 242, 0.15)")};
+    box-shadow: 0 0 0 3px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.15)" : "rgba(24, 119, 242, 0.15)")};
   }
 
   &::placeholder {
@@ -144,16 +144,16 @@ export const Input = styled.input<{ $invalid?: boolean }>`
 `;
 
 export const FieldError = styled.span`
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ref-danger);
-  margin-top: 2px;
+  margin-top: 1px;
 `;
 
 export const GenderSwitch = styled.div`
   position: relative;
   display: flex;
   width: 100%;
-  height: 42px;
+  height: 34px;
   border-radius: 999px;
   background: var(--ref-bg);
   border: 1.5px solid var(--ref-border-soft);
@@ -184,7 +184,7 @@ export const GenderOption = styled.button<{ active: boolean }>`
   background: transparent;
   color: ${({ active }) => (active ? "var(--ref-text-on-primary)" : "var(--ref-text-secondary)")};
   font-weight: ${({ active }) => (active ? "700" : "500")};
-  font-size: 14px;
+  font-size: 13px;
   border-radius: 999px;
   cursor: pointer;
   transition: color 0.2s ease;
@@ -197,10 +197,10 @@ export const GenderOption = styled.button<{ active: boolean }>`
 
 export const Select = styled.select`
   width: 100%;
-  padding: 12px 16px;
+  padding: 8px 12px;
   border: 1.5px solid var(--ref-border-soft);
   border-radius: 6px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ref-text-primary);
   outline: none;
   cursor: pointer;
@@ -209,19 +209,69 @@ export const Select = styled.select`
 
   &:focus {
     border-color: var(--ref-primary);
-    box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
+    box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.15);
   }
+`;
+
+export const PhoneRow = styled.div`
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+
+  ${InputWrapper} {
+    flex: 1;
+  }
+`;
+
+export const OtpActionBtn = styled.button`
+  flex-shrink: 0;
+  padding: 0 12px;
+  height: 36px;
+  border: 1.5px solid var(--ref-primary);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ref-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--ref-primary);
+    color: var(--ref-text-on-primary);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+export const VerifiedBadge = styled.span`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: var(--ref-success-soft);
+  color: var(--ref-success);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 `;
 
 export const TogglePasswordBtn = styled.button`
   position: absolute;
-  right: 12px;
+  right: 10px;
   background: none;
   border: none;
   color: var(--ref-text-secondary);
   cursor: pointer;
-  font-size: 13px;
-  padding: 4px 8px;
+  font-size: 12px;
+  padding: 3px 6px;
   border-radius: 6px;
 
   &:hover {
@@ -232,16 +282,16 @@ export const TogglePasswordBtn = styled.button`
 
 export const SubmitButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background: ${({ disabled }) => (disabled ? "var(--ref-text-secondary)" : "var(--ref-primary)")};
   color: var(--ref-text-on-primary);
   border: none;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
   transition: background 0.15s ease;
-  margin-top: 8px;
+  margin-top: 4px;
 
   &:hover:not(:disabled) {
     background: var(--ref-primary-hover);
@@ -252,9 +302,9 @@ export const ErrorAlert = styled.div`
   background: var(--ref-danger-soft);
   border: 1px solid var(--ref-danger-soft);
   color: var(--ref-danger);
-  padding: 12px 16px;
+  padding: 9px 12px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -265,9 +315,9 @@ export const SuccessAlert = styled.div`
   background: var(--ref-success-soft);
   border: 1px solid var(--ref-success-soft);
   color: var(--ref-success);
-  padding: 12px 16px;
+  padding: 9px 12px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -278,8 +328,8 @@ export const FooterLinks = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 4px;
-  font-size: 13px;
+  margin-top: 2px;
+  font-size: 12px;
   color:white;
 `;
 

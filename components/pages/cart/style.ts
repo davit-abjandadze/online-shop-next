@@ -6,7 +6,7 @@ export const PageBackground = styled("div")`
 `;
 
 export const Container = styled("div")`
-  max-width: 900px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 32px 24px 64px 24px;
 
@@ -22,11 +22,23 @@ export const Title = styled("h1")`
   color: var(--ref-text-primary);
 `;
 
+// მთავარი ორსვეტიანი განლაგება — მარცხნივ პროდუქტების სია, მარჯვნივ
+// შეკვეთის შემაჯამებელი ბარათი (sticky), სურათზე ნაჩვენები სტრუქტურის მიხედვით.
+export const Layout = styled("div")`
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  align-items: start;
+  gap: 24px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 export const ItemsList = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 24px;
 `;
 
 export const Item = styled("div")`
@@ -152,6 +164,46 @@ export const ItemSubtotal = styled("span")`
   flex-shrink: 0;
 `;
 
+// ერთეულის ჯამური ფასი სურათის მსგავსად — ახლანდელი ფასის ქვეშ ხაზგადასმული
+// ორიგინალი ფასი, საჭიროებისას ფასდაკლების ბეჯთან ერთად.
+export const ItemPrice = styled("div")`
+  min-width: 100px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ref-text-primary);
+  flex-shrink: 0;
+`;
+
+export const ItemActions = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+`;
+
+export const WishlistButton = styled("button")<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-secondary)")};
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--ref-bg);
+  }
+`;
+
 export const RemoveButton = styled("button")`
   display: flex;
   align-items: center;
@@ -170,6 +222,8 @@ export const RemoveButton = styled("button")`
   }
 `;
 
+// მარჯვენა სვეტის შემაჯამებელი ბარათი — sticky, რომ სქროლის დროსაც
+// მხედველობაში რჩებოდეს.
 export const SummaryCard = styled("div")`
   background: var(--ref-bg-elevated);
   border: 1px solid var(--ref-border-soft);
@@ -178,6 +232,23 @@ export const SummaryCard = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 14px;
+  position: sticky;
+  top: 24px;
+`;
+
+export const SummaryTitle = styled("h2")`
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--ref-text-primary);
+`;
+
+export const SummaryRow = styled("div")<{ discount?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: ${({ discount }) => (discount ? "var(--ref-danger)" : "var(--ref-text-secondary)")};
 `;
 
 export const TotalRow = styled("div")`
@@ -187,6 +258,8 @@ export const TotalRow = styled("div")`
   font-size: 16px;
   font-weight: 700;
   color: var(--ref-text-primary);
+  padding-top: 14px;
+  border-top: 1px solid var(--ref-border-soft);
 `;
 
 export const TotalValue = styled("span")`
@@ -196,9 +269,9 @@ export const TotalValue = styled("span")`
 `;
 
 export const CheckoutButton = styled("button")`
-  align-self: flex-end;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 14px 28px;
   border: none;

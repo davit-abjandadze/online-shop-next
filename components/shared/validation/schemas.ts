@@ -66,6 +66,32 @@ export const optionalAgeField = () =>
     })
     .optional();
 
+/** მობილურის ნომერი — required, ქართული ფორმატის 9-ციფრიანი ნომერი (ქვეყნის კოდის გარეშე). */
+export const phoneNumberField = () =>
+  z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ მობილურის ნომერი")
+    .regex(/^\d{9}$/, "მობილურის ნომერი უნდა შეიცავდეს 9 ციფრს");
+
+/** მობილურის ნომრის არასავალდებულო ველი (მაგ. პროფილის ფორმაზე, სადაც ცარიელი მნიშვნელობაც დასაშვებია). */
+export const optionalPhoneNumberField = () =>
+  z
+    .string()
+    .trim()
+    .refine((val) => val === "" || /^\d{9}$/.test(val), {
+      message: "მობილურის ნომერი უნდა შეიცავდეს 9 ციფრს",
+    })
+    .optional();
+
+/** პირადი ნომერი — required, ზუსტად 11 ციფრი. */
+export const personalNumberField = () =>
+  z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ პირადი ნომერი")
+    .regex(/^\d{11}$/, "პირადი ნომერი უნდა შეიცავდეს 11 ციფრს");
+
 export const genderField = () =>
   z.enum(GENDER_VALUES, {
     errorMap: () => ({ message: "გთხოვთ მიუთითოთ სქესი" }),
@@ -105,10 +131,15 @@ export const registerSchema = z
     firstName: nameField("სახელი"),
     lastName: nameField("გვარი"),
     email: emailField(),
-    age: ageField(),
+    phoneNumber: phoneNumberField(),
+    personalNumber: personalNumberField(),
     gender: genderField(),
     password: passwordField(),
     confirmPassword: z.string().min(1, "გთხოვთ გაიმეოროთ პაროლი"),
+    // OTP-ვერიფიკაციის შედეგად მიღებული მონაცემები — ივსება მობილურის დადასტურების შემდეგ,
+    // ფორმის ველი არაა, ამიტომ input-თან პირდაპირ არაა დაკავშირებული (setValue-ით ვმართავთ)
+    otpRequestId: z.string().min(1, "გთხოვთ დაადასტუროთ მობილურის ნომერი"),
+    otpCode: z.string().min(1, "გთხოვთ დაადასტუროთ მობილურის ნომერი"),
   })
   .superRefine((data, ctx) => assertPasswordsMatch(data, ctx, "password"));
 export type RegisterFormValues = z.infer<typeof registerSchema>;
@@ -156,7 +187,16 @@ export type CompleteProfileFormValues = z.infer<typeof completeProfileSchema>;
 export const profileEditSchema = z.object({
   firstName: nameField("სახელი"),
   lastName: nameField("გვარი"),
+  email: emailField(),
   age: ageField(),
   gender: genderField(),
+  phoneNumber: optionalPhoneNumberField(),
+  personalNumber: z
+    .string()
+    .trim()
+    .refine((val) => val === "" || /^\d{11}$/.test(val), {
+      message: "პირადი ნომერი უნდა შეიცავდეს 11 ციფრს",
+    })
+    .optional(),
 });
 export type ProfileEditFormValues = z.infer<typeof profileEditSchema>;

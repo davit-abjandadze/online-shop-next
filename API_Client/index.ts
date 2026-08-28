@@ -6,6 +6,7 @@ import {
   Configuration,
   FavoritesApi,
   OrdersApi,
+  OtpApi,
   PaymentsApi,
   ProductsApi,
   UsersApi,
@@ -125,6 +126,11 @@ export const AttributesAPI = (acceptLanguage: string, accessToken: string) => {
 export const FavoritesAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new FavoritesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const OtpAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new OtpApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

@@ -14,13 +14,10 @@
 
 
 
-export interface UserDataDto {
-    'id': number;
+export interface SendEmailOtpDto {
+    /**
+     * ელფოსტა, სადაც გაიგზავნება დადასტურების კოდი
+     */
     'email': string;
-    'firstName': string;
-    'lastName': string;
-    'age'?: number;
-    'personalNumber'?: string;
-    'phoneNumber': string;
 }
 

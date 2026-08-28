@@ -14,13 +14,10 @@
 
 
 
-export interface UserDataDto {
-    'id': number;
-    'email': string;
-    'firstName': string;
-    'lastName': string;
-    'age'?: number;
-    'personalNumber'?: string;
-    'phoneNumber': string;
+export interface SendOtpResponseDto {
+    /**
+     * verify.ge-ს მიერ დაბრუნებული მოთხოვნის ID
+     */
+    'requestId': string;
 }
 

@@ -24,6 +24,14 @@ export interface CreateUserDto {
      * მომხმარებლის ასაკი
      */
     'age'?: number;
+    /**
+     * პირადი ნომერი — ზუსტად 11 ციფრი
+     */
+    'personalNumber'?: string;
+    /**
+     * მომხმარებლის ტელეფონის ნომერი
+     */
+    'phoneNumber'?: string;
     'firstName': string;
     'lastName': string;
     'password': string;

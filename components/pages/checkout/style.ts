@@ -1,12 +1,14 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 export const PageBackground = styled("div")`
   min-height: 100vh;
   background-color: var(--ref-bg);
 `;
 
+// ჰედერის კონტეინერის სიგანის შესაბამისი (Header/style.tsx-ის Container: max-width 1320px) —
+// გვერდის კონტენტი ჰედერის დონემდე გაფართოებულია.
 export const Container = styled("div")`
-  max-width: 960px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 32px 24px 64px 24px;
 
@@ -22,73 +24,349 @@ export const Title = styled("h1")`
   color: var(--ref-text-primary);
 `;
 
-export const Layout = styled("div")`
-  display: flex;
+export const Layout = styled("form")`
+  display: grid;
+  grid-template-columns: 1fr 380px;
   gap: 24px;
-  align-items: flex-start;
+  align-items: start;
 
-  @media (max-width: 800px) {
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const FormColumn = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+`;
+
+export const SectionCard = styled("div")`
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+`;
+
+export const SectionTitle = styled("h2")`
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const HintIcon = styled("span")`
+  font-size: 13px;
+  color: var(--ref-text-secondary);
+  cursor: help;
+`;
+
+export const PersonalGrid = styled("div")`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const ReadonlyField = styled("div")<{ $full?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  ${({ $full }) =>
+    $full &&
+    css`
+      grid-column: 1 / -1;
+    `}
+`;
+
+export const ReadonlyLabel = styled("span")`
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+`;
+
+export const ReadonlyValue = styled("div")`
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg);
+  color: var(--ref-text-primary);
+  font-size: 14px;
+`;
+
+// ელფოსტის/მობილურის/პირადი ნომრის რედაქტირებადი ველები — profile-ის იგივე
+// ვიზუალური პატერნი (წითელი კონტური დაუდასტურებელი/ცარიელი მნიშვნელობისთვის).
+export const Input = styled("input")<{ $invalid?: boolean }>`
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-border)")};
+  background: var(--ref-bg);
+  color: var(--ref-text-primary);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-primary)")};
+    box-shadow: 0 0 0 3px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.1)" : "var(--ref-primary-soft)")};
+  }
+`;
+
+export const RequiredHint = styled("span")`
+  font-weight: 500;
+  color: var(--ref-danger);
+`;
+
+export const InputWrapper = styled("div")`
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+`;
+
+export const FieldRow = styled("div")`
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+`;
+
+export const OtpActionBtn = styled("button")`
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: var(--ref-primary-soft);
+    border-color: var(--ref-primary);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+export const VerifiedBadge = styled("span")`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--ref-success-soft);
+  color: var(--ref-success);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+`;
+
+export const SaveInfoRow = styled("div")`
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  width: 100%;
+
+`;
+
+export const SaveInfoButton = styled("button")`
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--ref-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  height: 41px;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    background: var(--ref-primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+export const InfoAlert = styled("div")`
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--ref-danger-soft, rgba(220, 38, 38, 0.08));
+  color: var(--ref-danger);
+  font-size: 13px;
+  line-height: 1.5;
+
+  a {
+    color: var(--ref-danger);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+`;
+
+export const MethodRow = styled("div")`
+  display: flex;
+  gap: 12px;
+
+  @media (max-width: 480px) {
     flex-direction: column;
   }
 `;
 
-export const SummaryList = styled("div")`
+export const MethodOption = styled("button")<{ $active?: boolean; $disabled?: boolean }>`
   flex: 1;
-  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--ref-bg);
+  color: var(--ref-text-primary);
+  border: 1.5px solid var(--ref-border);
+  cursor: pointer;
+  position: relative;
+  text-align: left;
+
+  ${({ $active }) =>
+    $active &&
+    css`
+      border-color: var(--ref-primary);
+      background: var(--ref-primary-soft);
+      color: var(--ref-primary);
+    `}
+
+  ${({ $disabled }) =>
+    $disabled &&
+    css`
+      opacity: 0.55;
+      cursor: not-allowed;
+    `}
+`;
+
+export const SoonBadge = styled("span")`
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-secondary);
+`;
+
+export const AddressCard = styled("div")`
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ref-primary);
+  background: var(--ref-primary-soft);
+`;
+
+export const AddressBody = styled("div")`
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: var(--ref-bg-elevated);
-  border: 1px solid var(--ref-border-soft);
-  border-radius: 12px;
-  padding: 16px;
+  gap: 6px;
 `;
 
-export const SummaryItem = styled("div")`
-  display: flex;
-  align-items: center;
-  gap: 12px;
+export const Label = styled("label")`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
 `;
 
-export const ItemImage = styled("div")`
-  width: 56px;
-  height: 56px;
-  flex-shrink: 0;
+export const Textarea = styled("textarea")<{ $invalid?: boolean }>`
+  width: 100%;
+  padding: 10px 14px;
   border-radius: 8px;
-  overflow: hidden;
-  background: var(--ref-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border: 1px solid ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-border)")};
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-primary);
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+  transition: border-color 0.2s ease;
 
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  &:focus {
+    border-color: ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-primary)")};
+    box-shadow: 0 0 0 3px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.1)" : "var(--ref-primary-soft)")};
   }
 `;
 
-export const ItemInfo = styled("div")`
-  flex: 1;
-  min-width: 0;
+export const FieldError = styled("span")`
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ref-danger);
 `;
 
-export const ItemName = styled("div")`
-  font-size: 14px;
+export const SummaryColumn = styled("div")`
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: sticky;
+  top: 24px;
+
+  @media (max-width: 900px) {
+    position: static;
+  }
+`;
+
+export const SummaryTitle = styled("h2")`
+  margin: 0 0 4px 0;
+  font-size: 16px;
   font-weight: 700;
   color: var(--ref-text-primary);
 `;
 
-export const ItemMeta = styled("div")`
-  font-size: 13px;
+export const SummaryRow = styled("div")<{ $discount?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
   color: var(--ref-text-secondary);
+
+  ${({ $discount }) =>
+    $discount &&
+    css`
+      color: var(--ref-danger);
+      font-weight: 600;
+    `}
 `;
 
-export const ItemSubtotal = styled("div")`
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ref-primary);
-  white-space: nowrap;
+export const Divider = styled("div")`
+  height: 1px;
+  background: var(--ref-border-soft);
+  margin: 4px 0;
 `;
 
 export const TotalRow = styled("div")`
@@ -109,58 +387,17 @@ export const TotalValue = styled("span")`
   color: var(--ref-primary);
 `;
 
-export const FormCard = styled("form")`
-  width: 340px;
-  flex-shrink: 0;
-  background: var(--ref-bg-elevated);
-  border: 1px solid var(--ref-border-soft);
-  border-radius: 12px;
-  padding: 20px;
+export const DeliveryNotice = styled("div")`
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  @media (max-width: 800px) {
-    width: 100%;
-  }
-`;
-
-export const FormGroup = styled("div")`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-export const Label = styled("label")`
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ref-text-primary);
-`;
-
-export const Textarea = styled("textarea")`
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--ref-border);
-  background: var(--ref-bg-elevated);
-  color: var(--ref-text-primary);
-  font-size: 14px;
-  outline: none;
-  resize: vertical;
-  min-height: 90px;
-  font-family: inherit;
-  transition: border-color 0.2s ease;
-
-  &:focus {
-    border-color: var(--ref-primary);
-    box-shadow: 0 0 0 3px var(--ref-primary-soft);
-  }
-`;
-
-export const FieldError = styled("span")`
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--ref-primary-soft);
+  color: var(--ref-primary);
   font-size: 12px;
-  font-weight: 500;
-  color: var(--ref-danger);
+  line-height: 1.5;
+  margin: 6px 0;
 `;
 
 export const SubmitButton = styled("button")`
