@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import React, { useState } from "react";
 import Link from "next/link";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
@@ -7,48 +6,16 @@ import AuthModal from "@/components/shared/AuthModal";
 import ProductCard from "@/components/shared/ProductCard";
 import { HeartIcon } from "@/components/ui/RefIcons";
 import { useWishlist } from "@/context/Wishlist";
-import { ProductsAPI } from "@/API_Client";
-import { Product } from "@/API_Client/client/models";
 import * as S from "./style";
 
-// "სასურველი" გვერდი — localStorage-ში შენახული პროდუქტის ID-ების მიხედვით
-// თითოეულს ცალ-ცალკე ვითხოვთ (findOne), რადგან backend-ს ჯერ არ აქვს
-// "ID-ების სიით მოძებნის" endpoint. წაშლილი/დამალული პროდუქტები უბრალოდ
-// გამოტოვებულია სიიდან.
+// "სასურველი" გვერდი — სერვერზე შენახული ფავორიტების მიხედვით (FavoritesAPI,
+// იხ. context/Wishlist). პროდუქტი Favorite-ის relation-ითვე მოდის, ცალ-ცალკე
+// findOne-ების გარეშე.
 export const WishlistComponent: React.FC = () => {
-  const router = useRouter();
-  const { productIds } = useWishlist();
+  const { favorites, loading } = useWishlist();
+  const products = favorites.map((f) => f.product).filter((p): p is NonNullable<typeof p> => Boolean(p));
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    const fetchWishlistProducts = async () => {
-      if (productIds.length === 0) {
-        setProducts([]);
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const results = await Promise.all(
-          productIds.map((id) =>
-            ProductsAPI(router.locale || "ka", "")
-              .productsControllerFindOne(String(id))
-              .then((res) => res.data as unknown as Product)
-              .catch(() => null)
-          )
-        );
-        setProducts(results.filter((p): p is Product => p !== null));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWishlistProducts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productIds, router.locale]);
 
   return (
     <S.PageBackground>
@@ -57,7 +24,7 @@ export const WishlistComponent: React.FC = () => {
       <S.Container>
         <S.PageHeader>
           <S.PageTitle>სასურველი პროდუქტები</S.PageTitle>
-          <S.PageSubtitle>თქვენს მიერ შენახული პროდუქტები — ინახება მხოლოდ ამ მოწყობილობაზე</S.PageSubtitle>
+          <S.PageSubtitle>თქვენს მიერ შენახული პროდუქტები</S.PageSubtitle>
         </S.PageHeader>
 
         {!loading && products.length === 0 ? (

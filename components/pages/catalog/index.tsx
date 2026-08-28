@@ -68,16 +68,22 @@ export const CatalogComponent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // "ყველა კატეგორია" კვლავ /products-ზე რჩება, კონკრეტული კატეგორია კი
+  // /categories/[slug]-ზე გადადის — SEO-სთვის სუფთა, keyword-ianი URL-ით
+  // (`?category=<uuid>` query-ის მაგივრად), UUID-ის ნაცვლად slug-ით.
   const handleCategorySelect = (categoryId: string | null) => {
-    setActiveCategoryId(categoryId);
-    setPage(1);
-    const query: Record<string, string> = { ...(router.query as Record<string, string>), page: "1" };
     if (categoryId === null) {
+      setActiveCategoryId(null);
+      setPage(1);
+      const query: Record<string, string> = { ...(router.query as Record<string, string>), page: "1" };
       delete query.category;
-    } else {
-      query.category = categoryId;
+      router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
+      return;
     }
-    router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
+
+    const category = categories.find((cat) => cat.id === categoryId);
+    if (!category?.slug) return;
+    router.push(`/categories/${category.slug}`);
   };
 
   const fetchProducts = async () => {
@@ -126,9 +132,23 @@ export const CatalogComponent: React.FC = () => {
   }, [router.locale]);
 
   const activeCategory = categories.find((cat) => cat.id === activeCategoryId);
+
+  // categoryControllerFindAll (parentId ფილტრის გარეშე) ბრტყელ სიას აბრუნებს,
+  // სადაც თითოეულ კატეგორიას `parent` აქვს join-ით ჩატვირთული — აქედან
+  // ვაშენებთ ორდონიან ხეს: root კატეგორიები + თითოეულის ქვეკატეგორიები.
+  const topLevelCategories = categories.filter((cat) => !cat.parent);
+  const getChildCategories = (parentId: string) =>
+    categories.filter((cat) => cat.parent?.id === parentId);
+
   const categoryDropdownOptions = [
     { value: "all", label: "ყველა კატეგორია" },
-    ...categories.map((cat) => ({ value: cat.id, label: getCategoryName(cat, router.locale) })),
+    ...topLevelCategories.flatMap((cat) => [
+      { value: cat.id, label: getCategoryName(cat, router.locale) },
+      ...getChildCategories(cat.id).map((child) => ({
+        value: child.id,
+        label: `— ${getCategoryName(child, router.locale)}`,
+      })),
+    ]),
   ];
 
   return (
@@ -168,21 +188,35 @@ export const CatalogComponent: React.FC = () => {
                   </S.CategoryOptionLabel>
                 </S.CategoryOption>
 
-                {categories.length === 0 ? (
+                {topLevelCategories.length === 0 ? (
                   <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
                 ) : (
-                  categories.map((category) => (
-                    <S.CategoryOption
-                      key={category.id}
-                      active={activeCategoryId === category.id}
-                      onClick={() => handleCategorySelect(category.id)}
-                    >
-                      <S.CategoryOptionLabel>
-                        <TagIcon size={16} />
-                        {getCategoryName(category, router.locale)}
-                      </S.CategoryOptionLabel>
-                    </S.CategoryOption>
-                  ))
+                  topLevelCategories.map((category) => {
+                    const children = getChildCategories(category.id);
+                    return (
+                      <React.Fragment key={category.id}>
+                        <S.CategoryOption
+                          active={activeCategoryId === category.id}
+                          onClick={() => handleCategorySelect(category.id)}
+                        >
+                          <S.CategoryOptionLabel>
+                            <TagIcon size={16} />
+                            {getCategoryName(category, router.locale)}
+                          </S.CategoryOptionLabel>
+                        </S.CategoryOption>
+
+                        {children.map((child) => (
+                          <S.SubcategoryOption
+                            key={child.id}
+                            active={activeCategoryId === child.id}
+                            onClick={() => handleCategorySelect(child.id)}
+                          >
+                            <S.CategoryOptionLabel>— {getCategoryName(child, router.locale)}</S.CategoryOptionLabel>
+                          </S.SubcategoryOption>
+                        ))}
+                      </React.Fragment>
+                    );
+                  })
                 )}
               </S.SidebarCardBody>
             </S.SidebarCard>

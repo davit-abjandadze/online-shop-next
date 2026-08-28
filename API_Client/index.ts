@@ -4,6 +4,7 @@ import {
   CartApi,
   CategoriesApi,
   Configuration,
+  FavoritesApi,
   OrdersApi,
   PaymentsApi,
   ProductsApi,
@@ -119,6 +120,11 @@ export const PaymentsAPI = (acceptLanguage: string, accessToken: string) => {
 export const AttributesAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new AttributesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const FavoritesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new FavoritesApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

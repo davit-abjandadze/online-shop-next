@@ -64,7 +64,6 @@ export const PageHeader = styled("div")`
 
 export const PageTitle = styled("h1")`
   margin: 0 0 6px 0;
-  font-family: var(--ref-font-display);
   font-weight: 400;
   font-size: 32px;
   color: var(--ref-text-primary);
@@ -163,6 +162,13 @@ export const CategoryOption = styled("button")<{ active?: boolean }>`
     background: var(--ref-primary-soft);
     color: var(--ref-primary);
   }
+`;
+
+// root კატეგორიის ქვეშ ჩამონათვალი ქვეკატეგორიებისთვის — შეწერილი ტირით,
+// შემცირებული ზომით და დამატებითი left padding-ით იერარქიის საჩვენებლად.
+export const SubcategoryOption = styled(CategoryOption)`
+  padding-left: 28px;
+  font-size: 12.5px;
 `;
 
 export const CategoryOptionLabel = styled("span")`

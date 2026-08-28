@@ -226,3 +226,14 @@ export interface CategoryFilterEntry {
 }
 
 export type CategoryFiltersResponse = CategoryFilterEntry[];
+
+// იგივე მიზეზით (FavoritesController-ის მეთოდებს OpenAPI-ში ცხადი პასუხის
+// ტიპი არ აქვს მითითებული, იხ. src/favorites/favorites.controller.ts
+// online-shop-nest-ში) `Favorite` გენერირებულ კლიენტში აღარ ჩნდება — ხელით
+// ვაფიქსირებთ ბექენდის entity-ის ფორმას (src/favorites/entities/favorite.entity.ts).
+// `findAll` პასუხს product.category-ც ჩატანილი აქვს (FavoritesService relations).
+export interface Favorite {
+  id: number;
+  product: Product;
+  createdAt: string;
+}

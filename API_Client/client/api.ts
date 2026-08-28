@@ -18,6 +18,7 @@ export * from './apis/attributes-api';
 export * from './apis/auth-api';
 export * from './apis/cart-api';
 export * from './apis/categories-api';
+export * from './apis/favorites-api';
 export * from './apis/orders-api';
 export * from './apis/payments-api';
 export * from './apis/products-api';
