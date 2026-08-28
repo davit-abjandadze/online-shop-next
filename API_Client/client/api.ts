@@ -14,6 +14,7 @@
 
 
 
+export * from './apis/addresses-api';
 export * from './apis/attributes-api';
 export * from './apis/auth-api';
 export * from './apis/cart-api';

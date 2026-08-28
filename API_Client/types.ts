@@ -198,6 +198,22 @@ export interface ProductAdditionalInfo {
   updatedAt: string;
 }
 
+// იგივე მიზეზით (AddressesController-ის მეთოდებს OpenAPI-ში ცხადი პასუხის
+// ტიპი არ აქვს მითითებული, იხ. src/addresses/addresses.controller.ts
+// online-shop-nest-ში) `Address` გენერირებულ კლიენტში აღარ ჩნდება — ხელით
+// ვაფიქსირებთ ბექენდის entity-ის ფორმას (src/addresses/entities/address.entity.ts).
+export interface Address {
+  id: number;
+  title: string;
+  phoneNumber: string;
+  city: string;
+  address: string;
+  comment?: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // GET /categories/:slug/filters — მთელი პასუხი ერთი flat მასივია (არა
 // `{ data, meta }`-ის მსგავსი envelope), თითო filterable attribute-ზე ერთი
 // row, `attribute.type`-ის მიხედვით სხვადასხვა დამატებითი ველით

@@ -1,4 +1,5 @@
 import {
+  AddressesApi,
   AttributesApi,
   AuthApi,
   CartApi,
@@ -131,6 +132,11 @@ export const FavoritesAPI = (acceptLanguage: string, accessToken: string) => {
 export const OtpAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new OtpApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const AddressesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new AddressesApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { useCart } from "@/context/Cart";
-import { OrdersAPI, OtpAPI, PaymentsAPI, UserAPI } from "@/API_Client";
-import { Order, PaymentInitiateResponse, User } from "@/API_Client/types";
+import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
+import { AddressesAPI, OrdersAPI, OtpAPI, PaymentsAPI, UserAPI } from "@/API_Client";
+import { Address, Order, PaymentInitiateResponse, User } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import {
   CartIcon,
@@ -19,14 +18,52 @@ import {
   PinIcon,
   WarningIcon,
   CheckCircleIcon,
+  ChevronDownIcon,
+  EditIcon,
+  TrashIcon,
+  CloseIcon,
 } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import { emailField, personalNumberField, phoneNumberField } from "@/components/shared/validation/schemas";
-import { CheckoutFormValues, checkoutFormSchema } from "./schemas";
+import { AddressFormValues, addressFormSchema } from "./schemas";
 import * as S from "./style";
 
 const resolveImage = (image?: string) =>
   image ? (image.startsWith("http") ? image : `${CDN_URL}${image}`) : undefined;
+
+// მისამართის ფორმის "ქალაქი" სელექტისთვის — ყველაზე ხშირად შერჩეული
+// ქართული ქალაქები (backend-ზე city უბრალო string ველია, აქ ჩამონათვალის
+// გაფართოება ბექენდის ცვლილებას არ საჭიროებს).
+const GEORGIAN_CITIES = [
+  "თბილისი",
+  "ბათუმი",
+  "ქუთაისი",
+  "რუსთავი",
+  "გორი",
+  "ზუგდიდი",
+  "ფოთი",
+  "ხაშური",
+  "სამტრედია",
+  "სენაკი",
+  "ზესტაფონი",
+  "მარნეული",
+  "თელავი",
+  "ახალციხე",
+  "ოზურგეთი",
+  "ქობულეთი",
+  "ბორჯომი",
+  "გურჯაანი",
+  "ახალქალაქი",
+  "წყალტუბო",
+];
+
+const emptyAddressForm: AddressFormValues = {
+  title: "",
+  phoneNumber: "",
+  city: "",
+  address: "",
+  comment: "",
+};
 
 // ველში მომხმარებელი 9-ციფრიან ქართულ მობილურის ნომერს (ქვეყნის კოდის გარეშე) შეიყვანს,
 // ბექენდისთვის/verify.ge-სთვის კი E.164 ფორმატია საჭირო (მაგ. +995555123456) — profile-ის ანალოგიურად.
@@ -103,14 +140,129 @@ export const CheckoutComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phoneInput]);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<CheckoutFormValues>({
-    resolver: zodResolver(checkoutFormSchema),
-    defaultValues: { shippingAddress: "" },
-  });
+  const { getOverlayProps } = useOverlayCloseHandlers();
+
+  // შენახული მიწოდების მისამართები — თუ არცერთი არაა დამატებული, პირდაპირ
+  // დამატების ფორმა ჩანს; წინააღმდეგ შემთხვევაში არჩეული მისამართის ბარათი +
+  // "შეცვალე/დაამატე მისამართი" სია, ახლის დამატება/რედაქტირება კი მოდალშია.
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState<boolean>(true);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
+  const [showAddressList, setShowAddressList] = useState<boolean>(false);
+  const [addressModalOpen, setAddressModalOpen] = useState<boolean>(false);
+  const [editingAddressId, setEditingAddressId] = useState<number | null>(null);
+  const [addressFormValues, setAddressFormValues] = useState<AddressFormValues>(emptyAddressForm);
+  const [addressFormErrors, setAddressFormErrors] = useState<Partial<Record<keyof AddressFormValues, string>>>({});
+  const [addressSaving, setAddressSaving] = useState<boolean>(false);
+  const [addressDeletingId, setAddressDeletingId] = useState<number | null>(null);
+  const [addressError, setAddressError] = useState<string | null>(null);
+
+  const fetchAddresses = async () => {
+    if (!session?.accessToken) return;
+    setAddressesLoading(true);
+    try {
+      const res = await AddressesAPI(router.locale || "ka", session.accessToken).addressesControllerFindAll();
+      const list = (res.data as unknown as Address[]) || [];
+      setAddresses(list);
+      setSelectedAddressId((prev) =>
+        prev && list.some((a) => a.id === prev) ? prev : list.find((a) => a.isDefault)?.id ?? list[0]?.id ?? null
+      );
+    } catch {
+      // მისამართების ჩატვირთვის ჩავარდნა UI-ს არ უნდა ბლოკავდეს — უბრალოდ ცარიელი დარჩება სია.
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (status === "authenticated") fetchAddresses();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session]);
+
+  const openAddAddressModal = () => {
+    setEditingAddressId(null);
+    setAddressFormValues(emptyAddressForm);
+    setAddressFormErrors({});
+    setAddressModalOpen(true);
+  };
+
+  const openEditAddressModal = (addr: Address) => {
+    setEditingAddressId(addr.id);
+    setAddressFormValues({
+      title: addr.title,
+      phoneNumber: addr.phoneNumber,
+      city: addr.city,
+      address: addr.address,
+      comment: addr.comment || "",
+    });
+    setAddressFormErrors({});
+    setAddressModalOpen(true);
+  };
+
+  const closeAddressModal = () => setAddressModalOpen(false);
+
+  const handleAddressFieldChange = (field: keyof AddressFormValues, value: string) => {
+    setAddressFormValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmitAddress = async () => {
+    if (!session?.accessToken) return;
+    const parsed = addressFormSchema.safeParse(addressFormValues);
+    if (!parsed.success) {
+      const fieldErrors: Partial<Record<keyof AddressFormValues, string>> = {};
+      parsed.error.issues.forEach((issue) => {
+        const key = issue.path[0] as keyof AddressFormValues;
+        if (!fieldErrors[key]) fieldErrors[key] = issue.message;
+      });
+      setAddressFormErrors(fieldErrors);
+      return;
+    }
+    setAddressFormErrors({});
+    setAddressSaving(true);
+    try {
+      const api = AddressesAPI(router.locale || "ka", session.accessToken);
+      const payload = {
+        title: parsed.data.title,
+        phoneNumber: parsed.data.phoneNumber,
+        city: parsed.data.city,
+        address: parsed.data.address,
+        comment: parsed.data.comment || undefined,
+      };
+      const res = editingAddressId
+        ? await api.addressesControllerUpdate(String(editingAddressId), payload)
+        : await api.addressesControllerCreate(payload);
+      const saved = res.data as unknown as Address;
+
+      const listRes = await api.addressesControllerFindAll();
+      const list = (listRes.data as unknown as Address[]) || [];
+      setAddresses(list);
+      setSelectedAddressId(saved.id);
+      setAddressError(null);
+      setAddressModalOpen(false);
+      toast.success(editingAddressId ? "მისამართი განახლდა" : "მისამართი დაემატა");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "მისამართის შენახვა ვერ მოხერხდა");
+    } finally {
+      setAddressSaving(false);
+    }
+  };
+
+  const handleDeleteAddress = async (id: number) => {
+    if (!session?.accessToken) return;
+    setAddressDeletingId(id);
+    try {
+      const api = AddressesAPI(router.locale || "ka", session.accessToken);
+      await api.addressesControllerRemove(String(id));
+      const listRes = await api.addressesControllerFindAll();
+      const list = (listRes.data as unknown as Address[]) || [];
+      setAddresses(list);
+      setSelectedAddressId((prev) => (prev === id ? list.find((a) => a.isDefault)?.id ?? list[0]?.id ?? null : prev));
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "მისამართის წაშლა ვერ მოხერხდა");
+    } finally {
+      setAddressDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -331,12 +483,21 @@ export const CheckoutComponent: React.FC = () => {
   const phoneNeedsVerificationUi =
     !!phoneInput.trim() && (phoneInput.trim() !== savedPhoneNumber || phoneNotVerified);
 
-  const onSubmit = handleSubmit(async (data) => {
+  const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || null;
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!session?.accessToken || isEmpty || purchaseBlocked) return;
+    if (!selectedAddress) {
+      setAddressError("გთხოვთ აირჩიოთ ან დაამატოთ მიწოდების მისამართი");
+      return;
+    }
+    setAddressError(null);
     setSubmitting(true);
     try {
+      const shippingAddress = `${selectedAddress.title} - ${selectedAddress.city}, ${selectedAddress.address}`;
       const orderRes = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerCreate({
-        shippingAddress: data.shippingAddress.trim(),
+        shippingAddress,
       });
       const order = orderRes.data as unknown as Order;
 
@@ -355,7 +516,7 @@ export const CheckoutComponent: React.FC = () => {
       toast.error(err?.response?.data?.message || "შეკვეთის გაფორმება ვერ მოხერხდა");
       setSubmitting(false);
     }
-  });
+  };
 
   return (
     <>
@@ -536,19 +697,144 @@ export const CheckoutComponent: React.FC = () => {
                     </S.MethodOption>
                   </S.MethodRow>
 
-                  <S.AddressCard>
-                    <PinIcon size={18} />
-                    <S.AddressBody>
-                      <S.Label>მისამართი</S.Label>
-                      <S.Textarea
-                        rows={2}
-                        placeholder="ქალაქი, ქუჩა, სახლის ნომერი..."
-                        $invalid={!!errors.shippingAddress}
-                        {...register("shippingAddress")}
-                      />
-                      {errors.shippingAddress && <S.FieldError>{errors.shippingAddress.message}</S.FieldError>}
-                    </S.AddressBody>
-                  </S.AddressCard>
+                  {addressesLoading ? (
+                    <S.ReadonlyValue>იტვირთება...</S.ReadonlyValue>
+                  ) : addresses.length === 0 ? (
+                    // მისამართი საერთოდ არ არსებობს — პირდაპირ დამატების ფორმა ჩანს.
+                    <S.AddressFormFields>
+                      <S.AddressFormRow>
+                        <S.ReadonlyField>
+                          <S.Input
+                            type="text"
+                            placeholder="სახელი (მაგ. სამსახური, სახლი)"
+                            $invalid={!!addressFormErrors.title}
+                            value={addressFormValues.title}
+                            onChange={(e) => handleAddressFieldChange("title", e.target.value)}
+                          />
+                          {addressFormErrors.title && <S.FieldError>{addressFormErrors.title}</S.FieldError>}
+                        </S.ReadonlyField>
+                        <S.ReadonlyField>
+                          <S.Input
+                            type="tel"
+                            placeholder="ტელეფონის ნომერი"
+                            $invalid={!!addressFormErrors.phoneNumber}
+                            value={addressFormValues.phoneNumber}
+                            onChange={(e) => handleAddressFieldChange("phoneNumber", e.target.value)}
+                          />
+                          {addressFormErrors.phoneNumber && (
+                            <S.FieldError>{addressFormErrors.phoneNumber}</S.FieldError>
+                          )}
+                        </S.ReadonlyField>
+                      </S.AddressFormRow>
+                      <S.AddressFormRow>
+                        <S.ReadonlyField>
+                          <S.Select
+                            $invalid={!!addressFormErrors.city}
+                            value={addressFormValues.city}
+                            onChange={(e) => handleAddressFieldChange("city", e.target.value)}
+                          >
+                            <option value="">ქალაქი</option>
+                            {GEORGIAN_CITIES.map((city) => (
+                              <option key={city} value={city}>
+                                {city}
+                              </option>
+                            ))}
+                          </S.Select>
+                          {addressFormErrors.city && <S.FieldError>{addressFormErrors.city}</S.FieldError>}
+                        </S.ReadonlyField>
+                        <S.ReadonlyField>
+                          <S.Input
+                            type="text"
+                            placeholder="მისამართი"
+                            $invalid={!!addressFormErrors.address}
+                            value={addressFormValues.address}
+                            onChange={(e) => handleAddressFieldChange("address", e.target.value)}
+                          />
+                          {addressFormErrors.address && <S.FieldError>{addressFormErrors.address}</S.FieldError>}
+                        </S.ReadonlyField>
+                      </S.AddressFormRow>
+                      <S.ReadonlyField>
+                        <S.Textarea
+                          rows={2}
+                          placeholder="დამატებითი კომენტარი"
+                          value={addressFormValues.comment}
+                          onChange={(e) => handleAddressFieldChange("comment", e.target.value)}
+                        />
+                      </S.ReadonlyField>
+                      <S.SaveInfoButton type="button" onClick={handleSubmitAddress} disabled={addressSaving}>
+                        {addressSaving ? "ინახება..." : "შენახვა"}
+                      </S.SaveInfoButton>
+                    </S.AddressFormFields>
+                  ) : (
+                    <S.AddressListPanel>
+                      <S.AddressSelectedCard>
+                        <PinIcon size={18} />
+                        <S.AddressBody>
+                          <S.Label>მისამართი</S.Label>
+                          <S.AddressValue>
+                            {selectedAddress
+                              ? `${selectedAddress.title} - ${selectedAddress.city}, ${selectedAddress.address}`
+                              : "მისამართი არ არის არჩეული"}
+                          </S.AddressValue>
+                        </S.AddressBody>
+                      </S.AddressSelectedCard>
+
+                      <S.ToggleAddressesBtn type="button" onClick={() => setShowAddressList((v) => !v)}>
+                        შეცვალე/დაამატე მისამართი
+                        <ChevronDownIcon
+                          size={16}
+                          style={{ transform: showAddressList ? "rotate(180deg)" : undefined }}
+                        />
+                      </S.ToggleAddressesBtn>
+
+                      {showAddressList && (
+                        <>
+                          {addresses.map((addr) => (
+                            <S.AddressListItem
+                              key={addr.id}
+                              $selected={addr.id === selectedAddressId}
+                              onClick={() => setSelectedAddressId(addr.id)}
+                            >
+                              <PinIcon size={16} />
+                              <S.AddressBody>
+                                <S.Label>მისამართი</S.Label>
+                                <S.AddressValue>
+                                  {addr.title} - {addr.city}, {addr.address}
+                                </S.AddressValue>
+                              </S.AddressBody>
+                              <S.AddressItemActions>
+                                <S.IconButton
+                                  type="button"
+                                  title="რედაქტირება"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openEditAddressModal(addr);
+                                  }}
+                                >
+                                  <EditIcon size={16} />
+                                </S.IconButton>
+                                <S.IconButton
+                                  type="button"
+                                  title="წაშლა"
+                                  disabled={addressDeletingId === addr.id}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteAddress(addr.id);
+                                  }}
+                                >
+                                  <TrashIcon size={16} />
+                                </S.IconButton>
+                              </S.AddressItemActions>
+                            </S.AddressListItem>
+                          ))}
+                          <S.AddNewAddressBtn type="button" onClick={openAddAddressModal}>
+                            დაამატე ახალი მისამართი
+                          </S.AddNewAddressBtn>
+                        </>
+                      )}
+                    </S.AddressListPanel>
+                  )}
+                  {addressError && <S.FieldError>{addressError}</S.FieldError>}
                 </S.SectionCard>
 
                 <S.SectionCard>
@@ -610,6 +896,77 @@ export const CheckoutComponent: React.FC = () => {
         </S.Container>
       </S.PageBackground>
       <Footer />
+
+      {addressModalOpen && (
+        <S.ModalOverlay {...getOverlayProps(closeAddressModal)}>
+          <S.ModalContent onClick={(e) => e.stopPropagation()}>
+            <S.ModalHeader>
+              <S.ModalTitle>{editingAddressId ? "მისამართის რედაქტირება" : "დაამატე ახალი მისამართი"}</S.ModalTitle>
+              <S.CloseButton type="button" onClick={closeAddressModal}>
+                <CloseIcon size={16} />
+              </S.CloseButton>
+            </S.ModalHeader>
+            <S.AddressFormFields>
+              <S.ReadonlyField>
+                <S.Input
+                  type="text"
+                  placeholder="სახელი (მაგ. სამსახური, სახლი)"
+                  $invalid={!!addressFormErrors.title}
+                  value={addressFormValues.title}
+                  onChange={(e) => handleAddressFieldChange("title", e.target.value)}
+                />
+                {addressFormErrors.title && <S.FieldError>{addressFormErrors.title}</S.FieldError>}
+              </S.ReadonlyField>
+              <S.ReadonlyField>
+                <S.Input
+                  type="tel"
+                  placeholder="ტელეფონის ნომერი"
+                  $invalid={!!addressFormErrors.phoneNumber}
+                  value={addressFormValues.phoneNumber}
+                  onChange={(e) => handleAddressFieldChange("phoneNumber", e.target.value)}
+                />
+                {addressFormErrors.phoneNumber && <S.FieldError>{addressFormErrors.phoneNumber}</S.FieldError>}
+              </S.ReadonlyField>
+              <S.ReadonlyField>
+                <S.Select
+                  $invalid={!!addressFormErrors.city}
+                  value={addressFormValues.city}
+                  onChange={(e) => handleAddressFieldChange("city", e.target.value)}
+                >
+                  <option value="">აირჩიეთ</option>
+                  {GEORGIAN_CITIES.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </S.Select>
+                {addressFormErrors.city && <S.FieldError>{addressFormErrors.city}</S.FieldError>}
+              </S.ReadonlyField>
+              <S.ReadonlyField>
+                <S.Input
+                  type="text"
+                  placeholder="მისამართი"
+                  $invalid={!!addressFormErrors.address}
+                  value={addressFormValues.address}
+                  onChange={(e) => handleAddressFieldChange("address", e.target.value)}
+                />
+                {addressFormErrors.address && <S.FieldError>{addressFormErrors.address}</S.FieldError>}
+              </S.ReadonlyField>
+              <S.ReadonlyField>
+                <S.Textarea
+                  rows={2}
+                  placeholder="დამატებითი კომენტარი"
+                  value={addressFormValues.comment}
+                  onChange={(e) => handleAddressFieldChange("comment", e.target.value)}
+                />
+              </S.ReadonlyField>
+              <S.ModalSubmitButton type="button" onClick={handleSubmitAddress} disabled={addressSaving}>
+                {addressSaving ? "ინახება..." : "შენახვა"}
+              </S.ModalSubmitButton>
+            </S.AddressFormFields>
+          </S.ModalContent>
+        </S.ModalOverlay>
+      )}
     </>
   );
 };

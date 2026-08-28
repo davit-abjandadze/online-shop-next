@@ -486,3 +486,224 @@ export const AccessDeniedText = styled("p")`
   color: var(--ref-text-secondary);
   margin: 0 0 24px 0;
 `;
+
+/* --- შენახული მისამართები (checkout-ის მიწოდების დეტალები) --- */
+
+export const AddressValue = styled("div")`
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+`;
+
+// მიმდინარედ არჩეული მისამართის ბარათი — წითელი კონტური, დიზაინის
+// მიხედვით (screenshot-ის "არჩეული მისამართი" ბლოკი).
+export const AddressSelectedCard = styled("div")`
+  display: flex;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ref-danger);
+  background: var(--ref-danger-soft, rgba(220, 38, 38, 0.05));
+`;
+
+export const ToggleAddressesBtn = styled("button")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg);
+  color: var(--ref-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+`;
+
+export const AddressListPanel = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+export const AddressListItem = styled("div")<{ $selected?: boolean }>`
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid ${({ $selected }) => ($selected ? "var(--ref-primary)" : "var(--ref-border)")};
+  background: ${({ $selected }) => ($selected ? "var(--ref-primary-soft)" : "var(--ref-bg)")};
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--ref-primary);
+  }
+`;
+
+export const AddressItemActions = styled("div")`
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  flex-shrink: 0;
+`;
+
+export const IconButton = styled("button")`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover:not(:disabled) {
+    color: var(--ref-primary);
+    border-color: var(--ref-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+export const AddNewAddressBtn = styled("button")`
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px dashed var(--ref-border);
+  background: var(--ref-bg);
+  color: var(--ref-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--ref-primary);
+    color: var(--ref-primary);
+  }
+`;
+
+export const AddressFormFields = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+export const AddressFormRow = styled("div")`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const Select = styled("select")<{ $invalid?: boolean }>`
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-border)")};
+  background: var(--ref-bg);
+  color: var(--ref-text-primary);
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: ${({ $invalid }) => ($invalid ? "var(--ref-danger)" : "var(--ref-primary)")};
+    box-shadow: 0 0 0 3px ${({ $invalid }) => ($invalid ? "rgba(220, 53, 69, 0.1)" : "var(--ref-primary-soft)")};
+  }
+`;
+
+/* --- მისამართის დამატება/რედაქტირების მოდალი --- */
+
+export const ModalOverlay = styled("div")`
+  position: fixed;
+  inset: 0;
+  background: var(--ref-overlay);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+`;
+
+export const ModalContent = styled("div")`
+  background: var(--ref-bg-elevated);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.06);
+`;
+
+export const ModalHeader = styled("div")`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+`;
+
+export const ModalTitle = styled("h2")`
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+  margin: 0;
+`;
+
+export const CloseButton = styled("button")`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: var(--ref-bg);
+  color: var(--ref-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ref-border-soft);
+    color: var(--ref-text-primary);
+  }
+`;
+
+export const ModalSubmitButton = styled("button")`
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--ref-text-primary);
+  color: var(--ref-bg-elevated);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
