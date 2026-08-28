@@ -289,32 +289,36 @@ export const CategoriesPage: React.FC = () => {
               <S.CloseButton onClick={() => setIsCatCreateOpen(false)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleCatCreateSubmit} noValidate>
-              <S.FormGroup>
-                <S.Label>სახელი (ქართულად)</S.Label>
-                <S.Input type="text" placeholder="მაგ: ელექტრონიკა" {...createForm.register("nameKa")} />
-                {createForm.formState.errors.nameKa && <S.FieldError>{createForm.formState.errors.nameKa.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>სახელი (ინგლისურად)</S.Label>
-                <S.Input type="text" placeholder="e.g. Electronics" {...createForm.register("nameEn")} />
-                {createForm.formState.errors.nameEn && <S.FieldError>{createForm.formState.errors.nameEn.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>Slug</S.Label>
-                <S.Input type="text" placeholder="მაგ: electronics" {...createForm.register("slug")} />
-                {createForm.formState.errors.slug && <S.FieldError>{createForm.formState.errors.slug.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>მშობელი კატეგორია (არასავალდებულო)</S.Label>
-                <S.Select {...createForm.register("parentId")}>
-                  <option value="">— root კატეგორია —</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {getCategoryName(cat, router.locale)}
-                    </option>
-                  ))}
-                </S.Select>
-              </S.FormGroup>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>სახელი (ქართულად)</S.Label>
+                  <S.Input type="text" placeholder="მაგ: ელექტრონიკა" {...createForm.register("nameKa")} />
+                  {createForm.formState.errors.nameKa && <S.FieldError>{createForm.formState.errors.nameKa.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>სახელი (ინგლისურად)</S.Label>
+                  <S.Input type="text" placeholder="e.g. Electronics" {...createForm.register("nameEn")} />
+                  {createForm.formState.errors.nameEn && <S.FieldError>{createForm.formState.errors.nameEn.message}</S.FieldError>}
+                </S.FormGroup>
+              </S.FormRow>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>Slug</S.Label>
+                  <S.Input type="text" placeholder="მაგ: electronics" {...createForm.register("slug")} />
+                  {createForm.formState.errors.slug && <S.FieldError>{createForm.formState.errors.slug.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>მშობელი კატეგორია (არასავალდებულო)</S.Label>
+                  <S.Select {...createForm.register("parentId")}>
+                    <option value="">— root კატეგორია —</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {getCategoryName(cat, router.locale)}
+                      </option>
+                    ))}
+                  </S.Select>
+                </S.FormGroup>
+              </S.FormRow>
               <S.CategoryCheckboxItem checked={createForm.watch("isActive")}>
                 <input type="checkbox" {...createForm.register("isActive")} /> აქტიურია
               </S.CategoryCheckboxItem>
@@ -338,34 +342,38 @@ export const CategoriesPage: React.FC = () => {
               <S.CloseButton onClick={() => setEditingCat(null)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleCatEditSubmit} noValidate>
-              <S.FormGroup>
-                <S.Label>სახელი (ქართულად)</S.Label>
-                <S.Input type="text" {...editForm.register("nameKa")} />
-                {editForm.formState.errors.nameKa && <S.FieldError>{editForm.formState.errors.nameKa.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>სახელი (ინგლისურად)</S.Label>
-                <S.Input type="text" {...editForm.register("nameEn")} />
-                {editForm.formState.errors.nameEn && <S.FieldError>{editForm.formState.errors.nameEn.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>Slug</S.Label>
-                <S.Input type="text" {...editForm.register("slug")} />
-                {editForm.formState.errors.slug && <S.FieldError>{editForm.formState.errors.slug.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>მშობელი კატეგორია (არასავალდებულო)</S.Label>
-                <S.Select {...editForm.register("parentId")}>
-                  <option value="">— root კატეგორია —</option>
-                  {categories
-                    .filter((cat) => cat.id !== editingCat?.id)
-                    .map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {getCategoryName(cat, router.locale)}
-                      </option>
-                    ))}
-                </S.Select>
-              </S.FormGroup>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>სახელი (ქართულად)</S.Label>
+                  <S.Input type="text" {...editForm.register("nameKa")} />
+                  {editForm.formState.errors.nameKa && <S.FieldError>{editForm.formState.errors.nameKa.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>სახელი (ინგლისურად)</S.Label>
+                  <S.Input type="text" {...editForm.register("nameEn")} />
+                  {editForm.formState.errors.nameEn && <S.FieldError>{editForm.formState.errors.nameEn.message}</S.FieldError>}
+                </S.FormGroup>
+              </S.FormRow>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>Slug</S.Label>
+                  <S.Input type="text" {...editForm.register("slug")} />
+                  {editForm.formState.errors.slug && <S.FieldError>{editForm.formState.errors.slug.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>მშობელი კატეგორია (არასავალდებულო)</S.Label>
+                  <S.Select {...editForm.register("parentId")}>
+                    <option value="">— root კატეგორია —</option>
+                    {categories
+                      .filter((cat) => cat.id !== editingCat?.id)
+                      .map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {getCategoryName(cat, router.locale)}
+                        </option>
+                      ))}
+                  </S.Select>
+                </S.FormGroup>
+              </S.FormRow>
               <S.CategoryCheckboxItem checked={editForm.watch("isActive")}>
                 <input type="checkbox" {...editForm.register("isActive")} /> აქტიურია
               </S.CategoryCheckboxItem>

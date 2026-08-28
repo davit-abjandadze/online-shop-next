@@ -396,34 +396,38 @@ export const ProductsPage: React.FC = () => {
         <S.Label>აღწერა (არასავალდებულო)</S.Label>
         <S.Textarea rows={3} {...form.register("description")} />
       </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>ფასი</S.Label>
-        <S.Input type="text" inputMode="decimal" placeholder="მაგ: 149.90" {...form.register("price")} />
-        {form.formState.errors.price && <S.FieldError>{form.formState.errors.price.message}</S.FieldError>}
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>მარაგი</S.Label>
-        <S.Input type="text" inputMode="numeric" placeholder="მაგ: 25" {...form.register("stock")} />
-        {form.formState.errors.stock && <S.FieldError>{form.formState.errors.stock.message}</S.FieldError>}
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>ფასდაკლება % (არასავალდებულო)</S.Label>
-        <S.Input type="text" inputMode="decimal" placeholder="მაგ: 15" {...form.register("discountPercent")} />
-        {form.formState.errors.discountPercent && (
-          <S.FieldError>{form.formState.errors.discountPercent.message}</S.FieldError>
-        )}
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>კატეგორია</S.Label>
-        <S.Select {...form.register("categoryId")}>
-          <option value="">— კატეგორიის გარეშე —</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {categoryOptionLabel(cat, router.locale)}
-            </option>
-          ))}
-        </S.Select>
-      </S.FormGroup>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>ფასი</S.Label>
+          <S.Input type="text" inputMode="decimal" placeholder="მაგ: 149.90" {...form.register("price")} />
+          {form.formState.errors.price && <S.FieldError>{form.formState.errors.price.message}</S.FieldError>}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>მარაგი</S.Label>
+          <S.Input type="text" inputMode="numeric" placeholder="მაგ: 25" {...form.register("stock")} />
+          {form.formState.errors.stock && <S.FieldError>{form.formState.errors.stock.message}</S.FieldError>}
+        </S.FormGroup>
+      </S.FormRow>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>ფასდაკლება % (არასავალდებულო)</S.Label>
+          <S.Input type="text" inputMode="decimal" placeholder="მაგ: 15" {...form.register("discountPercent")} />
+          {form.formState.errors.discountPercent && (
+            <S.FieldError>{form.formState.errors.discountPercent.message}</S.FieldError>
+          )}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>კატეგორია</S.Label>
+          <S.Select {...form.register("categoryId")}>
+            <option value="">— კატეგორიის გარეშე —</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {categoryOptionLabel(cat, router.locale)}
+              </option>
+            ))}
+          </S.Select>
+        </S.FormGroup>
+      </S.FormRow>
       <S.FormGroup>
         <S.Label>სურათები (არასავალდებულო)</S.Label>
         {renderImagesField(form)}

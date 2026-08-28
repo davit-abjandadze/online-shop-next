@@ -5,16 +5,16 @@ export const TabBar = styled("div")`
   gap: 4px;
   background: var(--ref-bg);
   border-radius: 8px;
-  padding: 4px;
-  margin-bottom: 28px;
+  padding: 3px;
+  margin-bottom: 18px;
 `;
 
 export const Tab = styled("button")<{ active?: boolean }>`
   flex: 1;
-  padding: 10px 20px;
-  border-radius: 8px;
+  padding: 8px 14px;
+  border-radius: 7px;
   border: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -31,12 +31,12 @@ export const TabCount = styled("span")<{ active?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
   margin-left: 6px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   background-color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-bg-elevated)")};
   color: ${({ active }) => (active ? "#fff" : "var(--ref-text-secondary)")};
@@ -45,22 +45,23 @@ export const TabCount = styled("span")<{ active?: boolean }>`
 export const PageWrapper = styled("div")`
   min-height: 100vh;
   background-color: var(--ref-bg);
-  padding: 32px 24px 64px 24px;
+  padding: 22px 30px 40px 30px;
   overflow-x: hidden;
 
   @media (max-width: 640px) {
-    padding: 20px 12px 40px 12px;
+    padding: 16px 12px 28px 12px;
   }
 `;
 
 export const Container = styled("div")`
-  max-width: 1100px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 `;
 
 export const Layout = styled("div")`
   display: flex;
-  gap: 32px;
+  gap: 22px;
   align-items: flex-start;
 
   @media (max-width: 900px) {
@@ -76,14 +77,14 @@ export const MainColumn = styled("div")`
 export const Sidebar = styled("nav")`
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  width: 220px;
+  gap: 3px;
+  width: 190px;
   flex-shrink: 0;
   background: var(--ref-bg);
   border-radius: 8px;
-  padding: 4px;
+  padding: 3px;
   position: sticky;
-  top: 24px;
+  top: 16px;
 
   @media (max-width: 900px) {
     width: 100%;
@@ -97,11 +98,11 @@ export const Sidebar = styled("nav")`
 export const SidebarTab = styled("button")<{ active?: boolean }>`
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  border-radius: 8px;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 7px;
   border: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -121,8 +122,8 @@ export const SidebarTab = styled("button")<{ active?: boolean }>`
   }
 
   @media (max-width: 480px) {
-    padding: 10px 12px;
-    font-size: 13px;
+    padding: 8px 10px;
+    font-size: 12px;
   }
 `;
 
@@ -130,9 +131,9 @@ export const HeaderSection = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
 
   @media (max-width: 640px) {
     flex-direction: column;
@@ -143,17 +144,17 @@ export const HeaderSection = styled("div")`
 export const TitleGroup = styled("div")``;
 
 export const PageTitle = styled("h1")`
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--ref-text-primary);
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 `;
 
 export const PageSubtitle = styled("p")`
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ref-text-secondary);
   margin: 0;
 `;
@@ -161,10 +162,10 @@ export const PageSubtitle = styled("p")`
 export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | "secondary" | "outline" | "success" }>`
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-size: 14px;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 7px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -216,9 +217,9 @@ export const ActionButton = styled("button")<{ variant?: "primary" | "danger" | 
 export const FilterBar = styled("div")`
   background: var(--ref-bg-elevated);
   border: 1px solid var(--ref-border-soft);
-  border-radius: 12px;
-  padding: 18px 22px 22px;
-  margin-bottom: 24px;
+  border-radius: 10px;
+  padding: 12px 14px 14px;
+  margin-bottom: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 `;
 
@@ -226,17 +227,17 @@ export const FilterBarHeader = styled("div")`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  padding-bottom: 14px;
-  margin-bottom: 16px;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
   border-bottom: 1px solid var(--ref-border-soft);
 `;
 
 export const FilterBarTitle = styled("div")`
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: 6px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ref-text-primary);
 `;
@@ -245,11 +246,11 @@ export const FilterCountBadge = styled("span")`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   background: var(--ref-primary-soft);
   color: var(--ref-primary);
@@ -257,24 +258,24 @@ export const FilterCountBadge = styled("span")`
 
 export const FilterGrid = styled("div")`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
   align-items: end;
 `;
 
 export const FilterGroup = styled("div")`
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
 `;
 
 export const FilterLabel = styled("label")`
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--ref-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.4px;
 `;
 
 export const SearchInputWrapper = styled("div")`
@@ -284,19 +285,19 @@ export const SearchInputWrapper = styled("div")`
 
   & > svg {
     position: absolute;
-    left: 12px;
+    left: 10px;
     pointer-events: none;
     opacity: 0.7;
   }
 
   & > input {
-    padding-left: 34px;
+    padding-left: 30px;
   }
 `;
 
 export const FilterActions = styled("div")`
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   margin-left: auto;
 
@@ -313,9 +314,9 @@ export const FilterActions = styled("div")`
 
 export const StatsGrid = styled("div")<{ compact?: boolean }>`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(${({ compact }) => (compact ? "180px" : "240px")}, 1fr));
-  gap: ${({ compact }) => (compact ? "14px" : "20px")};
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(${({ compact }) => (compact ? "150px" : "190px")}, 1fr));
+  gap: ${({ compact }) => (compact ? "10px" : "14px")};
+  margin-bottom: 20px;
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
@@ -325,53 +326,53 @@ export const StatsGrid = styled("div")<{ compact?: boolean }>`
 export const StatCard = styled("div")<{ compact?: boolean }>`
   background: var(--ref-bg-elevated);
   border-radius: 8px;
-  padding: ${({ compact }) => (compact ? "14px 16px" : "20px 24px")};
+  padding: ${({ compact }) => (compact ? "10px 12px" : "14px 16px")};
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--ref-border-soft);
   display: flex;
   align-items: center;
-  gap: ${({ compact }) => (compact ? "12px" : "16px")};
+  gap: ${({ compact }) => (compact ? "10px" : "12px")};
 
   @media (max-width: 480px) {
-    padding: ${({ compact }) => (compact ? "12px 14px" : "16px 18px")};
+    padding: ${({ compact }) => (compact ? "9px 10px" : "12px 14px")};
   }
 `;
 
 export const StatIcon = styled("div")<{ compact?: boolean }>`
-  width: ${({ compact }) => (compact ? "36px" : "48px")};
-  height: ${({ compact }) => (compact ? "36px" : "48px")};
-  border-radius: ${({ compact }) => (compact ? "8px" : "10px")};
+  width: ${({ compact }) => (compact ? "30px" : "38px")};
+  height: ${({ compact }) => (compact ? "30px" : "38px")};
+  border-radius: ${({ compact }) => (compact ? "7px" : "9px")};
   background: var(--ref-primary-soft);
   color: var(--ref-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: ${({ compact }) => (compact ? "16px" : "22px")};
+  font-size: ${({ compact }) => (compact ? "14px" : "18px")};
 `;
 
 export const StatInfo = styled("div")``;
 
 export const StatValue = styled("div")<{ compact?: boolean }>`
-  font-size: ${({ compact }) => (compact ? "19px" : "24px")};
+  font-size: ${({ compact }) => (compact ? "16px" : "19px")};
   font-weight: 700;
   color: var(--ref-text-primary);
 `;
 
 export const StatLabel = styled("div")`
-  font-size: 13px;
+  font-size: 12px;
   color: var(--ref-text-secondary);
 `;
 
 export const QuestionsList = styled("div")`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 `;
 
 export const QuestionCard = styled("div")`
   background: var(--ref-bg-elevated);
   border-radius: 8px;
-  padding: 24px;
+  padding: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--ref-border-soft);
   transition: box-shadow 0.2s ease;
@@ -381,7 +382,7 @@ export const QuestionCard = styled("div")`
   }
 
   @media (max-width: 640px) {
-    padding: 16px;
+    padding: 12px;
   }
 `;
 
@@ -389,8 +390,8 @@ export const CardHeader = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 12px;
 
   @media (max-width: 640px) {
     flex-direction: column;
@@ -399,25 +400,25 @@ export const CardHeader = styled("div")`
 `;
 
 export const QuestionText = styled("h3")`
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--ref-text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
   line-height: 1.4;
 `;
 
 export const BadgeGroup = styled("div")`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
-  max-width:330px
+  max-width: 330px;
 `;
 
 export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" | "active" | "inactive" | "pending" | "approved" | "rejected" | "pinned" }>`
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  font-size: 11px;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -447,51 +448,51 @@ export const Badge = styled("span")<{ variant?: "single" | "multiple" | "date" |
 `;
 
 export const RejectionReasonBox = styled("div")`
-  margin-top: 12px;
-  padding: 10px 14px;
-  border-radius: 8px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 7px;
   background: var(--ref-danger-soft);
   border: 1px solid var(--ref-danger);
   color: var(--ref-danger);
-  font-size: 13px;
+  font-size: 12px;
 `;
 
 export const AnswersSection = styled("div")`
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 12px;
+  padding-top: 12px;
   border-top: 1px solid var(--ref-border-soft);
 `;
 
 export const AnswersTitle = styled("div")`
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--ref-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
+  letter-spacing: 0.4px;
+  margin-bottom: 8px;
 `;
 
 export const AnswersGrid = styled("div")`
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 `;
 
 export const AnswerPill = styled("div")`
   background: var(--ref-bg-subtle);
   border: 1px solid var(--ref-border);
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 14px;
+  border-radius: 7px;
+  padding: 6px 11px;
+  font-size: 13px;
   color: var(--ref-text-primary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 `;
 
 export const CardActions = styled("div")`
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
   flex-wrap: wrap;
 
@@ -508,19 +509,19 @@ export const PaginationBar = styled("div")`
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin-top: 24px;
+  gap: 10px;
+  margin-top: 18px;
   max-width: 100%;
 
   @media (max-width: 480px) {
-    gap: 8px;
+    gap: 6px;
   }
 `;
 
 export const PageButton = styled("button")`
- padding: 7px 10px 10px 10px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 6px 9px 8px 9px;
+  border-radius: 7px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -540,8 +541,8 @@ export const PageButton = styled("button")`
   }
 
   @media (max-width: 480px) {
-    padding: 8px 12px;
-    font-size: 13px;
+    padding: 7px 10px;
+    font-size: 12px;
   }
 `;
 
@@ -550,15 +551,15 @@ export const PageNumbers = styled("div")`
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px;
+  gap: 5px;
 `;
 
 export const PageNumberButton = styled("button")<{ active?: boolean }>`
-  min-width: 36px;
-  height: 36px;
-  padding: 0 8px;
-  border-radius: 8px;
-  font-size: 14px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 6px;
+  border-radius: 7px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -571,16 +572,16 @@ export const PageNumberButton = styled("button")<{ active?: boolean }>`
   }
 
   @media (max-width: 480px) {
-    min-width: 32px;
-    height: 32px;
-    padding: 0 6px;
-    font-size: 13px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 5px;
+    font-size: 12px;
   }
 `;
 
 export const PageEllipsis = styled("span")`
-  min-width: 36px;
-  height: 36px;
+  min-width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -591,22 +592,22 @@ export const PageEllipsis = styled("span")`
 export const EmptyState = styled("div")`
   background: var(--ref-bg-elevated);
   border-radius: 8px;
-  padding: 48px 24px;
+  padding: 36px 20px;
   text-align: center;
   border: 1px dashed var(--ref-border);
 `;
 
 export const EmptyTitle = styled("h3")`
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--ref-text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 6px 0;
 `;
 
 export const EmptyText = styled("p")`
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ref-text-secondary);
-  margin: 0 0 20px 0;
+  margin: 0 0 16px 0;
 `;
 
 /* Modal Styles */
@@ -629,14 +630,14 @@ export const ModalContent = styled("div")`
   background: var(--ref-bg-elevated);
   border-radius: 8px;
   width: 100%;
-  max-width: 600px;
+  max-width: 720px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  padding: 28px;
+  padding: 20px;
 
   @media (max-width: 480px) {
-    padding: 18px;
+    padding: 14px;
   }
 `;
 
@@ -644,13 +645,13 @@ export const ModalHeader = styled("div")`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--ref-border-soft);
 `;
 
 export const ModalTitle = styled("h2")`
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--ref-text-primary);
   margin: 0;
@@ -659,10 +660,10 @@ export const ModalTitle = styled("h2")`
 export const CloseButton = styled("button")`
   background: transparent;
   border: none;
-  font-size: 22px;
+  font-size: 20px;
   color: var(--ref-text-secondary);
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: 6px;
 
   &:hover {
@@ -674,18 +675,30 @@ export const CloseButton = styled("button")`
 export const FormGroup = styled("div")`
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: 5px;
+  margin-bottom: 12px;
+`;
+
+// ერთ მწკრივში რამდენიმე ველის გვერდიგვერდ დასალაგებლად — ვიწრო ეკრანზე თავისით ეშლება.
+export const FormRow = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+
+  & > ${FormGroup} {
+    margin-bottom: 0;
+  }
 `;
 
 export const Label = styled("label")`
-  font-size: 14px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--ref-text-primary);
 `;
 
 export const FieldError = styled("span")`
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--ref-danger);
 `;
@@ -693,19 +706,19 @@ export const FieldError = styled("span")`
 export const CategoryCheckboxGrid = styled("div")`
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
 `;
 
 export const CategoryCheckboxItem = styled("label")<{ checked?: boolean }>`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 20px;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 18px;
   border: 1px solid ${({ checked }) => (checked ? "var(--ref-primary)" : "var(--ref-border)")};
   background: ${({ checked }) => (checked ? "var(--ref-primary-soft)" : "var(--ref-bg-elevated)")};
   color: ${({ checked }) => (checked ? "var(--ref-primary)" : "var(--ref-text-primary)")};
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   user-select: none;
@@ -718,13 +731,13 @@ export const CategoryCheckboxItem = styled("label")<{ checked?: boolean }>`
 
 export const Input = styled("input")`
   width: 100%;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 7px;
   border: 1px solid var(--ref-border);
   background: var(--ref-bg-elevated);
   color: var(--ref-text-primary);
-  font-size: 14px;
+  font-size: 12.5px;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -745,11 +758,11 @@ export const Input = styled("input")`
 
 export const Select = styled("select")`
   width: 100%;
-  height: 40px;
-  padding: 0 32px 0 14px;
-  border-radius: 8px;
+  height: 32px;
+  padding: 0 26px 0 10px;
+  border-radius: 7px;
   border: 1px solid var(--ref-border);
-  font-size: 14px;
+  font-size: 12.5px;
   outline: none;
   background: var(--ref-bg-elevated);
   color: var(--ref-text-primary);
@@ -758,7 +771,7 @@ export const Select = styled("select")`
   -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2365676B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 9px center;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
@@ -773,13 +786,13 @@ export const Select = styled("select")`
 
 export const Textarea = styled("textarea")`
   width: 100%;
-  padding: 10px 14px;
-  border-radius: 8px;
+  padding: 8px 12px;
+  border-radius: 7px;
   border: 1px solid var(--ref-border);
-  font-size: 14px;
+  font-size: 13px;
   outline: none;
   resize: vertical;
-  min-height: 90px;
+  min-height: 70px;
   font-family: inherit;
   transition: border-color 0.2s ease;
 
@@ -794,20 +807,20 @@ export const Textarea = styled("textarea")`
 export const ImageList = styled("div")`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 `;
 
 export const ImageRow = styled("div")`
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 `;
 
 export const ImageThumb = styled("div")`
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
   border: 1px solid var(--ref-border);
   background: var(--ref-bg-subtle);
   overflow: hidden;
@@ -826,15 +839,15 @@ export const ImageThumb = styled("div")`
 export const AddImageButton = styled("button")`
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   align-self: flex-start;
   background: transparent;
   border: 1px dashed var(--ref-border);
   color: var(--ref-primary);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 7px;
   cursor: pointer;
   transition: all 0.15s ease;
 
@@ -846,10 +859,10 @@ export const AddImageButton = styled("button")`
 
 export const AnswerInputRow = styled("div")<{ dragging?: boolean }>`
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 10px;
-  border-radius: 8px;
+  margin-bottom: 8px;
+  border-radius: 7px;
   transition: opacity 0.15s ease, background-color 0.15s ease;
   opacity: ${({ dragging }) => (dragging ? 0.4 : 1)};
   background-color: ${({ dragging }) => (dragging ? "var(--ref-bg-soft)" : "transparent")};
@@ -871,9 +884,9 @@ export const DragHandle = styled("span")`
 export const ModalFooter = styled("div")`
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 28px;
-  padding-top: 20px;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
   border-top: 1px solid var(--ref-border-soft);
 
   @media (max-width: 480px) {
@@ -888,9 +901,9 @@ export const ModalFooter = styled("div")`
 
 export const ChartsGrid = styled("div")`
   display: grid;
-  grid-template-columns:  1fr;
-  gap: 20px;
-  margin-bottom: 32px;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
@@ -900,12 +913,12 @@ export const ChartsGrid = styled("div")`
 export const ChartCard = styled("div")`
   background: var(--ref-bg-elevated);
   border-radius: 8px;
-  padding: 20px 24px;
+  padding: 14px 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--ref-border-soft);
 
   @media (max-width: 480px) {
-    padding: 16px 18px;
+    padding: 12px 14px;
   }
 `;
 
@@ -913,13 +926,13 @@ export const ChartCardTitle = styled("div")`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
 `;
 
 export const ChartTitleText = styled("h3")`
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--ref-text-primary);
   margin: 0;
@@ -927,22 +940,22 @@ export const ChartTitleText = styled("h3")`
 
 export const ChartCanvasWrapper = styled("div")`
   position: relative;
-  height: 280px;
+  height: 240px;
 `;
 
 export const PeriodSelector = styled("div")`
   display: flex;
-  gap: 4px;
+  gap: 3px;
   background: var(--ref-bg);
-  border-radius: 8px;
-  padding: 3px;
+  border-radius: 7px;
+  padding: 2px;
 `;
 
 export const PeriodButton = styled("button")<{ active?: boolean }>`
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 5px 10px;
+  border-radius: 5px;
   border: none;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -952,26 +965,26 @@ export const PeriodButton = styled("button")<{ active?: boolean }>`
 `;
 
 export const AccessDeniedCard = styled("div")`
-  max-width: 480px;
-  margin: 100px auto 0 auto;
+  max-width: 420px;
+  margin: 80px auto 0 auto;
   background: var(--ref-bg-elevated);
   border-radius: 8px;
-  padding: 40px 32px;
+  padding: 32px 26px;
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 `;
 
 export const AccessDeniedTitle = styled("h2")`
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 700;
   color: var(--ref-danger);
-  margin: 16px 0 8px 0;
+  margin: 14px 0 6px 0;
 `;
 
 export const AccessDeniedText = styled("p")`
-  font-size: 14px;
+  font-size: 13px;
   color: var(--ref-text-secondary);
-  margin: 0 0 24px 0;
+  margin: 0 0 18px 0;
 `;
 
 /* Skeleton Loaders */
@@ -990,16 +1003,16 @@ export const SkeletonPulse = styled("div")<{ width?: string; height?: string; ra
 `;
 
 export const SkeletonStatCard = styled(StatCard)`
-  gap: 16px;
+  gap: 12px;
 `;
 
 export const SkeletonCard = styled(QuestionCard)`
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
 `;
 
 export const SkeletonRow = styled("div")`
   display: flex;
-  gap: 10px;
+  gap: 8px;
 `;

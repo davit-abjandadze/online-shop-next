@@ -363,45 +363,51 @@ export const UsersPage: React.FC = () => {
               <S.CloseButton onClick={() => setIsCreateOpen(false)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleCreateSubmit} noValidate>
-              <S.FormGroup>
-                <S.Label>სახელი</S.Label>
-                <S.Input type="text" placeholder="მაგ: გიორგი" {...createForm.register("firstName")} />
-                {createForm.formState.errors.firstName && <S.FieldError>{createForm.formState.errors.firstName.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>გვარი</S.Label>
-                <S.Input type="text" placeholder="მაგ: გიორგაძე" {...createForm.register("lastName")} />
-                {createForm.formState.errors.lastName && <S.FieldError>{createForm.formState.errors.lastName.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>ელ. ფოსტა</S.Label>
-                <S.Input type="email" placeholder="მაგ: example@mail.com" {...createForm.register("email")} />
-                {createForm.formState.errors.email && <S.FieldError>{createForm.formState.errors.email.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>პაროლი</S.Label>
-                <S.Input type="password" placeholder="მინიმუმ 6 სიმბოლო" {...createForm.register("password")} />
-                {createForm.formState.errors.password && <S.FieldError>{createForm.formState.errors.password.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>როლი</S.Label>
-                <S.Select {...createForm.register("role")}>
-                  <option value="user">მომხმარებელი</option>
-                  <option value="admin">ადმინისტრატორი</option>
-                </S.Select>
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>სქესი (არასავალდებულო)</S.Label>
-                <S.Select {...createForm.register("gender")}>
-                  <option value="">არ არის მითითებული</option>
-                  <option value="male">კაცი</option>
-                  <option value="female">ქალი</option>
-                </S.Select>
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>ასაკი (არასავალდებულო)</S.Label>
-                <S.Input type="number" min={0} {...createForm.register("age")} />
-              </S.FormGroup>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>სახელი</S.Label>
+                  <S.Input type="text" placeholder="მაგ: გიორგი" {...createForm.register("firstName")} />
+                  {createForm.formState.errors.firstName && <S.FieldError>{createForm.formState.errors.firstName.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>გვარი</S.Label>
+                  <S.Input type="text" placeholder="მაგ: გიორგაძე" {...createForm.register("lastName")} />
+                  {createForm.formState.errors.lastName && <S.FieldError>{createForm.formState.errors.lastName.message}</S.FieldError>}
+                </S.FormGroup>
+              </S.FormRow>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>ელ. ფოსტა</S.Label>
+                  <S.Input type="email" placeholder="მაგ: example@mail.com" {...createForm.register("email")} />
+                  {createForm.formState.errors.email && <S.FieldError>{createForm.formState.errors.email.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>პაროლი</S.Label>
+                  <S.Input type="password" placeholder="მინიმუმ 6 სიმბოლო" {...createForm.register("password")} />
+                  {createForm.formState.errors.password && <S.FieldError>{createForm.formState.errors.password.message}</S.FieldError>}
+                </S.FormGroup>
+              </S.FormRow>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>როლი</S.Label>
+                  <S.Select {...createForm.register("role")}>
+                    <option value="user">მომხმარებელი</option>
+                    <option value="admin">ადმინისტრატორი</option>
+                  </S.Select>
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>სქესი (არასავალდებულო)</S.Label>
+                  <S.Select {...createForm.register("gender")}>
+                    <option value="">არ არის მითითებული</option>
+                    <option value="male">კაცი</option>
+                    <option value="female">ქალი</option>
+                  </S.Select>
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>ასაკი (არასავალდებულო)</S.Label>
+                  <S.Input type="number" min={0} {...createForm.register("age")} />
+                </S.FormGroup>
+              </S.FormRow>
               <S.ModalFooter>
                 <S.ActionButton type="button" variant="secondary" onClick={() => setIsCreateOpen(false)}>გაუქმება</S.ActionButton>
                 <S.ActionButton type="submit" variant="primary" disabled={createSubmitting}>{createSubmitting ? "ემატება..." : "შენახვა"}</S.ActionButton>
@@ -422,45 +428,51 @@ export const UsersPage: React.FC = () => {
               <S.CloseButton onClick={() => setEditingUser(null)}><CloseIcon size={16} /></S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleEditSubmit} noValidate>
-              <S.FormGroup>
-                <S.Label>სახელი</S.Label>
-                <S.Input type="text" {...editForm.register("firstName")} />
-                {editForm.formState.errors.firstName && <S.FieldError>{editForm.formState.errors.firstName.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>გვარი</S.Label>
-                <S.Input type="text" {...editForm.register("lastName")} />
-                {editForm.formState.errors.lastName && <S.FieldError>{editForm.formState.errors.lastName.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>ელ. ფოსტა</S.Label>
-                <S.Input type="email" {...editForm.register("email")} />
-                {editForm.formState.errors.email && <S.FieldError>{editForm.formState.errors.email.message}</S.FieldError>}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>როლი</S.Label>
-                <S.Select disabled={isSelf(editingUser)} {...editForm.register("role")}>
-                  <option value="user">მომხმარებელი</option>
-                  <option value="admin">ადმინისტრატორი</option>
-                </S.Select>
-                {isSelf(editingUser) && (
-                  <span style={{ fontSize: "12px", color: "var(--ref-text-secondary)" }}>
-                    საკუთარი როლის შეცვლა შეუძლებელია
-                  </span>
-                )}
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>სქესი (არასავალდებულო)</S.Label>
-                <S.Select {...editForm.register("gender")}>
-                  <option value="">არ არის მითითებული</option>
-                  <option value="male">კაცი</option>
-                  <option value="female">ქალი</option>
-                </S.Select>
-              </S.FormGroup>
-              <S.FormGroup>
-                <S.Label>ასაკი (არასავალდებულო)</S.Label>
-                <S.Input type="number" min={0} {...editForm.register("age")} />
-              </S.FormGroup>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>სახელი</S.Label>
+                  <S.Input type="text" {...editForm.register("firstName")} />
+                  {editForm.formState.errors.firstName && <S.FieldError>{editForm.formState.errors.firstName.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>გვარი</S.Label>
+                  <S.Input type="text" {...editForm.register("lastName")} />
+                  {editForm.formState.errors.lastName && <S.FieldError>{editForm.formState.errors.lastName.message}</S.FieldError>}
+                </S.FormGroup>
+              </S.FormRow>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>ელ. ფოსტა</S.Label>
+                  <S.Input type="email" {...editForm.register("email")} />
+                  {editForm.formState.errors.email && <S.FieldError>{editForm.formState.errors.email.message}</S.FieldError>}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>ასაკი (არასავალდებულო)</S.Label>
+                  <S.Input type="number" min={0} {...editForm.register("age")} />
+                </S.FormGroup>
+              </S.FormRow>
+              <S.FormRow>
+                <S.FormGroup>
+                  <S.Label>როლი</S.Label>
+                  <S.Select disabled={isSelf(editingUser)} {...editForm.register("role")}>
+                    <option value="user">მომხმარებელი</option>
+                    <option value="admin">ადმინისტრატორი</option>
+                  </S.Select>
+                  {isSelf(editingUser) && (
+                    <span style={{ fontSize: "12px", color: "var(--ref-text-secondary)" }}>
+                      საკუთარი როლის შეცვლა შეუძლებელია
+                    </span>
+                  )}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>სქესი (არასავალდებულო)</S.Label>
+                  <S.Select {...editForm.register("gender")}>
+                    <option value="">არ არის მითითებული</option>
+                    <option value="male">კაცი</option>
+                    <option value="female">ქალი</option>
+                  </S.Select>
+                </S.FormGroup>
+              </S.FormRow>
               <S.ModalFooter>
                 <S.ActionButton type="button" variant="secondary" onClick={() => setEditingUser(null)}>გაუქმება</S.ActionButton>
                 <S.ActionButton type="submit" variant="primary" disabled={editSubmitting}>{editSubmitting ? "ინახება..." : "ცვლილებების შენახვა"}</S.ActionButton>

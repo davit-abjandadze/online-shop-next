@@ -263,47 +263,53 @@ export const AttributesPage: React.FC = () => {
     submitLabel: string
   ) => (
     <form onSubmit={onSubmit} noValidate>
-      <S.FormGroup>
-        <S.Label>სახელი (ქართულად)</S.Label>
-        <S.Input type="text" placeholder="მაგ: ბრენდი" {...form.register("nameKa")} />
-        {form.formState.errors.nameKa && <S.FieldError>{form.formState.errors.nameKa.message}</S.FieldError>}
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>სახელი (ინგლისურად)</S.Label>
-        <S.Input type="text" placeholder="e.g. Brand" {...form.register("nameEn")} />
-        {form.formState.errors.nameEn && <S.FieldError>{form.formState.errors.nameEn.message}</S.FieldError>}
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>Code</S.Label>
-        <S.Input type="text" placeholder="მაგ: brand" {...form.register("code")} />
-        {form.formState.errors.code && <S.FieldError>{form.formState.errors.code.message}</S.FieldError>}
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>ტიპი</S.Label>
-        <S.Select {...form.register("type")}>
-          {(Object.keys(TYPE_LABELS) as AttributeType[]).map((t) => (
-            <option key={t} value={t}>
-              {TYPE_LABELS[t]}
-            </option>
-          ))}
-        </S.Select>
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>ერთეული (არასავალდებულო)</S.Label>
-        <S.Select {...form.register("unit")}>
-          <option value="">არცერთი</option>
-          {UNIT_OPTIONS.map((u) => (
-            <option key={u} value={u}>
-              {u}
-            </option>
-          ))}
-        </S.Select>
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>რიგითობა (sortOrder)</S.Label>
-        <S.Input type="text" inputMode="numeric" placeholder="0" {...form.register("sortOrder")} />
-        {form.formState.errors.sortOrder && <S.FieldError>{form.formState.errors.sortOrder.message}</S.FieldError>}
-      </S.FormGroup>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>სახელი (ქართულად)</S.Label>
+          <S.Input type="text" placeholder="მაგ: ბრენდი" {...form.register("nameKa")} />
+          {form.formState.errors.nameKa && <S.FieldError>{form.formState.errors.nameKa.message}</S.FieldError>}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>სახელი (ინგლისურად)</S.Label>
+          <S.Input type="text" placeholder="e.g. Brand" {...form.register("nameEn")} />
+          {form.formState.errors.nameEn && <S.FieldError>{form.formState.errors.nameEn.message}</S.FieldError>}
+        </S.FormGroup>
+      </S.FormRow>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>Code</S.Label>
+          <S.Input type="text" placeholder="მაგ: brand" {...form.register("code")} />
+          {form.formState.errors.code && <S.FieldError>{form.formState.errors.code.message}</S.FieldError>}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>ტიპი</S.Label>
+          <S.Select {...form.register("type")}>
+            {(Object.keys(TYPE_LABELS) as AttributeType[]).map((t) => (
+              <option key={t} value={t}>
+                {TYPE_LABELS[t]}
+              </option>
+            ))}
+          </S.Select>
+        </S.FormGroup>
+      </S.FormRow>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>ერთეული (არასავალდებულო)</S.Label>
+          <S.Select {...form.register("unit")}>
+            <option value="">არცერთი</option>
+            {UNIT_OPTIONS.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
+          </S.Select>
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>რიგითობა (sortOrder)</S.Label>
+          <S.Input type="text" inputMode="numeric" placeholder="0" {...form.register("sortOrder")} />
+          {form.formState.errors.sortOrder && <S.FieldError>{form.formState.errors.sortOrder.message}</S.FieldError>}
+        </S.FormGroup>
+      </S.FormRow>
       <S.CategoryCheckboxItem checked={form.watch("isFilterable")}>
         <input type="checkbox" {...form.register("isFilterable")} /> გამოსახილვადია (ფილტრში ჩაერთვება)
       </S.CategoryCheckboxItem>
