@@ -1,4 +1,30 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
+
+// RichTextEditor-ის მიერ დაწერილი HTML-ის (სათაური/სია/ბმული) საერთო
+// სტილი — გამოიყენება როგორც contentEditable ველში, ისე read-only
+// გამოტანისას (AdditionalInfoItemDescription).
+const richContentStyles = css`
+  p {
+    margin: 0 0 6px 0;
+  }
+  p:last-child {
+    margin-bottom: 0;
+  }
+  h3 {
+    margin: 8px 0 4px 0;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  ul,
+  ol {
+    margin: 4px 0;
+    padding-left: 20px;
+  }
+  a {
+    color: var(--ref-primary);
+    text-decoration: underline;
+  }
+`;
 
 export const TabBar = styled("div")`
   display: flex;
@@ -630,7 +656,7 @@ export const ModalContent = styled("div")`
   background: var(--ref-bg-elevated);
   border-radius: 8px;
   width: 100%;
-  max-width: 720px;
+  max-width: 1200px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
@@ -855,6 +881,141 @@ export const AddImageButton = styled("button")`
     border-color: var(--ref-primary);
     background: var(--ref-primary-soft);
   }
+`;
+
+// პროდუქტის "დამატებითი ინფორმაციის" ბლოკების სია (title + description +
+// sortOrder) — თითო ბლოკს თავისი ბარათი აქვს, რედაქტირება/წაშლის ღილაკებით.
+export const AdditionalInfoList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const AdditionalInfoItem = styled("div")`
+  border: 1px solid var(--ref-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--ref-bg-subtle);
+`;
+
+export const AdditionalInfoItemHeader = styled("div")`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+`;
+
+export const AdditionalInfoItemTitle = styled("div")`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+`;
+
+export const AdditionalInfoItemDescription = styled("div")`
+  font-size: 12.5px;
+  color: var(--ref-text-secondary);
+  margin-top: 4px;
+  white-space: pre-wrap;
+
+  ${richContentStyles}
+`;
+
+export const AdditionalInfoItemActions = styled("div")`
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+`;
+
+// RichTextEditor — აღწერილობის ველისთვის Bold + ფერის მინიჭების მარტივი
+// toolbar + contentEditable ველი (იხ. RichTextEditor.tsx).
+export const RichTextWrap = styled("div")`
+  border: 1px solid var(--ref-border);
+  border-radius: 7px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: var(--ref-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+`;
+
+export const RichTextToolbar = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px;
+  background: var(--ref-bg-subtle);
+  border-bottom: 1px solid var(--ref-border);
+`;
+
+export const RichTextButton = styled("button")<{ bold?: boolean; italic?: boolean; underline?: boolean }>`
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated, #fff);
+  color: var(--ref-text-primary);
+  font-size: 12px;
+  font-weight: ${({ bold }) => (bold ? 800 : 600)};
+  font-style: ${({ italic }) => (italic ? "italic" : "normal")};
+  text-decoration: ${({ underline }) => (underline ? "underline" : "none")};
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    border-color: var(--ref-primary);
+    color: var(--ref-primary);
+  }
+`;
+
+export const RichTextSelect = styled("select")`
+  height: 24px;
+  border-radius: 5px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-elevated, #fff);
+  color: var(--ref-text-primary);
+  font-size: 11px;
+  padding: 0 4px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--ref-primary);
+  }
+`;
+
+export const ColorSwatch = styled("button")`
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid var(--ref-border);
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    outline: 2px solid var(--ref-primary);
+    outline-offset: 1px;
+  }
+`;
+
+export const RichTextEditable = styled("div")`
+  width: 100%;
+  min-height: 70px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  outline: none;
+  white-space: pre-wrap;
+
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: var(--ref-text-secondary);
+  }
+
+  ${richContentStyles}
 `;
 
 export const AnswerInputRow = styled("div")<{ dragging?: boolean }>`

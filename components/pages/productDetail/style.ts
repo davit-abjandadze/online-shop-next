@@ -314,6 +314,58 @@ export const AddToCartButton = styled("button")`
   }
 `;
 
+// დამატებითი ინფორმაციის ბლოკები — Layout-ის (გალერეა + ინფო) ქვემოთ, სრულ სიგანეზე.
+export const AdditionalInfoSection = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 40px;
+`;
+
+export const AdditionalInfoBlock = styled("div")`
+  padding: 20px 24px;
+  border-radius: 14px;
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+`;
+
+export const AdditionalInfoTitle = styled("h3")`
+  margin: 0 0 8px 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+`;
+
+export const AdditionalInfoDescription = styled("div")`
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ref-text-secondary);
+  white-space: pre-wrap;
+
+  p {
+    margin: 0 0 8px 0;
+  }
+  p:last-child {
+    margin-bottom: 0;
+  }
+  h3 {
+    margin: 10px 0 6px 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ref-text-primary);
+  }
+  ul,
+  ol {
+    margin: 6px 0;
+    padding-left: 22px;
+  }
+  a {
+    color: var(--ref-primary);
+    text-decoration: underline;
+  }
+`;
+
 export const NotFoundWrap = styled("div")`
   padding: 100px 20px;
   text-align: center;

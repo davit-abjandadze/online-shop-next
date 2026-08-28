@@ -5,9 +5,10 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { ProductsAPI } from "@/API_Client";
 import { Product } from "@/API_Client/client/models";
-import { ProductAttributeValue } from "@/API_Client/types";
+import { ProductAdditionalInfo, ProductAttributeValue } from "@/API_Client/types";
 import { CartIcon, TagIcon, PlayIcon, CloseIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
+import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useCart } from "@/context/Cart";
 import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
@@ -54,6 +55,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [attrValues, setAttrValues] = useState<ProductAttributeValue[]>([]);
+  const [additionalInfo, setAdditionalInfo] = useState<ProductAdditionalInfo[]>([]);
   const thumbsTrackRef = useRef<HTMLDivElement>(null);
 
   const images = product.images && product.images.length > 0 ? product.images : [];
@@ -76,6 +78,13 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       .then((res) => setAttrValues((res.data as unknown as ProductAttributeValue[]) || []))
       .catch(() => {
         // spec-ცხრილი დამატებითია — ჩუმად ვტოვებთ, ძირითადი გვერდი მაინც ჩაირთვება
+      });
+
+    ProductsAPI(router.locale || "ka", "")
+      .productsControllerGetAdditionalInfo(String(product.id))
+      .then((res) => setAdditionalInfo((res.data as unknown as ProductAdditionalInfo[]) || []))
+      .catch(() => {
+        // დამატებითი ინფორმაციის ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id, router.locale]);
@@ -229,6 +238,22 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
            
           </S.Info>
         </S.Layout>
+
+        {additionalInfo.length > 0 && (
+          <S.AdditionalInfoSection>
+            {additionalInfo
+              .slice()
+              .sort((a, b) => a.sortOrder - b.sortOrder)
+              .map((info) => (
+                <S.AdditionalInfoBlock key={info.id}>
+                  <S.AdditionalInfoTitle>{info.title}</S.AdditionalInfoTitle>
+                  <S.AdditionalInfoDescription
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(info.description) }}
+                  />
+                </S.AdditionalInfoBlock>
+              ))}
+          </S.AdditionalInfoSection>
+        )}
       </S.Container>
 
       <Footer />

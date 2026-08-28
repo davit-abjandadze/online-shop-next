@@ -180,6 +180,18 @@ export interface ProductAttributeValue {
   updatedAt: string;
 }
 
+// GET/POST/PUT/DELETE /products/:id/additional-info row — პასუხიც
+// envelope-ის გარეშე, headless-ია (ProductsService.getAdditionalInfo და ა.შ.).
+export interface ProductAdditionalInfo {
+  id: string;
+  productId: number;
+  title: string;
+  description: string;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // GET /categories/:slug/filters — მთელი პასუხი ერთი flat მასივია (არა
 // `{ data, meta }`-ის მსგავსი envelope), თითო filterable attribute-ზე ერთი
 // row, `attribute.type`-ის მიხედვით სხვადასხვა დამატებითი ველით

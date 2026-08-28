@@ -22,11 +22,15 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { CreateProductAdditionalInfoDto } from '../models';
+// @ts-ignore
 import type { CreateProductDto } from '../models';
 // @ts-ignore
 import type { ProductResponseDto } from '../models';
 // @ts-ignore
 import type { SetProductAttributeValuesDto } from '../models';
+// @ts-ignore
+import type { UpdateProductAdditionalInfoDto } from '../models';
 // @ts-ignore
 import type { UpdateProductDto } from '../models';
 /**
@@ -34,6 +38,48 @@ import type { UpdateProductDto } from '../models';
  */
 export const ProductsApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 
+         * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
+         * @param {string} id 
+         * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerAddAdditionalInfo: async (id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsControllerAddAdditionalInfo', 'id', id)
+            // verify required parameter 'createProductAdditionalInfoDto' is not null or undefined
+            assertParamExists('productsControllerAddAdditionalInfo', 'createProductAdditionalInfoDto', createProductAdditionalInfoDto)
+            const localVarPath = `/products/{id}/additional-info`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(createProductAdditionalInfoDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 
          * @summary ახალი პროდუქტის შექმნა (ADMIN)
@@ -187,6 +233,39 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerGetAdditionalInfo: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsControllerGetAdditionalInfo', 'id', id)
+            const localVarPath = `/products/{id}/additional-info`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary პროდუქტის attribute value-ების სია
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -230,6 +309,47 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             assertParamExists('productsControllerRemove', 'id', id)
             const localVarPath = `/products/{id}`
                 .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
+         * @param {string} id 
+         * @param {string} infoId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerRemoveAdditionalInfo: async (id: string, infoId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsControllerRemoveAdditionalInfo', 'id', id)
+            // verify required parameter 'infoId' is not null or undefined
+            assertParamExists('productsControllerRemoveAdditionalInfo', 'infoId', infoId)
+            const localVarPath = `/products/{id}/additional-info/{infoId}`
+                .replace('{id}', encodeURIComponent(String(id)))
+                .replace('{infoId}', encodeURIComponent(String(infoId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -340,6 +460,52 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
+         * @param {string} id 
+         * @param {string} infoId 
+         * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerUpdateAdditionalInfo: async (id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsControllerUpdateAdditionalInfo', 'id', id)
+            // verify required parameter 'infoId' is not null or undefined
+            assertParamExists('productsControllerUpdateAdditionalInfo', 'infoId', infoId)
+            // verify required parameter 'updateProductAdditionalInfoDto' is not null or undefined
+            assertParamExists('productsControllerUpdateAdditionalInfo', 'updateProductAdditionalInfoDto', updateProductAdditionalInfoDto)
+            const localVarPath = `/products/{id}/additional-info/{infoId}`
+                .replace('{id}', encodeURIComponent(String(id)))
+                .replace('{infoId}', encodeURIComponent(String(infoId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(updateProductAdditionalInfoDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -349,6 +515,20 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
 export const ProductsApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ProductsApiAxiosParamCreator(configuration)
     return {
+        /**
+         * 
+         * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
+         * @param {string} id 
+         * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsControllerAddAdditionalInfo(id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerAddAdditionalInfo(id, createProductAdditionalInfoDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerAddAdditionalInfo']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
         /**
          * 
          * @summary ახალი პროდუქტის შექმნა (ADMIN)
@@ -399,6 +579,19 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsControllerGetAdditionalInfo(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerGetAdditionalInfo(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerGetAdditionalInfo']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary პროდუქტის attribute value-ების სია
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -421,6 +614,20 @@ export const ProductsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerRemove(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerRemove']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
+         * @param {string} id 
+         * @param {string} infoId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsControllerRemoveAdditionalInfo(id: string, infoId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerRemoveAdditionalInfo(id, infoId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerRemoveAdditionalInfo']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -451,6 +658,21 @@ export const ProductsApiFp = function(configuration?: Configuration) {
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerUpdate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
+        /**
+         * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
+         * @param {string} id 
+         * @param {string} infoId 
+         * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsControllerUpdateAdditionalInfo(id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerUpdateAdditionalInfo(id, infoId, updateProductAdditionalInfoDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerUpdateAdditionalInfo']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
     }
 };
 
@@ -460,6 +682,17 @@ export const ProductsApiFp = function(configuration?: Configuration) {
 export const ProductsApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
     const localVarFp = ProductsApiFp(configuration)
     return {
+        /**
+         * 
+         * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
+         * @param {string} id 
+         * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerAddAdditionalInfo(id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerAddAdditionalInfo(id, createProductAdditionalInfoDto, options).then((request) => request(axios, basePath));
+        },
         /**
          * 
          * @summary ახალი პროდუქტის შექმნა (ADMIN)
@@ -501,6 +734,16 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
+         * @param {string} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerGetAdditionalInfo(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerGetAdditionalInfo(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary პროდუქტის attribute value-ების სია
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -518,6 +761,17 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          */
         productsControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
+         * @param {string} id 
+         * @param {string} infoId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerRemoveAdditionalInfo(id: string, infoId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerRemoveAdditionalInfo(id, infoId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -541,6 +795,18 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         productsControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductResponseDto> {
             return localVarFp.productsControllerUpdate(id, updateProductDto, options).then((request) => request(axios, basePath));
         },
+        /**
+         * 
+         * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
+         * @param {string} id 
+         * @param {string} infoId 
+         * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerUpdateAdditionalInfo(id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerUpdateAdditionalInfo(id, infoId, updateProductAdditionalInfoDto, options).then((request) => request(axios, basePath));
+        },
     };
 };
 
@@ -548,6 +814,18 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
  * ProductsApi - object-oriented interface
  */
 export class ProductsApi extends BaseAPI {
+    /**
+     * 
+     * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
+     * @param {string} id 
+     * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productsControllerAddAdditionalInfo(id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerAddAdditionalInfo(id, createProductAdditionalInfoDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 
      * @summary ახალი პროდუქტის შექმნა (ADMIN)
@@ -592,6 +870,17 @@ export class ProductsApi extends BaseAPI {
 
     /**
      * 
+     * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
+     * @param {string} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productsControllerGetAdditionalInfo(id: string, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerGetAdditionalInfo(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary პროდუქტის attribute value-ების სია
      * @param {string} id 
      * @param {*} [options] Override http request option.
@@ -610,6 +899,18 @@ export class ProductsApi extends BaseAPI {
      */
     public productsControllerRemove(id: string, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
+     * @param {string} id 
+     * @param {string} infoId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productsControllerRemoveAdditionalInfo(id: string, infoId: string, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerRemoveAdditionalInfo(id, infoId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -634,6 +935,19 @@ export class ProductsApi extends BaseAPI {
      */
     public productsControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerUpdate(id, updateProductDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
+     * @param {string} id 
+     * @param {string} infoId 
+     * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productsControllerUpdateAdditionalInfo(id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerUpdateAdditionalInfo(id, infoId, updateProductAdditionalInfoDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

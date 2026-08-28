@@ -16,6 +16,7 @@ import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import DynamicAttributeForm from "./DynamicAttributeForm";
+import AdditionalInfoForm from "./AdditionalInfoForm";
 import { ProductFormValues, productFormSchema } from "./schemas";
 import * as S from "./style";
 
@@ -682,6 +683,19 @@ export const ProductsPage: React.FC = () => {
                 )}
               </div>
             )}
+
+            <div style={{ marginTop: "20px", borderTop: "1px solid var(--ref-border)", paddingTop: "16px" }}>
+              <S.Label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "12px" }}>
+                <ClipboardIcon size={16} /> დამატებითი ინფორმაცია
+              </S.Label>
+              {session?.accessToken && (
+                <AdditionalInfoForm
+                  productId={editingProduct.id}
+                  accessToken={session.accessToken}
+                  locale={router.locale || "ka"}
+                />
+              )}
+            </div>
           </S.ModalContent>
         </S.ModalOverlay>
       )}
