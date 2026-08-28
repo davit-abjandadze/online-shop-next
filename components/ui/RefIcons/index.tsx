@@ -459,3 +459,11 @@ export const DragHandleIcon: React.FC<RefIconProps> = ({ size = 18, className, s
   </svg>
 );
 
+/* ატვირთვა (upload) — სურათის ფაილის ატვირთვის ღილაკისთვის. მონოქრომული, currentColor-ზეა აგებული. */
+export const UploadIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M12 15V4M12 4l-4 4M12 4l4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M4 16v2.5A1.5 1.5 0 005.5 20h13a1.5 1.5 0 001.5-1.5V16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+

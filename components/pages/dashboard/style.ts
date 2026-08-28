@@ -862,6 +862,33 @@ export const ImageThumb = styled("div")`
   }
 `;
 
+// ფაილიდან ატვირთვის ღილაკი — ImageRow-ში, URL input-ის გვერდით. ჩვეულებრივი
+// <input type="file">-ია label-ით შემოხვეული, რომ ვიზუალურად ღილაკივით გამოიყურებოდეს.
+export const UploadImageLabel = styled("label")<{ disabled?: boolean }>`
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ref-border);
+  border-radius: 7px;
+  background: var(--ref-bg-subtle);
+  color: var(--ref-primary);
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  transition: all 0.15s ease;
+
+  &:hover {
+    border-color: ${({ disabled }) => (disabled ? "var(--ref-border)" : "var(--ref-primary)")};
+    background: ${({ disabled }) => (disabled ? "var(--ref-bg-subtle)" : "var(--ref-primary-soft)")};
+  }
+
+  input {
+    display: none;
+  }
+`;
+
 export const AddImageButton = styled("button")`
   display: inline-flex;
   align-items: center;

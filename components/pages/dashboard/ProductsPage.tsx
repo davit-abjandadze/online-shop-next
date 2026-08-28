@@ -7,11 +7,12 @@ import { ProductsAPI, CategoriesAPI } from "@/API_Client";
 import { Category, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { CategoryAttribute, PaginatedResponseDto, ProductAttributeValue } from "@/API_Client/types";
-import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PlusIcon, SearchIcon, TrashIcon } from "@/components/ui/RefIcons";
+import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import { getCategoryName } from "@/utils/getCategoryName";
+import { uploadImageToImgbb } from "@/utils/uploadImageToImgbb";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
@@ -153,6 +154,11 @@ export const ProductsPage: React.FC = () => {
 
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
+
+  // ImgBB-ზე ატვირთვისას მიმდინარე მწკრივის index-ს ვინახავთ (create/edit
+  // ფორმებს ცალ-ცალკე მდგომარეობა სჭირდება, რომ ერთმანეთს არ გადაეფაროს).
+  const [createUploadingIdx, setCreateUploadingIdx] = useState<number | null>(null);
+  const [editUploadingIdx, setEditUploadingIdx] = useState<number | null>(null);
 
   // ─── Product ↔ Attribute values (მხოლოდ edit-ისთვის, productId-ს მოითხოვს) ──
   const [editCategoryAttrs, setEditCategoryAttrs] = useState<CategoryAttribute[]>([]);
@@ -345,8 +351,10 @@ export const ProductsPage: React.FC = () => {
   // "რამდენიმე სურათის" დინამიური სია — useFieldArray-ს ნაცვლად
   // watch/setValue-ით ვმართავთ, რადგან images ველი უბრალო string[]-ია და
   // ერთი renderForm createForm-საც ემსახურება და editForm-საც.
-  const renderImagesField = (form: typeof createForm) => {
+  const renderImagesField = (form: typeof createForm, context: "create" | "edit") => {
     const images = form.watch("images") || [];
+    const uploadingIdx = context === "create" ? createUploadingIdx : editUploadingIdx;
+    const setUploadingIdx = context === "create" ? setCreateUploadingIdx : setEditUploadingIdx;
 
     const updateImage = (idx: number, value: string) => {
       const next = [...images];
@@ -363,6 +371,21 @@ export const ProductsPage: React.FC = () => {
         { shouldDirty: true }
       );
 
+    const handleFileChange = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      e.target.value = ""; // ერთი და იგივე ფაილის ხელახლა არჩევის საშვალებას აძლევს
+      if (!file) return;
+      setUploadingIdx(idx);
+      try {
+        const url = await uploadImageToImgbb(file);
+        updateImage(idx, url);
+      } catch (err: any) {
+        toast.error(err?.message || "სურათის ატვირთვა ვერ მოხერხდა");
+      } finally {
+        setUploadingIdx(null);
+      }
+    };
+
     return (
       <S.ImageList>
         {images.map((url, idx) => (
@@ -374,6 +397,15 @@ export const ProductsPage: React.FC = () => {
               value={url}
               onChange={(e) => updateImage(idx, e.target.value)}
             />
+            <S.UploadImageLabel disabled={uploadingIdx === idx} title="ატვირთვა კომპიუტერიდან">
+              {uploadingIdx === idx ? "…" : <UploadIcon size={16} />}
+              <input
+                type="file"
+                accept="image/*"
+                disabled={uploadingIdx === idx}
+                onChange={(e) => handleFileChange(idx, e)}
+              />
+            </S.UploadImageLabel>
             <S.CloseButton type="button" aria-label="სურათის წაშლა" onClick={() => removeImage(idx)}>
               <CloseIcon size={16} />
             </S.CloseButton>
@@ -386,7 +418,13 @@ export const ProductsPage: React.FC = () => {
     );
   };
 
-  const renderForm = (form: typeof createForm, onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>, submitting: boolean, submitLabel: string) => (
+  const renderForm = (
+    form: typeof createForm,
+    onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>,
+    submitting: boolean,
+    submitLabel: string,
+    context: "create" | "edit"
+  ) => (
     <form onSubmit={onSubmit} noValidate>
       <S.FormGroup>
         <S.Label>დასახელება</S.Label>
@@ -431,7 +469,7 @@ export const ProductsPage: React.FC = () => {
       </S.FormRow>
       <S.FormGroup>
         <S.Label>სურათები (არასავალდებულო)</S.Label>
-        {renderImagesField(form)}
+        {renderImagesField(form, context)}
       </S.FormGroup>
       <S.FormGroup>
         <S.Label>YouTube ვიდეოს ლინკი (არასავალდებულო)</S.Label>
@@ -648,7 +686,7 @@ export const ProductsPage: React.FC = () => {
                 <CloseIcon size={16} />
               </S.CloseButton>
             </S.ModalHeader>
-            {renderForm(createForm, handleCreateSubmit, createSubmitting, "შენახვა")}
+            {renderForm(createForm, handleCreateSubmit, createSubmitting, "შენახვა", "create")}
           </S.ModalContent>
         </S.ModalOverlay>
       )}
@@ -664,7 +702,7 @@ export const ProductsPage: React.FC = () => {
                 <CloseIcon size={16} />
               </S.CloseButton>
             </S.ModalHeader>
-            {renderForm(editForm, handleEditSubmit, editSubmitting, "ცვლილებების შენახვა")}
+            {renderForm(editForm, handleEditSubmit, editSubmitting, "ცვლილებების შენახვა", "edit")}
 
             {editCategoryId && (
               <div style={{ marginTop: "20px", borderTop: "1px solid var(--ref-border)", paddingTop: "16px" }}>
