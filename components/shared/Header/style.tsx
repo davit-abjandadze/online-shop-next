@@ -90,6 +90,14 @@ export const Actions = styled.div`
   margin-left: auto;
 `;
 
+export const SearchWrapper = styled.div`
+  position: relative;
+
+  @media (max-width: 1100px) {
+    display: none;
+  }
+`;
+
 export const SearchForm = styled.form`
   display: flex;
   align-items: center;
@@ -124,6 +132,106 @@ export const SearchInput = styled.input`
   &::placeholder {
     color: var(--ref-text-disabled);
   }
+`;
+
+export const SuggestionsDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 14px;
+  box-shadow: var(--ref-shadow-lg);
+  padding: 8px;
+  z-index: 100;
+  animation: fadeIn 0.2s ease;
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+`;
+
+export const SuggestionsStatus = styled.div`
+  padding: 14px;
+  font-size: 13px;
+  color: var(--ref-text-secondary);
+  text-align: center;
+`;
+
+export const SuggestionItem = styled.button`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: var(--ref-bg-subtle);
+  }
+`;
+
+export const SuggestionImage = styled.div`
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--ref-bg-subtle);
+  color: var(--ref-text-disabled);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+export const SuggestionInfo = styled.div`
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+export const SuggestionName = styled.div`
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ref-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const SuggestionPriceGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+`;
+
+export const SuggestionPrice = styled.span`
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ref-primary);
+`;
+
+export const SuggestionOldPrice = styled.span`
+  font-size: 11px;
+  color: var(--ref-text-disabled);
+  text-decoration: line-through;
 `;
 
 export const WishlistButton = styled.button`

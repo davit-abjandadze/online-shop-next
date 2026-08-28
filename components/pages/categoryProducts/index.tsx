@@ -8,6 +8,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import Dropdown from "@/components/shared/Dropdown";
 import ProductCard from "@/components/shared/ProductCard";
 import FilterSidebar, { PriceBounds } from "@/components/shared/FilterSidebar";
+import CategoryFilterBar from "@/components/shared/CategoryFilterBar";
 import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI } from "@/API_Client";
 import { Category, Product } from "@/API_Client/client/models";
@@ -163,6 +164,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
     return (
       <C.PageBackground>
         <Header onOpenAuth={() => setAuthModalOpen(true)} />
+        <CategoryFilterBar />
         <C.Container>
           <C.EmptyState>
             <SearchIcon size={48} />
@@ -177,6 +179,8 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
   return (
     <C.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
+
+      <CategoryFilterBar />
 
       <C.Container>
         <C.Breadcrumb>

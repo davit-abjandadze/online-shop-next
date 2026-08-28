@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
@@ -95,6 +96,8 @@ export const ProductsPage: React.FC = () => {
   const [debouncedMinPrice, setDebouncedMinPrice] = useState<string>("");
   const [debouncedMaxPrice, setDebouncedMaxPrice] = useState<string>("");
   const [filterHasDiscount, setFilterHasDiscount] = useState<string>("");
+  const [discountPercentText, setDiscountPercentText] = useState<string>("");
+  const [debouncedDiscountPercent, setDebouncedDiscountPercent] = useState<string>("");
   const [filterSortBy, setFilterSortBy] = useState<string>("createdAt");
   const [filterOrder, setFilterOrder] = useState<string>("DESC");
 
@@ -112,6 +115,11 @@ export const ProductsPage: React.FC = () => {
   }, [minPriceText, maxPriceText]);
 
   useEffect(() => {
+    const timer = setTimeout(() => setDebouncedDiscountPercent(discountPercentText.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [discountPercentText]);
+
+  useEffect(() => {
     setPage(1);
   }, [
     debouncedSearch,
@@ -120,6 +128,7 @@ export const ProductsPage: React.FC = () => {
     debouncedMinPrice,
     debouncedMaxPrice,
     filterHasDiscount,
+    debouncedDiscountPercent,
     filterSortBy,
     filterOrder,
   ]);
@@ -131,6 +140,7 @@ export const ProductsPage: React.FC = () => {
     debouncedMinPrice !== "" ||
     debouncedMaxPrice !== "" ||
     filterHasDiscount !== "" ||
+    debouncedDiscountPercent !== "" ||
     filterSortBy !== "createdAt" ||
     filterOrder !== "DESC";
 
@@ -141,6 +151,7 @@ export const ProductsPage: React.FC = () => {
     setMinPriceText("");
     setMaxPriceText("");
     setFilterHasDiscount("");
+    setDiscountPercentText("");
     setFilterSortBy("createdAt");
     setFilterOrder("DESC");
     setPage(1);
@@ -190,7 +201,8 @@ export const ProductsPage: React.FC = () => {
         debouncedMinPrice === "" ? undefined : Number(debouncedMinPrice),
         debouncedMaxPrice === "" ? undefined : Number(debouncedMaxPrice),
         filterIsActive === "" ? undefined : filterIsActive === "true",
-        filterHasDiscount === "" ? undefined : filterHasDiscount === "true"
+        filterHasDiscount === "" ? undefined : filterHasDiscount === "true",
+        debouncedDiscountPercent === "" ? undefined : Number(debouncedDiscountPercent)
       );
       const data = res.data as unknown as PaginatedResponseDto<Product>;
       setProducts(Array.isArray(data?.data) ? data.data : []);
@@ -227,6 +239,7 @@ export const ProductsPage: React.FC = () => {
     debouncedMinPrice,
     debouncedMaxPrice,
     filterHasDiscount,
+    debouncedDiscountPercent,
     filterSortBy,
     filterOrder,
   ]);
@@ -580,6 +593,17 @@ export const ProductsPage: React.FC = () => {
           </S.FilterGroup>
 
           <S.FilterGroup>
+            <S.FilterLabel>ფასდაკლების პროცენტი</S.FilterLabel>
+            <S.Input
+              type="text"
+              inputMode="numeric"
+              placeholder="მაგ: 15"
+              value={discountPercentText}
+              onChange={(e) => setDiscountPercentText(e.target.value)}
+            />
+          </S.FilterGroup>
+
+          <S.FilterGroup>
             <S.FilterLabel>დალაგება</S.FilterLabel>
             <S.Select value={filterSortBy} onChange={(e) => setFilterSortBy(e.target.value)}>
               <option value="createdAt">დამატების თარიღი</option>
@@ -625,9 +649,16 @@ export const ProductsPage: React.FC = () => {
               <S.QuestionCard key={product.id}>
                 <S.CardHeader>
                   <div>
-                    <S.QuestionText style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <BoxIcon size={18} /> {product.name}
-                    </S.QuestionText>
+                    <Link href={`/products/${product.id}`} passHref legacyBehavior>
+                      <S.QuestionText
+                        as="a"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+                      >
+                        <BoxIcon size={18} /> {product.name}
+                      </S.QuestionText>
+                    </Link>
                     <S.BadgeGroup>
                       <S.Badge variant={product.isActive ? "active" : "inactive"}>
                         {product.isActive ? "აქტიური" : "არააქტიური"}
