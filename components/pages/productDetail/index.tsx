@@ -5,8 +5,8 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { ProductsAPI } from "@/API_Client";
 import { Product } from "@/API_Client/client/models";
-import { ProductAdditionalInfo, ProductAttributeValue } from "@/API_Client/types";
-import { CartIcon, TagIcon, PlayIcon, CloseIcon } from "@/components/ui/RefIcons";
+import { ProductAdditionalInfo, ProductAttributeValue, ProductColor } from "@/API_Client/types";
+import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useCart } from "@/context/Cart";
@@ -56,6 +56,8 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [attrValues, setAttrValues] = useState<ProductAttributeValue[]>([]);
   const [additionalInfo, setAdditionalInfo] = useState<ProductAdditionalInfo[]>([]);
+  const [productColors, setProductColors] = useState<ProductColor[]>([]);
+  const [selectedColorId, setSelectedColorId] = useState<string | undefined>(undefined);
   const thumbsTrackRef = useRef<HTMLDivElement>(null);
 
   const images = product.images && product.images.length > 0 ? product.images : [];
@@ -70,7 +72,25 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
 
   const activeSlide = slides[activeImageIdx];
   const activeImage = activeSlide?.type === "image" ? resolveImage(activeSlide.src) : undefined;
-  const outOfStock = product.stock <= 0;
+
+  // მარაგში მხოლოდ ის ფერები ჩნდება, რომლებსაც stock > 0 აქვთ.
+  const availableColors = React.useMemo(
+    () => productColors.filter((pc) => pc.stock > 0),
+    [productColors]
+  );
+  const selectedColor = availableColors.find((pc) => pc.colorId === selectedColorId);
+
+  // ერთადერთი ხელმისაწვდომი ფერი ავტომატურად აირჩევა.
+  useEffect(() => {
+    if (availableColors.length === 1) {
+      setSelectedColorId(availableColors[0].colorId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productColors]);
+
+  // თუ პროდუქტს ფერები აქვს მიბმული, მარაგი კონკრეტული არჩეული ფერის
+  // stock-ის მიხედვით დგინდება — არჩევამდე კი დამატება არ დაიშვება.
+  const outOfStock = availableColors.length > 0 ? !selectedColor || selectedColor.stock <= 0 : product.stock <= 0;
 
   useEffect(() => {
     ProductsAPI(router.locale || "ka", "")
@@ -85,6 +105,13 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       .then((res) => setAdditionalInfo((res.data as unknown as ProductAdditionalInfo[]) || []))
       .catch(() => {
         // დამატებითი ინფორმაციის ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
+      });
+
+    ProductsAPI(router.locale || "ka", "")
+      .productsControllerGetColors(String(product.id))
+      .then((res) => setProductColors((res.data as unknown as ProductColor[]) || []))
+      .catch(() => {
+        // ფერების ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id, router.locale]);
@@ -132,11 +159,14 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
   const isInCart = Boolean(cartItem);
 
+  // ფერის არჩევა სავალდებულოა, თუ პროდუქტს მარაგში მყოფი ფერები აქვს მიბმული.
+  const colorSelectionRequired = availableColors.length > 0 && !selectedColorId;
+
   const handleAddToCart = () => {
     if (cartItem) {
       removeItem(cartItem.id);
     } else {
-      addItem(product.id, 1);
+      addItem(product.id, 1, selectedColorId);
     }
   };
 
@@ -213,17 +243,58 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
             )}
             <S.Title>{product.name}</S.Title>
             <S.Price>{Number(product.price).toFixed(2)} ₾</S.Price>
-            <S.StockLine out={outOfStock}>
-              {outOfStock ? "ამოწურულია" : `მარაგშია: ${product.stock} ცალი`}
+            <S.StockLine out={outOfStock && availableColors.length === 0}>
+              {availableColors.length > 0 ? (
+                  <>
+                    <CheckCircleIcon size={16} /> მარაგშია
+                  </>
+              ) : outOfStock ? (
+                 <>
+                    <CloseIcon className="close-icon" size={16} /> ამოწურულია
+                  </>
+              ) : (
+                  <>
+                    <CheckCircleIcon size={16} /> მარაგშია
+                  </>
+              )}
             </S.StockLine>
             {product.description && <S.Description>{product.description}</S.Description>}
+            {availableColors.length > 0 && (
+              <S.ColorSection>
+                <S.ColorSectionLabel>ფერი</S.ColorSectionLabel>
+                <S.ColorOptions>
+                  {availableColors.map((pc) => (
+                    <S.ColorOption
+                      key={pc.colorId}
+                      type="button"
+                      active={pc.colorId === selectedColorId}
+                      title={
+                        pc.color
+                          ? router.locale === "en"
+                            ? pc.color.nameEn || pc.color.nameKa
+                            : pc.color.nameKa || pc.color.nameEn
+                          : undefined
+                      }
+                      style={{ backgroundColor: pc.color?.hexCode || "#ccc" }}
+                      onClick={() => setSelectedColorId(pc.colorId)}
+                    />
+                  ))}
+                </S.ColorOptions>
+              </S.ColorSection>
+            )}
              <S.AddToCartButton
               type="button"
-              disabled={outOfStock && !isInCart}
+              disabled={(outOfStock || colorSelectionRequired) && !isInCart}
               onClick={handleAddToCart}
             >
               <CartIcon size={18} />{" "}
-              {outOfStock && !isInCart ? "ამოწურულია" : isInCart ? "წაშლა კალათიდან" : "კალათაში დამატება"}
+              {isInCart
+                ? "წაშლა კალათიდან"
+                : colorSelectionRequired
+                ? "აირჩიეთ ფერი"
+                : outOfStock
+                ? "ამოწურულია"
+                : "კალათაში დამატება"}
             </S.AddToCartButton>
             {specRows.length > 0 && (
               <S.SpecTable>
@@ -261,7 +332,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       {lightboxOpen && activeSlide && (
         <S.LightboxOverlay onClick={() => setLightboxOpen(false)}>
           <S.LightboxClose type="button" onClick={() => setLightboxOpen(false)}>
-            <CloseIcon size={28} />
+            <CloseIcon className="close-icon" size={28} />
           </S.LightboxClose>
           {slides.length > 1 && (
             <S.LightboxNav

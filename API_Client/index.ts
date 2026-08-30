@@ -2,8 +2,10 @@ import {
   AddressesApi,
   AttributesApi,
   AuthApi,
+  BranchesApi,
   CartApi,
   CategoriesApi,
+  ColorsApi,
   Configuration,
   FavoritesApi,
   OrdersApi,
@@ -137,6 +139,16 @@ export const OtpAPI = (acceptLanguage: string, accessToken: string) => {
 export const AddressesAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new AddressesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const BranchesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new BranchesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const ColorsAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new ColorsApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

@@ -8,7 +8,7 @@ import { ProductsAPI, CategoriesAPI } from "@/API_Client";
 import { Category, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { CategoryAttribute, PaginatedResponseDto, ProductAttributeValue } from "@/API_Client/types";
-import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
+import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PaletteIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -19,6 +19,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import DynamicAttributeForm from "./DynamicAttributeForm";
 import AdditionalInfoForm from "./AdditionalInfoForm";
+import ProductColorsForm from "./ProductColorsForm";
 import { ProductFormValues, productFormSchema } from "./schemas";
 import * as S from "./style";
 
@@ -752,6 +753,19 @@ export const ProductsPage: React.FC = () => {
                 )}
               </div>
             )}
+
+            <div style={{ marginTop: "20px", borderTop: "1px solid var(--ref-border)", paddingTop: "16px" }}>
+              <S.Label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "12px" }}>
+                <PaletteIcon size={16} /> ფერები და მარაგი
+              </S.Label>
+              {session?.accessToken && (
+                <ProductColorsForm
+                  productId={editingProduct.id}
+                  accessToken={session.accessToken}
+                  locale={router.locale || "ka"}
+                />
+              )}
+            </div>
 
             <div style={{ marginTop: "20px", borderTop: "1px solid var(--ref-border)", paddingTop: "16px" }}>
               <S.Label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "12px" }}>

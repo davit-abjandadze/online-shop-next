@@ -16,8 +16,24 @@
 
 export interface CreateOrderDto {
     /**
-     * მიწოდების მისამართი
+     * მიწოდების ხერხი — საკურიერო ან ფილიალიდან გატანა
      */
-    'shippingAddress': string;
+    'deliveryMethod'?: CreateOrderDtoDeliveryMethodEnum;
+    /**
+     * მიწოდების მისამართი (deliveryMethod=courier-სთვის სავალდებულო)
+     */
+    'shippingAddress'?: string;
+    /**
+     * არჩეული ფილიალის ID (deliveryMethod=pickup-სთვის სავალდებულო)
+     */
+    'branchId'?: number;
 }
+
+export const CreateOrderDtoDeliveryMethodEnum = {
+    Courier: 'courier',
+    Pickup: 'pickup',
+} as const;
+
+export type CreateOrderDtoDeliveryMethodEnum = typeof CreateOrderDtoDeliveryMethodEnum[keyof typeof CreateOrderDtoDeliveryMethodEnum];
+
 

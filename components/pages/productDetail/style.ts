@@ -97,6 +97,15 @@ export const LightboxClose = styled("button")`
   line-height: 1;
   cursor: pointer;
   z-index: 1;
+
+  .close-icon {
+    circle {
+      fill: #c0392b;
+    }
+    path {
+      stroke: #ffffff;
+    }
+  }
 `;
 
 export const LightboxNav = styled("button")<{ side: "left" | "right" }>`
@@ -257,9 +266,21 @@ export const Price = styled("div")`
 `;
 
 export const StockLine = styled("div")<{ out?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 14px;
   font-weight: 600;
   color: ${({ out }) => (out ? "#c0392b" : "var(--ref-text-secondary)")};
+
+  .close-icon {
+    circle {
+      fill: #c0392b;
+    }
+    path {
+      stroke: #ffffff;
+    }
+  }
 `;
 
 export const Description = styled("p")`
@@ -292,6 +313,41 @@ export const SpecValue = styled("dd")`
   font-size: 13px;
   font-weight: 600;
   color: var(--ref-text-primary);
+`;
+
+// ფერის არჩევის ბლოკი — მხოლოდ მარაგში მყოფი (stock > 0) ფერები ჩნდება.
+export const ColorSection = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const ColorSectionLabel = styled("div")`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+`;
+
+export const ColorOptions = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
+export const ColorOption = styled("button")<{ active?: boolean }>`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  border: 1px solid ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-border-soft)")};
+  outline: ${({ active }) => (active ? "1px solid var(--ref-primary)" : "none")};
+  outline-offset: 1px;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.08);
+  }
 `;
 
 export const AddToCartButton = styled("button")`

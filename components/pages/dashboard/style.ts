@@ -1204,3 +1204,28 @@ export const SkeletonRow = styled("div")`
   display: flex;
   gap: 8px;
 `;
+
+// ═══ ფილიალის სამუშაო საათების ბლოკი (BranchesPage) ═══════════════════════
+export const WorkingHoursGrid = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+export const WorkingHoursRow = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+export const WorkingHoursDay = styled("span")`
+  flex: 0 0 90px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+`;
+
+export const WorkingHoursTimeInput = styled(Input)`
+  flex: 1;
+  min-width: 0;
+`;

@@ -39,6 +39,22 @@ export const TagIcon: React.FC<RefIconProps> = ({ size = 24, className, style })
   </svg>
 );
 
+/* ფერების პალიტრა — ადმინის ფერების ჩანართისთვის */
+export const PaletteIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path
+      d="M12 3a9 8.5 0 100 17c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.3-.5-.8-.5-1.2 0-1 .8-1.8 1.8-1.8H16.5c2 0 3.5-1.5 3.5-3.5C20 6.4 16.4 3 12 3z"
+      fill="#ffffff"
+      stroke="#0347a0"
+      strokeWidth="1.6"
+      strokeLinejoin="round"
+    />
+    <circle cx="7.5" cy="10.5" r="1.4" fill="#F43E50" />
+    <circle cx="9.5" cy="15.5" r="1.4" fill="#FAD400" />
+    <circle cx="14.5" cy="8" r="1.4" fill="#1877F2" />
+  </svg>
+);
+
 /* პროდუქტი/ყუთი — ადმინის პროდუქტების ჩანართისთვის */
 export const BoxIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>

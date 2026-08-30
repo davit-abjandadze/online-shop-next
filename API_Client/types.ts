@@ -79,6 +79,8 @@ export type OrderStatus =
   | "cancelled"
   | "expired";
 
+export type DeliveryMethod = "courier" | "pickup";
+
 export interface OrderItem {
   id: number;
   product?: Product | null;
@@ -103,7 +105,9 @@ export interface Order {
   status: OrderStatus;
   totalAmount: string;
   currency: string;
-  shippingAddress: string;
+  deliveryMethod: DeliveryMethod;
+  branch?: Branch | null;
+  shippingAddress?: string;
   expiresAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -210,6 +214,69 @@ export interface Address {
   address: string;
   comment?: string;
   isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// იგივე მიზეზით (BranchesController-ის მეთოდებს OpenAPI-ში ცხადი პასუხის
+// ტიპი არ აქვს მითითებული, იხ. src/branches/branches.controller.ts
+// online-shop-nest-ში) `Branch` გენერირებულ კლიენტში აღარ ჩნდება — ხელით
+// ვაფიქსირებთ ბექენდის entity-ის ფორმას (src/branches/entities/branch.entity.ts).
+// `null` მნიშვნელობა კვირის ერთ დღეზე ნიშნავს, რომ ფილიალი ამ დღეს დახურულია.
+export interface BranchDayHours {
+  open: string;
+  close: string;
+}
+
+export interface BranchWorkingHours {
+  mon: BranchDayHours | null;
+  tue: BranchDayHours | null;
+  wed: BranchDayHours | null;
+  thu: BranchDayHours | null;
+  fri: BranchDayHours | null;
+  sat: BranchDayHours | null;
+  sun: BranchDayHours | null;
+}
+
+export interface Branch {
+  id: number;
+  title: string;
+  address: string;
+  phoneNumber: string;
+  email?: string;
+  latitude: number;
+  longitude: number;
+  workingHours: BranchWorkingHours;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// იგივე მიზეზით (ColorsController-ის findAll/findOne/create/update-ს OpenAPI-ში
+// ცხადი პასუხის ტიპი არ აქვს მითითებული, იხ. src/colors/colors.controller.ts
+// online-shop-nest-ში) `Color` გენერირებულ კლიენტში აღარ ჩნდება — ხელით
+// ვაფიქსირებთ ბექენდის entity-ის ფორმას (src/colors/entities/color.entity.ts).
+export interface Color {
+  id: string;
+  nameKa: string;
+  nameEn: string;
+  hexCode?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET/PUT /products/:id/colors row — იგივე მიზეზით (ProductsController-ის
+// getColors/setColors-ს OpenAPI-ში ცხადი პასუხის ტიპი არ აქვს მითითებული)
+// ხელით ვაფიქსირებთ ბექენდის entity-ის ფორმას
+// (src/products/entities/product-color.entity.ts). `color` relation GET-ზე
+// ყოველთვის ჩატანილია (ProductsService.getColors), PUT-ის პასუხზე კი არა.
+export interface ProductColor {
+  id: string;
+  productId: number;
+  colorId: string;
+  color?: Color;
+  stock: number;
   createdAt: string;
   updatedAt: string;
 }

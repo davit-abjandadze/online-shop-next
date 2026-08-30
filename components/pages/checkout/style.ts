@@ -502,8 +502,7 @@ export const AddressSelectedCard = styled("div")`
   gap: 10px;
   padding: 14px;
   border-radius: 10px;
-  border: 1.5px solid var(--ref-danger);
-  background: var(--ref-danger-soft, rgba(220, 38, 38, 0.05));
+  background: var(--ref-success-soft);
 `;
 
 export const ToggleAddressesBtn = styled("button")`
@@ -685,6 +684,52 @@ export const CloseButton = styled("button")`
     color: var(--ref-text-primary);
   }
 `;
+
+/* --- ფილიალიდან გატანა (checkout-ის მიწოდების დეტალები) --- */
+
+export const InfoToggleBtn = styled("button")`
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--ref-text-secondary);
+  font-size: 15px;
+  cursor: pointer;
+  margin-left: auto;
+
+  &:hover {
+    color: var(--ref-primary);
+  }
+`;
+
+export const BranchDetailPanel = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  margin-top: -4px;
+  border-radius: 10px;
+  border: 1px solid var(--ref-border-soft);
+  background: var(--ref-bg);
+  font-size: 13px;
+  color: var(--ref-text-secondary);
+`;
+
+export const WorkingHoursRow = styled("div")<{ $today?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: ${({ $today }) => ($today ? 700 : 400)};
+  color: ${({ $today }) => ($today ? "var(--ref-text-primary)" : "var(--ref-text-secondary)")};
+`;
+
+export const WorkingHoursDay = styled("span")``;
 
 export const ModalSubmitButton = styled("button")`
   width: 100%;

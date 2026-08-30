@@ -116,3 +116,80 @@ export const attributeOptionFormSchema = z.object({
 });
 
 export type AttributeOptionFormValues = z.infer<typeof attributeOptionFormSchema>;
+
+/** ფილიალის სამუშაო საათების კვირის დღეების key-ები/ლეიბლები — ფორმისა და
+ * checkout-ის ჩვენებისთვის ერთი წყარო. */
+export const BRANCH_DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+export type BranchDayKey = (typeof BRANCH_DAY_KEYS)[number];
+export const BRANCH_DAY_LABELS: Record<BranchDayKey, string> = {
+  mon: "ორშაბათი",
+  tue: "სამშაბათი",
+  wed: "ოთხშაბათი",
+  thu: "ხუთშაბათი",
+  fri: "პარასკევი",
+  sat: "შაბათი",
+  sun: "კვირა",
+};
+
+const TIME_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+const branchDayHoursSchema = z
+  .object({
+    closed: z.boolean(),
+    open: z.string(),
+    close: z.string(),
+  })
+  .refine((v) => v.closed || TIME_REGEX.test(v.open), {
+    message: "გახსნის დრო არასწორი ფორმატისაა",
+    path: ["open"],
+  })
+  .refine((v) => v.closed || TIME_REGEX.test(v.close), {
+    message: "დახურვის დრო არასწორი ფორმატისაა",
+    path: ["close"],
+  });
+
+/** ფილიალის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. `latitude`/`longitude`
+ * სტრინგებადაა (input-ის ბუნებრივი ტიპი), submit-ის დროს რიცხვებად გარდაიქმნება. */
+export const branchFormSchema = z.object({
+  title: z.string().trim().min(1, "გთხოვთ შეავსოთ ფილიალის დასახელება"),
+  address: z.string().trim().min(1, "გთხოვთ მიუთითოთ მისამართი"),
+  phoneNumber: z.string().trim().min(1, "გთხოვთ მიუთითოთ ტელეფონის ნომერი"),
+  email: z.string().trim().optional().refine((v) => !v || z.string().email().safeParse(v).success, "ელფოსტა არასწორი ფორმატისაა"),
+  latitude: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ განედი (latitude)")
+    .refine((v) => !isNaN(Number(v)), "განედი უნდა იყოს რიცხვი"),
+  longitude: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ გრძედი (longitude)")
+    .refine((v) => !isNaN(Number(v)), "გრძედი უნდა იყოს რიცხვი"),
+  workingHours: z.object({
+    mon: branchDayHoursSchema,
+    tue: branchDayHoursSchema,
+    wed: branchDayHoursSchema,
+    thu: branchDayHoursSchema,
+    fri: branchDayHoursSchema,
+    sat: branchDayHoursSchema,
+    sun: branchDayHoursSchema,
+  }),
+  isActive: z.boolean(),
+});
+
+export type BranchFormValues = z.infer<typeof branchFormSchema>;
+
+/** ფერის (ბიბლიოთეკის) შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა.
+ * `hexCode` არასავალდებულოა — მითითების შემთხვევაში მხოლოდ ვალიდურ HEX
+ * ფორმატს ვამოწმებთ (3 ან 6 სიმბოლო). */
+export const colorFormSchema = z.object({
+  nameKa: z.string().trim().min(1, "გთხოვთ შეავსოთ ფერის სახელი ქართულად"),
+  nameEn: z.string().trim().min(1, "გთხოვთ შეავსოთ ფერის სახელი ინგლისურად"),
+  hexCode: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(v), "HEX კოდი არასწორი ფორმატისაა (მაგ: #FF0000)"),
+});
+
+export type ColorFormValues = z.infer<typeof colorFormSchema>;

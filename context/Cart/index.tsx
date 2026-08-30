@@ -9,7 +9,7 @@ interface CartContextValue {
   cart: Cart | null;
   itemCount: number;
   loading: boolean;
-  addItem: (productId: number, quantity?: number) => Promise<boolean>;
+  addItem: (productId: number, quantity?: number, colorId?: string) => Promise<boolean>;
   updateItemQuantity: (itemId: number, quantity: number) => Promise<boolean>;
   removeItem: (itemId: number) => Promise<boolean>;
   clear: () => Promise<boolean>;
@@ -83,11 +83,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const addItem = (productId: number, quantity: number = 1) =>
+  const addItem = (productId: number, quantity: number = 1, colorId?: string) =>
     withErrorToast(async () => {
       const res = await CartAPI(router.locale || "ka", accessToken as string).cartControllerAddItem({
         productId,
         quantity,
+        ...(colorId ? { colorId } : {}),
       });
       return res.data as unknown as Cart;
     });

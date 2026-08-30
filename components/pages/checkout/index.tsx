@@ -7,8 +7,8 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { useCart } from "@/context/Cart";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
-import { AddressesAPI, OrdersAPI, OtpAPI, PaymentsAPI, UserAPI } from "@/API_Client";
-import { Address, Order, PaymentInitiateResponse, User } from "@/API_Client/types";
+import { AddressesAPI, BranchesAPI, OrdersAPI, OtpAPI, PaymentsAPI, UserAPI } from "@/API_Client";
+import { Address, Branch, Order, PaymentInitiateResponse, User } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import {
   CartIcon,
@@ -57,6 +57,45 @@ const GEORGIAN_CITIES = [
   "წყალტუბო",
 ];
 
+// კვირის დღეების key-ები/ლეიბლები ფილიალის workingHours-ის ჩვენებისთვის —
+// dashboard/schemas.ts-ის BRANCH_DAY_KEYS-ის იგივე თანმიმდევრობა (mon..sun).
+const WEEK_DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
+type WeekDayKey = (typeof WEEK_DAY_KEYS)[number];
+const WEEK_DAY_LABELS: Record<WeekDayKey, string> = {
+  mon: "ორშაბათი",
+  tue: "სამშაბათი",
+  wed: "ოთხშაბათი",
+  thu: "ხუთშაბათი",
+  fri: "პარასკევი",
+  sat: "შაბათი",
+  sun: "კვირა",
+};
+// Date.getDay() 0=კვირა..6=შაბათი — WEEK_DAY_KEYS-ის (ორშაბათიდან იწყება) იგივე ინდექსზე გადასაყვანად.
+const jsDayToWeekDayKey = (jsDay: number): WeekDayKey => WEEK_DAY_KEYS[(jsDay + 6) % 7];
+
+const GEORGIAN_MONTHS_GENITIVE = [
+  "იანვარს",
+  "თებერვალს",
+  "მარტს",
+  "აპრილს",
+  "მაისს",
+  "ივნისს",
+  "ივლისს",
+  "აგვისტოს",
+  "სექტემბერს",
+  "ოქტომბერს",
+  "ნოემბერს",
+  "დეკემბერს",
+];
+
+// "ხვალ, 30 აგვისტოს" — ფილიალიდან გატანის მზადყოფნის თარიღი (მარტივი
+// მიახლოება, backend-ის რეალური ლოგისტიკის ვადის გარეშე).
+const formatPickupReadyDate = () => {
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return `ხვალ, ${tomorrow.getDate()} ${GEORGIAN_MONTHS_GENITIVE[tomorrow.getMonth()]}`;
+};
+
 const emptyAddressForm: AddressFormValues = {
   title: "",
   phoneNumber: "",
@@ -69,6 +108,29 @@ const emptyAddressForm: AddressFormValues = {
 // ბექენდისთვის/verify.ge-სთვის კი E.164 ფორმატია საჭირო (მაგ. +995555123456) — profile-ის ანალოგიურად.
 const toE164 = (localNumber: string) => `+995${localNumber.replace(/\D/g, "")}`;
 const fromE164 = (phone: string) => phone.replace(/^\+995/, "");
+
+// ფილიალის დეტალების ბლოკი (მისამართი/ტელეფონი/ელფოსტა + კვირის სამუშაო
+// საათები, მიმდინარე დღის გამუქებით) — ⓘ ღილაკზე დაჭერით იშლება checkout-ის
+// ფილიალიდან-გატანის სექციაში (ორივე — არჩეული ბარათი და სიის row-ები).
+const BranchDetailPanel: React.FC<{ branch: Branch }> = ({ branch }) => {
+  const todayKey = jsDayToWeekDayKey(new Date().getDay());
+  return (
+    <S.BranchDetailPanel>
+      <div>{branch.address}</div>
+      <div>{branch.phoneNumber}</div>
+      {branch.email && <div>{branch.email}</div>}
+      {WEEK_DAY_KEYS.map((day) => {
+        const hours = branch.workingHours?.[day];
+        return (
+          <S.WorkingHoursRow key={day} $today={day === todayKey}>
+            <S.WorkingHoursDay>{WEEK_DAY_LABELS[day]}</S.WorkingHoursDay>
+            <span>{hours ? `${hours.open} - ${hours.close}` : "დახურულია"}</span>
+          </S.WorkingHoursRow>
+        );
+      })}
+    </S.BranchDetailPanel>
+  );
+};
 
 // შეკვეთის გაფორმების გვერდი — "შეკვეთის დადასტურება" და "გადახდის დაწყება"
 // ერთი მოქმედებაა (backend-ის createFromCart → იმწამსვე payable PENDING
@@ -157,6 +219,16 @@ export const CheckoutComponent: React.FC = () => {
   const [addressDeletingId, setAddressDeletingId] = useState<number | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
 
+  // "ფილიალიდან გატანა" — courier-ის ალტერნატივა. deliveryMethod===pickup-ის
+  // შემთხვევაში მისამართის სექცია ფილიალის შერჩევის UI-ით იცვლება.
+  const [deliveryMethod, setDeliveryMethod] = useState<"courier" | "pickup">("courier");
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [branchesLoading, setBranchesLoading] = useState<boolean>(true);
+  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
+  const [showBranchList, setShowBranchList] = useState<boolean>(false);
+  const [expandedBranchId, setExpandedBranchId] = useState<number | null>(null);
+  const [branchError, setBranchError] = useState<string | null>(null);
+
   const fetchAddresses = async () => {
     if (!session?.accessToken) return;
     setAddressesLoading(true);
@@ -178,6 +250,27 @@ export const CheckoutComponent: React.FC = () => {
     if (status === "authenticated") fetchAddresses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session]);
+
+  // ფილიალების სია საჯარო endpoint-ია — ავტორიზაცია არ სჭირდება, ამიტომ
+  // ერთხელ, mount-ზევე იტვირთება (ავტორიზაციის loading-ის მოლოდინის გარეშე).
+  const fetchBranches = async () => {
+    setBranchesLoading(true);
+    try {
+      const res = await BranchesAPI(router.locale || "ka", "").branchesControllerFindAll();
+      const list = (res.data as unknown as Branch[]) || [];
+      setBranches(list);
+      setSelectedBranchId((prev) => (prev && list.some((b) => b.id === prev) ? prev : list[0]?.id ?? null));
+    } catch {
+      // ფილიალების ჩატვირთვის ჩავარდნა UI-ს არ უნდა ბლოკავდეს — უბრალოდ ცარიელი დარჩება სია.
+    } finally {
+      setBranchesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBranches();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.locale]);
 
   const openAddAddressModal = () => {
     setEditingAddressId(null);
@@ -484,21 +577,32 @@ export const CheckoutComponent: React.FC = () => {
     !!phoneInput.trim() && (phoneInput.trim() !== savedPhoneNumber || phoneNotVerified);
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || null;
+  const selectedBranch = branches.find((b) => b.id === selectedBranchId) || null;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.accessToken || isEmpty || purchaseBlocked) return;
-    if (!selectedAddress) {
+
+    if (deliveryMethod === "courier" && !selectedAddress) {
       setAddressError("გთხოვთ აირჩიოთ ან დაამატოთ მიწოდების მისამართი");
       return;
     }
+    if (deliveryMethod === "pickup" && !selectedBranch) {
+      setBranchError("გთხოვთ აირჩიოთ ფილიალი");
+      return;
+    }
     setAddressError(null);
+    setBranchError(null);
     setSubmitting(true);
     try {
-      const shippingAddress = `${selectedAddress.title} - ${selectedAddress.city}, ${selectedAddress.address}`;
-      const orderRes = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerCreate({
-        shippingAddress,
-      });
+      const orderRes = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerCreate(
+        deliveryMethod === "pickup"
+          ? { deliveryMethod: "pickup", branchId: selectedBranch!.id }
+          : {
+              deliveryMethod: "courier",
+              shippingAddress: `${selectedAddress!.title} - ${selectedAddress!.city}, ${selectedAddress!.address}`,
+            }
+      );
       const order = orderRes.data as unknown as Order;
 
       // createFromCart-მა კალათა უკვე დაცარიელა backend-ზე — Header-ის
@@ -682,22 +786,96 @@ export const CheckoutComponent: React.FC = () => {
                 </S.SectionCard>
 
                 <S.SectionCard>
-                  <S.SectionTitle>
-                    მიწოდების დეტალები <S.HintIcon title="შეკვეთა ამჟამად საკურიერო მომსახურებით იგზავნება">ⓘ</S.HintIcon>
-                  </S.SectionTitle>
+                  <S.SectionTitle>მიწოდების დეტალები</S.SectionTitle>
                   <S.MethodRow>
-                    <S.MethodOption $active type="button">
+                    <S.MethodOption
+                      $active={deliveryMethod === "courier"}
+                      type="button"
+                      onClick={() => setDeliveryMethod("courier")}
+                    >
                       <TruckIcon size={20} />
                       საკურიერო მომსახურება
                     </S.MethodOption>
-                    <S.MethodOption $disabled type="button" disabled>
+                    <S.MethodOption
+                      $active={deliveryMethod === "pickup"}
+                      type="button"
+                      onClick={() => setDeliveryMethod("pickup")}
+                    >
                       <BoxIcon size={20} />
                       ფილიალიდან გატანა
-                      <S.SoonBadge>მალე</S.SoonBadge>
                     </S.MethodOption>
                   </S.MethodRow>
 
-                  {addressesLoading ? (
+                  {deliveryMethod === "pickup" ? (
+                    branchesLoading ? (
+                      <S.ReadonlyValue>იტვირთება...</S.ReadonlyValue>
+                    ) : branches.length === 0 ? (
+                      <S.ReadonlyValue>ამჟამად აქტიური ფილიალი არ არის</S.ReadonlyValue>
+                    ) : (
+                      <S.AddressListPanel>
+                        <S.AddressSelectedCard>
+                          <BoxIcon size={18} />
+                          <S.AddressBody>
+                            <S.Label>ფილიალი</S.Label>
+                            <S.AddressValue>{selectedBranch?.title || "ფილიალი არ არის არჩეული"}</S.AddressValue>
+                            <span style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>
+                              შეკვეთის აღება შესაძლებელი იქნება {formatPickupReadyDate()}
+                            </span>
+                          </S.AddressBody>
+                          {selectedBranch && (
+                            <S.InfoToggleBtn
+                              type="button"
+                              title="ფილიალის დეტალები"
+                              onClick={() =>
+                                setExpandedBranchId((prev) => (prev === selectedBranch.id ? null : selectedBranch.id))
+                              }
+                            >
+                              ⓘ
+                            </S.InfoToggleBtn>
+                          )}
+                        </S.AddressSelectedCard>
+
+                        {selectedBranch && expandedBranchId === selectedBranch.id && (
+                          <BranchDetailPanel branch={selectedBranch} />
+                        )}
+
+                        <S.ToggleAddressesBtn type="button" onClick={() => setShowBranchList((v) => !v)}>
+                          შეცვალე ფილიალი
+                          <ChevronDownIcon
+                            size={16}
+                            style={{ transform: showBranchList ? "rotate(180deg)" : undefined }}
+                          />
+                        </S.ToggleAddressesBtn>
+
+                        {showBranchList &&
+                          branches.map((branch) => (
+                            <React.Fragment key={branch.id}>
+                              <S.AddressListItem
+                                $selected={branch.id === selectedBranchId}
+                                onClick={() => setSelectedBranchId(branch.id)}
+                              >
+                                <PinIcon size={16} />
+                                <S.AddressBody>
+                                  <S.Label>{branch.title}</S.Label>
+                                  <S.AddressValue>{branch.address}</S.AddressValue>
+                                </S.AddressBody>
+                                <S.InfoToggleBtn
+                                  type="button"
+                                  title="ფილიალის დეტალები"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setExpandedBranchId((prev) => (prev === branch.id ? null : branch.id));
+                                  }}
+                                >
+                                  ⓘ
+                                </S.InfoToggleBtn>
+                              </S.AddressListItem>
+                              {expandedBranchId === branch.id && <BranchDetailPanel branch={branch} />}
+                            </React.Fragment>
+                          ))}
+                      </S.AddressListPanel>
+                    )
+                  ) : addressesLoading ? (
                     <S.ReadonlyValue>იტვირთება...</S.ReadonlyValue>
                   ) : addresses.length === 0 ? (
                     // მისამართი საერთოდ არ არსებობს — პირდაპირ დამატების ფორმა ჩანს.
@@ -834,7 +1012,8 @@ export const CheckoutComponent: React.FC = () => {
                       )}
                     </S.AddressListPanel>
                   )}
-                  {addressError && <S.FieldError>{addressError}</S.FieldError>}
+                  {deliveryMethod === "courier" && addressError && <S.FieldError>{addressError}</S.FieldError>}
+                  {deliveryMethod === "pickup" && branchError && <S.FieldError>{branchError}</S.FieldError>}
                 </S.SectionCard>
 
                 <S.SectionCard>
@@ -878,12 +1057,26 @@ export const CheckoutComponent: React.FC = () => {
                 </S.TotalRow>
 
                 <S.DeliveryNotice>
-                  <TruckIcon size={18} />
-                  <span>
-                    მიტანის თარიღი: 7-8 სექტემბერი
-                    <br />
-                    თუ შეკვეთავთ დღეს, 13:00 საათის შემდეგ
-                  </span>
+                  {deliveryMethod === "pickup" ? (
+                    <>
+                      <BoxIcon size={18} />
+                      <span>
+                        შეკვეთის აღება ფილიალიდან
+                        <br />
+                        {selectedBranch?.title ? `${selectedBranch.title} — ` : ""}
+                        {formatPickupReadyDate()}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <TruckIcon size={18} />
+                      <span>
+                        მიტანის თარიღი: 7-8 სექტემბერი
+                        <br />
+                        თუ შეკვეთავთ დღეს, 13:00 საათის შემდეგ
+                      </span>
+                    </>
+                  )}
                 </S.DeliveryNotice>
 
                 <S.SubmitButton type="submit" disabled={submitting || purchaseBlocked}>
