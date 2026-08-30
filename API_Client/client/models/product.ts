@@ -26,6 +26,9 @@ export interface Product {
     'discountPercent'?: number;
     'images'?: Array<string>;
     'videoUrl'?: string;
+    'weight'?: string;
+    'length'?: string;
+    'width'?: string;
     'isActive': boolean;
     'category'?: Category;
     'createdAt': string;

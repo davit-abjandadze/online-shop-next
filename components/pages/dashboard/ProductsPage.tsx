@@ -34,6 +34,9 @@ const emptyProductForm: ProductFormValues = {
   categoryId: "",
   images: [],
   videoUrl: "",
+  weight: "",
+  length: "",
+  width: "",
   isActive: true,
 };
 
@@ -46,6 +49,9 @@ const toFormValues = (p: Product): ProductFormValues => ({
   categoryId: p.category?.id || "",
   images: p.images || [],
   videoUrl: p.videoUrl || "",
+  weight: p.weight != null ? String(p.weight) : "",
+  length: p.length != null ? String(p.length) : "",
+  width: p.width != null ? String(p.width) : "",
   isActive: p.isActive,
 });
 
@@ -62,6 +68,9 @@ const toDto = (data: ProductFormValues) => {
     categoryId: data.categoryId || undefined,
     images: images.length ? images : undefined,
     videoUrl: data.videoUrl?.trim() || undefined,
+    weight: data.weight?.trim() ? Number(data.weight) : undefined,
+    length: data.length?.trim() ? Number(data.length) : undefined,
+    width: data.width?.trim() ? Number(data.width) : undefined,
     isActive: data.isActive,
   };
 };
@@ -490,6 +499,23 @@ export const ProductsPage: React.FC = () => {
         <S.Input type="text" placeholder="https://www.youtube.com/watch?v=..." {...form.register("videoUrl")} />
         {form.formState.errors.videoUrl && <S.FieldError>{form.formState.errors.videoUrl.message}</S.FieldError>}
       </S.FormGroup>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>წონა, კგ (არასავალდებულო)</S.Label>
+          <S.Input type="text" inputMode="decimal" placeholder="მაგ: 1.5" {...form.register("weight")} />
+          {form.formState.errors.weight && <S.FieldError>{form.formState.errors.weight.message}</S.FieldError>}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>სიგრძე, სმ (არასავალდებულო)</S.Label>
+          <S.Input type="text" inputMode="decimal" placeholder="მაგ: 20" {...form.register("length")} />
+          {form.formState.errors.length && <S.FieldError>{form.formState.errors.length.message}</S.FieldError>}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>სიგანე, სმ (არასავალდებულო)</S.Label>
+          <S.Input type="text" inputMode="decimal" placeholder="მაგ: 10" {...form.register("width")} />
+          {form.formState.errors.width && <S.FieldError>{form.formState.errors.width.message}</S.FieldError>}
+        </S.FormGroup>
+      </S.FormRow>
       <S.CategoryCheckboxItem checked={form.watch("isActive")}>
         <input type="checkbox" {...form.register("isActive")} /> აქტიურია (გამოჩნდება კატალოგში)
       </S.CategoryCheckboxItem>

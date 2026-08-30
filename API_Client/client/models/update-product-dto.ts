@@ -44,6 +44,18 @@ export interface UpdateProductDto {
      */
     'videoUrl'?: string;
     /**
+     * წონა (კგ)
+     */
+    'weight'?: number;
+    /**
+     * სიგრძე (სმ)
+     */
+    'length'?: number;
+    /**
+     * სიგანე (სმ)
+     */
+    'width'?: number;
+    /**
      * აქტიურია თუ არა პროდუქტი
      */
     'isActive'?: boolean;

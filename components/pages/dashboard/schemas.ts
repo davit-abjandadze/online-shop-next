@@ -73,6 +73,22 @@ export const productFormSchema = z.object({
     .trim()
     .optional()
     .refine((v) => !v || /^https?:\/\//.test(v), "ვიდეოს ლინკი უნდა იწყებოდეს http(s)://-ით"),
+  // წონა/სიგრძე/სიგანე — არასავალდებულო ფიზიკური პარამეტრები (მიწოდების გაანგარიშებისთვის).
+  weight: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || (!isNaN(Number(v)) && Number(v) >= 0), "წონა უნდა იყოს დადებითი რიცხვი"),
+  length: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || (!isNaN(Number(v)) && Number(v) >= 0), "სიგრძე უნდა იყოს დადებითი რიცხვი"),
+  width: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || (!isNaN(Number(v)) && Number(v) >= 0), "სიგანე უნდა იყოს დადებითი რიცხვი"),
   isActive: z.boolean(),
 });
 

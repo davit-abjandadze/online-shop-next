@@ -152,8 +152,20 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
         byAttribute.set(key, { name: getAttributeName(v.attribute, router.locale), values: [value] });
       }
     }
-    return Array.from(byAttribute.values());
-  }, [attrValues, router.locale]);
+    const rows = Array.from(byAttribute.values());
+    // ფიზიკური პარამეტრები (წონა/სიგრძე/სიგანე) — ბექენდიდან მოდის, სპეც-ცხრილში
+    // ჩნდება მხოლოდ თუ პროდუქტისთვის შევსებულია.
+    if (product.weight != null && product.weight !== "") {
+      rows.push({ name: "წონა", values: [`${product.weight} კგ`] });
+    }
+    if (product.length != null && product.length !== "") {
+      rows.push({ name: "სიგრძე", values: [`${product.length} სმ`] });
+    }
+    if (product.width != null && product.width !== "") {
+      rows.push({ name: "სიგანე", values: [`${product.width} სმ`] });
+    }
+    return rows;
+  }, [attrValues, router.locale, product.weight, product.length, product.width]);
 
   // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
