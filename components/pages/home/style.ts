@@ -65,7 +65,8 @@ export const Hero = styled("section")`
   position: relative;
   overflow: hidden;
   width: 100%;
-  background: linear-gradient(120deg, #0b1426 0%, #132347 46%, #1d3a7c 100%);
+  /* background: linear-gradient(120deg, #043165 0%, #0060cc 50%,  #0080ff 120%); */
+  background: linear-gradient(120deg, #0080ff 0%, #00bfff 50%, #0080ff 100%);
   color: #ffffff;
 
   .swiper {
@@ -248,7 +249,7 @@ export const HeroEyebrow = styled("div")`
     font-weight: 700;
     letter-spacing: 0.09em;
     text-transform: uppercase;
-    color: #5b9bff;
+    color: #00dfff;
   }
 
   @media (max-width: 900px) {
@@ -259,7 +260,7 @@ export const HeroEyebrow = styled("div")`
 export const HeroEyebrowBar = styled("span")`
   width: 24px;
   height: 2px;
-  background: #5b9bff;
+  background: #00dfff;
   display: inline-block !important;
 `;
 
@@ -292,7 +293,7 @@ export const HeroButton = styled("a")`
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 16px 30px -10px rgba(37, 99, 235, 0.6);
+  box-shadow: 0 16px 30px -10px rgba(0, 191, 255, 0.55);
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 
   &:hover {
@@ -422,7 +423,7 @@ border: 1px solid rgb(241, 245, 249);
     transform: translateY(-2px);
     box-shadow: var(--ref-shadow-md);
     border-color: var(--ref-primary);
-    background-color: #2563eb;
+    background-color: var(--ref-primary);
 
     span{
       color: #ffffff;

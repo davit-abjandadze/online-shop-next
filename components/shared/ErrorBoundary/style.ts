@@ -37,7 +37,7 @@ export const Button = styled("button")`
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  background-color: var(--ref-primary, #2563eb);
+  background-color: var(--ref-primary, #0080ff);
   color: #fff;
 
   &:hover {

@@ -41,34 +41,49 @@ html {
 }
 
 /* Shop UI-ის თემის ცვლადები (Header/Footer/Home/ProductCard scope) — მორგებული
-   "Nova Ecommerce UI" დიზაინის canvas-ზე (გამოქვეყნებული არტიფაქტი 1a3b1001-...):
-   navy ტექსტი, Manrope/Instrument Serif შრიფტები, ლურჯი აქცენტი, ოქროსფერი
-   ვარსკვლავის აქცენტი. ერთადერთი, ფიქსირებული (light) თემა — dark mode ამოღებულია. */
+   ახალი ლოგოს ციან-ლურჯ ნეონისფერ პალიტრაზე (ციანი #00BFFF, ელექტრო ლურჯი
+   #0080FF, კაშკაშა ციანი #00DFFF, მუქი ფონის ცენტრი #2A3F55, ფონის კიდე #0F1A28).
+   ძირითადი ფონი კვლავ ღიაა (readability-ის შესანარჩუნებლად), ხოლო
+   primary/accent და shadow/overlay ტონები ლოგოს ნეონის პალიტრაზეა აწყობილი.
+   ერთადერთი, ფიქსირებული (light) თემა — dark mode ამოღებულია. */
 :root {
-  --ref-bg: #f8fafc;
+  /* ლოგოს ნედლი ნეონისფერი პალიტრა — გამოიყენება პირდაპირ გრადიენტებში
+     (Hero, Footer) და --ref-* ცვლადების წყაროდაა. */
+  --neon-primary: #00bfff;
+  --neon-secondary: #0080ff;
+  --neon-bright: #00dfff;
+  --neon-glow: #80dfff;
+  --neon-dark: #0060cc;
+  --neon-edge: #004080;
+  --bg-center: #2a3f55;
+  --bg-edge: #0f1a28;
+
+  --ref-bg: #f5fafd;
   --ref-bg-elevated: #ffffff;
-  --ref-bg-subtle: #f1f5f9;
-  --ref-text-primary: #0b1426;
-  --ref-text-secondary: #64748b;
-  --ref-text-disabled: #b8c0cc;
+  --ref-bg-subtle: #eaf6fb;
+  --ref-text-primary: #0a1a2e;
+  --ref-text-secondary: #4f6b82;
+  --ref-text-disabled: #b7c9d6;
   --ref-text-on-primary: #ffffff;
-  --ref-border: #dde3ea;
-  --ref-border-soft: #f1f5f9;
-  --ref-primary: #2563eb;
-  --ref-primary-hover: #1d4ed8;
-  --ref-primary-soft: #eef3fe;
-  --ref-accent: #f5b700;
-  --ref-accent-soft: #fff3d6;
+  --ref-border: #d3e6f2;
+  --ref-border-soft: #eaf6fb;
+  --ref-primary: var(--neon-secondary);
+  --ref-primary-hover: var(--neon-dark);
+  --ref-primary-soft: #e0f2ff;
+  --ref-accent: var(--neon-primary);
+  --ref-accent-soft: #d6f6ff;
   --ref-success: #16a34a;
   --ref-success-soft: #e3f7ea;
   --ref-warning: #f5b700;
   --ref-warning-soft: #fff3d6;
-  --ref-danger: #dc2626;
+  --ref-danger: #f61c1c;
   --ref-danger-soft: #fde8ea;
-  --ref-shadow-sm: 0 1px 2px rgba(11, 20, 38, 0.1);
-  --ref-shadow-md: 0 14px 32px -18px rgba(11, 20, 38, 0.28);
-  --ref-shadow-lg: 0 20px 44px -16px rgba(11, 20, 38, 0.32);
-  --ref-overlay: rgba(11, 20, 38, 0.5);
+  --ref-shadow-sm: 0 1px 2px rgba(0, 64, 128, 0.12);
+  --ref-shadow-md: 0 14px 32px -18px rgba(0, 64, 128, 0.32);
+  --ref-shadow-lg: 0 20px 44px -16px rgba(0, 64, 128, 0.36);
+  --ref-overlay: rgba(15, 26, 40, 0.55);
+  --ref-glow-primary: 0 0 20px rgba(0, 128, 255, 0.35);
+  --ref-glow-accent: 0 0 20px rgba(0, 191, 255, 0.35);
   --ref-font-display: "Noto Serif", "Noto Serif Georgian", "Helvetica Neue", serif;
   --ref-font-body: "Noto Sans", "Noto Sans Georgian", "Helvetica Neue", Arial, sans-serif;
   color-scheme: light;
@@ -391,7 +406,7 @@ input[type="number"] {
   pointer-events: none;
 }
 #nprogress .bar {
-  background: #2c61f2;
+  background: #0080ff;
   position: fixed;
   z-index: 1031;
   top: 0;
@@ -405,7 +420,7 @@ input[type="number"] {
   right: 0;
   width: 100px;
   height: 100%;
-  box-shadow: 0 0 10px #2c61f2, 0 0 5px #2c61f2;
+  box-shadow: 0 0 10px #0080ff, 0 0 5px #00bfff;
   opacity: 1;
   -webkit-transform: rotate(3deg) translate(0, -4px);
   -ms-transform: rotate(3deg) translate(0, -4px);

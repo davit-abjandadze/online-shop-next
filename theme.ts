@@ -41,9 +41,11 @@ export const ssTheme = {
       whiteDisabled: "rgba(255, 255, 255, 0.6)",
     },
     ardi: "#077A61",
-    primary: "#1877F2",
-    primaryDark: "#166FE5",
-    primaryLight: "#4293FA",
+    // ლოგოს ნეონისფერი პალიტრა (ციანი/ელექტრო ლურჯი) — იხ. styles/globals.css
+    // :root-ის --ref-primary/--ref-primary-hover, იგივე მნიშვნელობები.
+    primary: "#0080FF",
+    primaryDark: "#0060CC",
+    primaryLight: "#00BFFF",
     secondary: "#E4E6EB",
     secondaryDark: "#CED0D4",
     secondaryLight: "#F0F2F5",
@@ -56,7 +58,7 @@ export const ssTheme = {
     redLight: "#f14e42",
     success: "#30C582",
     info: "#3685EC",
-    purple: "#8952FF",
+    purple: "#0080FF",
     blankBackground: {
       purple: "rgba(137, 82, 255, 0.1)",
       blue: "rgba(44, 97, 242, 0.1)",

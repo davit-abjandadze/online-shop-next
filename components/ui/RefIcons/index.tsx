@@ -26,8 +26,8 @@ export const FireIcon: React.FC<RefIconProps> = ({ size = 24, className, style }
 
 export const ClipboardIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <rect x="5" y="4" width="14" height="17" rx="2" fill="#ffffff" stroke="#1877F2" strokeWidth="1.6" />
-    <rect x="9" y="2.5" width="6" height="3.5" rx="1" fill="#1877F2" />
+    <rect x="5" y="4" width="14" height="17" rx="2" fill="#ffffff" stroke="#0080FF" strokeWidth="1.6" />
+    <rect x="9" y="2.5" width="6" height="3.5" rx="1" fill="#0080FF" />
     <path d="M8 10h8M8 13.5h8M8 17h5" stroke="#65676B" strokeWidth="1.4" strokeLinecap="round" />
   </svg>
 );
@@ -51,7 +51,7 @@ export const PaletteIcon: React.FC<RefIconProps> = ({ size = 24, className, styl
     />
     <circle cx="7.5" cy="10.5" r="1.4" fill="#F43E50" />
     <circle cx="9.5" cy="15.5" r="1.4" fill="#FAD400" />
-    <circle cx="14.5" cy="8" r="1.4" fill="#1877F2" />
+    <circle cx="14.5" cy="8" r="1.4" fill="#0080FF" />
   </svg>
 );
 
@@ -90,7 +90,7 @@ export const UserIcon: React.FC<RefIconProps> = ({ size = 24, className, style }
 export const ChartIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <rect x="3" y="3" width="18" height="18" rx="3" fill="#F0F2F5" />
-    <rect x="6.5" y="13" width="3" height="5.5" rx="1" fill="#1877F2" />
+    <rect x="6.5" y="13" width="3" height="5.5" rx="1" fill="#0080FF" />
     <rect x="10.5" y="9" width="3" height="9.5" rx="1" fill="#30C582" />
     <rect x="14.5" y="6" width="3" height="12.5" rx="1" fill="#FAD400" />
   </svg>
@@ -99,7 +99,7 @@ export const ChartIcon: React.FC<RefIconProps> = ({ size = 24, className, style 
 export const KeyIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="8" cy="15" r="4.5" fill="#FAD400" />
-    <rect x="11" y="9" width="10" height="3.2" rx="1.4" transform="rotate(45 11 9)" fill="#1877F2" />
+    <rect x="11" y="9" width="10" height="3.2" rx="1.4" transform="rotate(45 11 9)" fill="#0080FF" />
     <circle cx="8" cy="15" r="1.6" fill="#ffffff" />
   </svg>
 );
@@ -131,24 +131,24 @@ export const StarIcon: React.FC<RefIconProps & { filled?: boolean }> = ({ size =
 
 export const CheckSquareIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <rect x="3" y="3" width="18" height="18" rx="4" fill="#1877F2" />
+    <rect x="3" y="3" width="18" height="18" rx="4" fill="#0080FF" />
     <path d="M7.5 12.5l2.7 2.7 6-6.4" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 export const RadioIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#1877F2" strokeWidth="2" />
-    <circle cx="12" cy="12" r="4.2" fill="#1877F2" />
+    <circle cx="12" cy="12" r="9" fill="#ffffff" stroke="#0080FF" strokeWidth="2" />
+    <circle cx="12" cy="12" r="4.2" fill="#0080FF" />
   </svg>
 );
 
 export const PeopleIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="8.5" cy="8" r="3.2" fill="#1877F2" />
-    <circle cx="16" cy="9" r="2.6" fill="#4293FA" />
-    <path d="M3 19c0-3.3 2.5-5.4 5.5-5.4s5.5 2.1 5.5 5.4" fill="#1877F2" />
-    <path d="M13.5 19c.2-2.6 1.8-4.4 4-4.9 2 .6 3.5 2.3 3.5 4.9" fill="#4293FA" />
+    <circle cx="8.5" cy="8" r="3.2" fill="#0080FF" />
+    <circle cx="16" cy="9" r="2.6" fill="#00BFFF" />
+    <path d="M3 19c0-3.3 2.5-5.4 5.5-5.4s5.5 2.1 5.5 5.4" fill="#0080FF" />
+    <path d="M13.5 19c.2-2.6 1.8-4.4 4-4.9 2 .6 3.5 2.3 3.5 4.9" fill="#00BFFF" />
   </svg>
 );
 
@@ -162,8 +162,8 @@ export const LockIcon: React.FC<RefIconProps> = ({ size = 18, className, style }
 
 export const UndoIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M6 8.5H15a5 5 0 010 10H9" stroke="#1877F2" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-    <path d="M9.5 5L6 8.5l3.5 3.5" stroke="#1877F2" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    <path d="M6 8.5H15a5 5 0 010 10H9" stroke="#0080FF" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+    <path d="M9.5 5L6 8.5l3.5 3.5" stroke="#0080FF" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
   </svg>
 );
 
@@ -194,7 +194,7 @@ export const MoonIcon: React.FC<RefIconProps> = ({ size = 20, className, style }
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path
       d="M20 14.5A8.5 8.5 0 119.5 4a7 7 0 1010.5 10.5z"
-      fill="#4293FA"
+      fill="#00BFFF"
     />
   </svg>
 );
@@ -208,7 +208,7 @@ export const CloseIcon: React.FC<RefIconProps> = ({ size = 18, className, style 
 
 export const PlusIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <circle cx="12" cy="12" r="10" fill="#1877F2" />
+    <circle cx="12" cy="12" r="10" fill="#0080FF" />
     <path d="M12 7.5v9M7.5 12h9" stroke="#ffffff" strokeWidth="2.2" strokeLinecap="round" />
   </svg>
 );
@@ -223,7 +223,7 @@ export const MinusIcon: React.FC<RefIconProps> = ({ size = 18, className, style 
 export const EditIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <path d="M4 20l1-4.5L15.5 5l3.5 3.5L8.5 19l-4.5 1z" fill="#FAD400" stroke="#e1bf00" strokeWidth="1" />
-    <path d="M14 6.5l3.5 3.5" stroke="#1877F2" strokeWidth="1.6" />
+    <path d="M14 6.5l3.5 3.5" stroke="#0080FF" strokeWidth="1.6" />
   </svg>
 );
 
@@ -260,7 +260,7 @@ export const WarningIcon: React.FC<RefIconProps> = ({ size = 18, className, styl
 
 export const ShieldIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
-    <path d="M12 2.5l8 3v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10v-6l8-3z" fill="#4293FA" />
+    <path d="M12 2.5l8 3v6c0 5-3.4 8.7-8 10-4.6-1.3-8-5-8-10v-6l8-3z" fill="#00BFFF" />
     <path d="M8.5 12.3l2.3 2.3 4.5-4.9" stroke="#ffffff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
@@ -270,12 +270,12 @@ export const QuestionMarkIcon: React.FC<RefIconProps> = ({ size = 22, className,
     <circle cx="12" cy="12" r="10" fill="#E7F3FF" />
     <path
       d="M9.3 9.5a2.7 2.7 0 015.2.9c0 1.7-2.1 1.9-2.4 3.4"
-      stroke="#1877F2"
+      stroke="#0080FF"
       strokeWidth="1.8"
       strokeLinecap="round"
       fill="none"
     />
-    <circle cx="12" cy="17" r="1.1" fill="#1877F2" />
+    <circle cx="12" cy="17" r="1.1" fill="#0080FF" />
   </svg>
 );
 
@@ -320,7 +320,7 @@ export const FacebookIcon: React.FC<RefIconProps> = ({ size = 18, className, sty
     <circle cx="12" cy="12" r="10" fill="#ffffff" />
     <path
       d="M13.5 21.9v-7.6h2.6l.4-3h-3v-1.9c0-.9.25-1.5 1.5-1.5H16.6V5.1c-.28-.04-1.24-.12-2.36-.12-2.33 0-3.93 1.42-3.93 4.03v2.25H7.7v3h2.6v7.6a10 10 0 003.2 0z"
-      fill="#1877F2"
+      fill="#0080FF"
     />
   </svg>
 );
@@ -488,12 +488,12 @@ export const BuildingIcon: React.FC<RefIconProps> = ({ size = 24, className, sty
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <rect x="4" y="3" width="12" height="18" rx="1.2" fill="#ffffff" stroke="#0347a0" strokeWidth="1.6" />
     <path d="M16 10l4 2v9h-4" fill="#ffffff" stroke="#0347a0" strokeWidth="1.6" strokeLinejoin="round" />
-    <rect x="7" y="6.5" width="2.2" height="2.2" fill="#1877F2" />
-    <rect x="10.8" y="6.5" width="2.2" height="2.2" fill="#1877F2" />
-    <rect x="7" y="10.5" width="2.2" height="2.2" fill="#1877F2" />
-    <rect x="10.8" y="10.5" width="2.2" height="2.2" fill="#1877F2" />
-    <rect x="7" y="14.5" width="2.2" height="2.2" fill="#1877F2" />
-    <rect x="10.8" y="14.5" width="2.2" height="2.2" fill="#1877F2" />
+    <rect x="7" y="6.5" width="2.2" height="2.2" fill="#0080FF" />
+    <rect x="10.8" y="6.5" width="2.2" height="2.2" fill="#0080FF" />
+    <rect x="7" y="10.5" width="2.2" height="2.2" fill="#0080FF" />
+    <rect x="10.8" y="10.5" width="2.2" height="2.2" fill="#0080FF" />
+    <rect x="7" y="14.5" width="2.2" height="2.2" fill="#0080FF" />
+    <rect x="10.8" y="14.5" width="2.2" height="2.2" fill="#0080FF" />
     <rect x="8.5" y="18" width="3" height="3" fill="#FAD400" />
   </svg>
 );

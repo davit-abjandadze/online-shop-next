@@ -187,7 +187,7 @@ export const ThumbnailsNavBtn = styled("button")`
   line-height: 1;
 
   &:hover {
-    background: #2563eb;
+    background: var(--ref-primary);
     color: #fff;
   }
 
