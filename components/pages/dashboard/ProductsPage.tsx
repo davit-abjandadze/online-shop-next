@@ -4,11 +4,11 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ProductsAPI, CategoriesAPI } from "@/API_Client";
-import { Category, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
+import { ProductsAPI, CategoriesAPI, CompaniesAPI } from "@/API_Client";
+import { Category, Company, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { CategoryAttribute, PaginatedResponseDto, ProductAttributeValue } from "@/API_Client/types";
-import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PaletteIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
+import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PaletteIcon, PinIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -20,6 +20,7 @@ import { ListSkeleton } from "./Skeletons";
 import DynamicAttributeForm from "./DynamicAttributeForm";
 import AdditionalInfoForm from "./AdditionalInfoForm";
 import ProductColorsForm from "./ProductColorsForm";
+import ProductBranchesForm from "./ProductBranchesForm";
 import { ProductFormValues, productFormSchema } from "./schemas";
 import * as S from "./style";
 
@@ -32,6 +33,7 @@ const emptyProductForm: ProductFormValues = {
   stock: "",
   discountPercent: "",
   categoryId: "",
+  companyId: "",
   images: [],
   videoUrl: "",
   weight: "",
@@ -47,6 +49,7 @@ const toFormValues = (p: Product): ProductFormValues => ({
   stock: String(p.stock),
   discountPercent: p.discountPercent != null ? String(p.discountPercent) : "",
   categoryId: p.category?.id || "",
+  companyId: p.company?.id || "",
   images: p.images || [],
   videoUrl: p.videoUrl || "",
   weight: p.weight != null ? String(p.weight) : "",
@@ -66,6 +69,7 @@ const toDto = (data: ProductFormValues) => {
     stock: Number(data.stock),
     discountPercent: data.discountPercent?.trim() ? Number(data.discountPercent) : undefined,
     categoryId: data.categoryId || undefined,
+    companyId: data.companyId,
     images: images.length ? images : undefined,
     videoUrl: data.videoUrl?.trim() || undefined,
     weight: data.weight?.trim() ? Number(data.weight) : undefined,
@@ -92,6 +96,7 @@ export const ProductsPage: React.FC = () => {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -235,6 +240,16 @@ export const ProductsPage: React.FC = () => {
     }
   };
 
+  const fetchCompanies = async () => {
+    if (!session?.accessToken) return;
+    try {
+      const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
+      setCompanies((res.data as unknown as Company[]) || []);
+    } catch {
+      toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
+    }
+  };
+
   useEffect(() => {
     if (session?.accessToken) {
       fetchProducts();
@@ -257,6 +272,7 @@ export const ProductsPage: React.FC = () => {
   useEffect(() => {
     if (session?.accessToken) {
       fetchCategories();
+      fetchCompanies();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
@@ -488,6 +504,20 @@ export const ProductsPage: React.FC = () => {
               </option>
             ))}
           </S.Select>
+        </S.FormGroup>
+      </S.FormRow>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>მფლობელი კომპანია</S.Label>
+          <S.Select {...form.register("companyId")}>
+            <option value="">— აირჩიეთ კომპანია —</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </S.Select>
+          {form.formState.errors.companyId && <S.FieldError>{form.formState.errors.companyId.message}</S.FieldError>}
         </S.FormGroup>
       </S.FormRow>
       <S.FormGroup>
@@ -786,6 +816,19 @@ export const ProductsPage: React.FC = () => {
               </S.Label>
               {session?.accessToken && (
                 <ProductColorsForm
+                  productId={editingProduct.id}
+                  accessToken={session.accessToken}
+                  locale={router.locale || "ka"}
+                />
+              )}
+            </div>
+
+            <div style={{ marginTop: "20px", borderTop: "1px solid var(--ref-border)", paddingTop: "16px" }}>
+              <S.Label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "12px" }}>
+                <PinIcon size={16} /> ფილიალები და მარაგი
+              </S.Label>
+              {session?.accessToken && (
+                <ProductBranchesForm
                   productId={editingProduct.id}
                   accessToken={session.accessToken}
                   locale={router.locale || "ka"}

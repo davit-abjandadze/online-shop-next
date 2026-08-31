@@ -65,6 +65,7 @@ export const productFormSchema = z.object({
       "ფასდაკლება უნდა იყოს 0-დან 100-მდე რიცხვი"
     ),
   categoryId: z.string().optional(),
+  companyId: z.string().trim().min(1, "გთხოვთ აირჩიოთ მფლობელი კომპანია"),
   // თითო სურათის URL — ცალკე მწკრივია ფორმაში (რამდენიმე სურათის დამატება/წაშლა
   // შესაძლებელია პირდაპირ), ცარიელი სტრიქონები submit-ის წინ ფილტრდება.
   images: z.array(z.string()).optional(),
@@ -167,6 +168,7 @@ const branchDayHoursSchema = z
 /** ფილიალის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. `latitude`/`longitude`
  * სტრინგებადაა (input-ის ბუნებრივი ტიპი), submit-ის დროს რიცხვებად გარდაიქმნება. */
 export const branchFormSchema = z.object({
+  companyId: z.string().trim().min(1, "გთხოვთ აირჩიოთ მფლობელი კომპანია"),
   title: z.string().trim().min(1, "გთხოვთ შეავსოთ ფილიალის დასახელება"),
   address: z.string().trim().min(1, "გთხოვთ მიუთითოთ მისამართი"),
   phoneNumber: z.string().trim().min(1, "გთხოვთ მიუთითოთ ტელეფონის ნომერი"),
@@ -209,3 +211,22 @@ export const colorFormSchema = z.object({
 });
 
 export type ColorFormValues = z.infer<typeof colorFormSchema>;
+
+/** კომპანიის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა — ColorsPage-ის იგივე
+ * ბრტყელი (ჩადგმული ველების გარეშე) სქემის სტილით. */
+export const companyFormSchema = z.object({
+  name: z.string().trim().min(2, "გთხოვთ შეავსოთ კომპანიის დასახელება (მინ. 2 სიმბოლო)"),
+  description: z.string().trim().optional(),
+  logoUrl: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || /^https?:\/\//.test(v), "ლოგოს ლინკი უნდა იწყებოდეს http(s)://-ით"),
+  isActive: z.boolean(),
+  sortOrder: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (!isNaN(Number(v)) && Number.isInteger(Number(v))), "sortOrder უნდა იყოს მთელი რიცხვი"),
+});
+
+export type CompanyFormValues = z.infer<typeof companyFormSchema>;

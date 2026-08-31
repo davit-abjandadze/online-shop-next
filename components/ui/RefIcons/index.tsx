@@ -483,3 +483,18 @@ export const UploadIcon: React.FC<RefIconProps> = ({ size = 18, className, style
   </svg>
 );
 
+/* შენობა/კომპანია — ადმინის კომპანიების ჩანართისთვის */
+export const BuildingIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="4" y="3" width="12" height="18" rx="1.2" fill="#ffffff" stroke="#0347a0" strokeWidth="1.6" />
+    <path d="M16 10l4 2v9h-4" fill="#ffffff" stroke="#0347a0" strokeWidth="1.6" strokeLinejoin="round" />
+    <rect x="7" y="6.5" width="2.2" height="2.2" fill="#1877F2" />
+    <rect x="10.8" y="6.5" width="2.2" height="2.2" fill="#1877F2" />
+    <rect x="7" y="10.5" width="2.2" height="2.2" fill="#1877F2" />
+    <rect x="10.8" y="10.5" width="2.2" height="2.2" fill="#1877F2" />
+    <rect x="7" y="14.5" width="2.2" height="2.2" fill="#1877F2" />
+    <rect x="10.8" y="14.5" width="2.2" height="2.2" fill="#1877F2" />
+    <rect x="8.5" y="18" width="3" height="3" fill="#FAD400" />
+  </svg>
+);
+

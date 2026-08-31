@@ -22,25 +22,25 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { CreateBranchDto } from '../models';
+import type { CreateCompanyDto } from '../models';
 // @ts-ignore
-import type { UpdateBranchDto } from '../models';
+import type { UpdateCompanyDto } from '../models';
 /**
- * BranchesApi - axios parameter creator
+ * CompaniesApi - axios parameter creator
  */
-export const BranchesApiAxiosParamCreator = function (configuration?: Configuration) {
+export const CompaniesApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * 
-         * @summary ახალი ფილიალის დამატება (ADMIN)
-         * @param {CreateBranchDto} createBranchDto 
+         * @summary ახალი კომპანიის დამატება (ADMIN)
+         * @param {CreateCompanyDto} createCompanyDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerCreate: async (createBranchDto: CreateBranchDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'createBranchDto' is not null or undefined
-            assertParamExists('branchesControllerCreate', 'createBranchDto', createBranchDto)
-            const localVarPath = `/branches`;
+        companiesControllerCreate: async (createCompanyDto: CreateCompanyDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createCompanyDto' is not null or undefined
+            assertParamExists('companiesControllerCreate', 'createCompanyDto', createCompanyDto)
+            const localVarPath = `/companies`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -61,7 +61,7 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(createBranchDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(createCompanyDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -70,13 +70,12 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-         * @param {string} [companyId] 
+         * @summary აქტიური კომპანიების სია
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAll: async (companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/branches`;
+        companiesControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/companies`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -87,10 +86,6 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-
-            if (companyId !== undefined) {
-                localVarQueryParameter['companyId'] = companyId;
-            }
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -104,13 +99,12 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-         * @param {string} [companyId] 
+         * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAllAdmin: async (companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/branches/admin/all`;
+        companiesControllerFindAllAdmin: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/companies/admin/all`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -126,10 +120,6 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
-            if (companyId !== undefined) {
-                localVarQueryParameter['companyId'] = companyId;
-            }
-
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -142,13 +132,16 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-         * @param {string} [productIds] 
+         * @summary კონკრეტული კომპანიის მიღება
+         * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAvailable: async (productIds?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/branches/available`;
+        companiesControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('companiesControllerFindOne', 'id', id)
+            const localVarPath = `/companies/{id}`
+                .replace('{id}', encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -160,10 +153,6 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            if (productIds !== undefined) {
-                localVarQueryParameter['productIds'] = productIds;
-            }
-
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -176,15 +165,15 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary ფილიალის წაშლა (ADMIN)
+         * @summary კომპანიის წაშლა (ADMIN)
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        companiesControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('branchesControllerRemove', 'id', id)
-            const localVarPath = `/branches/{id}`
+            assertParamExists('companiesControllerRemove', 'id', id)
+            const localVarPath = `/companies/{id}`
                 .replace('{id}', encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -213,18 +202,18 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary ფილიალის რედაქტირება (ADMIN)
+         * @summary კომპანიის რედაქტირება (ADMIN)
          * @param {string} id 
-         * @param {UpdateBranchDto} updateBranchDto 
+         * @param {UpdateCompanyDto} updateCompanyDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerUpdate: async (id: string, updateBranchDto: UpdateBranchDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        companiesControllerUpdate: async (id: string, updateCompanyDto: UpdateCompanyDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('branchesControllerUpdate', 'id', id)
-            // verify required parameter 'updateBranchDto' is not null or undefined
-            assertParamExists('branchesControllerUpdate', 'updateBranchDto', updateBranchDto)
-            const localVarPath = `/branches/{id}`
+            assertParamExists('companiesControllerUpdate', 'id', id)
+            // verify required parameter 'updateCompanyDto' is not null or undefined
+            assertParamExists('companiesControllerUpdate', 'updateCompanyDto', updateCompanyDto)
+            const localVarPath = `/companies/{id}`
                 .replace('{id}', encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -246,7 +235,7 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateBranchDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(updateCompanyDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -257,232 +246,226 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
 };
 
 /**
- * BranchesApi - functional programming interface
+ * CompaniesApi - functional programming interface
  */
-export const BranchesApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = BranchesApiAxiosParamCreator(configuration)
+export const CompaniesApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = CompaniesApiAxiosParamCreator(configuration)
     return {
         /**
          * 
-         * @summary ახალი ფილიალის დამატება (ADMIN)
-         * @param {CreateBranchDto} createBranchDto 
+         * @summary ახალი კომპანიის დამატება (ADMIN)
+         * @param {CreateCompanyDto} createCompanyDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerCreate(createBranchDto: CreateBranchDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerCreate(createBranchDto, options);
+        async companiesControllerCreate(createCompanyDto: CreateCompanyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerCreate(createCompanyDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerCreate']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerCreate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-         * @param {string} [companyId] 
+         * @summary აქტიური კომპანიების სია
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerFindAll(companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAll(companyId, options);
+        async companiesControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerFindAll(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerFindAll']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerFindAll']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-         * @param {string} [companyId] 
+         * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerFindAllAdmin(companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAllAdmin(companyId, options);
+        async companiesControllerFindAllAdmin(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerFindAllAdmin(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerFindAllAdmin']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerFindAllAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-         * @param {string} [productIds] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async branchesControllerFindAvailable(productIds?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAvailable(productIds, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerFindAvailable']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary ფილიალის წაშლა (ADMIN)
+         * @summary კონკრეტული კომპანიის მიღება
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerRemove(id, options);
+        async companiesControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerFindOne(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerRemove']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerFindOne']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary ფილიალის რედაქტირება (ADMIN)
+         * @summary კომპანიის წაშლა (ADMIN)
          * @param {string} id 
-         * @param {UpdateBranchDto} updateBranchDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerUpdate(id: string, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerUpdate(id, updateBranchDto, options);
+        async companiesControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerRemove(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerUpdate']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerRemove']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary კომპანიის რედაქტირება (ADMIN)
+         * @param {string} id 
+         * @param {UpdateCompanyDto} updateCompanyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async companiesControllerUpdate(id: string, updateCompanyDto: UpdateCompanyDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerUpdate(id, updateCompanyDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerUpdate']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * BranchesApi - factory interface
+ * CompaniesApi - factory interface
  */
-export const BranchesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = BranchesApiFp(configuration)
+export const CompaniesApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = CompaniesApiFp(configuration)
     return {
         /**
          * 
-         * @summary ახალი ფილიალის დამატება (ADMIN)
-         * @param {CreateBranchDto} createBranchDto 
+         * @summary ახალი კომპანიის დამატება (ADMIN)
+         * @param {CreateCompanyDto} createCompanyDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerCreate(createBranchDto: CreateBranchDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerCreate(createBranchDto, options).then((request) => request(axios, basePath));
+        companiesControllerCreate(createCompanyDto: CreateCompanyDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerCreate(createCompanyDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-         * @param {string} [companyId] 
+         * @summary აქტიური კომპანიების სია
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAll(companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerFindAll(companyId, options).then((request) => request(axios, basePath));
+        companiesControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerFindAll(options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-         * @param {string} [companyId] 
+         * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAllAdmin(companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerFindAllAdmin(companyId, options).then((request) => request(axios, basePath));
+        companiesControllerFindAllAdmin(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerFindAllAdmin(options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-         * @param {string} [productIds] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        branchesControllerFindAvailable(productIds?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerFindAvailable(productIds, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary ფილიალის წაშლა (ADMIN)
+         * @summary კონკრეტული კომპანიის მიღება
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerRemove(id, options).then((request) => request(axios, basePath));
+        companiesControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerFindOne(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary ფილიალის რედაქტირება (ADMIN)
+         * @summary კომპანიის წაშლა (ADMIN)
          * @param {string} id 
-         * @param {UpdateBranchDto} updateBranchDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerUpdate(id: string, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerUpdate(id, updateBranchDto, options).then((request) => request(axios, basePath));
+        companiesControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerRemove(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary კომპანიის რედაქტირება (ADMIN)
+         * @param {string} id 
+         * @param {UpdateCompanyDto} updateCompanyDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        companiesControllerUpdate(id: string, updateCompanyDto: UpdateCompanyDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerUpdate(id, updateCompanyDto, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * BranchesApi - object-oriented interface
+ * CompaniesApi - object-oriented interface
  */
-export class BranchesApi extends BaseAPI {
+export class CompaniesApi extends BaseAPI {
     /**
      * 
-     * @summary ახალი ფილიალის დამატება (ADMIN)
-     * @param {CreateBranchDto} createBranchDto 
+     * @summary ახალი კომპანიის დამატება (ADMIN)
+     * @param {CreateCompanyDto} createCompanyDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerCreate(createBranchDto: CreateBranchDto, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerCreate(createBranchDto, options).then((request) => request(this.axios, this.basePath));
+    public companiesControllerCreate(createCompanyDto: CreateCompanyDto, options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerCreate(createCompanyDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-     * @param {string} [companyId] 
+     * @summary აქტიური კომპანიების სია
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerFindAll(companyId?: string, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerFindAll(companyId, options).then((request) => request(this.axios, this.basePath));
+    public companiesControllerFindAll(options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerFindAll(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-     * @param {string} [companyId] 
+     * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerFindAllAdmin(companyId?: string, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerFindAllAdmin(companyId, options).then((request) => request(this.axios, this.basePath));
+    public companiesControllerFindAllAdmin(options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerFindAllAdmin(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-     * @param {string} [productIds] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public branchesControllerFindAvailable(productIds?: string, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerFindAvailable(productIds, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary ფილიალის წაშლა (ADMIN)
+     * @summary კონკრეტული კომპანიის მიღება
      * @param {string} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerRemove(id: string, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    public companiesControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary ფილიალის რედაქტირება (ADMIN)
+     * @summary კომპანიის წაშლა (ADMIN)
      * @param {string} id 
-     * @param {UpdateBranchDto} updateBranchDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerUpdate(id: string, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerUpdate(id, updateBranchDto, options).then((request) => request(this.axios, this.basePath));
+    public companiesControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary კომპანიის რედაქტირება (ADMIN)
+     * @param {string} id 
+     * @param {UpdateCompanyDto} updateCompanyDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public companiesControllerUpdate(id: string, updateCompanyDto: UpdateCompanyDto, options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerUpdate(id, updateCompanyDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

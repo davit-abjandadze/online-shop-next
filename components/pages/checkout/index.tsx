@@ -251,12 +251,16 @@ export const CheckoutComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session]);
 
-  // ფილიალების სია საჯარო endpoint-ია — ავტორიზაცია არ სჭირდება, ამიტომ
-  // ერთხელ, mount-ზევე იტვირთება (ავტორიზაციის loading-ის მოლოდინის გარეშე).
-  const fetchBranches = async () => {
+  // ფილიალების სია საჯარო endpoint-ია — ავტორიზაცია არ სჭირდება. `/branches/available`
+  // მხოლოდ იმ (აქტიურ) ფილიალებს აბრუნებს, სადაც კალათის ყველა პროდუქტი ერთდროულადაა
+  // მარაგში — pickup-ის არჩევისას ისეთი ფილიალის შერჩევა, სადაც ნაწილი პროდუქტი
+  // საერთოდ არ იყიდება, წინასწარვე გამორიცხულია (checkout-ის stock-შემოწმებას იმეორებს UI-ზე).
+  const productIds = (cart?.items || []).map((item) => item.product.id).join(",");
+
+  const fetchBranches = async (ids: string) => {
     setBranchesLoading(true);
     try {
-      const res = await BranchesAPI(router.locale || "ka", "").branchesControllerFindAll();
+      const res = await BranchesAPI(router.locale || "ka", "").branchesControllerFindAvailable(ids);
       const list = (res.data as unknown as Branch[]) || [];
       setBranches(list);
       setSelectedBranchId((prev) => (prev && list.some((b) => b.id === prev) ? prev : list[0]?.id ?? null));
@@ -268,9 +272,10 @@ export const CheckoutComponent: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchBranches();
+    if (!productIds) return;
+    fetchBranches(productIds);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.locale]);
+  }, [router.locale, productIds]);
 
   const openAddAddressModal = () => {
     setEditingAddressId(null);
@@ -810,13 +815,15 @@ export const CheckoutComponent: React.FC = () => {
                     branchesLoading ? (
                       <S.ReadonlyValue>იტვირთება...</S.ReadonlyValue>
                     ) : branches.length === 0 ? (
-                      <S.ReadonlyValue>ამჟამად აქტიური ფილიალი არ არის</S.ReadonlyValue>
+                      <S.ReadonlyValue>
+                        ამჟამად არცერთ ფილიალში არ არის მარაგში კალათის ყველა პროდუქტი ერთდროულად
+                      </S.ReadonlyValue>
                     ) : (
                       <S.AddressListPanel>
                         <S.AddressSelectedCard>
                           <BoxIcon size={18} />
                           <S.AddressBody>
-                            <S.Label>ფილიალი</S.Label>
+                            <S.Label>ფილიალი{selectedBranch?.company?.name ? ` · ${selectedBranch.company.name}` : ""}</S.Label>
                             <S.AddressValue>{selectedBranch?.title || "ფილიალი არ არის არჩეული"}</S.AddressValue>
                             <span style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>
                               შეკვეთის აღება შესაძლებელი იქნება {formatPickupReadyDate()}
@@ -856,7 +863,7 @@ export const CheckoutComponent: React.FC = () => {
                               >
                                 <PinIcon size={16} />
                                 <S.AddressBody>
-                                  <S.Label>{branch.title}</S.Label>
+                                  <S.Label>{branch.title}{branch.company?.name ? ` · ${branch.company.name}` : ""}</S.Label>
                                   <S.AddressValue>{branch.address}</S.AddressValue>
                                 </S.AddressBody>
                                 <S.InfoToggleBtn

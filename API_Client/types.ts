@@ -48,7 +48,7 @@ export interface User {
 // `Cart`/`CartItem` გენერირებულ კლიენტში აღარ ჩნდება — ხელით ვაფიქსირებთ
 // ბექენდის entity-ების ფორმას (src/cart/entities/{cart,cart-item}.entity.ts).
 // CartItem-ს ფასს არ ვინახავთ ცალკე — ყოველთვის `product.price`-დან იკითხება.
-import type { Product } from "./client/models";
+import type { Company, Product } from "./client/models";
 
 export interface CartItem {
   id: number;
@@ -223,6 +223,9 @@ export interface Address {
 // online-shop-nest-ში) `Branch` გენერირებულ კლიენტში აღარ ჩნდება — ხელით
 // ვაფიქსირებთ ბექენდის entity-ის ფორმას (src/branches/entities/branch.entity.ts).
 // `null` მნიშვნელობა კვირის ერთ დღეზე ნიშნავს, რომ ფილიალი ამ დღეს დახურულია.
+// `companyId` სავალდებულოა (ფილიალი ყოველთვის ერთ კონკრეტულ კომპანიას ეკუთვნის),
+// `company` relation კი `GET /branches`/`/branches/admin/all`/`/branches/available`-ზე
+// ყოველთვის ჩატანილია (BranchesService-ის `relations: { company: true }`).
 export interface BranchDayHours {
   open: string;
   close: string;
@@ -240,6 +243,8 @@ export interface BranchWorkingHours {
 
 export interface Branch {
   id: number;
+  companyId: string;
+  company?: Company;
   title: string;
   address: string;
   phoneNumber: string;
@@ -276,6 +281,25 @@ export interface ProductColor {
   productId: number;
   colorId: string;
   color?: Color;
+  stock: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET/PUT /products/:id/branches row — იგივე მიზეზით (ProductsController-ის
+// getBranches/setBranches-ს OpenAPI-ში ცხადი პასუხის ტიპი არ აქვს მითითებული)
+// ხელით ვაფიქსირებთ ბექენდის entity-ის ფორმას
+// (src/products/entities/product-branch.entity.ts). `branch` relation (თავისი
+// `company` ჩაშენებული relation-ითურთ) GET-ზე ყოველთვის ჩატანილია
+// (ProductsService.getBranches-ის `relations: { branch: { company: true } }`),
+// PUT-ის პასუხზე კი არა — colors-ის იგივე ასიმეტრია. ProductBranch.stock,
+// ProductColor-ისგან განსხვავებით, product.stock-ში არ სინქრონდება — დამოუკიდებელი
+// განზომილებაა (checkout-ის pickup-ნაკადი ცალკე ამოწმებს).
+export interface ProductBranch {
+  id: string;
+  productId: number;
+  branchId: number;
+  branch?: Branch;
   stock: number;
   createdAt: string;
   updatedAt: string;

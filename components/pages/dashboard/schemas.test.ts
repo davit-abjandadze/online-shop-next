@@ -33,6 +33,7 @@ const openDay = { closed: false, open: "09:30", close: "19:00" };
 const closedDay = { closed: true, open: "", close: "" };
 
 const validBranch = {
+  companyId: "11111111-1111-4111-8111-111111111111",
   title: "ჯ. თბილისი, ვაკე",
   address: "0177, უნივერსიტეტის ქ. N6",
   phoneNumber: "(032) 215 40 40",

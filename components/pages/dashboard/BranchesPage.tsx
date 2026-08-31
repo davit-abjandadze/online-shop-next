@@ -3,7 +3,8 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BranchesAPI } from "@/API_Client";
+import { BranchesAPI, CompaniesAPI } from "@/API_Client";
+import { Company } from "@/API_Client/client/models";
 import { Branch, BranchWorkingHours } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PinIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
@@ -17,6 +18,7 @@ import * as S from "./style";
 const emptyDayHours = { closed: false, open: "09:30", close: "19:00" };
 
 const emptyBranchForm: BranchFormValues = {
+  companyId: "",
   title: "",
   address: "",
   phoneNumber: "",
@@ -64,6 +66,7 @@ export const BranchesPage: React.FC = () => {
 
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loadingBranches, setLoadingBranches] = useState<boolean>(true);
+  const [companies, setCompanies] = useState<Company[]>([]);
 
   const [isCreateOpen, setIsCreateOpen] = useState<boolean>(false);
   const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
@@ -97,9 +100,20 @@ export const BranchesPage: React.FC = () => {
     }
   };
 
+  const fetchCompanies = async () => {
+    if (!session?.accessToken) return;
+    try {
+      const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
+      setCompanies((res.data as unknown as Company[]) || []);
+    } catch {
+      toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
+    }
+  };
+
   useEffect(() => {
     if (session?.accessToken) {
       fetchBranches();
+      fetchCompanies();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
@@ -113,6 +127,7 @@ export const BranchesPage: React.FC = () => {
     setCreateSubmitting(true);
     try {
       await BranchesAPI(router.locale || "ka", session!.accessToken!).branchesControllerCreate({
+        companyId: data.companyId,
         title: data.title.trim(),
         address: data.address.trim(),
         phoneNumber: data.phoneNumber.trim(),
@@ -136,6 +151,7 @@ export const BranchesPage: React.FC = () => {
   const handleOpenEdit = (branch: Branch) => {
     setEditingBranch(branch);
     editForm.reset({
+      companyId: branch.companyId,
       title: branch.title,
       address: branch.address,
       phoneNumber: branch.phoneNumber,
@@ -154,6 +170,7 @@ export const BranchesPage: React.FC = () => {
       await BranchesAPI(router.locale || "ka", session.accessToken).branchesControllerUpdate(
         String(editingBranch.id),
         {
+          companyId: data.companyId,
           title: data.title.trim(),
           address: data.address.trim(),
           phoneNumber: data.phoneNumber.trim(),
@@ -250,6 +267,11 @@ export const BranchesPage: React.FC = () => {
                   <S.QuestionText style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <PinIcon size={18} /> {branch.title}
                   </S.QuestionText>
+                  {branch.company?.name && (
+                    <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--ref-text-secondary)" }}>
+                      {branch.company.name}
+                    </p>
+                  )}
                   <p style={{ margin: "4px 0 0 0", fontSize: "14px", color: "var(--ref-text-secondary)" }}>
                     {branch.address} · {branch.phoneNumber}
                     {branch.email && ` · ${branch.email}`}
@@ -290,6 +312,20 @@ export const BranchesPage: React.FC = () => {
               </S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleCreateSubmit} noValidate>
+              <S.FormGroup>
+                <S.Label>მფლობელი კომპანია</S.Label>
+                <S.Select {...createForm.register("companyId")}>
+                  <option value="">— აირჩიეთ კომპანია —</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </S.Select>
+                {createForm.formState.errors.companyId && (
+                  <S.FieldError>{createForm.formState.errors.companyId.message}</S.FieldError>
+                )}
+              </S.FormGroup>
               <S.FormRow>
                 <S.FormGroup>
                   <S.Label>დასახელება</S.Label>
@@ -360,6 +396,20 @@ export const BranchesPage: React.FC = () => {
               </S.CloseButton>
             </S.ModalHeader>
             <form onSubmit={handleEditSubmit} noValidate>
+              <S.FormGroup>
+                <S.Label>მფლობელი კომპანია</S.Label>
+                <S.Select {...editForm.register("companyId")}>
+                  <option value="">— აირჩიეთ კომპანია —</option>
+                  {companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
+                </S.Select>
+                {editForm.formState.errors.companyId && (
+                  <S.FieldError>{editForm.formState.errors.companyId.message}</S.FieldError>
+                )}
+              </S.FormGroup>
               <S.FormRow>
                 <S.FormGroup>
                   <S.Label>დასახელება</S.Label>

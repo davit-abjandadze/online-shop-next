@@ -18,6 +18,10 @@
 import type { BranchWorkingHoursDto } from './branch-working-hours-dto';
 
 export interface CreateBranchDto {
+    /**
+     * მფლობელი კომპანიის ID (წინასწარ /companies-ზე შექმნილი)
+     */
+    'companyId': string;
     'title': string;
     'address': string;
     'phoneNumber': string;

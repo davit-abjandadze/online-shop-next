@@ -6,6 +6,7 @@ import {
   CartApi,
   CategoriesApi,
   ColorsApi,
+  CompaniesApi,
   Configuration,
   FavoritesApi,
   OrdersApi,
@@ -149,6 +150,11 @@ export const BranchesAPI = (acceptLanguage: string, accessToken: string) => {
 export const ColorsAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new ColorsApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const CompaniesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new CompaniesApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

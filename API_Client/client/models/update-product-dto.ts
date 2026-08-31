@@ -63,5 +63,9 @@ export interface UpdateProductDto {
      * კატეგორიის ID
      */
     'categoryId'?: string;
+    /**
+     * მფლობელი კომპანიის ID (წინასწარ /companies-ზე შექმნილი)
+     */
+    'companyId'?: string;
 }
 

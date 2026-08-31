@@ -16,6 +16,9 @@
 // May contain unused imports in some cases
 // @ts-ignore
 import type { Category } from './category';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { Company } from './company';
 
 export interface Product {
     'id': number;
@@ -31,6 +34,7 @@ export interface Product {
     'width'?: string;
     'isActive': boolean;
     'category'?: Category;
+    'company'?: Company;
     'createdAt': string;
     'updatedAt': string;
 }
