@@ -179,6 +179,29 @@ export const ProfileComponent: React.FC = () => {
     }
   };
 
+  // მხოლოდ ელფოსტის დადასტურებულ ცვლილებას ინახავს — არ ეხება ფორმის დანარჩენ,
+  // ჯერ შეუნახავ ველებს. ამის წყალობით მომხმარებელს არ სჭირდება "ცვლილებების
+  // შენახვა" ღილაკზე დაჭერა მხოლოდ იმისთვის, რომ ახლადდადასტურებული ელფოსტა შეინახოს.
+  const persistVerifiedEmail = async (requestId: string, code: string, emailValue: string) => {
+    if (!session?.accessToken || !session?.user?.id) return;
+    try {
+      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
+        session.user.id,
+        {
+          email: emailValue,
+          otpRequestId: requestId,
+          otpCode: code,
+        }
+      );
+      setUser(res.data as User);
+      setSavedEmail(emailValue);
+      resetEmailOtpState();
+      toast.success("ელფოსტა დადასტურდა და შენახულია!");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "ელფოსტის შენახვა ვერ მოხერხდა");
+    }
+  };
+
   const handleVerifyEmailOtp = async () => {
     setOtpError(null);
 
@@ -189,11 +212,15 @@ export const ProfileComponent: React.FC = () => {
 
     setOtpVerifying(true);
     try {
+      const requestId = otpRequestId;
+      const code = otpCodeInput.trim();
       await OtpAPI(router.locale || "ka", "").otpControllerVerifyEmailOtp({
-        requestId: otpRequestId,
-        code: otpCodeInput.trim(),
+        requestId,
+        code,
       });
       setOtpVerified(true);
+      // დადასტურებისთანავე, დამატებითი დაჭერის გარეშე, ინახავს ელფოსტას
+      await persistVerifiedEmail(requestId, code, email.trim());
     } catch (err: any) {
       setOtpError(err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია");
     } finally {
@@ -231,7 +258,13 @@ export const ProfileComponent: React.FC = () => {
     if (status === "authenticated") {
       fetchUser();
     }
-  }, [status, session]);
+    // session obj-ის მაგივრად კონკრეტულ ველებზეა დამოკიდებულება — NextAuth-ის
+    // periodic session-refetch-ი (SessionProvider refetchInterval, pages/_app.tsx)
+    // ყოველ ჯერზე ახალ session reference-ს აბრუნებს, რაც ამ effect-ს ყოველ 60 წამში
+    // ხელახლა უშვებდა და fetchUser-ის reset()-ით შევსებულ ფორმას ისე გადაწერდა,
+    // მომხმარებელს რომ ტექსტის შეყვანა ხელით ეშლებოდა
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session?.accessToken, session?.user?.id]);
 
   // ─── Auth Guard ───────────────────────────────────────────────────────────────
   if (status === "loading") {
@@ -296,27 +329,20 @@ export const ProfileComponent: React.FC = () => {
     const newPhoneNumber = data.phoneNumber?.trim() || "";
     const phoneChanged = newPhoneNumber !== savedPhoneNumber;
 
-    // ელფოსტის/მობილურის ღირებულების შეცვლისას სავალდებულოა წინასწარ დადასტურებული
-    // OTP კოდი — Save ღილაკიც დაბლოკილია ამ პირობით (იხ. disabled ქვემოთ), მაგრამ
-    // submit-ზეც ვამოწმებთ. მნიშვნელოვანია: თუ ღირებულება არ შეცვლილა (უბრალოდ
-    // ჯერ დაუდასტურებელია), ეს Save-ს არ უნდა ბლოკავდეს — მომხმარებელს უნდა
-    // შეეძლოს დანარჩენი ველების შენახვა მანამ, სანამ ცალკე გადაწყვეტს
-    // ელფოსტის/მობილურის დამოწმებას.
-    if (emailChanged && !otpVerified) {
-      toast.error("ელფოსტის შესაცვლელად საჭიროა ახალი ელფოსტის დადასტურება");
-      return;
-    }
-    if (phoneChanged && !phoneOtpVerified) {
-      toast.error("მობილურის ნომრის შესაცვლელად საჭიროა ახალი ნომრის დადასტურება");
-      return;
-    }
+    // ელფოსტის/მობილურის ღირებულების ცვლილება შენარჩუნდება მხოლოდ მაშინ, თუ ის
+    // უკვე OTP-ით დადასტურებულია. თუ არადადასტურებულია, ამ ორ ველს უბრალოდ ძველ,
+    // შენახულ მნიშვნელობაზე ვტოვებთ — ეს აღარ უნდა აბლოკავდეს დანარჩენი ველების
+    // (სახელი, გვარი, ასაკი, სქესი, პირადი ნომერი) შენახვას. მაგ. თუ მობილური
+    // საერთოდ არაა შევსებული (ან შეყვანილია, მაგრამ ჯერ არაა დადასტურებული),
+    // მომხმარებელს მაინც უნდა შეეძლოს დანარჩენი მონაცემების რედაქტირება/შევსება
+    // და შენახვა.
+    const canPersistEmail = !emailChanged || otpVerified;
+    const canPersistPhone = !phoneChanged || phoneOtpVerified;
+    const emailToSend = canPersistEmail ? newEmail : savedEmail;
+    const phoneToSend = canPersistPhone ? newPhoneNumber : savedPhoneNumber;
 
-    // OTP proof-ს ვურთავთ, თუ ან ღირებულება შეიცვალა (ზემოთ უკვე დავრწმუნდით, რომ
-    // დადასტურებულია), ან მომხმარებელმა ახლახან წარმატებით გაიარა OTP-ვერიფიკაცია
-    // ამჟამინდელ (შენახულ, მაგრამ დაუდასტურებელ) ღირებულებაზეც — ორივე შემთხვევაში
-    // ბექენდმა უნდა დააფიქსიროს isEmailVerified/isPhoneVerified.
-    const includeEmailOtpProof = emailChanged || otpVerified;
-    const includePhoneOtpProof = phoneChanged || phoneOtpVerified;
+    const includeEmailOtpProof = canPersistEmail && (emailChanged || otpVerified);
+    const includePhoneOtpProof = canPersistPhone && (phoneChanged || phoneOtpVerified);
 
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
@@ -324,10 +350,10 @@ export const ProfileComponent: React.FC = () => {
         {
           firstName: data.firstName.trim(),
           lastName: data.lastName.trim(),
-          email: newEmail,
+          email: emailToSend,
           gender: data.gender ? (data.gender as any) : undefined,
           age: data.age?.trim() ? Number(data.age) : undefined,
-          phoneNumber: newPhoneNumber ? toE164(newPhoneNumber) : undefined,
+          phoneNumber: phoneToSend ? toE164(phoneToSend) : undefined,
           personalNumber: data.personalNumber?.trim() ? data.personalNumber.trim() : undefined,
           ...(includeEmailOtpProof ? { otpRequestId, otpCode: otpCodeInput.trim() } : {}),
           ...(includePhoneOtpProof
@@ -336,12 +362,16 @@ export const ProfileComponent: React.FC = () => {
         }
       );
       setUser(res.data as User);
-      setSavedEmail(newEmail);
-      setSavedPhoneNumber(newPhoneNumber);
-      resetEmailOtpState();
-      resetPhoneOtpState();
+      setSavedEmail(emailToSend);
+      setSavedPhoneNumber(phoneToSend);
+      if (canPersistEmail) resetEmailOtpState();
+      if (canPersistPhone) resetPhoneOtpState();
       await updateSession({ name: `${data.firstName.trim()} ${data.lastName.trim()}` });
-      toast.success("პროფილი წარმატებით განახლდა!");
+      if (!canPersistEmail || !canPersistPhone) {
+        toast.success("დანარჩენი მონაცემები შენახულია. დაუდასტურებელი ცვლილება ძალაში შევა დამოწმების შემდეგ.");
+      } else {
+        toast.success("პროფილი წარმატებით განახლდა!");
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროფილის განახლება ვერ მოხერხდა");
     }
@@ -563,11 +593,7 @@ export const ProfileComponent: React.FC = () => {
               <S.ActionButton
                 type="submit"
                 variant="primary"
-                disabled={
-                  savingUser ||
-                  (email?.trim() !== savedEmail && !otpVerified) ||
-                  (phoneNumber?.trim() !== savedPhoneNumber && !phoneOtpVerified)
-                }
+                disabled={savingUser}
               >
                 {savingUser ? "ინახება..." : "ცვლილებების შენახვა"}
               </S.ActionButton>

@@ -1,4 +1,5 @@
 import React from "react";
+import LocationOnSvg from "@material-symbols/svg-400/outlined/location_on.svg";
 
 export interface RefIconProps {
   size?: number;
@@ -304,6 +305,12 @@ export const PinIcon: React.FC<RefIconProps> = ({ size = 16, className, style })
       fill="#F43E50"
     />
   </svg>
+);
+
+export const MapPinIcon: React.FC<RefIconProps & { color?: string }> = ({ size = 16, className, style, color = "white" }) => (
+  // გეო-ლოკაციის მარკერი — Google Material Symbols ბიბლიოთეკის "location_on" აიკონი
+  // (@material-symbols/svg-400), ხელით დახატვის ნაცვლად
+  <LocationOnSvg width={size} height={size} fill={color} className={className} style={style} />
 );
 
 export const GoogleIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (

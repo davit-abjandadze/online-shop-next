@@ -103,8 +103,9 @@ export const Footer = styled("div")`
 export const PriceGroup = styled("div")`
   display: flex;
   align-items: baseline;
-  gap: 6px;
   font-variant-numeric: tabular-nums;
+  flex-direction: column;
+
 `;
 
 export const Price = styled("span")`
@@ -117,6 +118,7 @@ export const OldPrice = styled("span")`
   font-size: 12px;
   color: var(--ref-text-secondary);
   text-decoration: line-through;
+  text-decoration-color: red;
 `;
 
 export const AddButton = styled("button")<{ active?: boolean }>`

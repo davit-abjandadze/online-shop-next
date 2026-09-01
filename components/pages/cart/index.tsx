@@ -5,6 +5,7 @@ import Link from "next/link";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
+import PurchaseSteps from "@/components/shared/PurchaseSteps";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
 import { ProductsAPI } from "@/API_Client";
@@ -120,6 +121,7 @@ export const CartComponent: React.FC = () => {
       <Header />
       <S.PageBackground>
         <S.Container>
+          <PurchaseSteps current="cart" completed={[]} />
           <S.Title>კალათა</S.Title>
 
           {!loading && items.length === 0 ? (

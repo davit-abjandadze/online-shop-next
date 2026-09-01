@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
+import PurchaseSteps, { PurchaseStep } from "@/components/shared/PurchaseSteps";
 import { useCart } from "@/context/Cart";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import { AddressesAPI, BranchesAPI, OrdersAPI, OtpAPI, PaymentsAPI, UserAPI } from "@/API_Client";
@@ -248,8 +249,12 @@ export const CheckoutComponent: React.FC = () => {
 
   useEffect(() => {
     if (status === "authenticated") fetchAddresses();
+    // session.accessToken-ზეა დამოკიდებულება, არა მთლიან session obj-ზე — NextAuth-ის
+    // periodического refetch-ის დროს (SessionProvider refetchInterval, pages/_app.tsx)
+    // session ყოველ ჯერზე ახალ object reference-ს აბრუნებს, თუნდაც accessToken არ
+    // შეცვლილიყოს, რაც ამ effect-ს ყოველ 60 წამში ხელახლა უშვებდა
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, session]);
+  }, [status, session?.accessToken]);
 
   // ფილიალების სია საჯარო endpoint-ია — ავტორიზაცია არ სჭირდება. `/branches/available`
   // მხოლოდ იმ (აქტიურ) ფილიალებს აბრუნებს, სადაც კალათის ყველა პროდუქტი ერთდროულადაა
@@ -386,7 +391,11 @@ export const CheckoutComponent: React.FC = () => {
       }
     };
     if (status === "authenticated") fetchUser();
-  }, [status, session, router.locale]);
+    // იხ. ზემოთ fetchAddresses-ის useEffect-ის კომენტარი — session obj-ის მაგივრად
+    // მისი კონკრეტული ველებია დამოკიდებულებაში, რომ periodic session-refetch-მა
+    // ეს ეფექტი ხელახლა არ გაუშვას
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, session?.accessToken, session?.user?.id, router.locale]);
 
   const handleSendEmailOtp = async () => {
     setOtpError(null);
@@ -584,6 +593,18 @@ export const CheckoutComponent: React.FC = () => {
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || null;
   const selectedBranch = branches.find((b) => b.id === selectedBranchId) || null;
 
+  // checkout ერთ გვერდზეა (სამივე სექცია ერთდროულად ჩანს), ამიტომ ზედა
+  // PurchaseSteps-ის "მიმდინარე"/"გავლილი" საფეხურები ფორმის რეალური
+  // ვალიდაციის მდგომარეობიდან გამოითვლება — არა სტატიკურად, გვერდის მიხედვით.
+  const personalInfoComplete = !loadingUser && !purchaseBlocked;
+  const deliveryComplete = deliveryMethod === "pickup" ? !!selectedBranch : !!selectedAddress;
+  const currentPurchaseStep = !personalInfoComplete ? "order" : !deliveryComplete ? "address" : "payment";
+  const completedPurchaseSteps: PurchaseStep[] = [
+    "cart",
+    ...(personalInfoComplete ? (["order"] as const) : []),
+    ...(deliveryComplete ? (["address"] as const) : []),
+  ];
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session?.accessToken || isEmpty || purchaseBlocked) return;
@@ -632,6 +653,7 @@ export const CheckoutComponent: React.FC = () => {
       <Header />
       <S.PageBackground>
         <S.Container>
+          <PurchaseSteps current={currentPurchaseStep} completed={completedPurchaseSteps} />
           <S.Title>შეკვეთის გაფორმება</S.Title>
 
           {isEmpty ? (
@@ -646,7 +668,14 @@ export const CheckoutComponent: React.FC = () => {
             <S.Layout onSubmit={onSubmit} noValidate>
               <S.FormColumn>
                 <S.SectionCard>
-                  <S.SectionTitle>პერსონალური ინფორმაცია</S.SectionTitle>
+                  <S.SectionTitle>
+                    პერსონალური ინფორმაცია
+                    {personalInfoComplete && (
+                      <S.SectionDoneBadge>
+                        <CheckCircleIcon size={15} /> დადასტურებულია
+                      </S.SectionDoneBadge>
+                    )}
+                  </S.SectionTitle>
                   <S.PersonalGrid>
                     <S.ReadonlyField>
                       <S.ReadonlyLabel>სახელი</S.ReadonlyLabel>
@@ -791,7 +820,14 @@ export const CheckoutComponent: React.FC = () => {
                 </S.SectionCard>
 
                 <S.SectionCard>
-                  <S.SectionTitle>მიწოდების დეტალები</S.SectionTitle>
+                  <S.SectionTitle>
+                    მიწოდების დეტალები
+                    {deliveryComplete && (
+                      <S.SectionDoneBadge>
+                        <CheckCircleIcon size={15} /> არჩეულია
+                      </S.SectionDoneBadge>
+                    )}
+                  </S.SectionTitle>
                   <S.MethodRow>
                     <S.MethodOption
                       $active={deliveryMethod === "courier"}
@@ -1024,7 +1060,14 @@ export const CheckoutComponent: React.FC = () => {
                 </S.SectionCard>
 
                 <S.SectionCard>
-                  <S.SectionTitle>გადახდის მეთოდი</S.SectionTitle>
+                  <S.SectionTitle>
+                    გადახდის მეთოდი
+                    {currentPurchaseStep === "payment" && (
+                      <S.SectionDoneBadge>
+                        <CheckCircleIcon size={15} /> მზადაა გადასახდელად
+                      </S.SectionDoneBadge>
+                    )}
+                  </S.SectionTitle>
                   <S.MethodRow>
                     <S.MethodOption $active type="button">
                       საქართველოს ბანკი

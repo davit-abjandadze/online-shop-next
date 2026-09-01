@@ -188,8 +188,11 @@ export const profileEditSchema = z.object({
   firstName: nameField("სახელი"),
   lastName: nameField("გვარი"),
   email: emailField(),
-  age: ageField(),
-  gender: genderField(),
+  // ასაკი/სქესი, ისევე როგორც მობილური/პირადი ნომერი, პროფილის რედაქტირებისას
+  // არასავალდებულოა — მაგ. Google/Facebook რეგისტრაციის მომხმარებელს შეიძლება
+  // საერთოდ არ ჰქონდეს შევსებული და მაინც უნდა შეეძლოს დანარჩენი ველების შენახვა.
+  age: optionalAgeField(),
+  gender: optionalGenderField(),
   phoneNumber: optionalPhoneNumberField(),
   personalNumber: z
     .string()

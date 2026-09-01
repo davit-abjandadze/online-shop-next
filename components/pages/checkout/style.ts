@@ -62,6 +62,18 @@ export const SectionTitle = styled("h2")`
   gap: 6px;
 `;
 
+// სექციის სათაურის გვერდით ✓ ბეჯი — მისი მონაცემები სრულადაა შევსებული/დადასტურებული
+// (ზედა PurchaseSteps-ის "done" მდგომარეობის იგივე კრიტერიუმებით).
+export const SectionDoneBadge = styled("span")`
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ref-success);
+`;
+
 export const HintIcon = styled("span")`
   font-size: 13px;
   color: var(--ref-text-secondary);
