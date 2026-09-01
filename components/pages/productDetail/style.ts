@@ -185,6 +185,7 @@ export const ThumbnailsNavBtn = styled("button")`
   cursor: pointer;
   font-size: 26px;
   line-height: 1;
+  padding-bottom:7px;
 
   &:hover {
     background: var(--ref-primary);
