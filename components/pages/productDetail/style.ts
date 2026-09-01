@@ -100,10 +100,10 @@ export const LightboxClose = styled("button")`
 
   .close-icon {
     circle {
-      fill: #c0392b;
+      fill: #ffffff;
     }
     path {
-      stroke: #ffffff;
+      stroke: #000000;
     }
   }
 `;
@@ -124,6 +124,7 @@ export const LightboxNav = styled("button")<{ side: "left" | "right" }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-bottom: 7px;
 
   &:hover {
     background: rgba(255, 255, 255, 0.2);

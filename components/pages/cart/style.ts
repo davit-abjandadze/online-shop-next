@@ -92,6 +92,36 @@ export const ItemName = styled("a")`
   }
 `;
 
+// პროდუქტის აღწერილობა ბარათზე — მაქსიმუმ 2 ხაზი, გადავსების შემთხვევაში
+// ellipsis-ით.
+export const ItemDescription = styled("p")`
+  margin: 0;
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const ItemColor = styled("span")`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+`;
+
+export const ItemColorDot = styled("span")`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--ref-border-soft);
+  flex-shrink: 0;
+`;
+
 export const ItemUnitPrice = styled("span")`
   font-size: 13px;
   color: var(--ref-text-secondary);

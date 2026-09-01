@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -7,6 +7,8 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
+import { ProductsAPI } from "@/API_Client";
+import { Color, ProductColor } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { CartIcon, HeartIcon, LockIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
@@ -27,6 +29,32 @@ export const CartComponent: React.FC = () => {
 
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [pendingItemId, setPendingItemId] = useState<number | null>(null);
+  // GET /cart-ს `color` relation არ ჩატანილი აქვს (მხოლოდ `colorId` column-ია),
+  // ამიტომ ფერის დასახელება/hex-ი ცალკე, თითო პროდუქტზე ერთხელ, GET
+  // /products/:id/colors-იდან მოგვაქვს — იხ. CartItem.colorId კომენტარი
+  // API_Client/types.ts-ში.
+  const [colorsByProductId, setColorsByProductId] = useState<Record<number, ProductColor[]>>({});
+
+  useEffect(() => {
+    const items = cart?.items || [];
+    const productIds = Array.from(
+      new Set(items.filter((item) => item.colorId).map((item) => item.product.id))
+    ).filter((id) => !(id in colorsByProductId));
+    if (productIds.length === 0) return;
+
+    productIds.forEach((productId) => {
+      ProductsAPI(router.locale || "ka", "")
+        .productsControllerGetColors(String(productId))
+        .then((res) => {
+          const colors = (res.data as unknown as ProductColor[]) || [];
+          setColorsByProductId((prev) => ({ ...prev, [productId]: colors }));
+        })
+        .catch(() => {
+          // ფერის ბლოკი დამატებითია — ჩუმად ვტოვებთ
+        });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart?.items, router.locale]);
 
   if (status === "loading") {
     return (
@@ -111,6 +139,9 @@ export const CartComponent: React.FC = () => {
                   const atStockLimit = item.quantity >= item.product.stock;
                   const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(item.product);
                   const saved = isSaved(item.product.id);
+                  const itemColor: Color | undefined = item.colorId
+                    ? colorsByProductId[item.product.id]?.find((pc) => pc.colorId === item.colorId)?.color
+                    : undefined;
 
                   return (
                     <S.Item key={item.id}>
@@ -120,6 +151,17 @@ export const CartComponent: React.FC = () => {
                         <Link href={`/products/${item.product.id}`} passHref legacyBehavior>
                           <S.ItemName>{item.product.name}</S.ItemName>
                         </Link>
+                        {item.product.description && (
+                          <S.ItemDescription>{item.product.description}</S.ItemDescription>
+                        )}
+                        {itemColor && (
+                          <S.ItemColor>
+                            <S.ItemColorDot style={{ backgroundColor: itemColor.hexCode || "#ccc" }} />
+                            {router.locale === "en"
+                              ? itemColor.nameEn || itemColor.nameKa
+                              : itemColor.nameKa || itemColor.nameEn}
+                          </S.ItemColor>
+                        )}
                         {atStockLimit && <S.ItemStockWarning>მარაგის ლიმიტი მიღწეულია</S.ItemStockWarning>}
                       </S.ItemInfo>
 

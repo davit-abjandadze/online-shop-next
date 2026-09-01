@@ -80,9 +80,9 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
   );
   const selectedColor = availableColors.find((pc) => pc.colorId === selectedColorId);
 
-  // ერთადერთი ხელმისაწვდომი ფერი ავტომატურად აირჩევა.
+  // ხელმისაწვდომი ფერების მასივში პირველი ფერი ავტომატურად აირჩევა.
   useEffect(() => {
-    if (availableColors.length === 1) {
+    if (availableColors.length > 0) {
       setSelectedColorId(availableColors[0].colorId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -344,7 +344,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       {lightboxOpen && activeSlide && (
         <S.LightboxOverlay onClick={() => setLightboxOpen(false)}>
           <S.LightboxClose type="button" onClick={() => setLightboxOpen(false)}>
-            <CloseIcon className="close-icon" size={28} />
+            <CloseIcon className="close-icon" size={34} />
           </S.LightboxClose>
           {slides.length > 1 && (
             <S.LightboxNav

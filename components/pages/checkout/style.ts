@@ -277,6 +277,94 @@ export const SoonBadge = styled("span")`
   color: var(--ref-text-secondary);
 `;
 
+// კალათის პროდუქტების ჩამონათვალი გადახდის მეთოდის ქვემოთ — cart-გვერდის
+// S.Item-ის იგივე სტრუქტურის გამარტივებული ვერსია (რაოდენობის/წაშლის
+// კონტროლების გარეშე, checkout მხოლოდ სანახავია).
+export const OrderItemsList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+export const OrderItemCard = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--ref-bg);
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 10px;
+  padding: 10px;
+`;
+
+export const OrderItemImage = styled("div")`
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--ref-bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+export const OrderItemInfo = styled("div")`
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+export const OrderItemName = styled("div")`
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const OrderItemQty = styled("span")`
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+`;
+
+export const OrderItemPrice = styled("div")`
+  min-width: 90px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+  flex-shrink: 0;
+`;
+
+export const OrderItemOldPrice = styled("span")`
+  text-decoration: line-through;
+  color: var(--ref-text-secondary);
+  opacity: 0.7;
+  font-size: 11px;
+`;
+
+export const OrderItemDiscountBadge = styled("span")`
+  font-size: 10px;
+  font-weight: 700;
+  color: #c0392b;
+  background: rgba(192, 57, 43, 0.1);
+  border-radius: 6px;
+  padding: 1px 6px;
+`;
+
 export const AddressCard = styled("div")`
   display: flex;
   gap: 10px;

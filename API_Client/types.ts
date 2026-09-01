@@ -54,6 +54,12 @@ export interface CartItem {
   id: number;
   product: Product;
   quantity: number;
+  // ბექენდის getOrCreateForUser (CartService) `color` relation-ს არ ტვირთავს
+  // (`relations: { items: { product: { category: true } } }`), მაგრამ colorId
+  // საკუთარი column-ია და ყოველთვის ჩნდება — ფერის დასახელება/hex-ი
+  // ცალკე GET /products/:id/colors-ის მიხედვით უნდა მოიძებნოს (იხ. cart-ის
+  // გვერდზე).
+  colorId?: string | null;
 }
 
 export interface Cart {

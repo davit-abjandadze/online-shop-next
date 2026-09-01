@@ -1,6 +1,9 @@
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { ProductsAPI } from "@/API_Client";
 import { Product } from "@/API_Client/client/models";
+import { ProductColor } from "@/API_Client/types";
 import { CartIcon, HeartIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
@@ -34,6 +37,7 @@ const getDisplayStats = (product: Product) => {
 // გვერდზე. Wishlist და "კალათაში დამატება" ღილაკები ბმულის default
 // ნავიგაციას აჩერებენ (preventDefault/stopPropagation).
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const router = useRouter();
   const { cart, addItem, removeItem } = useCart();
   const { isSaved, toggle } = useWishlist();
   const image = product.images?.[0];
@@ -47,14 +51,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
   const isInCart = Boolean(cartItem);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (cartItem) {
       removeItem(cartItem.id);
-    } else {
-      addItem(product.id, 1);
+      return;
     }
+
+    // თუ პროდუქტს ფერები აქვს მიბმული, ბექენდი ფერის მითითებას ითხოვს —
+    // ბარათიდან პირდაპირი დამატებისას მასივში პირველი ხელმისაწვდომი ფერი
+    // ავტომატურად იგულისხმება მონიშნულად.
+    let colorId: string | undefined;
+    try {
+      const res = await ProductsAPI(router.locale || "ka", "").productsControllerGetColors(
+        String(product.id)
+      );
+      const colors = (res.data as unknown as ProductColor[]) || [];
+      colorId = colors.find((c) => c.stock > 0)?.colorId;
+    } catch {
+      // ფერების წამოღება ვერ მოხერხდა — ჩუმად ვცდილობთ დამატებას ფერის გარეშე
+    }
+
+    addItem(product.id, 1, colorId);
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -80,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </S.ImageWrap>
         <S.Body>
           <S.Name>{product.name}</S.Name>
-         
+
           <S.Footer>
             <S.PriceGroup>
               <S.Price>{displayPrice.toFixed(2)} ₾</S.Price>

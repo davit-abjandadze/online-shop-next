@@ -1035,6 +1035,32 @@ export const CheckoutComponent: React.FC = () => {
                     </S.MethodOption>
                   </S.MethodRow>
                 </S.SectionCard>
+
+                <S.SectionCard>
+                  <S.SectionTitle>კალათის პროდუქტები ({itemsCount})</S.SectionTitle>
+                  <S.OrderItemsList>
+                    {items.map((item) => {
+                      const image = resolveImage(item.product.images?.[0]);
+                      const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(item.product);
+                      return (
+                        <S.OrderItemCard key={item.id}>
+                          <S.OrderItemImage>{image && <img src={image} alt={item.product.name} />}</S.OrderItemImage>
+                          <S.OrderItemInfo>
+                            <S.OrderItemName>{item.product.name}</S.OrderItemName>
+                            <S.OrderItemQty>{item.quantity} ცალი</S.OrderItemQty>
+                          </S.OrderItemInfo>
+                          <S.OrderItemPrice>
+                            {(unitPrice * item.quantity).toFixed(2)} ₾
+                            {originalPrice && (
+                              <S.OrderItemOldPrice>{(originalPrice * item.quantity).toFixed(2)} ₾</S.OrderItemOldPrice>
+                            )}
+                            {discountPercent && <S.OrderItemDiscountBadge>-{discountPercent}%</S.OrderItemDiscountBadge>}
+                          </S.OrderItemPrice>
+                        </S.OrderItemCard>
+                      );
+                    })}
+                  </S.OrderItemsList>
+                </S.SectionCard>
               </S.FormColumn>
 
               <S.SummaryColumn>
