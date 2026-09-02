@@ -88,6 +88,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCodeInput, setOtpCodeInput] = useState("");
   const [otpError, setOtpError] = useState<string | null>(null);
+  // ხელახლა გაგზავნის ღილაკის 1-წუთიანი (60წმ) ქულდაუნი — წამებში დარჩენილი დრო
+  const [otpResendCooldown, setOtpResendCooldown] = useState(0);
 
   // ნომრის შეცვლისას ძველი ვერიფიკაცია აღარაა ვალიდური
   useEffect(() => {
@@ -95,13 +97,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setOtpSent(false);
       setOtpVerified(false);
       setOtpCodeInput("");
+      setOtpResendCooldown(0);
       registerForm.setValue("otpRequestId", "");
       registerForm.setValue("otpCode", "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regPhoneNumber]);
 
+  // ყოველ წამში ვაკლებთ ქულდაუნის მთვლელს, სანამ 0-ს არ მიაღწევს
+  useEffect(() => {
+    if (otpResendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpResendCooldown]);
+
   const handleSendOtp = async () => {
+    if (otpResendCooldown > 0) return;
     setOtpError(null);
 
     const isPhoneValid = await registerForm.trigger("phoneNumber");
@@ -114,6 +127,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       });
       registerForm.setValue("otpRequestId", resp.data.requestId);
       setOtpSent(true);
+      setOtpResendCooldown(60);
     } catch (err: any) {
       setOtpError(
         err?.response?.data?.message || "OTP-კოდის გაგზავნა ვერ მოხერხდა"
@@ -212,7 +226,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         password: data.password,
         gender: data.gender || undefined,
         phoneNumber: toE164(data.phoneNumber),
-        personalNumber: data.personalNumber,
+        personalNumber: data.personalNumber || undefined,
         otpRequestId: data.otpRequestId,
         otpCode: data.otpCode,
       });
@@ -503,9 +517,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <S.OtpActionBtn
                     type="button"
                     onClick={handleSendOtp}
-                    disabled={otpSending || !regPhoneNumber}
+                    disabled={otpSending || otpResendCooldown > 0 || !regPhoneNumber}
                   >
-                    {otpSending ? "იგზავნება..." : otpSent ? "ხელახლა გაგზავნა" : "კოდის გაგზავნა"}
+                    {otpSending
+                      ? "იგზავნება..."
+                      : otpResendCooldown > 0
+                      ? `ხელახლა გაგზავნა (${otpResendCooldown})`
+                      : otpSent
+                      ? "ხელახლა გაგზავნა"
+                      : "კოდის გაგზავნა"}
                   </S.OtpActionBtn>
                 )}
               </S.PhoneRow>

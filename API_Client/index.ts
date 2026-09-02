@@ -21,6 +21,7 @@ import * as cache from "memory-cache";
 import { getCookie } from "cookies-next";
 import http from "http";
 import https from "https";
+import { signOut } from "next-auth/react";
 
 // axios და OpenAPI კლიენტების კონფიგურაცია
 
@@ -46,6 +47,56 @@ const config = {
       timeout: 30000,
     }),
   }),
+};
+
+// მოთხოვნის URL-ები, რომლებზეც 401 არ უნდა იწვევდეს ავტომატურ signOut-ს —
+// ეს არაავტორიზებული (accessToken-ის გარეშე გამოძახებადი) ენდპოინტებია,
+// სადაც 401 ჩვეულებრივი, მოსალოდნელი პასუხია (მაგ. არასწორი პაროლი) და
+// მისი signOut-ად ინტერპრეტაცია infinite redirect loop-ს გამოიწვევდა.
+// შენიშვნა: /auth/profile, /auth/dashboard, /auth/change-password და ა.შ.
+// აქ განზრახ არაა — ისინი accessToken-ით ავტორიზებული ენდპოინტებია და მათზე
+// 401 ზუსტად ის სიგნალია, რაც ამ ლოგიკამ უნდა დაიჭიროს.
+const AUTH_ENDPOINTS_EXCLUDED_FROM_AUTO_LOGOUT = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/google",
+  "/auth/facebook",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+];
+
+// რამდენიმე პარალელურმა 401-მა რომ არ გამოიწვიოს signOut()-ის რამდენჯერმე
+// გამოძახება/რამდენიმე toast/redirect.
+let isLoggingOutDueToExpiredSession = false;
+
+// გლობალურად (ვინაიდან ეს axios instance-ის დონეზეა და არა React
+// component-ის შიგნით) ვამუშავებთ 401-ს: ბექენდზე მომხმარებლის წაშლის
+// შემდეგ NextAuth JWT session ლოკალურად ჯერ კიდევ ვადაშია, მაგრამ ბექენდი
+// ყველა authenticated request-ზე 401-ს დააბრუნებს — ამ შემთხვევაში
+// session/cookie უნდა გავასუფთაოთ და მომხმარებელი login-ზე გადავამისამართოთ.
+export const handleUnauthorizedResponse = (error: any) => {
+  // მხოლოდ client-side-ზე — signOut() next-auth/react-დან SSR-ზე არ მუშაობს.
+  if (SSR || typeof window === "undefined") {
+    return;
+  }
+
+  const requestUrl: string = error?.config?.url ?? "";
+  const isExcludedEndpoint = AUTH_ENDPOINTS_EXCLUDED_FROM_AUTO_LOGOUT.some(
+    (path) => requestUrl.includes(path)
+  );
+
+  if (isExcludedEndpoint || isLoggingOutDueToExpiredSession) {
+    return;
+  }
+
+  isLoggingOutDueToExpiredSession = true;
+
+  // toast-ს აქ არ ვაჩვენებთ — window.location.replace მაშინვე ცვლის
+  // გვერდს, ამიტომ toast არ ასწრებს გამოჩენას; login გვერდი
+  // `sessionExpired` query-ს დანახვისას თავად აჩვენებს შეტყობინებას.
+  signOut({ redirect: false }).finally(() => {
+    window.location.replace("/login?sessionExpired=1");
+  });
 };
 
 // Helper function to create axios instance with interceptors
@@ -80,6 +131,13 @@ const createAxiosInstance = (acceptLanguage: string, accessToken: string) => {
       ) {
         console.error("Socket connection error:", error.message);
       }
+
+      // ბექენდის 401 (მაგ. მომხმარებელი ადმინმა წაშალა, მაგრამ JWT session
+      // ლოკალურად ჯერ კიდევ ვადაშია) — ავტომატური logout + redirect.
+      if (error?.response?.status === 401) {
+        handleUnauthorizedResponse(error);
+      }
+
       return Promise.reject(error);
     }
   );

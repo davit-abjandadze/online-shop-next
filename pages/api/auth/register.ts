@@ -21,14 +21,7 @@ export default async function handler(
     otpCode,
   } = req.body;
 
-  if (
-    !firstName ||
-    !lastName ||
-    !email ||
-    !password ||
-    !phoneNumber ||
-    !personalNumber
-  ) {
+  if (!firstName || !lastName || !email || !password || !phoneNumber) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
@@ -42,7 +35,8 @@ export default async function handler(
       .json({ message: "Password must be at least 6 characters" });
   }
 
-  if (typeof personalNumber !== "string" || !/^\d{11}$/.test(personalNumber)) {
+  // პირადი ნომერი აღარაა სავალდებულო — მაგრამ თუ გამოგზავნილია, ფორმატი უნდა შემოწმდეს
+  if (personalNumber && (typeof personalNumber !== "string" || !/^\d{11}$/.test(personalNumber))) {
     return res.status(400).json({ message: "Invalid personal number" });
   }
 

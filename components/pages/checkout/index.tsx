@@ -164,6 +164,8 @@ export const CheckoutComponent: React.FC = () => {
   const [otpRequestId, setOtpRequestId] = useState("");
   const [otpCodeInput, setOtpCodeInput] = useState("");
   const [otpError, setOtpError] = useState<string | null>(null);
+  // ხელახლა გაგზავნის ღილაკის 1-წუთიანი (60წმ) ქულდაუნი — წამებში დარჩენილი დრო
+  const [otpResendCooldown, setOtpResendCooldown] = useState(0);
 
   const resetEmailOtpState = () => {
     setOtpSending(false);
@@ -173,12 +175,22 @@ export const CheckoutComponent: React.FC = () => {
     setOtpRequestId("");
     setOtpCodeInput("");
     setOtpError(null);
+    setOtpResendCooldown(0);
   };
 
   useEffect(() => {
     if (otpSent || otpVerified) resetEmailOtpState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailInput]);
+
+  // ყოველ წამში ვაკლებთ ქულდაუნის მთვლელს, სანამ 0-ს არ მიაღწევს
+  useEffect(() => {
+    if (otpResendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpResendCooldown]);
 
   const [phoneOtpSending, setPhoneOtpSending] = useState(false);
   const [phoneOtpVerifying, setPhoneOtpVerifying] = useState(false);
@@ -187,6 +199,8 @@ export const CheckoutComponent: React.FC = () => {
   const [phoneOtpRequestId, setPhoneOtpRequestId] = useState("");
   const [phoneOtpCodeInput, setPhoneOtpCodeInput] = useState("");
   const [phoneOtpError, setPhoneOtpError] = useState<string | null>(null);
+  // ხელახლა გაგზავნის ღილაკის 1-წუთიანი (60წმ) ქულდაუნი — წამებში დარჩენილი დრო
+  const [phoneOtpResendCooldown, setPhoneOtpResendCooldown] = useState(0);
 
   const resetPhoneOtpState = () => {
     setPhoneOtpSending(false);
@@ -196,12 +210,22 @@ export const CheckoutComponent: React.FC = () => {
     setPhoneOtpRequestId("");
     setPhoneOtpCodeInput("");
     setPhoneOtpError(null);
+    setPhoneOtpResendCooldown(0);
   };
 
   useEffect(() => {
     if (phoneOtpSent || phoneOtpVerified) resetPhoneOtpState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phoneInput]);
+
+  // ყოველ წამში ვაკლებთ ქულდაუნის მთვლელს, სანამ 0-ს არ მიაღწევს
+  useEffect(() => {
+    if (phoneOtpResendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setPhoneOtpResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [phoneOtpResendCooldown]);
 
   const { getOverlayProps } = useOverlayCloseHandlers();
 
@@ -398,6 +422,7 @@ export const CheckoutComponent: React.FC = () => {
   }, [status, session?.accessToken, session?.user?.id, router.locale]);
 
   const handleSendEmailOtp = async () => {
+    if (otpResendCooldown > 0) return;
     setOtpError(null);
     const parsed = emailField().safeParse(emailInput);
     if (!parsed.success) {
@@ -407,8 +432,16 @@ export const CheckoutComponent: React.FC = () => {
     setOtpSending(true);
     try {
       const resp = await OtpAPI(router.locale || "ka", "").otpControllerSendEmailOtp({ email: parsed.data });
+      // backend/verify.ge-ს პასუხს ხანდახან requestId არ ჩართავს (undefined) — ამის
+      // შემთხვევაში "გაგზავნილად" არ ჩავთვალოთ, თორემ /otp/verify-ზე ცარიელი
+      // requestId წავა და backend-ის validation-ი 400-ს დააბრუნებს
+      if (!resp.data.requestId) {
+        setOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        return;
+      }
       setOtpRequestId(resp.data.requestId);
       setOtpSent(true);
+      setOtpResendCooldown(60);
     } catch (err: any) {
       setOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
     } finally {
@@ -420,6 +453,11 @@ export const CheckoutComponent: React.FC = () => {
     setOtpError(null);
     if (!otpCodeInput.trim()) {
       setOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
+      return;
+    }
+    if (!otpRequestId) {
+      setOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setOtpSent(false);
       return;
     }
     setOtpVerifying(true);
@@ -437,6 +475,7 @@ export const CheckoutComponent: React.FC = () => {
   };
 
   const handleSendPhoneOtp = async () => {
+    if (phoneOtpResendCooldown > 0) return;
     setPhoneOtpError(null);
     const parsed = phoneNumberField().safeParse(phoneInput);
     if (!parsed.success) {
@@ -448,12 +487,42 @@ export const CheckoutComponent: React.FC = () => {
       const resp = await OtpAPI(router.locale || "ka", "").otpControllerSendOtp({
         phoneNumber: toE164(parsed.data),
       });
+      // იხ. handleSendEmailOtp-ის კომენტარი — requestId-ის გარეშე "გაგზავნილად" არ ვთვლით
+      if (!resp.data.requestId) {
+        setPhoneOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        return;
+      }
       setPhoneOtpRequestId(resp.data.requestId);
       setPhoneOtpSent(true);
+      setPhoneOtpResendCooldown(60);
     } catch (err: any) {
       setPhoneOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
     } finally {
       setPhoneOtpSending(false);
+    }
+  };
+
+  // მხოლოდ მობილურის დადასტურებულ ცვლილებას ინახავს — არ ეხება ფორმის დანარჩენ,
+  // ჯერ შეუნახავ ველებს. profile-ის persistVerifiedEmail-ის ანალოგიურად, რომ
+  // დადასტურებისთანავე, "მონაცემების შენახვა" ღილაკზე დაჭერის გარეშეც, ავტომატურად
+  // შეინახოს ახლადდადასტურებული ნომერი და გაქრეს წითელი ბორდერი/"არადამოწმებული".
+  const persistVerifiedPhone = async (requestId: string, code: string, phoneValue: string) => {
+    if (!session?.accessToken || !session?.user?.id) return;
+    try {
+      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
+        session.user.id,
+        {
+          phoneNumber: toE164(phoneValue),
+          phoneOtpRequestId: requestId,
+          phoneOtpCode: code,
+        }
+      );
+      setUser(res.data as User);
+      setSavedPhoneNumber(phoneValue);
+      resetPhoneOtpState();
+      toast.success("მობილურის ნომერი დადასტურდა და შენახულია!");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "მობილურის ნომრის შენახვა ვერ მოხერხდა");
     }
   };
 
@@ -463,13 +532,22 @@ export const CheckoutComponent: React.FC = () => {
       setPhoneOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
       return;
     }
+    if (!phoneOtpRequestId) {
+      setPhoneOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setPhoneOtpSent(false);
+      return;
+    }
     setPhoneOtpVerifying(true);
     try {
+      const requestId = phoneOtpRequestId;
+      const code = phoneOtpCodeInput.trim();
       await OtpAPI(router.locale || "ka", "").otpControllerVerifyOtp({
-        requestId: phoneOtpRequestId,
-        code: phoneOtpCodeInput.trim(),
+        requestId,
+        code,
       });
       setPhoneOtpVerified(true);
+      // დადასტურებისთანავე, დამატებითი დაჭერის გარეშე, ინახავს მობილურის ნომერს
+      await persistVerifiedPhone(requestId, code, phoneInput.trim());
     } catch (err: any) {
       setPhoneOtpError(err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია");
     } finally {
@@ -724,8 +802,18 @@ export const CheckoutComponent: React.FC = () => {
                               <CheckCircleIcon size={15} /> დადასტურებულია
                             </S.VerifiedBadge>
                           ) : (
-                            <S.OtpActionBtn type="button" onClick={handleSendPhoneOtp} disabled={phoneOtpSending}>
-                              {phoneOtpSending ? "იგზავნება..." : phoneOtpSent ? "ხელახლა გაგზავნა" : "დამოწმება"}
+                            <S.OtpActionBtn
+                              type="button"
+                              onClick={handleSendPhoneOtp}
+                              disabled={phoneOtpSending || phoneOtpResendCooldown > 0}
+                            >
+                              {phoneOtpSending
+                                ? "იგზავნება..."
+                                : phoneOtpResendCooldown > 0
+                                ? `ხელახლა გაგზავნა (${phoneOtpResendCooldown})`
+                                : phoneOtpSent
+                                ? "ხელახლა გაგზავნა"
+                                : "დამოწმება"}
                             </S.OtpActionBtn>
                           ))}
                       </S.FieldRow>
@@ -772,8 +860,18 @@ export const CheckoutComponent: React.FC = () => {
                               <CheckCircleIcon size={15} /> დადასტურებულია
                             </S.VerifiedBadge>
                           ) : (
-                            <S.OtpActionBtn type="button" onClick={handleSendEmailOtp} disabled={otpSending}>
-                              {otpSending ? "იგზავნება..." : otpSent ? "ხელახლა გაგზავნა" : "დამოწმება"}
+                            <S.OtpActionBtn
+                              type="button"
+                              onClick={handleSendEmailOtp}
+                              disabled={otpSending || otpResendCooldown > 0}
+                            >
+                              {otpSending
+                                ? "იგზავნება..."
+                                : otpResendCooldown > 0
+                                ? `ხელახლა გაგზავნა (${otpResendCooldown})`
+                                : otpSent
+                                ? "ხელახლა გაგზავნა"
+                                : "დამოწმება"}
                             </S.OtpActionBtn>
                           ))}
                       </S.FieldRow>

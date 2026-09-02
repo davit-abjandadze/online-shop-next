@@ -70,6 +70,8 @@ export const ProfileComponent: React.FC = () => {
   const [otpRequestId, setOtpRequestId] = useState("");
   const [otpCodeInput, setOtpCodeInput] = useState("");
   const [otpError, setOtpError] = useState<string | null>(null);
+  // ხელახლა გაგზავნის ღილაკის 1-წუთიანი (60წმ) ქულდაუნი — წამებში დარჩენილი დრო
+  const [otpResendCooldown, setOtpResendCooldown] = useState(0);
 
   const resetEmailOtpState = () => {
     setOtpSending(false);
@@ -79,6 +81,7 @@ export const ProfileComponent: React.FC = () => {
     setOtpRequestId("");
     setOtpCodeInput("");
     setOtpError(null);
+    setOtpResendCooldown(0);
   };
 
   // ელფოსტის ველის ხელახლა შეცვლისას ძველი ვერიფიკაცია აღარაა ვალიდური
@@ -89,6 +92,15 @@ export const ProfileComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [email]);
 
+  // ყოველ წამში ვაკლებთ ქულდაუნის მთვლელს, სანამ 0-ს არ მიაღწევს
+  useEffect(() => {
+    if (otpResendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setOtpResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [otpResendCooldown]);
+
   // მობილურის ნომრის ცვლილების OTP-ვერიფიკაციის სტეიტი — ისევე, როგორც ელფოსტისთვის,
   // ახალი ნომრის შენახვა დაბლოკილია, სანამ SMS-ით მიღებული კოდი არაა შემოწმებული.
   const [phoneOtpSending, setPhoneOtpSending] = useState(false);
@@ -98,6 +110,8 @@ export const ProfileComponent: React.FC = () => {
   const [phoneOtpRequestId, setPhoneOtpRequestId] = useState("");
   const [phoneOtpCodeInput, setPhoneOtpCodeInput] = useState("");
   const [phoneOtpError, setPhoneOtpError] = useState<string | null>(null);
+  // ხელახლა გაგზავნის ღილაკის 1-წუთიანი (60წმ) ქულდაუნი — წამებში დარჩენილი დრო
+  const [phoneOtpResendCooldown, setPhoneOtpResendCooldown] = useState(0);
 
   const resetPhoneOtpState = () => {
     setPhoneOtpSending(false);
@@ -107,6 +121,7 @@ export const ProfileComponent: React.FC = () => {
     setPhoneOtpRequestId("");
     setPhoneOtpCodeInput("");
     setPhoneOtpError(null);
+    setPhoneOtpResendCooldown(0);
   };
 
   // მობილურის ნომრის ველის ხელახლა შეცვლისას ძველი ვერიფიკაცია აღარაა ვალიდური
@@ -117,7 +132,17 @@ export const ProfileComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phoneNumber]);
 
+  // ყოველ წამში ვაკლებთ ქულდაუნის მთვლელს, სანამ 0-ს არ მიაღწევს
+  useEffect(() => {
+    if (phoneOtpResendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setPhoneOtpResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [phoneOtpResendCooldown]);
+
   const handleSendPhoneOtp = async () => {
+    if (phoneOtpResendCooldown > 0) return;
     setPhoneOtpError(null);
 
     const isPhoneValid = await trigger("phoneNumber");
@@ -128,12 +153,44 @@ export const ProfileComponent: React.FC = () => {
       const resp = await OtpAPI(router.locale || "ka", "").otpControllerSendOtp({
         phoneNumber: toE164(phoneNumber),
       });
+      // backend/verify.ge-ს პასუხს ხანდახან requestId არ ჩართავს (undefined) — ამის
+      // შემთხვევაში "გაგზავნილად" არ ჩავთვალოთ, თორემ /otp/verify-ზე ცარიელი
+      // requestId წავა და backend-ის validation-ი 400-ს დააბრუნებს
+      if (!resp.data.requestId) {
+        setPhoneOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        return;
+      }
       setPhoneOtpRequestId(resp.data.requestId);
       setPhoneOtpSent(true);
+      setPhoneOtpResendCooldown(60);
     } catch (err: any) {
       setPhoneOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
     } finally {
       setPhoneOtpSending(false);
+    }
+  };
+
+  // მხოლოდ მობილურის დადასტურებულ ცვლილებას ინახავს — persistVerifiedEmail-ის
+  // ანალოგიურად, რომ დადასტურებისთანავე, "ცვლილებების შენახვა" ღილაკზე დაჭერის
+  // გარეშეც, ავტომატურად შეინახოს ახლადდადასტურებული ნომერი და გაქრეს წითელი
+  // ბორდერი/"არადამოწმებული" ლეიბლი.
+  const persistVerifiedPhone = async (requestId: string, code: string, phoneValue: string) => {
+    if (!session?.accessToken || !session?.user?.id) return;
+    try {
+      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
+        session.user.id,
+        {
+          phoneNumber: toE164(phoneValue),
+          phoneOtpRequestId: requestId,
+          phoneOtpCode: code,
+        }
+      );
+      setUser(res.data as User);
+      setSavedPhoneNumber(phoneValue);
+      resetPhoneOtpState();
+      toast.success("მობილურის ნომერი დადასტურდა და შენახულია!");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "მობილურის ნომრის შენახვა ვერ მოხერხდა");
     }
   };
 
@@ -145,13 +202,23 @@ export const ProfileComponent: React.FC = () => {
       return;
     }
 
+    if (!phoneOtpRequestId) {
+      setPhoneOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setPhoneOtpSent(false);
+      return;
+    }
+
     setPhoneOtpVerifying(true);
     try {
+      const requestId = phoneOtpRequestId;
+      const code = phoneOtpCodeInput.trim();
       await OtpAPI(router.locale || "ka", "").otpControllerVerifyOtp({
-        requestId: phoneOtpRequestId,
-        code: phoneOtpCodeInput.trim(),
+        requestId,
+        code,
       });
       setPhoneOtpVerified(true);
+      // დადასტურებისთანავე, დამატებითი დაჭერის გარეშე, ინახავს მობილურის ნომერს
+      await persistVerifiedPhone(requestId, code, phoneNumber.trim());
     } catch (err: any) {
       setPhoneOtpError(err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია");
     } finally {
@@ -160,6 +227,7 @@ export const ProfileComponent: React.FC = () => {
   };
 
   const handleSendEmailOtp = async () => {
+    if (otpResendCooldown > 0) return;
     setOtpError(null);
 
     const isEmailValid = await trigger("email");
@@ -170,8 +238,14 @@ export const ProfileComponent: React.FC = () => {
       const resp = await OtpAPI(router.locale || "ka", "").otpControllerSendEmailOtp({
         email: email.trim(),
       });
+      // იხ. handleSendPhoneOtp-ის კომენტარი — requestId-ის გარეშე "გაგზავნილად" არ ვთვლით
+      if (!resp.data.requestId) {
+        setOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        return;
+      }
       setOtpRequestId(resp.data.requestId);
       setOtpSent(true);
+      setOtpResendCooldown(60);
     } catch (err: any) {
       setOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
     } finally {
@@ -207,6 +281,12 @@ export const ProfileComponent: React.FC = () => {
 
     if (!otpCodeInput.trim()) {
       setOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
+      return;
+    }
+
+    if (!otpRequestId) {
+      setOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setOtpSent(false);
       return;
     }
 
@@ -492,9 +572,15 @@ export const ProfileComponent: React.FC = () => {
                       <S.OtpActionBtn
                         type="button"
                         onClick={handleSendEmailOtp}
-                        disabled={otpSending || !!errors.email}
+                        disabled={otpSending || otpResendCooldown > 0 || !!errors.email}
                       >
-                        {otpSending ? "იგზავნება..." : otpSent ? "ხელახლა გაგზავნა" : "დამოწმება"}
+                        {otpSending
+                          ? "იგზავნება..."
+                          : otpResendCooldown > 0
+                          ? `ხელახლა გაგზავნა (${otpResendCooldown})`
+                          : otpSent
+                          ? "ხელახლა გაგზავნა"
+                          : "დამოწმება"}
                       </S.OtpActionBtn>
                     )
                   )}
@@ -546,9 +632,15 @@ export const ProfileComponent: React.FC = () => {
                       <S.OtpActionBtn
                         type="button"
                         onClick={handleSendPhoneOtp}
-                        disabled={phoneOtpSending || !!errors.phoneNumber}
+                        disabled={phoneOtpSending || phoneOtpResendCooldown > 0 || !!errors.phoneNumber}
                       >
-                        {phoneOtpSending ? "იგზავნება..." : phoneOtpSent ? "ხელახლა გაგზავნა" : "დამოწმება"}
+                        {phoneOtpSending
+                          ? "იგზავნება..."
+                          : phoneOtpResendCooldown > 0
+                          ? `ხელახლა გაგზავნა (${phoneOtpResendCooldown})`
+                          : phoneOtpSent
+                          ? "ხელახლა გაგზავნა"
+                          : "დამოწმება"}
                       </S.OtpActionBtn>
                     )
                   )}

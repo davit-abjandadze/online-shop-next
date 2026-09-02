@@ -92,6 +92,16 @@ export const personalNumberField = () =>
     .min(1, "გთხოვთ მიუთითოთ პირადი ნომერი")
     .regex(/^\d{11}$/, "პირადი ნომერი უნდა შეიცავდეს 11 ციფრს");
 
+/** პირადი ნომრის არასავალდებულო ველი (მაგ. რეგისტრაცია/პროფილი, სადაც ცარიელი მნიშვნელობაც დასაშვებია). */
+export const optionalPersonalNumberField = () =>
+  z
+    .string()
+    .trim()
+    .refine((val) => val === "" || /^\d{11}$/.test(val), {
+      message: "პირადი ნომერი უნდა შეიცავდეს 11 ციფრს",
+    })
+    .optional();
+
 export const genderField = () =>
   z.enum(GENDER_VALUES, {
     errorMap: () => ({ message: "გთხოვთ მიუთითოთ სქესი" }),
@@ -132,7 +142,7 @@ export const registerSchema = z
     lastName: nameField("გვარი"),
     email: emailField(),
     phoneNumber: phoneNumberField(),
-    personalNumber: personalNumberField(),
+    personalNumber: optionalPersonalNumberField(),
     gender: genderField(),
     password: passwordField(),
     confirmPassword: z.string().min(1, "გთხოვთ გაიმეოროთ პაროლი"),
@@ -194,12 +204,6 @@ export const profileEditSchema = z.object({
   age: optionalAgeField(),
   gender: optionalGenderField(),
   phoneNumber: optionalPhoneNumberField(),
-  personalNumber: z
-    .string()
-    .trim()
-    .refine((val) => val === "" || /^\d{11}$/.test(val), {
-      message: "პირადი ნომერი უნდა შეიცავდეს 11 ციფრს",
-    })
-    .optional(),
+  personalNumber: optionalPersonalNumberField(),
 });
 export type ProfileEditFormValues = z.infer<typeof profileEditSchema>;

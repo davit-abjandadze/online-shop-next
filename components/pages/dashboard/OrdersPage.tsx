@@ -5,11 +5,28 @@ import { OrdersAPI } from "@/API_Client";
 import { OrdersControllerFindAllStatusEnum } from "@/API_Client/client";
 import { Order, OrderStatus, PaginatedResponseDto } from "@/API_Client/types";
 import OrderStatusBadge from "@/components/shared/OrderStatusBadge";
-import { ClipboardIcon } from "@/components/ui/RefIcons";
+import {
+  BuildingIcon,
+  CalendarIcon,
+  ClipboardIcon,
+  CloseIcon,
+  GridOneIcon,
+  GridThreeIcon,
+  GridTwoIcon,
+  MailIcon,
+  SearchIcon,
+  TruckIcon,
+} from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
+import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import DashboardLayout from "./DashboardLayout";
 import { ListSkeleton } from "./Skeletons";
 import * as S from "./style";
+
+const DELIVERY_METHOD_LABELS: Record<string, string> = {
+  courier: "კურიერი",
+  pickup: "თვითმიღება",
+};
 
 const PAGE_SIZE = 10;
 
@@ -27,12 +44,19 @@ const STATUS_OPTIONS: { value: OrderStatus | ""; label: string }[] = [
 export const OrdersPage: React.FC = () => {
   const { session } = useAdminGuard();
   const router = useRouter();
+  const { getOverlayProps } = useOverlayCloseHandlers();
 
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "">("");
+
+  // ─── ბადრაგის სვეტების რაოდენობა (1/2/3 ერთ რიგში) ──────────────────────────
+  const [gridColumns, setGridColumns] = useState<1 | 2 | 3>(1);
+
+  // ─── დეტალების მოდალში გახსნილი შეკვეთა ──────────────────────────────────────
+  const [detailsOrder, setDetailsOrder] = useState<Order | null>(null);
 
   // ორდერისთვის pending select-ის მნიშვნელობა და "ინახება" flag — status
   // update-ისას შესაბამისი row-ს ვამოწმებთ, სხვას არ ვბლოკავთ.
@@ -95,6 +119,34 @@ export const OrdersPage: React.FC = () => {
           <S.FilterBarTitle>
             <ClipboardIcon size={16} /> ფილტრი
           </S.FilterBarTitle>
+          <S.FilterActions>
+            <S.GridToggle>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 1}
+                title="1 ბარათი რიგში"
+                onClick={() => setGridColumns(1)}
+              >
+                <GridOneIcon size={16} />
+              </S.GridToggleButton>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 2}
+                title="2 ბარათი რიგში"
+                onClick={() => setGridColumns(2)}
+              >
+                <GridTwoIcon size={16} />
+              </S.GridToggleButton>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 3}
+                title="3 ბარათი რიგში"
+                onClick={() => setGridColumns(3)}
+              >
+                <GridThreeIcon size={16} />
+              </S.GridToggleButton>
+            </S.GridToggle>
+          </S.FilterActions>
         </S.FilterBarHeader>
         <S.FilterGrid>
           <S.FilterGroup>
@@ -126,7 +178,7 @@ export const OrdersPage: React.FC = () => {
         </S.EmptyState>
       ) : (
         <>
-          <S.QuestionsList>
+          <S.UsersGrid columns={gridColumns}>
             {orders.map((order) => {
               const selected = pendingStatus[order.id] ?? order.status;
               const dirty = selected !== order.status;
@@ -166,12 +218,15 @@ export const OrdersPage: React.FC = () => {
                       >
                         {savingId === order.id ? "ინახება..." : "შენახვა"}
                       </S.ActionButton>
+                      <S.ActionButton variant="outline" onClick={() => setDetailsOrder(order)}>
+                        <SearchIcon size={16} /> დეტალები
+                      </S.ActionButton>
                     </S.CardActions>
                   </S.CardHeader>
                 </S.QuestionCard>
               );
             })}
-          </S.QuestionsList>
+          </S.UsersGrid>
 
           {totalPages > 1 && (
             <S.PaginationBar>
@@ -191,6 +246,111 @@ export const OrdersPage: React.FC = () => {
             </S.PaginationBar>
           )}
         </>
+      )}
+
+      {/* ═══ ORDER DETAILS MODAL ═════════════════════════════════════════════ */}
+      {detailsOrder && (
+        <S.ModalOverlay {...getOverlayProps(() => setDetailsOrder(null))}>
+          <S.ModalContent onClick={(e) => e.stopPropagation()}>
+            <S.ModalHeader>
+              <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <ClipboardIcon size={18} /> შეკვეთა #{detailsOrder.id}
+              </S.ModalTitle>
+              <S.CloseButton onClick={() => setDetailsOrder(null)}>
+                <CloseIcon size={16} />
+              </S.CloseButton>
+            </S.ModalHeader>
+
+            <S.BadgeGroup>
+              <OrderStatusBadge status={detailsOrder.status} />
+              <S.Badge variant="date">{Number(detailsOrder.totalAmount).toFixed(2)} {detailsOrder.currency}</S.Badge>
+              <S.Badge variant="date">{detailsOrder.items.length} ერთეული</S.Badge>
+            </S.BadgeGroup>
+
+            <S.UserDetailsGrid>
+              <S.UserDetailItem>
+                <S.UserDetailLabel>მომხმარებელი</S.UserDetailLabel>
+                <S.UserDetailValue>
+                  {detailsOrder.user.firstName} {detailsOrder.user.lastName}
+                </S.UserDetailValue>
+              </S.UserDetailItem>
+              <S.UserDetailItem>
+                <S.UserDetailLabel>ელ. ფოსტა</S.UserDetailLabel>
+                <S.UserDetailValue>
+                  <MailIcon size={13} /> {detailsOrder.user.email}
+                </S.UserDetailValue>
+              </S.UserDetailItem>
+              <S.UserDetailItem>
+                <S.UserDetailLabel>მიწოდების მეთოდი</S.UserDetailLabel>
+                <S.UserDetailValue>
+                  <TruckIcon size={16} /> {DELIVERY_METHOD_LABELS[detailsOrder.deliveryMethod] || detailsOrder.deliveryMethod}
+                </S.UserDetailValue>
+              </S.UserDetailItem>
+              {detailsOrder.branch && (
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>ფილიალი</S.UserDetailLabel>
+                  <S.UserDetailValue>
+                    <BuildingIcon size={16} /> {detailsOrder.branch.title} ({detailsOrder.branch.address})
+                  </S.UserDetailValue>
+                </S.UserDetailItem>
+              )}
+              {detailsOrder.shippingAddress && (
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>მიწოდების მისამართი</S.UserDetailLabel>
+                  <S.UserDetailValue>{detailsOrder.shippingAddress}</S.UserDetailValue>
+                </S.UserDetailItem>
+              )}
+              <S.UserDetailItem>
+                <S.UserDetailLabel>შექმნის თარიღი</S.UserDetailLabel>
+                <S.UserDetailValue>
+                  <CalendarIcon size={13} /> {new Date(detailsOrder.createdAt).toLocaleString("ka-GE")}
+                </S.UserDetailValue>
+              </S.UserDetailItem>
+              <S.UserDetailItem>
+                <S.UserDetailLabel>განახლების თარიღი</S.UserDetailLabel>
+                <S.UserDetailValue>
+                  <CalendarIcon size={13} /> {new Date(detailsOrder.updatedAt).toLocaleString("ka-GE")}
+                </S.UserDetailValue>
+              </S.UserDetailItem>
+              {detailsOrder.expiresAt && (
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>ვადის გასვლა</S.UserDetailLabel>
+                  <S.UserDetailValue>
+                    <CalendarIcon size={13} /> {new Date(detailsOrder.expiresAt).toLocaleString("ka-GE")}
+                  </S.UserDetailValue>
+                </S.UserDetailItem>
+              )}
+            </S.UserDetailsGrid>
+
+            <S.UserDetailLabel style={{ display: "block", marginTop: 16, marginBottom: 8 }}>
+              შეკვეთის შემადგენლობა
+            </S.UserDetailLabel>
+            <S.QuestionsList>
+              {detailsOrder.items.map((item) => (
+                <S.QuestionCard key={item.id} style={{ padding: "10px 14px" }}>
+                  <S.CardHeader>
+                    <div>
+                      <S.QuestionText>{item.productName}</S.QuestionText>
+                      <S.BadgeGroup style={{ marginTop: 6 }}>
+                        <S.Badge variant="date">{item.quantity} ცალი</S.Badge>
+                        <S.Badge variant="date">{Number(item.unitPrice).toFixed(2)} {detailsOrder.currency} / ცალი</S.Badge>
+                        <S.Badge variant="date">
+                          {(Number(item.unitPrice) * item.quantity).toFixed(2)} {detailsOrder.currency}
+                        </S.Badge>
+                      </S.BadgeGroup>
+                    </div>
+                  </S.CardHeader>
+                </S.QuestionCard>
+              ))}
+            </S.QuestionsList>
+
+            <S.ModalFooter>
+              <S.ActionButton type="button" variant="secondary" onClick={() => setDetailsOrder(null)}>
+                დახურვა
+              </S.ActionButton>
+            </S.ModalFooter>
+          </S.ModalContent>
+        </S.ModalOverlay>
       )}
     </DashboardLayout>
   );

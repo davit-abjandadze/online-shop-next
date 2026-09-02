@@ -46,5 +46,6 @@
   "login-validation-password-required": "Password is required",
   "login-success": "Signed in successfully!",
   "login-error-invalid": "Invalid email or password",
-  "login-error-network": "Network error. Please check your connection."
+  "login-error-network": "Network error. Please check your connection.",
+  "session-expired": "Your session has expired — please sign in again"
 }

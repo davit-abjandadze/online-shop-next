@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,6 +21,16 @@ const LoginForm: React.FC = () => {
   const router = useRouter();
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // API_Client-ის response interceptor-მა 401-ზე signOut() გამოიძახა
+  // (მაგ. ადმინმა მომხმარებელი წაშალა) და აქ redirect გააკეთა — ამის
+  // შესახებ toast-ს ვაჩვენებთ.
+  useEffect(() => {
+    if (router.query.sessionExpired) {
+      toast.error(t("session-expired") as string);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query.sessionExpired]);
 
   const schema = z.object({
     email: z

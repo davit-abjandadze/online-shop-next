@@ -395,6 +395,84 @@ export const QuestionsList = styled("div")`
   gap: 14px;
 `;
 
+// მომხმარებლების გვერდის ბადრაგი — 1/2/3 სვეტიანი ბადრაგის გადამრთველი
+export const UsersGrid = styled("div")<{ columns: 1 | 2 | 3 }>`
+  display: grid;
+  grid-template-columns: repeat(${({ columns }) => columns}, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(${({ columns }) => Math.min(columns, 2)}, minmax(0, 1fr));
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const GridToggle = styled("div")`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--ref-bg-subtle);
+  border: 1px solid var(--ref-border-soft);
+`;
+
+export const GridToggleButton = styled("button")<{ active?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: ${({ active }) => (active ? "var(--ref-bg-elevated)" : "transparent")};
+  color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-secondary)")};
+  box-shadow: ${({ active }) => (active ? "0 1px 3px rgba(0, 0, 0, 0.08)" : "none")};
+
+  &:hover {
+    color: var(--ref-primary);
+  }
+`;
+
+export const UserDetailsGrid = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px 14px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ref-border-soft);
+`;
+
+export const UserDetailItem = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+`;
+
+export const UserDetailLabel = styled("span")`
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+`;
+
+export const UserDetailValue = styled("span")`
+  font-size: 13px;
+  color: var(--ref-text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  overflow-wrap: anywhere;
+`;
+
 export const QuestionCard = styled("div")`
   background: var(--ref-bg-elevated);
   border-radius: 8px;

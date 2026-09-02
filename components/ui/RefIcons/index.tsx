@@ -470,6 +470,14 @@ export const GridOneIcon: React.FC<RefIconProps> = ({ size = 18, className, styl
   </svg>
 );
 
+export const GridThreeIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="2.5" y="4" width="5.5" height="16" rx="1.2" stroke="currentColor" strokeWidth="1.8" />
+    <rect x="9.25" y="4" width="5.5" height="16" rx="1.2" stroke="currentColor" strokeWidth="1.8" />
+    <rect x="16" y="4" width="5.5" height="16" rx="1.2" stroke="currentColor" strokeWidth="1.8" />
+  </svg>
+);
+
 /* დრეგის სახელური (grip) - სავარაუდო პასუხების drag&drop-ით გადალაგებისთვის. მონოქრომული, currentColor-ზეა აგებული. */
 export const DragHandleIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>

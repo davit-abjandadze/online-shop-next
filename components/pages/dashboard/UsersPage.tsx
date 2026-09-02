@@ -10,7 +10,22 @@ import {
   UsersControllerSearchOrderEnum,
   UsersControllerSearchRoleEnum,
 } from "@/API_Client/client/apis/users-api";
-import { CloseIcon, ClipboardIcon, EditIcon, PeopleIcon, PlusIcon, SearchIcon, TrashIcon } from "@/components/ui/RefIcons";
+import {
+  CalendarIcon,
+  CheckCircleIcon,
+  CloseIcon,
+  ClipboardIcon,
+  EditIcon,
+  GridOneIcon,
+  GridThreeIcon,
+  GridTwoIcon,
+  MailIcon,
+  PeopleIcon,
+  PlusIcon,
+  SearchIcon,
+  TrashIcon,
+  WarningIcon,
+} from "@/components/ui/RefIcons";
 import { getPaginationRange } from "@/utils/getPaginationRange";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -41,6 +56,9 @@ export const UsersPage: React.FC = () => {
   const [loadingU, setLoadingU] = useState<boolean>(true);
   const [usersPage, setUsersPage] = useState<number>(1);
   const [usersMeta, setUsersMeta] = useState<PaginationMetaDto | null>(null);
+
+  // ─── ბადრაგის სვეტების რაოდენობა (1/2/3 ერთ რიგში) ──────────────────────────
+  const [gridColumns, setGridColumns] = useState<1 | 2 | 3>(1);
 
   // ─── გაფართოებული ძიება/ფილტრები ────────────────────────────────────────────
   const [searchText, setSearchText] = useState<string>("");
@@ -218,6 +236,32 @@ export const UsersPage: React.FC = () => {
             {hasActiveFilters && <S.FilterCountBadge>აქტიური</S.FilterCountBadge>}
           </S.FilterBarTitle>
           <S.FilterActions>
+            <S.GridToggle>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 1}
+                title="1 ბარათი რიგში"
+                onClick={() => setGridColumns(1)}
+              >
+                <GridOneIcon size={16} />
+              </S.GridToggleButton>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 2}
+                title="2 ბარათი რიგში"
+                onClick={() => setGridColumns(2)}
+              >
+                <GridTwoIcon size={16} />
+              </S.GridToggleButton>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 3}
+                title="3 ბარათი რიგში"
+                onClick={() => setGridColumns(3)}
+              >
+                <GridThreeIcon size={16} />
+              </S.GridToggleButton>
+            </S.GridToggle>
             <S.ActionButton type="button" variant="secondary" onClick={handleResetFilters} disabled={!hasActiveFilters}>
               <CloseIcon size={14} /> ფილტრის გასუფთავება
             </S.ActionButton>
@@ -290,7 +334,7 @@ export const UsersPage: React.FC = () => {
           </S.ActionButton>
         </S.EmptyState>
       ) : (
-        <S.QuestionsList>
+        <S.UsersGrid columns={gridColumns}>
           {users.map((user) => (
             <S.QuestionCard key={user.id}>
               <S.CardHeader>
@@ -307,6 +351,14 @@ export const UsersPage: React.FC = () => {
                       <S.Badge variant="date">{user.gender === "male" ? "კაცი" : "ქალი"}</S.Badge>
                     )}
                     {user.age != null && <S.Badge variant="date">{user.age} წლის</S.Badge>}
+                    <S.Badge variant={user.isEmailVerified ? "active" : "inactive"}>
+                      {user.isEmailVerified ? <CheckCircleIcon size={12} /> : <WarningIcon size={12} />} ელ. ფოსტა{" "}
+                      {user.isEmailVerified ? "დადასტურებული" : "დაუდასტურებელი"}
+                    </S.Badge>
+                    <S.Badge variant={user.isPhoneVerified ? "active" : "inactive"}>
+                      {user.isPhoneVerified ? <CheckCircleIcon size={12} /> : <WarningIcon size={12} />} ტელეფონი{" "}
+                      {user.isPhoneVerified ? "დადასტურებული" : "დაუდასტურებელი"}
+                    </S.Badge>
                   </S.BadgeGroup>
                 </div>
                 <S.CardActions>
@@ -323,9 +375,36 @@ export const UsersPage: React.FC = () => {
                   </S.ActionButton>
                 </S.CardActions>
               </S.CardHeader>
+
+              <S.UserDetailsGrid>
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>ID</S.UserDetailLabel>
+                  <S.UserDetailValue>#{user.id}</S.UserDetailValue>
+                </S.UserDetailItem>
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>ტელეფონი</S.UserDetailLabel>
+                  <S.UserDetailValue>{user.phoneNumber || "—"}</S.UserDetailValue>
+                </S.UserDetailItem>
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>პირადი ნომერი</S.UserDetailLabel>
+                  <S.UserDetailValue>{user.personalNumber || "—"}</S.UserDetailValue>
+                </S.UserDetailItem>
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>ელ. ფოსტა</S.UserDetailLabel>
+                  <S.UserDetailValue>
+                    <MailIcon size={13} /> {user.email}
+                  </S.UserDetailValue>
+                </S.UserDetailItem>
+                <S.UserDetailItem>
+                  <S.UserDetailLabel>რეგისტრაციის თარიღი</S.UserDetailLabel>
+                  <S.UserDetailValue>
+                    <CalendarIcon size={13} /> {new Date(user.createdAt).toLocaleDateString("ka-GE")}
+                  </S.UserDetailValue>
+                </S.UserDetailItem>
+              </S.UserDetailsGrid>
             </S.QuestionCard>
           ))}
-        </S.QuestionsList>
+        </S.UsersGrid>
       )}
 
       {usersMeta && usersMeta.totalPages > 1 && (
