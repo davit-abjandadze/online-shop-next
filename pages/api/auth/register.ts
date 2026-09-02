@@ -9,17 +9,7 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    gender,
-    phoneNumber,
-    personalNumber,
-    otpRequestId,
-    otpCode,
-  } = req.body;
+  const { firstName, lastName, email, password, phoneNumber } = req.body;
 
   if (!firstName || !lastName || !email || !password || !phoneNumber) {
     return res.status(400).json({ message: "All fields are required" });
@@ -35,19 +25,6 @@ export default async function handler(
       .json({ message: "Password must be at least 6 characters" });
   }
 
-  // პირადი ნომერი აღარაა სავალდებულო — მაგრამ თუ გამოგზავნილია, ფორმატი უნდა შემოწმდეს
-  if (personalNumber && (typeof personalNumber !== "string" || !/^\d{11}$/.test(personalNumber))) {
-    return res.status(400).json({ message: "Invalid personal number" });
-  }
-
-  // მობილურის ვერიფიკაცია სავალდებულოა — otpRequestId/otpCode POST /otp/send-ისა
-  // და POST /otp/verify-ის შედეგად უნდა იყოს მიღებული ფრონტზე, ვიდრე რეგისტრაცია გაიგზავნება
-  if (!otpRequestId || !otpCode) {
-    return res
-      .status(400)
-      .json({ message: "Mobile phone verification is required" });
-  }
-
   try {
     const authApi = AuthAPI("en", "");
     const payload = {
@@ -55,11 +32,7 @@ export default async function handler(
       lastName,
       email,
       password,
-      gender,
       phoneNumber,
-      personalNumber,
-      otpRequestId,
-      otpCode,
     };
     await authApi.authControllerRegister(payload);
 

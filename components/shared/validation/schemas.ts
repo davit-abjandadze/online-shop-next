@@ -142,14 +142,8 @@ export const registerSchema = z
     lastName: nameField("გვარი"),
     email: emailField(),
     phoneNumber: phoneNumberField(),
-    personalNumber: optionalPersonalNumberField(),
-    gender: genderField(),
     password: passwordField(),
     confirmPassword: z.string().min(1, "გთხოვთ გაიმეოროთ პაროლი"),
-    // OTP-ვერიფიკაციის შედეგად მიღებული მონაცემები — ივსება მობილურის დადასტურების შემდეგ,
-    // ფორმის ველი არაა, ამიტომ input-თან პირდაპირ არაა დაკავშირებული (setValue-ით ვმართავთ)
-    otpRequestId: z.string().min(1, "გთხოვთ დაადასტუროთ მობილურის ნომერი"),
-    otpCode: z.string().min(1, "გთხოვთ დაადასტუროთ მობილურის ნომერი"),
   })
   .superRefine((data, ctx) => assertPasswordsMatch(data, ctx, "password"));
 export type RegisterFormValues = z.infer<typeof registerSchema>;

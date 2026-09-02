@@ -41,6 +41,7 @@ export const ProfileComponent: React.FC = () => {
     watch,
     setValue,
     trigger,
+    setError,
     formState: { errors, isSubmitting: savingUser },
   } = useForm<ProfileEditFormValues>({
     resolver: zodResolver(profileEditSchema),
@@ -453,7 +454,18 @@ export const ProfileComponent: React.FC = () => {
         toast.success("პროფილი წარმატებით განახლდა!");
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "პროფილის განახლება ვერ მოხერხდა");
+      const message = err?.response?.data?.message || "პროფილის განახლება ვერ მოხერხდა";
+
+      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
+      // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
+      // და ვწითლებთ, რომ მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
+      if (message.includes("ელფოსტით")) {
+        setError("email", { type: "manual", message });
+      } else if (message.includes("ტელეფონის ნომრით")) {
+        setError("phoneNumber", { type: "manual", message });
+      } else {
+        toast.error(message);
+      }
     }
   };
 

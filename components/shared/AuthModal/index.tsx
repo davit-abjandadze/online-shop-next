@@ -4,7 +4,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as S from "./style";
-import { AuthAPI, OtpAPI } from "@/API_Client";
+import { AuthAPI } from "@/API_Client";
 import useTranslation from "next-translate/useTranslation";
 import { useRouter } from 'next/navigation';
 import { CheckCircleIcon, CloseIcon, FacebookIcon, GoogleIcon, WarningIcon } from "@/components/ui/RefIcons";
@@ -63,12 +63,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       lastName: "",
       email: "",
       phoneNumber: "",
-      personalNumber: "",
-      gender: "male",
       password: "",
       confirmPassword: "",
-      otpRequestId: "",
-      otpCode: "",
     },
   });
 
@@ -76,91 +72,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: { email: "" },
   });
-
-  const regGender = registerForm.watch("gender");
-  const regPhoneNumber = registerForm.watch("phoneNumber");
-  const regOtpRequestId = registerForm.watch("otpRequestId");
-
-  // მობილურის ვერიფიკაციის სტეიტი — რეგისტრაცია დაბლოკილია, სანამ OTP-კოდი არაა დადასტურებული
-  const [otpSending, setOtpSending] = useState(false);
-  const [otpVerifying, setOtpVerifying] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otpCodeInput, setOtpCodeInput] = useState("");
-  const [otpError, setOtpError] = useState<string | null>(null);
-  // ხელახლა გაგზავნის ღილაკის 1-წუთიანი (60წმ) ქულდაუნი — წამებში დარჩენილი დრო
-  const [otpResendCooldown, setOtpResendCooldown] = useState(0);
-
-  // ნომრის შეცვლისას ძველი ვერიფიკაცია აღარაა ვალიდური
-  useEffect(() => {
-    if (otpSent || otpVerified) {
-      setOtpSent(false);
-      setOtpVerified(false);
-      setOtpCodeInput("");
-      setOtpResendCooldown(0);
-      registerForm.setValue("otpRequestId", "");
-      registerForm.setValue("otpCode", "");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [regPhoneNumber]);
-
-  // ყოველ წამში ვაკლებთ ქულდაუნის მთვლელს, სანამ 0-ს არ მიაღწევს
-  useEffect(() => {
-    if (otpResendCooldown <= 0) return;
-    const timer = setInterval(() => {
-      setOtpResendCooldown((prev) => (prev <= 1 ? 0 : prev - 1));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [otpResendCooldown]);
-
-  const handleSendOtp = async () => {
-    if (otpResendCooldown > 0) return;
-    setOtpError(null);
-
-    const isPhoneValid = await registerForm.trigger("phoneNumber");
-    if (!isPhoneValid) return;
-
-    setOtpSending(true);
-    try {
-      const resp = await OtpAPI(lang, "").otpControllerSendOtp({
-        phoneNumber: toE164(regPhoneNumber),
-      });
-      registerForm.setValue("otpRequestId", resp.data.requestId);
-      setOtpSent(true);
-      setOtpResendCooldown(60);
-    } catch (err: any) {
-      setOtpError(
-        err?.response?.data?.message || "OTP-კოდის გაგზავნა ვერ მოხერხდა"
-      );
-    } finally {
-      setOtpSending(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    setOtpError(null);
-
-    if (!otpCodeInput.trim()) {
-      setOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
-      return;
-    }
-
-    setOtpVerifying(true);
-    try {
-      await OtpAPI(lang, "").otpControllerVerifyOtp({
-        requestId: regOtpRequestId,
-        code: otpCodeInput.trim(),
-      });
-      registerForm.setValue("otpCode", otpCodeInput.trim());
-      setOtpVerified(true);
-    } catch (err: any) {
-      setOtpError(
-        err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია"
-      );
-    } finally {
-      setOtpVerifying(false);
-    }
-  };
 
   useEffect(() => {
     setMode(initialMode);
@@ -210,12 +121,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const onRegisterSubmit = async (data: RegisterFormValues) => {
     setError(null);
     setSuccess(null);
-
-    if (!otpVerified) {
-      setError("რეგისტრაციისთვის საჭიროა მობილურის ნომრის დადასტურება");
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -224,11 +129,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         lastName: data.lastName,
         email: data.email,
         password: data.password,
-        gender: data.gender || undefined,
         phoneNumber: toE164(data.phoneNumber),
-        personalNumber: data.personalNumber || undefined,
-        otpRequestId: data.otpRequestId,
-        otpCode: data.otpCode,
       });
 
       if (response.status === 201 || response.status === 200) {
@@ -256,7 +157,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: any) {
       setLoading(false);
       const msg = err?.response?.data?.message || "რეგისტრაციისას დაფიქსირდა შეცდომა";
-      setError(msg);
+
+      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
+      // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
+      // და ვწითლებთ, რომ მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
+      if (msg.includes("ელფოსტით")) {
+        registerForm.setError("email", { type: "manual", message: msg });
+      } else if (msg.includes("ტელეფონის ნომრით")) {
+        registerForm.setError("phoneNumber", { type: "manual", message: msg });
+      } else {
+        setError(msg);
+      }
     }
   };
 
@@ -481,115 +392,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </S.FormGroup>
 
             <S.FormGroup>
-              <S.Label>პირადი ნომერი</S.Label>
-              <S.Input
-                type="text"
-                inputMode="numeric"
-                placeholder="11-ციფრიანი პირადი ნომერი"
-                maxLength={11}
-                $invalid={!!registerForm.formState.errors.personalNumber}
-                {...registerForm.register("personalNumber")}
-              />
-              {registerForm.formState.errors.personalNumber && (
-                <S.FieldError>{registerForm.formState.errors.personalNumber.message}</S.FieldError>
-              )}
-            </S.FormGroup>
-
-            <S.FormGroup>
               <S.Label>მობილურის ნომერი</S.Label>
-              <S.PhoneRow>
-                <S.InputWrapper>
-                  <S.Input
-                    type="tel"
-                    inputMode="numeric"
-                    placeholder="5XX XX XX XX"
-                    maxLength={9}
-                    disabled={otpVerified}
-                    $invalid={!!registerForm.formState.errors.phoneNumber}
-                    {...registerForm.register("phoneNumber")}
-                  />
-                </S.InputWrapper>
-                {otpVerified ? (
-                  <S.VerifiedBadge>
-                    <CheckCircleIcon size={15} /> დადასტურებულია
-                  </S.VerifiedBadge>
-                ) : (
-                  <S.OtpActionBtn
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={otpSending || otpResendCooldown > 0 || !regPhoneNumber}
-                  >
-                    {otpSending
-                      ? "იგზავნება..."
-                      : otpResendCooldown > 0
-                      ? `ხელახლა გაგზავნა (${otpResendCooldown})`
-                      : otpSent
-                      ? "ხელახლა გაგზავნა"
-                      : "კოდის გაგზავნა"}
-                  </S.OtpActionBtn>
-                )}
-              </S.PhoneRow>
+              <S.InputWrapper>
+                <S.Input
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="5XX XX XX XX"
+                  maxLength={9}
+                  $invalid={!!registerForm.formState.errors.phoneNumber}
+                  {...registerForm.register("phoneNumber")}
+                />
+              </S.InputWrapper>
               {registerForm.formState.errors.phoneNumber && (
                 <S.FieldError>{registerForm.formState.errors.phoneNumber.message}</S.FieldError>
-              )}
-            </S.FormGroup>
-
-            {otpSent && !otpVerified && (
-              <S.FormGroup>
-                <S.Label>დადასტურების კოდი</S.Label>
-                <S.PhoneRow>
-                  <S.InputWrapper>
-                    <S.Input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="SMS-ით მიღებული კოდი"
-                      value={otpCodeInput}
-                      onChange={(e) => setOtpCodeInput(e.target.value)}
-                    />
-                  </S.InputWrapper>
-                  <S.OtpActionBtn
-                    type="button"
-                    onClick={handleVerifyOtp}
-                    disabled={otpVerifying || !otpCodeInput.trim()}
-                  >
-                    {otpVerifying ? "მოწმდება..." : "დადასტურება"}
-                  </S.OtpActionBtn>
-                </S.PhoneRow>
-              </S.FormGroup>
-            )}
-
-            {otpError && (
-              <S.FieldError>{otpError}</S.FieldError>
-            )}
-            {registerForm.formState.errors.otpRequestId && !otpError && (
-              <S.FieldError>{registerForm.formState.errors.otpRequestId.message}</S.FieldError>
-            )}
-
-            <S.FormGroup>
-              <S.Label>სქესი</S.Label>
-              <S.GenderSwitch>
-                <S.GenderThumb
-                  position={
-                    regGender === "female" ? "right" : "left"
-                  }
-                />
-                <S.GenderOption
-                  type="button"
-                  active={regGender === "male"}
-                  onClick={() => registerForm.setValue("gender", "male")}
-                >
-                  კაცი
-                </S.GenderOption>
-                <S.GenderOption
-                  type="button"
-                  active={regGender === "female"}
-                  onClick={() => registerForm.setValue("gender", "female")}
-                >
-                  ქალი
-                </S.GenderOption>
-              </S.GenderSwitch>
-              {registerForm.formState.errors.gender && (
-                <S.FieldError>{registerForm.formState.errors.gender.message}</S.FieldError>
               )}
             </S.FormGroup>
 
@@ -627,7 +442,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               )}
             </S.FormGroup>
 
-            <S.SubmitButton type="submit" disabled={loading || !otpVerified}>
+            <S.SubmitButton type="submit" disabled={loading}>
               {loading ? "მიმდინარეობს რეგისტრაცია..." : "რეგისტრაცია"}
             </S.SubmitButton>
           </S.FormContainer>

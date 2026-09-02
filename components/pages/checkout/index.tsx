@@ -156,6 +156,10 @@ export const CheckoutComponent: React.FC = () => {
   const [savedEmail, setSavedEmail] = useState("");
   const [savedPhoneNumber, setSavedPhoneNumber] = useState("");
   const [savingInfo, setSavingInfo] = useState(false);
+  // "ამ ელფოსტით/ტელეფონის ნომრით მომხმარებელი უკვე არსებობს" — ბექენდის
+  // დუბლირების შეცდომას შესაბამის ველთან ვაჩვენებთ და ვწითლებთ
+  const [emailDuplicateError, setEmailDuplicateError] = useState<string | null>(null);
+  const [phoneDuplicateError, setPhoneDuplicateError] = useState<string | null>(null);
 
   const [otpSending, setOtpSending] = useState(false);
   const [otpVerifying, setOtpVerifying] = useState(false);
@@ -180,6 +184,7 @@ export const CheckoutComponent: React.FC = () => {
 
   useEffect(() => {
     if (otpSent || otpVerified) resetEmailOtpState();
+    setEmailDuplicateError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailInput]);
 
@@ -215,6 +220,7 @@ export const CheckoutComponent: React.FC = () => {
 
   useEffect(() => {
     if (phoneOtpSent || phoneOtpVerified) resetPhoneOtpState();
+    setPhoneDuplicateError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phoneInput]);
 
@@ -580,6 +586,8 @@ export const CheckoutComponent: React.FC = () => {
     const includeEmailOtpProof = emailChanged || otpVerified;
     const includePhoneOtpProof = phoneChanged || phoneOtpVerified;
 
+    setEmailDuplicateError(null);
+    setPhoneDuplicateError(null);
     setSavingInfo(true);
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
@@ -600,7 +608,18 @@ export const CheckoutComponent: React.FC = () => {
       resetPhoneOtpState();
       toast.success("მონაცემები წარმატებით შენახულია!");
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "მონაცემების შენახვა ვერ მოხერხდა");
+      const message = err?.response?.data?.message || "მონაცემების შენახვა ვერ მოხერხდა";
+
+      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
+      // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
+      // და ვწითლებთ, რომ მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
+      if (message.includes("ელფოსტით")) {
+        setEmailDuplicateError(message);
+      } else if (message.includes("ტელეფონის ნომრით")) {
+        setPhoneDuplicateError(message);
+      } else {
+        toast.error(message);
+      }
     } finally {
       setSavingInfo(false);
     }
@@ -791,7 +810,7 @@ export const CheckoutComponent: React.FC = () => {
                             inputMode="numeric"
                             maxLength={9}
                             placeholder="5XX XX XX XX"
-                            $invalid={!phoneInput.trim() || phoneNotVerified}
+                            $invalid={!phoneInput.trim() || phoneNotVerified || !!phoneDuplicateError}
                             value={phoneInput}
                             onChange={(e) => setPhoneInput(e.target.value)}
                           />
@@ -838,6 +857,7 @@ export const CheckoutComponent: React.FC = () => {
                         </S.FieldRow>
                       )}
                       {phoneOtpError && <S.FieldError>{phoneOtpError}</S.FieldError>}
+                      {phoneDuplicateError && <S.FieldError>{phoneDuplicateError}</S.FieldError>}
                     </S.ReadonlyField>
 
                     <S.ReadonlyField >
@@ -849,7 +869,7 @@ export const CheckoutComponent: React.FC = () => {
                         <S.InputWrapper>
                           <S.Input
                             type="email"
-                            $invalid={!emailInput.trim() || emailNotVerified}
+                            $invalid={!emailInput.trim() || emailNotVerified || !!emailDuplicateError}
                             value={emailInput}
                             onChange={(e) => setEmailInput(e.target.value)}
                           />
@@ -896,6 +916,7 @@ export const CheckoutComponent: React.FC = () => {
                         </S.FieldRow>
                       )}
                       {otpError && <S.FieldError>{otpError}</S.FieldError>}
+                      {emailDuplicateError && <S.FieldError>{emailDuplicateError}</S.FieldError>}
                     </S.ReadonlyField>
                      <S.SaveInfoRow>
                     <S.SaveInfoButton type="button" onClick={handleSavePersonalInfo} disabled={savingInfo}>
