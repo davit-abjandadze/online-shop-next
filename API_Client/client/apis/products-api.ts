@@ -125,7 +125,7 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია
+         * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია. ტოკენის გარეშე/non-ADMIN მომხმარებელს ყოველთვის მხოლოდ isActive=true პროდუქტები უჩანს; ADMIN-ს (ვალიდური ბირერ ტოკენით) — ყველა, თუ isActive query param-ით სხვა არაა მოთხოვნილი
          * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
@@ -152,6 +152,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
             if (page !== undefined) {
                 localVarQueryParameter['page'] = page;
@@ -703,7 +707,7 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია
+         * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია. ტოკენის გარეშე/non-ADMIN მომხმარებელს ყოველთვის მხოლოდ isActive=true პროდუქტები უჩანს; ADMIN-ს (ვალიდური ბირერ ტოკენით) — ყველა, თუ isActive query param-ით სხვა არაა მოთხოვნილი
          * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
@@ -919,7 +923,7 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
-         * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია
+         * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია. ტოკენის გარეშე/non-ADMIN მომხმარებელს ყოველთვის მხოლოდ isActive=true პროდუქტები უჩანს; ADMIN-ს (ვალიდური ბირერ ტოკენით) — ყველა, თუ isActive query param-ით სხვა არაა მოთხოვნილი
          * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
@@ -1096,7 +1100,7 @@ export class ProductsApi extends BaseAPI {
 
     /**
      * 
-     * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია
+     * @summary პროდუქტების სია — ძიება, ფილტრები, პაგინაცია. ტოკენის გარეშე/non-ADMIN მომხმარებელს ყოველთვის მხოლოდ isActive=true პროდუქტები უჩანს; ADMIN-ს (ვალიდური ბირერ ტოკენით) — ყველა, თუ isActive query param-ით სხვა არაა მოთხოვნილი
      * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
      * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
      * @param {string} [sortBy] დალაგების ველი

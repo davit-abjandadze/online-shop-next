@@ -599,6 +599,7 @@ export const CardActions = styled("div")`
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-end;
 
   @media (max-width: 640px) {
     & > button {
@@ -925,6 +926,37 @@ export const ImageThumb = styled("div")`
   width: 34px;
   height: 34px;
   border-radius: 7px;
+  border: 1px solid var(--ref-border);
+  background: var(--ref-bg-subtle);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ref-text-secondary);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+// პროდუქტის ბარათზე ყველა სურათის ესკიზების რიგი — ჰორიზონტალურად სქროლვადი,
+// რომ ბევრი სურათის შემთხვევაშიც ბარათის სიმაღლე არ დაირღვეს.
+export const ProductImagesRow = styled("div")`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 2px;
+  flex-direction:column;
+  min-width:54px;
+`;
+
+export const ProductImageThumb = styled("div")`
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
   border: 1px solid var(--ref-border);
   background: var(--ref-bg-subtle);
   overflow: hidden;

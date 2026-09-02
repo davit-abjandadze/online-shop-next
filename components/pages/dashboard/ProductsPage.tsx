@@ -8,7 +8,7 @@ import { ProductsAPI, CategoriesAPI, CompaniesAPI } from "@/API_Client";
 import { Category, Company, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { CategoryAttribute, PaginatedResponseDto, ProductAttributeValue } from "@/API_Client/types";
-import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, PaletteIcon, PinIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
+import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, GridOneIcon, GridThreeIcon, GridTwoIcon, PaletteIcon, PauseIcon, PinIcon, PlayIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -100,6 +100,8 @@ export const ProductsPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  // ბადრაგში ერთ რიგში ბარათების რაოდენობა — 1/2/3 სვეტიანი გადამრთველით
+  const [gridColumns, setGridColumns] = useState<1 | 2 | 3>(1);
 
   // ─── ძიება/ფილტრები ────────────────────────────────────────────────────────
   const [searchText, setSearchText] = useState<string>("");
@@ -180,6 +182,10 @@ export const ProductsPage: React.FC = () => {
 
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
+
+  // card-ზე პირდაპირ (ედიტ ფორმის გახსნის გარეშე) აქტივაცია/დეაქტივაცია — id-ს ინახავს
+  // მიმდინარე მოთხოვნის დროს, რომ სწორედ ის ღილაკი გაითიშოს/დაანახოს spinner-ის მაგივრად.
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   // ImgBB-ზე ატვირთვისას მიმდინარე მწკრივის index-ს ვინახავთ (create/edit
   // ფორმებს ცალ-ცალკე მდგომარეობა სჭირდება, რომ ერთმანეთს არ გადაეფაროს).
@@ -387,6 +393,24 @@ export const ProductsPage: React.FC = () => {
     }
   };
 
+  // card-ის ბეჯზე/ღილაკზე დაჭერით isActive-ის სწრაფი გადართვა — მთელი ფორმის
+  // გახსნის გარეშე, PartialType-ის UpdateProductDto-ს წყალობით მხოლოდ isActive-ს ვაგზავნით.
+  const handleToggleActive = async (product: Product) => {
+    if (!session?.accessToken || togglingId) return;
+    setTogglingId(String(product.id));
+    try {
+      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerUpdate(String(product.id), {
+        isActive: !product.isActive,
+      });
+      toast.success(!product.isActive ? "პროდუქტი გააქტიურდა" : "პროდუქტი დეაქტივირდა");
+      fetchProducts();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "სტატუსის შეცვლა ვერ მოხერხდა");
+    } finally {
+      setTogglingId(null);
+    }
+  };
+
   // "რამდენიმე სურათის" დინამიური სია — useFieldArray-ს ნაცვლად
   // watch/setValue-ით ვმართავთ, რადგან images ველი უბრალო string[]-ია და
   // ერთი renderForm createForm-საც ემსახურება და editForm-საც.
@@ -578,6 +602,32 @@ export const ProductsPage: React.FC = () => {
             {hasActiveFilters && <S.FilterCountBadge>აქტიური</S.FilterCountBadge>}
           </S.FilterBarTitle>
           <S.FilterActions>
+            <S.GridToggle>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 1}
+                title="1 ბარათი რიგში"
+                onClick={() => setGridColumns(1)}
+              >
+                <GridOneIcon size={16} />
+              </S.GridToggleButton>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 2}
+                title="2 ბარათი რიგში"
+                onClick={() => setGridColumns(2)}
+              >
+                <GridTwoIcon size={16} />
+              </S.GridToggleButton>
+              <S.GridToggleButton
+                type="button"
+                active={gridColumns === 3}
+                title="3 ბარათი რიგში"
+                onClick={() => setGridColumns(3)}
+              >
+                <GridThreeIcon size={16} />
+              </S.GridToggleButton>
+            </S.GridToggle>
             <S.ActionButton type="button" variant="secondary" onClick={handleResetFilters} disabled={!hasActiveFilters}>
               <CloseIcon size={14} /> ფილტრის გასუფთავება
             </S.ActionButton>
@@ -701,12 +751,15 @@ export const ProductsPage: React.FC = () => {
         </S.EmptyState>
       ) : (
         <>
-          <S.QuestionsList>
+          <S.UsersGrid columns={gridColumns}>
             {products.map((product) => (
               <S.QuestionCard key={product.id}>
+             
                 <S.CardHeader>
-                  <div>
-                    <Link href={`/products/${product.id}`} passHref legacyBehavior>
+                  <div style={{display:"flex", gap: "20px"}}>
+                     {!!product.images?.length && (
+                  <S.ProductImagesRow>
+                     <Link href={`/products/${product.id}`} passHref legacyBehavior>
                       <S.QuestionText
                         as="a"
                         target="_blank"
@@ -716,6 +769,12 @@ export const ProductsPage: React.FC = () => {
                         <BoxIcon size={18} /> {product.name}
                       </S.QuestionText>
                     </Link>
+                    <S.ProductImageThumb>
+                      <img src={resolveImage(product.images[0])} alt={product.name} />
+                    </S.ProductImageThumb>
+                  </S.ProductImagesRow>
+                )}
+                   
                     <S.BadgeGroup>
                       <S.Badge variant={product.isActive ? "active" : "inactive"}>
                         {product.isActive ? "აქტიური" : "არააქტიური"}
@@ -731,6 +790,14 @@ export const ProductsPage: React.FC = () => {
                     </S.BadgeGroup>
                   </div>
                   <S.CardActions>
+                    <S.ActionButton
+                      variant={product.isActive ? "secondary" : "success"}
+                      disabled={togglingId === String(product.id)}
+                      onClick={() => handleToggleActive(product)}
+                    >
+                      {product.isActive ? <PauseIcon size={16} /> : <PlayIcon size={16} />}
+                      {togglingId === String(product.id) ? "..." : product.isActive ? "დეაქტივაცია" : "გააქტიურება"}
+                    </S.ActionButton>
                     <S.ActionButton variant="outline" onClick={() => handleOpenEdit(product)}>
                       <EditIcon size={16} /> რედაქტირება
                     </S.ActionButton>
@@ -741,7 +808,7 @@ export const ProductsPage: React.FC = () => {
                 </S.CardHeader>
               </S.QuestionCard>
             ))}
-          </S.QuestionsList>
+          </S.UsersGrid>
 
           {totalPages > 1 && (
             <S.PaginationBar>

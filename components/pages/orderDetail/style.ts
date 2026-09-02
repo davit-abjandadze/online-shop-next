@@ -143,11 +143,30 @@ export const ItemMeta = styled("div")`
   color: var(--ref-text-secondary);
 `;
 
+// ფასდაკლებამდე ერთეულის ფასი — ხაზგადასმული, unitPrice-ის გვერდით.
+export const ItemOriginalPrice = styled("span")`
+  text-decoration: line-through;
+  color: var(--ref-text-secondary);
+  margin-right: 6px;
+`;
+
 export const ItemSubtotal = styled("div")`
   font-size: 14px;
   font-weight: 700;
   color: var(--ref-primary);
   white-space: nowrap;
+`;
+
+// ფასდაკლებამდე ჯამური ღირებულება — ItemSubtotal-ის ქვეშ, ხაზგადასმული.
+export const ItemSubtotalOriginal = styled("div")`
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  text-decoration: line-through;
+  text-align: right;
+  white-space: nowrap;
+  text-decoration-color:red;
+
 `;
 
 export const TotalRow = styled("div")`
@@ -159,6 +178,21 @@ export const TotalRow = styled("div")`
   color: var(--ref-text-primary);
   padding-top: 16px;
   border-top: 1px solid var(--ref-border-soft);
+`;
+
+export const TotalValueGroup = styled("div")`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+`;
+
+// ჯამი ფასდაკლებამდე — TotalValue-ის ზემოთ, ხაზგადასმული.
+export const TotalOriginalValue = styled("span")`
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  text-decoration: line-through;
+  text-decoration-color:red;
 `;
 
 export const TotalValue = styled("span")`

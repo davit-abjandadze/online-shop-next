@@ -11,6 +11,7 @@ import { OrdersAPI, PaymentsAPI } from "@/API_Client";
 import { Order, PaymentInitiateResponse } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { ClipboardIcon, LockIcon } from "@/components/ui/RefIcons";
+import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import * as S from "./style";
 
 // BOG-იდან დაბრუნებისას redirect_urls.success/fail ორივე ამ გვერდზე
@@ -189,6 +190,21 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
 
   const items = order.items || [];
 
+  // unitPrice ბექენდზე შენახული ფასდაკლებული ფასის სნეპშოტია — ორიგინალ
+  // (ფასდაკლებამდე) ფასს OrderItem არ ინახავს, ამიტომ ვიღებთ პროდუქტის
+  // ცოცხალი discountPercent/price-იდან (გამოჩნდება მხოლოდ მოქმედი
+  // ფასდაკლების შემთხვევაში — თუ პროდუქტი წაშლილია/discountPercent 0-ია,
+  // ორიგინალი ფასი არ გამოჩნდება).
+  const itemsWithPricing = items.map((item) => {
+    const originalUnitPrice = item.product ? getDiscountedPrice(item.product).originalPrice : null;
+    return { item, originalUnitPrice };
+  });
+  const totalOriginalAmount = itemsWithPricing.reduce(
+    (sum, { item, originalUnitPrice }) => sum + (originalUnitPrice ?? Number(item.unitPrice)) * item.quantity,
+    0
+  );
+  const hasDiscount = totalOriginalAmount > Number(order.totalAmount);
+
   return (
     <>
       <Header />
@@ -246,7 +262,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
             </S.MetaGrid>
 
             <S.ItemsList>
-              {items.map((item) => {
+              {itemsWithPricing.map(({ item, originalUnitPrice }) => {
                 const image = item.product ? resolveImage(item.product.images?.[0]) : undefined;
                 return (
                   <S.Item key={item.id}>
@@ -260,10 +276,21 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
                         <S.ItemName as="span">{item.productName}</S.ItemName>
                       )}
                       <S.ItemMeta>
-                        {item.quantity} x {Number(item.unitPrice).toFixed(2)} ₾
+                        {item.quantity} x{" "}
+                        {originalUnitPrice !== null && (
+                          <S.ItemOriginalPrice>{originalUnitPrice.toFixed(2)} ₾</S.ItemOriginalPrice>
+                        )}
+                        {Number(item.unitPrice).toFixed(2)} ₾
                       </S.ItemMeta>
                     </S.ItemInfo>
-                    <S.ItemSubtotal>{(Number(item.unitPrice) * item.quantity).toFixed(2)} ₾</S.ItemSubtotal>
+                    <div>
+                      <S.ItemSubtotal>{(Number(item.unitPrice) * item.quantity).toFixed(2)} ₾</S.ItemSubtotal>
+                      {originalUnitPrice !== null && (
+                        <S.ItemSubtotalOriginal>
+                          {(originalUnitPrice * item.quantity).toFixed(2)} ₾
+                        </S.ItemSubtotalOriginal>
+                      )}
+                    </div>
                   </S.Item>
                 );
               })}
@@ -271,7 +298,10 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
 
             <S.TotalRow>
               სულ ჯამი
-              <S.TotalValue>{Number(order.totalAmount).toFixed(2)} ₾</S.TotalValue>
+              <S.TotalValueGroup>
+                <S.TotalValue>{Number(order.totalAmount).toFixed(2)} ₾</S.TotalValue>
+                {hasDiscount && <S.TotalOriginalValue>{totalOriginalAmount.toFixed(2)} ₾</S.TotalOriginalValue>}
+              </S.TotalValueGroup>
             </S.TotalRow>
 
             {order.status === "pending" && (

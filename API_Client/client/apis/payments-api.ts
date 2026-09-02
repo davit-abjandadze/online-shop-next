@@ -57,6 +57,46 @@ export const PaymentsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @summary MockPaymentProvider-ის auto-complete (მხოლოდ PAYMENT_PROVIDER=mock)
+         * @param {string} externalId 
+         * @param {string} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentsControllerCompleteMockPayment: async (externalId: string, orderId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'externalId' is not null or undefined
+            assertParamExists('paymentsControllerCompleteMockPayment', 'externalId', externalId)
+            // verify required parameter 'orderId' is not null or undefined
+            assertParamExists('paymentsControllerCompleteMockPayment', 'orderId', orderId)
+            const localVarPath = `/payments/mock/{externalId}/complete`
+                .replace('{externalId}', encodeURIComponent(String(externalId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (orderId !== undefined) {
+                localVarQueryParameter['orderId'] = orderId;
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary BOG გადახდის დაწყება კონკრეტული შეკვეთისთვის
          * @param {string} orderId 
          * @param {*} [options] Override http request option.
@@ -115,6 +155,20 @@ export const PaymentsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary MockPaymentProvider-ის auto-complete (მხოლოდ PAYMENT_PROVIDER=mock)
+         * @param {string} externalId 
+         * @param {string} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async paymentsControllerCompleteMockPayment(externalId: string, orderId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.paymentsControllerCompleteMockPayment(externalId, orderId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['PaymentsApi.paymentsControllerCompleteMockPayment']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary BOG გადახდის დაწყება კონკრეტული შეკვეთისთვის
          * @param {string} orderId 
          * @param {*} [options] Override http request option.
@@ -146,6 +200,17 @@ export const PaymentsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @summary MockPaymentProvider-ის auto-complete (მხოლოდ PAYMENT_PROVIDER=mock)
+         * @param {string} externalId 
+         * @param {string} orderId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        paymentsControllerCompleteMockPayment(externalId: string, orderId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.paymentsControllerCompleteMockPayment(externalId, orderId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary BOG გადახდის დაწყება კონკრეტული შეკვეთისთვის
          * @param {string} orderId 
          * @param {*} [options] Override http request option.
@@ -169,6 +234,18 @@ export class PaymentsApi extends BaseAPI {
      */
     public paymentsControllerBogCallback(options?: RawAxiosRequestConfig) {
         return PaymentsApiFp(this.configuration).paymentsControllerBogCallback(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary MockPaymentProvider-ის auto-complete (მხოლოდ PAYMENT_PROVIDER=mock)
+     * @param {string} externalId 
+     * @param {string} orderId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public paymentsControllerCompleteMockPayment(externalId: string, orderId: string, options?: RawAxiosRequestConfig) {
+        return PaymentsApiFp(this.configuration).paymentsControllerCompleteMockPayment(externalId, orderId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
