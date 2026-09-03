@@ -5,7 +5,14 @@
  * ტიპი გენერირებულ Category/Product მოდელებში ბუნდოვნად (`object`) ჩნდება,
  * ამიტომ აქ `unknown`-ად ვიღებთ და შიგნით ვკითხულობთ.
  */
-type TranslationEntry = { name?: string; value?: string; description?: string };
+type TranslationEntry = {
+  name?: string;
+  value?: string;
+  description?: string;
+  eyebrow?: string;
+  title?: string;
+  buttonText?: string;
+};
 type RawTranslations = Partial<Record<"ka" | "en" | "ru", TranslationEntry | undefined>>;
 
 const SUPPORTED_LOCALES = ["ka", "en", "ru"] as const;
@@ -40,3 +47,13 @@ export const getLocalizedValue = (entity: { translations?: unknown }, locale?: s
 /** Product-ისთვის იგივე ლოგიკა, `description` ველზე. */
 export const getLocalizedDescription = (entity: { translations?: unknown }, locale?: string): string =>
   resolveField(entity.translations, "description", locale);
+
+/** HeroSlide-ისთვის იგივე ლოგიკა, `title`/`eyebrow`/`buttonText` ველებზე. */
+export const getLocalizedTitle = (entity: { translations?: unknown }, locale?: string): string =>
+  resolveField(entity.translations, "title", locale);
+
+export const getLocalizedEyebrow = (entity: { translations?: unknown }, locale?: string): string =>
+  resolveField(entity.translations, "eyebrow", locale);
+
+export const getLocalizedButtonText = (entity: { translations?: unknown }, locale?: string): string =>
+  resolveField(entity.translations, "buttonText", locale);

@@ -22,25 +22,39 @@ import {
   TagIcon,
   UndoIcon,
 } from "@/components/ui/RefIcons";
-import { CategoriesAPI, ProductsAPI } from "@/API_Client";
+import { CategoriesAPI, HeroSlidesAPI, ProductsAPI } from "@/API_Client";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
-import { Category, PaginatedResponseDto, Product } from "@/API_Client/types";
+import { Category, HeroSlide, PaginatedResponseDto, Product } from "@/API_Client/types";
+import { CDN_URL } from "@/constants";
 import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
+
+// `GET /hero-slides` (storefront, საჯარო) locale-ის მიხედვით უკვე resolve-
+// ებულ eyebrow/title/description/buttonText/product.name-ს აბრუნებს
+// (იხ. enrichHeroSlide, online-shop-nest/src/hero-slides/hero-slides.controller.ts)
+// — ამიტომ ესენი `HeroSlide`-ის `translations`-ზე დამატებით ველებადაა საჭირო.
+type ResolvedHeroSlide = HeroSlide & {
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  buttonText?: string;
+};
 
 const FEATURED_LIMIT = 8;
 const NEW_ARRIVALS_LIMIT = 8;
 const CATEGORIES_LIMIT = 6;
 const HERO_AUTOPLAY_MS = 6000;
 
-// Hero Slider-ის სლაიდები — რეალურ პროდუქტის ფოტოებამდე თითოეულს აქვს საკუთარი
-// გრადიენტი+ხატულა "ხელოვნური" ვიზუალი, სათაური, მოკლე ტექსტი და CTA ბმული.
-// ტექსტები t()-ით მოდის (იხ. buildHeroSlides/buildBenefits) — მხოლოდ ვიზუალური
-// მონაცემები (გრადიენტი, ბმული, ხატულა) რჩება სტატიკურად.
-const HERO_SLIDE_VISUALS = [
-  { href: "/products", gradientFrom: "#ebddc9", gradientTo: "#c9af87" },
-  { href: "/products", gradientFrom: "#98a6d6", gradientTo: "#3b4e92" },
-  { href: "/products", gradientFrom: "#e3dccf", gradientTo: "#b7a98c" },
+// სურათის URL-ს CDN-ის საბაზო მისამართთან აერთებს (თუ უკვე absolute არაა) —
+// იგივე ლოგიკა, რაც ProductCard-ში/HeroSlidesPage.tsx-შია.
+const resolveImage = (url?: string) => (url ? (url.startsWith("http") ? url : `${CDN_URL}${url}`) : undefined);
+
+// ფოლბექ გრადიენტები, თუ სლაიდს სურათი არ აქვს (არ უნდა მოხდეს, სურათი
+// ადმინის ფორმაში სავალდებულოა, მაგრამ დამატებით დაცვად ვტოვებთ).
+const FALLBACK_GRADIENTS = [
+  { gradientFrom: "#ebddc9", gradientTo: "#c9af87" },
+  { gradientFrom: "#98a6d6", gradientTo: "#3b4e92" },
+  { gradientFrom: "#e3dccf", gradientTo: "#b7a98c" },
 ];
 
 const BENEFITS_CONFIG = [
@@ -54,14 +68,6 @@ export const HomeComponent: React.FC = () => {
   const router = useRouter();
   const { t } = useTranslation("home");
 
-  const HERO_SLIDES = HERO_SLIDE_VISUALS.map((visual, idx) => ({
-    ...visual,
-    eyebrow: t(`hero-${idx + 1}-eyebrow`),
-    title: t(`hero-${idx + 1}-title`),
-    text: t(`hero-${idx + 1}-text`),
-    cta: t(`hero-${idx + 1}-cta`),
-  }));
-
   const BENEFITS = BENEFITS_CONFIG.map(({ key, icon }) => ({
     icon,
     title: t(`benefit-${key}-title`),
@@ -71,6 +77,7 @@ export const HomeComponent: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [featured, setFeatured] = useState<Product[]>([]);
   const [newArrivals, setNewArrivals] = useState<Product[]>([]);
+  const [heroSlides, setHeroSlides] = useState<ResolvedHeroSlide[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [heroIndex, setHeroIndex] = useState(0);
@@ -95,7 +102,7 @@ export const HomeComponent: React.FC = () => {
     const fetchHomeData = async () => {
       setLoading(true);
       try {
-        const [categoriesRes, featuredRes, newArrivalsRes] = await Promise.all([
+        const [categoriesRes, featuredRes, newArrivalsRes, heroSlidesRes] = await Promise.all([
           // /categories/tree — root კატეგორიები ნესთებული children-ით, რომ
           // hover-ზე გახსნილ მეგა-მენიუში რეალური ქვეკატეგორიები გამოჩნდეს.
           CategoriesAPI(router.locale || "ka", "").categoryControllerFindTree(),
@@ -121,6 +128,10 @@ export const HomeComponent: React.FC = () => {
             undefined,
             true
           ),
+          // hero სლაიდერისთვის — /hero-slides საჯარო endpoint-ია (findActive),
+          // ადმინ დეშბორდში მართული სლაიდები (/dashboard/hero-slides),
+          // უკვე მხოლოდ აქტიური და sortOrder-ით დალაგებული ბრუნდება.
+          HeroSlidesAPI(router.locale || "ka", "").heroSlidesControllerFindActive(),
         ]);
 
         const categoriesData = categoriesRes.data as unknown as Category[];
@@ -131,6 +142,9 @@ export const HomeComponent: React.FC = () => {
 
         const newArrivalsData = newArrivalsRes.data as unknown as PaginatedResponseDto<Product>;
         setNewArrivals(Array.isArray(newArrivalsData?.data) ? newArrivalsData.data : []);
+
+        const heroSlidesData = heroSlidesRes.data as unknown as ResolvedHeroSlide[];
+        setHeroSlides(Array.isArray(heroSlidesData) ? heroSlidesData : []);
       } catch (err) {
         console.error("Error fetching home page data:", err);
       } finally {
@@ -207,81 +221,92 @@ export const HomeComponent: React.FC = () => {
         </S.CategoryFilterBarInner>
       </S.CategoryFilterBar>
 
-      {/* Hero Slider — swiper-ით, 1 სლაიდი ერთ ხედში, ავტომატური გადართვით. */}
-      <S.Hero>
-        <S.HeroRow>
-          <S.HeroSliderArea>
-            <Swiper
-              modules={[Autoplay]}
-              slidesPerView={1}
-              spaceBetween={20}
-              loop
-              autoplay={{ delay: HERO_AUTOPLAY_MS, disableOnInteraction: false }}
-              onSwiper={(swiper) => {
-                heroSwiperRef.current = swiper;
-              }}
-              onSlideChange={(swiper) => setHeroIndex(swiper.realIndex)}
-            >
-              {HERO_SLIDES.map((slide, idx) => (
-                <SwiperSlide key={idx}>
-                  <S.HeroSlide>
-                    <S.HeroContent>
-                      <S.HeroEyebrow>
-                        <S.HeroEyebrowBar />
-                        <span>{slide.eyebrow}</span>
-                      </S.HeroEyebrow>
-                      <S.HeroTitle>{slide.title}</S.HeroTitle>
-                      <S.HeroText>{slide.text}</S.HeroText>
-                      <Link href={slide.href} passHref legacyBehavior>
-                        <S.HeroButton>
-                          {slide.cta} <ArrowRightIcon size={16} />
-                        </S.HeroButton>
-                      </Link>
-                    </S.HeroContent>
-                    <S.HeroArt from={slide.gradientFrom} to={slide.gradientTo}>
-                      <CartIcon size={88} />
-                    </S.HeroArt>
-                  </S.HeroSlide>
-                </SwiperSlide>
-              ))}
-            </Swiper>
+      {/* Hero Slider — swiper-ით, 1 სლაიდი ერთ ხედში, ავტომატური გადართვით.
+          სლაიდები ადმინ დეშბორდიდან მოდის (/dashboard/hero-slides), საჯარო
+          /hero-slides endpoint-იდან (იხ. heroSlides fetch ზემოთ) — თუ სლაიდი
+          არცერთი არაა კონფიგურირებული, სექცია საერთოდ არ ჩნდება. */}
+      {(loading || heroSlides.length > 0) && (
+        <S.Hero>
+          <S.HeroRow>
+            <S.HeroSliderArea>
+              <Swiper
+                modules={[Autoplay]}
+                slidesPerView={1}
+                spaceBetween={20}
+                loop
+                autoplay={{ delay: HERO_AUTOPLAY_MS, disableOnInteraction: false }}
+                onSwiper={(swiper) => {
+                  heroSwiperRef.current = swiper;
+                }}
+                onSlideChange={(swiper) => setHeroIndex(swiper.realIndex)}
+              >
+                {heroSlides.map((slide, idx) => {
+                  const gradient = FALLBACK_GRADIENTS[idx % FALLBACK_GRADIENTS.length];
+                  const href = slide.buttonLink || (slide.product ? `/products/${slide.product.id}` : "/products");
+                  return (
+                    <SwiperSlide key={slide.id}>
+                      <S.HeroSlide>
+                        <S.HeroContent>
+                          {slide.eyebrow && (
+                            <S.HeroEyebrow>
+                              <S.HeroEyebrowBar />
+                              <span>{slide.eyebrow}</span>
+                            </S.HeroEyebrow>
+                          )}
+                          <S.HeroTitle>{slide.title}</S.HeroTitle>
+                          {slide.description && <S.HeroText>{slide.description}</S.HeroText>}
+                          <Link href={href} passHref legacyBehavior>
+                            <S.HeroButton>
+                              {slide.buttonText || t("hero-1-cta")} <ArrowRightIcon size={16} />
+                            </S.HeroButton>
+                          </Link>
+                        </S.HeroContent>
+                        <S.HeroArt from={gradient.gradientFrom} to={gradient.gradientTo} image={resolveImage(slide.image)}>
+                          {!slide.image && <CartIcon size={88} />}
+                        </S.HeroArt>
+                      </S.HeroSlide>
+                    </SwiperSlide>
+                  );
+                })}
+              </Swiper>
 
-            {/* ნავიგაცია ჩვეულებრივ ნაკადშია სლაიდის შემდეგ (არა overlay) — მუდამ
-                კონტენტის ქვემოთაა და არასდროს გადაეფარება მას (იხ. HeroControls
-                margin-top: 30px). */}
-            <S.HeroControls>
-              <S.HeroDots>
-                {HERO_SLIDES.map((_, idx) => (
-                  <S.HeroDot
-                    key={idx}
-                    active={idx === heroIndex}
+              {/* ნავიგაცია ჩვეულებრივ ნაკადშია სლაიდის შემდეგ (არა overlay) — მუდამ
+                  კონტენტის ქვემოთაა და არასდროს გადაეფარება მას (იხ. HeroControls
+                  margin-top: 30px). */}
+              <S.HeroControls>
+                <S.HeroDots>
+                  {heroSlides.map((slide, idx) => (
+                    <S.HeroDot
+                      key={slide.id}
+                      active={idx === heroIndex}
+                      type="button"
+                      aria-label={t("hero-slide-aria", { n: idx + 1 })}
+                      onClick={() => heroSwiperRef.current?.slideToLoop(idx)}
+                    />
+                  ))}
+                </S.HeroDots>
+
+                <S.HeroArrows>
+                  <S.HeroArrow
                     type="button"
-                    aria-label={t("hero-slide-aria", { n: idx + 1 })}
-                    onClick={() => heroSwiperRef.current?.slideToLoop(idx)}
-                  />
-                ))}
-              </S.HeroDots>
-
-              <S.HeroArrows>
-                <S.HeroArrow
-                  type="button"
-                  aria-label={t("hero-prev-aria")}
-                  onClick={() => heroSwiperRef.current?.slidePrev()}
-                >
-                  <ChevronLeftIcon size={16} />
-                </S.HeroArrow>
-                <S.HeroArrow
-                  type="button"
-                  aria-label={t("hero-next-aria")}
-                  onClick={() => heroSwiperRef.current?.slideNext()}
-                >
-                  <ChevronRightIcon size={16} />
-                </S.HeroArrow>
-              </S.HeroArrows>
-            </S.HeroControls>
-          </S.HeroSliderArea>
-        </S.HeroRow>
-      </S.Hero>
+                    aria-label={t("hero-prev-aria")}
+                    onClick={() => heroSwiperRef.current?.slidePrev()}
+                  >
+                    <ChevronLeftIcon size={16} />
+                  </S.HeroArrow>
+                  <S.HeroArrow
+                    type="button"
+                    aria-label={t("hero-next-aria")}
+                    onClick={() => heroSwiperRef.current?.slideNext()}
+                  >
+                    <ChevronRightIcon size={16} />
+                  </S.HeroArrow>
+                </S.HeroArrows>
+              </S.HeroControls>
+            </S.HeroSliderArea>
+          </S.HeroRow>
+        </S.Hero>
+      )}
 
       <S.Container>
         {/* Popular categories */}

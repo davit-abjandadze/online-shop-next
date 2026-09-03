@@ -302,12 +302,13 @@ export const HeroButton = styled("a")`
   }
 `;
 
-export const HeroArt = styled("div")<{ from: string; to: string }>`
+export const HeroArt = styled("div")<{ from: string; to: string; image?: string }>`
   flex-shrink: 0;
   width: 320px;
   height: 320px;
   border-radius: 28px;
-  background: linear-gradient(160deg, ${({ from }) => from}, ${({ to }) => to});
+  background: ${({ from, to, image }) =>
+    image ? `url(${image}) center / cover no-repeat` : `linear-gradient(160deg, ${from}, ${to})`};
   display: flex;
   align-items: center;
   justify-content: center;

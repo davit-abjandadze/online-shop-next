@@ -49,6 +49,7 @@ export interface User {
 // ბექენდის entity-ების ფორმას (src/cart/entities/{cart,cart-item}.entity.ts).
 // CartItem-ს ფასს არ ვინახავთ ცალკე — ყოველთვის `product.price`-დან იკითხება.
 import type { Company, Product as GeneratedProduct } from "./client/models";
+import type { HeroSlideTranslationsDto } from "./client/models";
 import type {
   NameTranslationsDto,
   ProductTranslationsDto,
@@ -399,4 +400,22 @@ export interface Favorite {
   id: number;
   product: Product;
   createdAt: string;
+}
+
+// იგივე მიზეზით (HeroSlidesController-ის findAllPaginated/findOne-ს OpenAPI-ში
+// ცხადი პასუხის ტიპი არ აქვს მითითებული, იხ. src/hero-slides/hero-slides.controller.ts
+// online-shop-nest-ში) `HeroSlide` გენერირებულ კლიენტში აღარ ჩნდება — ხელით
+// ვაფიქსირებთ ბექენდის entity-ის ფორმას (src/hero-slides/entities/hero-slide.entity.ts).
+// `product` relation `SET NULL`-ზეა (პროდუქტის წაშლისას სლაიდი არ იშლება,
+// უბრალოდ მიბმა ეხსნება) — ამიტომ `product?: Product | null`.
+export interface HeroSlide {
+  id: string;
+  translations: HeroSlideTranslationsDto;
+  image: string;
+  buttonLink?: string;
+  product?: Product | null;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
 }

@@ -9,6 +9,7 @@ import {
   CompaniesApi,
   Configuration,
   FavoritesApi,
+  HeroSlidesApi,
   OrdersApi,
   OtpApi,
   PaymentsApi,
@@ -213,6 +214,11 @@ export const ColorsAPI = (acceptLanguage: string, accessToken: string) => {
 export const CompaniesAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new CompaniesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const HeroSlidesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new HeroSlidesApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

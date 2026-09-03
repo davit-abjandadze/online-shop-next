@@ -345,3 +345,110 @@ export const companyFormSchema = z.object({
 });
 
 export type CompanyFormValues = z.infer<typeof companyFormSchema>;
+
+/** hero-სლაიდერის (მთავარი გვერდის სლაიდის) `translations`-ის ვალიდაციის სქემა
+ * — `ka.title` სავალდებულოა, დანარჩენი ველები/ენები არასავალდებულოა. */
+const heroSlideTranslationsSchema = z.object({
+  ka: z.object({
+    eyebrow: z.string().trim().optional(),
+    title: z.string().trim().min(1, "გთხოვთ შეავსოთ სათაური ქართულად"),
+    description: z.string().trim().optional(),
+    buttonText: z.string().trim().optional(),
+  }),
+  en: z.object({
+    eyebrow: z.string().trim().optional(),
+    title: z.string().trim().optional(),
+    description: z.string().trim().optional(),
+    buttonText: z.string().trim().optional(),
+  }),
+  ru: z.object({
+    eyebrow: z.string().trim().optional(),
+    title: z.string().trim().optional(),
+    description: z.string().trim().optional(),
+    buttonText: z.string().trim().optional(),
+  }),
+});
+
+/** hero-სლაიდის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. `sortOrder`
+ * სტრინგადაა (input-ის ბუნებრივი ტიპი), submit-ის დროს რიცხვად გარდაიქმნება. */
+export const heroSlideFormSchema = z.object({
+  translations: heroSlideTranslationsSchema,
+  image: z.string().trim().min(1, "გთხოვთ ატვირთოთ ან მიუთითოთ სურათი"),
+  buttonLink: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || /^https?:\/\//.test(v) || v.startsWith("/"), "ღილაკის ლინკი უნდა იწყებოდეს http(s)://-ით ან /-ით"),
+  productId: z.string().optional(),
+  isActive: z.boolean(),
+  sortOrder: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (!isNaN(Number(v)) && Number.isInteger(Number(v))), "sortOrder უნდა იყოს მთელი რიცხვი"),
+});
+
+export type HeroSlideFormValues = z.infer<typeof heroSlideFormSchema>;
+
+/** ბექენდზე გასაგზავნ `translations` obj-ს აგებს hero-სლაიდის ფორმის
+ * მნიშვნელობებიდან — `ka.title` ყოველთვის იგზავნება, დანარჩენი (ka-ს
+ * `eyebrow`/`description`/`buttonText`-ის ჩათვლით) მხოლოდ თუ შევსებულია. */
+export const buildHeroSlideTranslationsDto = (t: {
+  ka: { eyebrow?: string; title: string; description?: string; buttonText?: string };
+  en: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
+  ru: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
+}) => {
+  const buildEntry = (e: { eyebrow?: string; title?: string; description?: string; buttonText?: string }) => {
+    const entry: { eyebrow?: string; title?: string; description?: string; buttonText?: string } = {};
+    const eyebrow = e.eyebrow?.trim();
+    const title = e.title?.trim();
+    const description = e.description?.trim();
+    const buttonText = e.buttonText?.trim();
+    if (eyebrow) entry.eyebrow = eyebrow;
+    if (title) entry.title = title;
+    if (description) entry.description = description;
+    if (buttonText) entry.buttonText = buttonText;
+    return entry;
+  };
+
+  const dto: {
+    ka: { eyebrow?: string; title: string; description?: string; buttonText?: string };
+    en?: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
+    ru?: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
+  } = { ka: { ...buildEntry(t.ka), title: t.ka.title.trim() } };
+
+  const en = buildEntry(t.en);
+  if (en.title) dto.en = en;
+
+  const ru = buildEntry(t.ru);
+  if (ru.title) dto.ru = ru;
+
+  return dto;
+};
+
+/** `translations` (`unknown`) ფორმის საწყის მნიშვნელობებად კითხულობს, edit
+ * მოდალის გახსნისას. */
+export const readHeroSlideTranslations = (translations: unknown) => {
+  const t = (translations || {}) as Partial<
+    Record<"ka" | "en" | "ru", { eyebrow?: string; title?: string; description?: string; buttonText?: string } | undefined>
+  >;
+  return {
+    ka: {
+      eyebrow: t?.ka?.eyebrow || "",
+      title: t?.ka?.title || "",
+      description: t?.ka?.description || "",
+      buttonText: t?.ka?.buttonText || "",
+    },
+    en: {
+      eyebrow: t?.en?.eyebrow || "",
+      title: t?.en?.title || "",
+      description: t?.en?.description || "",
+      buttonText: t?.en?.buttonText || "",
+    },
+    ru: {
+      eyebrow: t?.ru?.eyebrow || "",
+      title: t?.ru?.title || "",
+      description: t?.ru?.description || "",
+      buttonText: t?.ru?.buttonText || "",
+    },
+  };
+};

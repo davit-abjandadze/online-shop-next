@@ -498,6 +498,15 @@ export const UploadIcon: React.FC<RefIconProps> = ({ size = 18, className, style
   </svg>
 );
 
+/* სურათების სლაიდერი (hero slider) — ადმინის დეშბორდის სლაიდერების მართვის ჩანართისთვის. მონოქრომული, currentColor-ზეა აგებული. */
+export const SliderIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="2.5" y="5" width="19" height="14" rx="1.6" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M6.5 5v14M17.5 5v14" stroke="currentColor" strokeWidth="1.8" />
+    <path d="M9.5 9.5l-2 2.5 2 2.5M14.5 9.5l2 2.5-2 2.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
 /* შენობა/კომპანია — ადმინის კომპანიების ჩანართისთვის */
 export const BuildingIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
