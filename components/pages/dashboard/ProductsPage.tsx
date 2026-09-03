@@ -838,11 +838,11 @@ export const ProductsPage: React.FC = () => {
                         rel="noopener noreferrer"
                         style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
                       >
-                        <BoxIcon size={18} /> {product.name}
+                        <BoxIcon size={18} /> {getCategoryName(product, router.locale)}
                       </S.QuestionText>
                     </Link>
                     <S.ProductImageThumb>
-                      <img src={resolveImage(product.images[0])} alt={product.name} />
+                      <img src={resolveImage(product.images[0])} alt={getCategoryName(product, router.locale)} />
                     </S.ProductImageThumb>
                   </S.ProductImagesRow>
                 )}

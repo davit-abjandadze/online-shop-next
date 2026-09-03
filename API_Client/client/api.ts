@@ -23,6 +23,7 @@ export * from './apis/categories-api';
 export * from './apis/colors-api';
 export * from './apis/companies-api';
 export * from './apis/favorites-api';
+export * from './apis/hero-slides-api';
 export * from './apis/orders-api';
 export * from './apis/otp-api';
 export * from './apis/payments-api';
