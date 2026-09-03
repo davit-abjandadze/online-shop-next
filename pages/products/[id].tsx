@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import { ProductsAPI } from "@/API_Client";
 import { Product } from "@/API_Client/types";
 import { BASEPATH } from "@/constants";
@@ -18,24 +19,26 @@ const truncate = (text: string, max: number) =>
 const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product }) => {
   const router = useRouter();
   const currentLocale = router.locale && router.locale !== "default" ? router.locale : "ka";
+  const { t } = useTranslation("product");
+  const { t: tc } = useTranslation("common");
 
   if (!product) {
     return (
       <>
         <Head>
-          <title>პროდუქტი ვერ მოიძებნა - მაღაზია</title>
+          <title>{`${t("not-found-page-title")} - ${tc("default-page-title")}`}</title>
         </Head>
         <main style={{ padding: "100px 20px", textAlign: "center" }}>
-          <p style={{ fontSize: 18 }}>მოთხოვნილი პროდუქტი ვერ მოიძებნა.</p>
+          <p style={{ fontSize: 18 }}>{t("not-found-text")}</p>
         </main>
       </>
     );
   }
 
-  const title = truncate(`${product.name} — მაღაზია`, 95);
+  const title = truncate(`${product.name} — ${tc("default-page-title")}`, 95);
   const description = product.description
     ? truncate(product.description, 155)
-    : `შეიძინეთ ${product.name} ჩვენს ონლაინ მაღაზიაში.`;
+    : t("meta-description-fallback", { name: product.name });
   const url = `${BASEPATH}/${currentLocale}/products/${product.id}`;
   const image = product.images?.[0];
 

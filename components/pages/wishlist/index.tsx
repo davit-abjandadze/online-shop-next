@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -12,6 +13,7 @@ import * as S from "./style";
 // იხ. context/Wishlist). პროდუქტი Favorite-ის relation-ითვე მოდის, ცალ-ცალკე
 // findOne-ების გარეშე.
 export const WishlistComponent: React.FC = () => {
+  const { t } = useTranslation("catalog");
   const { favorites, loading } = useWishlist();
   const products = favorites.map((f) => f.product).filter((p): p is NonNullable<typeof p> => Boolean(p));
 
@@ -23,16 +25,16 @@ export const WishlistComponent: React.FC = () => {
 
       <S.Container>
         <S.PageHeader>
-          <S.PageTitle>სასურველი პროდუქტები</S.PageTitle>
-          <S.PageSubtitle>თქვენს მიერ შენახული პროდუქტები</S.PageSubtitle>
+          <S.PageTitle>{t("wishlist-title")}</S.PageTitle>
+          <S.PageSubtitle>{t("wishlist-subtitle")}</S.PageSubtitle>
         </S.PageHeader>
 
         {!loading && products.length === 0 ? (
           <S.EmptyState>
             <HeartIcon size={48} />
-            <S.EmptyStateTitle>სასურველი სია ცარიელია</S.EmptyStateTitle>
+            <S.EmptyStateTitle>{t("wishlist-empty-title")}</S.EmptyStateTitle>
             <Link href="/products" passHref legacyBehavior>
-              <S.EmptyStateLink>კატალოგის დათვალიერება</S.EmptyStateLink>
+              <S.EmptyStateLink>{t("wishlist-browse-catalog")}</S.EmptyStateLink>
             </Link>
           </S.EmptyState>
         ) : (

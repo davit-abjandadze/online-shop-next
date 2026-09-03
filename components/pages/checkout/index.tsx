@@ -150,6 +150,13 @@ export const CheckoutComponent: React.FC = () => {
   // emailField/phoneNumberField/personalNumberField-ის ვალიდაციის შეტყობინებები
   // common.json-შია (`validation-*`) — "common:" პრეფიქსით ვიღებთ "checkout" namespace-იდან.
   const tValidation = (key: string, query?: Record<string, unknown>) => t(`common:${key}`, query);
+  // GEORGIAN_CITIES-ის value ყოველთვის ქართულია (ბექენდის ფორმატი) — ჩვენებისას
+  // შესაბამისი key-ით ვთარგმნით, თუ ცნობილი ქალაქია; წინააღმდეგ შემთხვევაში raw value-ს ვაბრუნებთ.
+  const getCityLabel = (value?: string): string => {
+    if (!value) return "";
+    const city = GEORGIAN_CITIES.find((c) => c.value === value);
+    return city ? t(city.key) : value;
+  };
   const { data: session, status } = useSession();
   const router = useRouter();
   const { cart, loading, refresh } = useCart();
@@ -620,13 +627,14 @@ export const CheckoutComponent: React.FC = () => {
       toast.success(t("toast-info-saved") as string);
     } catch (err: any) {
       const message = err?.response?.data?.message || t("toast-info-save-failed");
+      const errorCode = err?.response?.data?.errorCode;
 
-      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
-      // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
-      // და ვწითლებთ, რომ მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
-      if (message.includes("ელფოსტით")) {
+      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე errorCode-ს აბრუნებს (EMAIL_DUPLICATE /
+      // PHONE_DUPLICATE) — ამის მიხედვით ვცნობთ შესაბამის ველს და ვწითლებთ, რომ
+      // მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
+      if (errorCode === "EMAIL_DUPLICATE") {
         setEmailDuplicateError(message);
-      } else if (message.includes("ტელეფონის ნომრით")) {
+      } else if (errorCode === "PHONE_DUPLICATE") {
         setPhoneDuplicateError(message);
       } else {
         toast.error(message);
@@ -1119,7 +1127,7 @@ export const CheckoutComponent: React.FC = () => {
                           <S.Label>{t("address-label")}</S.Label>
                           <S.AddressValue>
                             {selectedAddress
-                              ? `${selectedAddress.title} - ${selectedAddress.city}, ${selectedAddress.address}`
+                              ? `${selectedAddress.title} - ${getCityLabel(selectedAddress.city)}, ${selectedAddress.address}`
                               : t("address-not-selected")}
                           </S.AddressValue>
                         </S.AddressBody>
@@ -1145,7 +1153,7 @@ export const CheckoutComponent: React.FC = () => {
                               <S.AddressBody>
                                 <S.Label>{t("address-label")}</S.Label>
                                 <S.AddressValue>
-                                  {addr.title} - {addr.city}, {addr.address}
+                                  {addr.title} - {getCityLabel(addr.city)}, {addr.address}
                                 </S.AddressValue>
                               </S.AddressBody>
                               <S.AddressItemActions>

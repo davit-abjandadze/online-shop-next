@@ -1,15 +1,18 @@
 import React from "react";
+import useTranslation from "next-translate/useTranslation";
 import { CartIcon, ClipboardIcon, MapPinIcon, LockIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
 export type PurchaseStep = "cart" | "order" | "address" | "payment";
 
-const STEPS: { key: PurchaseStep; label: string; icon: React.FC<{ size?: number; color?: string }> }[] = [
-  { key: "cart", label: "კალათა", icon: CartIcon },
-  { key: "order", label: "მონაცემები", icon: ClipboardIcon },
-  { key: "address", label: "მისამართი", icon: MapPinIcon },
-  { key: "payment", label: "გადახდა", icon: LockIcon },
-];
+const STEP_ICONS: Record<PurchaseStep, React.FC<{ size?: number; color?: string }>> = {
+  cart: CartIcon,
+  order: ClipboardIcon,
+  address: MapPinIcon,
+  payment: LockIcon,
+};
+
+const STEP_ORDER: PurchaseStep[] = ["cart", "order", "address", "payment"];
 
 // ყიდვის პროცესის სტეპერი — cart/checkout გვერდების კონტენტის თავში,
 // ლოგოებით (აიქონი + მოკლე ტექსტი) ტექსტოვანი ჩამონათვალის ნაცვლად.
@@ -21,11 +24,19 @@ export const PurchaseSteps: React.FC<{ current: PurchaseStep; completed?: Purcha
   current,
   completed = [],
 }) => {
+  const { t } = useTranslation("common");
+  const STEPS: { key: PurchaseStep; label: string }[] = [
+    { key: "cart", label: t("purchase-step-cart") },
+    { key: "order", label: t("purchase-step-order") },
+    { key: "address", label: t("purchase-step-address") },
+    { key: "payment", label: t("purchase-step-payment") },
+  ];
+
   return (
-    <S.Wrapper aria-label="ყიდვის საფეხურები">
+    <S.Wrapper aria-label={t("purchase-steps-aria")}>
       {STEPS.map((step, index) => {
         const state = completed.includes(step.key) ? "done" : step.key === current ? "active" : "upcoming";
-        const Icon = step.icon;
+        const Icon = STEP_ICONS[step.key];
         return (
           <React.Fragment key={step.key}>
             <S.Step>
@@ -37,7 +48,7 @@ export const PurchaseSteps: React.FC<{ current: PurchaseStep; completed?: Purcha
               </S.Badge>
               <S.Label $active={state !== "upcoming"}>{step.label}</S.Label>
             </S.Step>
-            {index < STEPS.length - 1 && <S.Connector $filled={state === "done"} />}
+            {index < STEP_ORDER.length - 1 && <S.Connector $filled={state === "done"} />}
           </React.Fragment>
         );
       })}

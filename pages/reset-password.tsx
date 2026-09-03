@@ -32,7 +32,7 @@ export default function ResetPasswordPage() {
 
   const headTags = (
     <Head>
-      <title>პაროლის აღდგენა - საზოგადოებრივი აზრის პლატფორმა</title>
+      <title>{`${t("reset-password-page-title")} - ${t("default-page-title")}`}</title>
       <meta name="robots" content="noindex, nofollow" />
     </Head>
   );
@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
       const resData = await response.json();
 
       if (!response.ok) {
-        toast.error(resData.message || "შეცდომა მოხდა");
+        toast.error(resData.message || (t("reset-password-error-generic") as string));
         return;
       }
 
@@ -74,7 +74,7 @@ export default function ResetPasswordPage() {
         router.push("/ka/login");
       }, 3000);
     } catch (error) {
-      toast.error("სერვერთან დაკავშირება ვერ მოხერხდა");
+      toast.error(t("reset-password-error-network") as string);
     }
   };
 
@@ -84,10 +84,10 @@ export default function ResetPasswordPage() {
         {headTags}
         <div style={{ maxWidth: "400px", textAlign: "center", background: "var(--ref-bg-elevated)", borderRadius: "16px", padding: "40px 32px", boxShadow: "var(--ref-shadow-md)", border: "1px solid var(--ref-border-soft)" }}>
           <WarningIcon size={40} />
-          <h2 style={{ color: "var(--ref-danger)", margin: "16px 0 8px 0", fontSize: "20px" }}>არასწორი ბმული</h2>
-          <p style={{ color: "var(--ref-text-secondary)", fontSize: "14px" }}>გთხოვთ, ხელახლა სცადოთ პაროლის აღდგენა.</p>
+          <h2 style={{ color: "var(--ref-danger)", margin: "16px 0 8px 0", fontSize: "20px" }}>{t("reset-password-invalid-link-title")}</h2>
+          <p style={{ color: "var(--ref-text-secondary)", fontSize: "14px" }}>{t("reset-password-invalid-link-description")}</p>
           <a href="/ka/forgot-password" style={{ color: "var(--ref-primary)", fontWeight: 600, fontSize: "14px" }}>
-            პაროლის აღდგენა
+            {t("reset-password-invalid-link-cta")}
           </a>
         </div>
       </div>
@@ -99,14 +99,14 @@ export default function ResetPasswordPage() {
       {headTags}
       <div style={{ maxWidth: "420px", width: "100%", background: "var(--ref-bg-elevated)", borderRadius: "16px", padding: "40px 32px", boxShadow: "var(--ref-shadow-md)", border: "1px solid var(--ref-border-soft)" }}>
         <h1 style={{ textAlign: "center", marginBottom: "28px", fontSize: "22px", color: "var(--ref-text-primary)", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-          <KeyIcon size={24} /> ახალი პაროლის დაყენება
+          <KeyIcon size={24} /> {t("reset-password-heading")}
         </h1>
 
         {!success ? (
           <form onSubmit={handleSubmit(onSubmit)}>
             <div style={{ marginBottom: "20px" }}>
               <label style={{ display: "block", marginBottom: "8px", fontSize: "13px", fontWeight: 600, color: "var(--ref-text-primary)" }}>
-                ახალი პაროლი:
+                {t("reset-password-new-password-label")}
               </label>
               <input
                 type="password"
@@ -125,7 +125,7 @@ export default function ResetPasswordPage() {
 
             <div style={{ marginBottom: "20px" }}>
               <label style={{ display: "block", marginBottom: "8px", fontSize: "13px", fontWeight: 600, color: "var(--ref-text-primary)" }}>
-                დაადასტურეთ ახალი პაროლი:
+                {t("reset-password-confirm-password-label")}
               </label>
               <input
                 type="password"
@@ -157,17 +157,17 @@ export default function ResetPasswordPage() {
                 fontWeight: 600,
               }}
             >
-              {loading ? "ინახება..." : "პაროლის შეცვლა"}
+              {loading ? t("reset-password-submitting") : t("reset-password-submit")}
             </button>
           </form>
         ) : (
           <div style={{ textAlign: "center", padding: "24px 0" }}>
             <CheckCircleIcon size={40} />
             <h2 style={{ color: "var(--ref-success)", margin: "16px 0 8px 0", fontSize: "18px" }}>
-              პაროლი წარმატებით შეიცვალა!
+              {t("reset-password-success-title")}
             </h2>
             <p style={{ color: "var(--ref-text-secondary)", fontSize: "14px" }}>
-              3 წამში გადახვალთ ლოგინის გვერდზე...
+              {t("reset-password-success-description")}
             </p>
           </div>
         )}

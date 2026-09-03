@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
 import { ChevronDownIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI } from "@/API_Client";
 import { Category } from "@/API_Client/types";
@@ -15,6 +16,7 @@ import * as S from "./style";
 // კატალოგისა (/products) და კატეგორიის (/categories/[slug]) გვერდებზეც
 // გამოიყენება, რომ საიტის მასშტაბით ერთნაირი იყოს.
 export const CategoryFilterBar: React.FC = () => {
+  const { t } = useTranslation("catalog");
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [openCategoryDropdown, setOpenCategoryDropdown] = useState<number | string | null>(null);
@@ -78,7 +80,7 @@ export const CategoryFilterBar: React.FC = () => {
         {isOpen && (
           <S.FilterDropdownPanel>
             <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
-              <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>ყველა</S.FilterDropdownItem>
+              <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>{t("all")}</S.FilterDropdownItem>
             </Link>
             {children.map((child) => (
               <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
@@ -97,7 +99,7 @@ export const CategoryFilterBar: React.FC = () => {
     <S.CategoryFilterBar ref={barRef}>
       <S.CategoryFilterBarInner>
         {categories.length === 0 ? (
-          <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
+          <S.FilterEmpty>{t("no-categories")}</S.FilterEmpty>
         ) : (
           categories.map(renderCategoryFilter)
         )}

@@ -22,8 +22,7 @@ import type { Company } from './company';
 
 export interface Product {
     'id': number;
-    'name': string;
-    'description'?: string;
+    'translations': object;
     'price': string;
     'stock': number;
     'discountPercent'?: number;

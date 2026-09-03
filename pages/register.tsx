@@ -11,8 +11,8 @@ export default function RegisterPage() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#F7F8FA" }}>
       <Head>
-        <title>{t("register-page-title") || "რეგისტრაცია"}</title>
-        <meta name="description" content="დარეგისტრირდით და მიიღეთ მონაწილეობა სახალხო რეფერენდუმში" />
+        <title>{`${t("register-page-title")} - ${t("default-page-title")}`}</title>
+        <meta name="description" content={t("register-page-description") as string} />
         <meta name="robots" content="noindex, nofollow" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

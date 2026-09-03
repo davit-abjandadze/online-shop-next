@@ -19,8 +19,7 @@ import type { Product } from './product';
 
 export interface Category {
     'id': string;
-    'nameKa': string;
-    'nameEn': string;
+    'translations': object;
     'slug': string;
     'isActive': boolean;
     'sortOrder': number;

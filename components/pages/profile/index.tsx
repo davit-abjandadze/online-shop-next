@@ -461,13 +461,14 @@ export const ProfileComponent: React.FC = () => {
       }
     } catch (err: any) {
       const message = err?.response?.data?.message || t("toast-profile-update-failed");
+      const errorCode = err?.response?.data?.errorCode;
 
-      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
-      // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
-      // და ვწითლებთ, რომ მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
-      if (message.includes("ელფოსტით")) {
+      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე errorCode-ს აბრუნებს (EMAIL_DUPLICATE /
+      // PHONE_DUPLICATE) — ამის მიხედვით ვცნობთ შესაბამის ველს და ვწითლებთ, რომ
+      // მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
+      if (errorCode === "EMAIL_DUPLICATE") {
         setError("email", { type: "manual", message });
-      } else if (message.includes("ტელეფონის ნომრით")) {
+      } else if (errorCode === "PHONE_DUPLICATE") {
         setError("phoneNumber", { type: "manual", message });
       } else {
         toast.error(message);

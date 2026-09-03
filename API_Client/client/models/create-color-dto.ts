@@ -13,16 +13,15 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { NameTranslationsDto } from './name-translations-dto';
 
 export interface CreateColorDto {
     /**
-     * ფერის სახელი ქართულად
+     * მრავალენოვანი სახელი — { ka: {name}, en?, ru? }, ka სავალდებულოა
      */
-    'nameKa': string;
-    /**
-     * ფერის სახელი ინგლისურად
-     */
-    'nameEn': string;
+    'translations': NameTranslationsDto;
     /**
      * HEX კოდი frontend-ის სვოჩისთვის
      */

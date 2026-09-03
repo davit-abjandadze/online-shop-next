@@ -13,16 +13,15 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ValueTranslationsDto } from './value-translations-dto';
 
 export interface UpdateAttributeOptionDto {
     /**
-     * ოფციის მნიშვნელობა ქართულად
+     * მრავალენოვანი მნიშვნელობა — { ka: {value}, en?, ru? }, ka სავალდებულოა
      */
-    'valueKa'?: string;
-    /**
-     * ოფციის მნიშვნელობა ინგლისურად
-     */
-    'valueEn'?: string;
+    'translations'?: ValueTranslationsDto;
     /**
      * უნიკალური კოდი (attribute-ის ფარგლებში), მხოლოდ ლათინური ასოები/ციფრები/ტირე
      */

@@ -1,5 +1,6 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import OrderDetailComponent from "@/components/pages/orderDetail";
 
 // შეკვეთის დეტალები JwtAuthGuard-ითაა დაცული ბექენდზე, ამიტომ (Cart-ის/
@@ -8,11 +9,13 @@ import OrderDetailComponent from "@/components/pages/orderDetail";
 const OrderDetailPage = () => {
   const router = useRouter();
   const id = router.query.id as string;
+  const { t } = useTranslation("orders");
+  const { t: tc } = useTranslation("common");
 
   return (
     <>
       <Head>
-        <title>{id ? `შეკვეთა #${id} - მაღაზია` : "შეკვეთა - მაღაზია"}</title>
+        <title>{`${id ? t("order-id", { id }) : t("order-detail-page-title")} - ${tc("default-page-title")}`}</title>
         <meta name="robots" content="noindex" />
       </Head>
       {id && <OrderDetailComponent orderId={id} />}

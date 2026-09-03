@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import useTranslation from "next-translate/useTranslation";
 import { CategoryFilterEntry } from "@/API_Client/types";
 import { getCategoryName, getLocalizedValue } from "@/utils/getCategoryName";
 import * as S from "./style";
@@ -42,6 +43,7 @@ const PriceFilter: React.FC<{
   bounds?: PriceBounds | null;
   onChange: DraftChangeHandler;
 }> = ({ filters, bounds, onChange }) => {
+  const { t } = useTranslation("catalog");
   const { min: boundMin, max: boundMax } =
     bounds && bounds.max > bounds.min ? bounds : DEFAULT_PRICE_BOUNDS;
 
@@ -191,7 +193,7 @@ const PriceFilter: React.FC<{
 
   return (
     <S.FilterCard>
-      <S.FilterCardTitle>ფასი</S.FilterCardTitle>
+      <S.FilterCardTitle>{t("filter-price")}</S.FilterCardTitle>
       <S.FilterCardBody>
         <S.RangeRow>
           <S.RangeInput
@@ -289,6 +291,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   onClear,
   priceBounds,
 }) => {
+  const { t } = useTranslation("catalog");
   const [draft, setDraft] = useState<Record<string, string>>(filters);
 
   // გარედან წამოსული ცვლილება (URL-ის პირდაპირი რედაქტირება, "გასუფთავება",
@@ -337,12 +340,12 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       }}
     >
       <S.FilterCard>
-        <S.FilterCardTitle>ძებნა დასახელებით</S.FilterCardTitle>
+        <S.FilterCardTitle>{t("filter-search-title")}</S.FilterCardTitle>
         <S.FilterCardBody>
           <S.TextInput
             key={`search-${filters.search || ""}`}
             type="text"
-            placeholder="მაგ. სახელი..."
+            placeholder={t("filter-search-placeholder")}
             defaultValue={filters.search || ""}
             onChange={(e) => handleChange("search", e.target.value || undefined)}
           />
@@ -353,9 +356,9 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
       {facets.length === 0 ? (
         <S.FilterCard>
-          <S.FilterCardTitle>ფილტრები</S.FilterCardTitle>
+          <S.FilterCardTitle>{t("filter-title")}</S.FilterCardTitle>
           <S.FilterCardBody>
-            <S.EmptyFacets>ამ კატეგორიისთვის დამატებითი ფილტრი ჯერ არ არსებობს.</S.EmptyFacets>
+            <S.EmptyFacets>{t("filter-empty-category")}</S.EmptyFacets>
           </S.FilterCardBody>
         </S.FilterCard>
       ) : null}
@@ -388,7 +391,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                       </S.CheckboxRow>
                     );
                   })}
-                  {facet.options.length === 0 && <S.EmptyFacets>ვარიანტები არ არის</S.EmptyFacets>}
+                  {facet.options.length === 0 && <S.EmptyFacets>{t("filter-no-options")}</S.EmptyFacets>}
                 </>
               )}
 
@@ -398,7 +401,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   <S.RangeInput
                     type="text"
                     inputMode="decimal"
-                    placeholder={facet.min != null ? String(facet.min) : "დან"}
+                    placeholder={facet.min != null ? String(facet.min) : t("filter-range-from-placeholder")}
                     defaultValue={draft[`${attribute.code}_min`] || ""}
                     onChange={(e) => handleChange(`${attribute.code}_min`, e.target.value || undefined)}
                   />
@@ -406,7 +409,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                   <S.RangeInput
                     type="text"
                     inputMode="decimal"
-                    placeholder={facet.max != null ? String(facet.max) : "მდე"}
+                    placeholder={facet.max != null ? String(facet.max) : t("filter-range-to-placeholder")}
                     defaultValue={draft[`${attribute.code}_max`] || ""}
                     onChange={(e) => handleChange(`${attribute.code}_max`, e.target.value || undefined)}
                   />
@@ -421,21 +424,21 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                     active={!draft[attribute.code]}
                     onClick={() => handleChange(attribute.code, undefined)}
                   >
-                    ყველა
+                    {t("all")}
                   </S.BooleanOption>
                   <S.BooleanOption
                     type="button"
                     active={draft[attribute.code] === "true"}
                     onClick={() => handleChange(attribute.code, "true")}
                   >
-                    კი {facet.counts ? `(${facet.counts.true})` : ""}
+                    {t("filter-boolean-yes")} {facet.counts ? `(${facet.counts.true})` : ""}
                   </S.BooleanOption>
                   <S.BooleanOption
                     type="button"
                     active={draft[attribute.code] === "false"}
                     onClick={() => handleChange(attribute.code, "false")}
                   >
-                    არა {facet.counts ? `(${facet.counts.false})` : ""}
+                    {t("filter-boolean-no")} {facet.counts ? `(${facet.counts.false})` : ""}
                   </S.BooleanOption>
                 </S.BooleanRow>
               )}
@@ -444,7 +447,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               {attribute.type === "text" && (
                 <S.TextInput
                   type="text"
-                  placeholder="ძებნა..."
+                  placeholder={t("filter-text-search-placeholder")}
                   defaultValue={draft[attribute.code] || ""}
                   onChange={(e) => handleChange(attribute.code, e.target.value || undefined)}
                 />
@@ -456,13 +459,13 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
 
       <S.ApplyBar>
         <S.ApplyButton type="submit" pending={isDirty}>
-          გაფილტვრა
+          {t("filter-apply")}
         </S.ApplyButton>
           <S.ClearFilterButton
             type="button"
             onClick={() => hasDraftFilters && handleClear()}
-            title="ფილტრების გასუფთავება"
-            aria-label="ფილტრების გასუფთავება"
+            title={t("filter-clear-aria")}
+            aria-label={t("filter-clear-aria")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path

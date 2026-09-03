@@ -9,6 +9,7 @@
   "back-to-catalog": "კატალოგში დაბრუნება",
   "back-to-orders": "ჩემი შეკვეთები",
   "order-id": "შეკვეთა #{{id}}",
+  "order-detail-page-title": "შეკვეთა",
   "items-count": "{{count}} ერთეული",
   "details": "დეტალები",
   "pay": "გადახდა",

@@ -3,7 +3,7 @@
   "defaultLocale": "default",
   "pages": {
     "*": ["common", "header", "footer"],
-    "pages/index": ["catalog"],
+    "pages/index": ["catalog", "home"],
     "pages/products": ["product", "catalog"],
     "pages/categories": ["catalog"],
     "pages/wishlist": ["catalog"],

@@ -157,13 +157,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     } catch (err: any) {
       setLoading(false);
       const msg = err?.response?.data?.message || t("auth-modal-error-register-generic");
+      const errorCode = err?.response?.data?.errorCode;
 
-      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
-      // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
-      // და ვწითლებთ, რომ მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
-      if (msg.includes("ელფოსტით")) {
+      // ბექენდი დუბლირებულ ელფოსტას/ნომერზე errorCode-ს აბრუნებს (EMAIL_DUPLICATE /
+      // PHONE_DUPLICATE) — ამის მიხედვით ვცნობთ შესაბამის ველს და ვწითლებთ, რომ
+      // მომხმარებელმა ზუსტად დაინახოს პრობლემური ველი.
+      if (errorCode === "EMAIL_DUPLICATE") {
         registerForm.setError("email", { type: "manual", message: msg });
-      } else if (msg.includes("ტელეფონის ნომრით")) {
+      } else if (errorCode === "PHONE_DUPLICATE") {
         registerForm.setError("phoneNumber", { type: "manual", message: msg });
       } else {
         setError(msg);

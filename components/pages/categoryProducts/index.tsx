@@ -206,9 +206,9 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
         {/* <C.PageHeader>
           <div>
             <C.PageTitle>{category ? getCategoryName(category, router.locale) : ""}</C.PageTitle>
-            <C.PageSubtitle>დაათვალიერეთ ქვეკატეგორიები და ფილტრები</C.PageSubtitle>
+            <C.PageSubtitle>{t("category-page-subtitle")}</C.PageSubtitle>
           </div>
-          {meta && <C.ResultsCount>{meta.total} პროდუქტი</C.ResultsCount>}
+          {meta && <C.ResultsCount>{t("results-count", { count: meta.total })}</C.ResultsCount>}
         </C.PageHeader> */}
 
         <C.Layout>

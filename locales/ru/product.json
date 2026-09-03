@@ -1,4 +1,7 @@
 {
+  "not-found-page-title": "Товар не найден",
+  "not-found-text": "Запрошенный товар не найден.",
+  "meta-description-fallback": "Купите {{name}} в нашем интернет-магазине.",
   "youtube-video-alt": "Видео YouTube",
   "product-video-title": "Видео товара",
   "in-stock": "В наличии",

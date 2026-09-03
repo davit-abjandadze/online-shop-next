@@ -1,4 +1,7 @@
 {
+  "not-found-page-title": "Product not found",
+  "not-found-text": "The requested product could not be found.",
+  "meta-description-fallback": "Buy {{name}} in our online store.",
   "youtube-video-alt": "YouTube video",
   "product-video-title": "Product video",
   "in-stock": "In stock",

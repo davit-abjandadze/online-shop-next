@@ -57,7 +57,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
     setError(null);
 
     if (!session?.accessToken || !session?.user?.id) {
-      setError("ავტორიზაცია ვერ მოიძებნა, გთხოვთ თავიდან შეხვიდეთ სისტემაში");
+      setError(t("complete-profile-error-auth"));
       return;
     }
 
@@ -69,17 +69,17 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
           gender: data.gender as any,
         }
       );
-      toast.success("პროფილი წარმატებით განახლდა!");
+      toast.success(t("complete-profile-success"));
       onCompleted();
     } catch (err: any) {
-      setError(err?.response?.data?.message || "პროფილის განახლება ვერ მოხერხდა");
+      setError(err?.response?.data?.message || t("complete-profile-error-generic"));
     }
   };
 
   const content = (
     <>
       <S.ModalHeader>
-        <S.Title>პროფილის დასრულება</S.Title>
+        <S.Title>{t("complete-profile-title")}</S.Title>
         <S.CloseButton onClick={onClose} aria-label="Close">
           <CloseIcon size={16} />
         </S.CloseButton>
@@ -87,7 +87,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
       <div style={{ padding: "0 28px", marginTop: "16px" }}>
         <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)", margin: 0 }}>
-          ხმის მისაცემად საჭიროა თქვენს პროფილში მითითებული იყოს ასაკი და სქესი.
+          {t("complete-profile-description")}
         </p>
         {error && (
           <S.ErrorAlert style={{ marginTop: "16px" }}>
@@ -98,10 +98,10 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
       <S.FormContainer onSubmit={handleSubmit(onSubmit)}>
         <S.FormGroup>
-          <S.Label>ასაკი</S.Label>
+          <S.Label>{t("complete-profile-age-label")}</S.Label>
           <S.Input
             type="number"
-            placeholder="მაგ. 25"
+            placeholder={t("complete-profile-age-placeholder")}
             min={14}
             max={120}
             value={age}
@@ -112,7 +112,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
         </S.FormGroup>
 
         <S.FormGroup>
-          <S.Label>სქესი</S.Label>
+          <S.Label>{t("complete-profile-gender-label")}</S.Label>
           <S.GenderSwitch>
             <S.GenderThumb position={gender === "female" ? "right" : "left"} />
             <S.GenderOption
@@ -120,21 +120,21 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
               active={gender === "male"}
               onClick={() => setValue("gender", "male")}
             >
-              კაცი
+              {t("complete-profile-gender-male")}
             </S.GenderOption>
             <S.GenderOption
               type="button"
               active={gender === "female"}
               onClick={() => setValue("gender", "female")}
             >
-              ქალი
+              {t("complete-profile-gender-female")}
             </S.GenderOption>
           </S.GenderSwitch>
           {errors.gender && <S.FieldError>{errors.gender.message}</S.FieldError>}
         </S.FormGroup>
 
         <S.SubmitButton type="submit" disabled={loading}>
-          {loading ? "ინახება..." : "შენახვა და ხმის მიცემა"}
+          {loading ? t("complete-profile-submitting") : t("complete-profile-submit")}
         </S.SubmitButton>
       </S.FormContainer>
     </>

@@ -9,6 +9,7 @@
   "back-to-catalog": "Вернуться в каталог",
   "back-to-orders": "Мои заказы",
   "order-id": "Заказ №{{id}}",
+  "order-detail-page-title": "Заказ",
   "items-count": "{{count}} шт.",
   "details": "Подробнее",
   "pay": "Оплатить",

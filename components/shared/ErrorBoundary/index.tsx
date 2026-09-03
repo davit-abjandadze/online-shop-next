@@ -1,8 +1,18 @@
 import React from "react";
+import useTranslation from "next-translate/useTranslation";
 import * as S from "./style";
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
+}
+
+interface ErrorBoundaryInnerProps extends ErrorBoundaryProps {
+  // React-ის Error Boundary-ები მხოლოდ class კომპონენტებში მუშაობს, ამიტომ
+  // hook-ით მიღებული თარგმანები props-ის სახით გადმოაქვს გარე function
+  // კომპონენტს (იხ. ქვემოთ ErrorBoundary).
+  title: string;
+  text: string;
+  buttonText: string;
 }
 
 interface ErrorBoundaryState {
@@ -17,8 +27,8 @@ interface ErrorBoundaryState {
  * React-ის Error Boundary-ები მხოლოდ class კომპონენტებით შეიძლება
  * (getDerivedStateFromError / componentDidCatch ჰუკებად ჯერ არ არსებობს).
  */
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
+class ErrorBoundaryClass extends React.Component<ErrorBoundaryInnerProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryInnerProps) {
     super(props);
     this.state = { hasError: false };
   }
@@ -44,9 +54,9 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       return (
         <S.Wrapper>
           <S.Card>
-            <S.Title>რაღაც არასწორად წავიდა</S.Title>
-            <S.Text>გვერდზე მოულოდნელი შეცდომა მოხდა. გთხოვთ, სცადოთ გვერდის განახლება.</S.Text>
-            <S.Button onClick={this.handleReload}>გვერდის განახლება</S.Button>
+            <S.Title>{this.props.title}</S.Title>
+            <S.Text>{this.props.text}</S.Text>
+            <S.Button onClick={this.handleReload}>{this.props.buttonText}</S.Button>
           </S.Card>
         </S.Wrapper>
       );
@@ -55,5 +65,21 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return this.props.children;
   }
 }
+
+// Hook-ის (useTranslation) გამოსაყენებლად საჭირო function-wrapper —
+// თარგმანებს ქვემოთ class კომპონენტს props-ის სახით გადასცემს.
+export const ErrorBoundary: React.FC<ErrorBoundaryProps> = ({ children }) => {
+  const { t } = useTranslation("common");
+
+  return (
+    <ErrorBoundaryClass
+      title={t("error-boundary-title")}
+      text={t("error-boundary-text")}
+      buttonText={t("error-boundary-button")}
+    >
+      {children}
+    </ErrorBoundaryClass>
+  );
+};
 
 export default ErrorBoundary;

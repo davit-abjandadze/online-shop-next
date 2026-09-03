@@ -13,16 +13,15 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { NameTranslationsDto } from './name-translations-dto';
 
 export interface CreateCategoryDto {
     /**
-     * კატეგორიის სახელი ქართულად
+     * მრავალენოვანი სახელი — { ka: {name}, en?, ru? }, ka სავალდებულოა
      */
-    'nameKa': string;
-    /**
-     * კატეგორიის სახელი ინგლისურად
-     */
-    'nameEn': string;
+    'translations': NameTranslationsDto;
     /**
      * უნიკალური slug URL-ისთვის (მხოლოდ ლათინური ასოები, ციფრები, ტირე)
      */

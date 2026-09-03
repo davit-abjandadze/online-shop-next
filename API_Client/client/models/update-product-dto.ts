@@ -13,16 +13,15 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ProductTranslationsDto } from './product-translations-dto';
 
 export interface UpdateProductDto {
     /**
-     * პროდუქტის სახელი
+     * მრავალენოვანი სახელი/აღწერა — { ka: {name, description?}, en?, ru? }, ka სავალდებულოა
      */
-    'name'?: string;
-    /**
-     * პროდუქტის აღწერა
-     */
-    'description'?: string;
+    'translations'?: ProductTranslationsDto;
     /**
      * ფასი
      */

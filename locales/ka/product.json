@@ -1,4 +1,7 @@
 {
+  "not-found-page-title": "პროდუქტი ვერ მოიძებნა",
+  "not-found-text": "მოთხოვნილი პროდუქტი ვერ მოიძებნა.",
+  "meta-description-fallback": "შეიძინეთ {{name}} ჩვენს ონლაინ მაღაზიაში.",
   "youtube-video-alt": "YouTube ვიდეო",
   "product-video-title": "პროდუქტის ვიდეო",
   "in-stock": "მარაგშია",

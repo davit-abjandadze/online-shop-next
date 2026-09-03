@@ -9,6 +9,7 @@
   "back-to-catalog": "Back to catalog",
   "back-to-orders": "My Orders",
   "order-id": "Order #{{id}}",
+  "order-detail-page-title": "Order",
   "items-count": "{{count}} items",
   "details": "Details",
   "pay": "Pay",

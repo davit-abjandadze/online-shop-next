@@ -1,8 +1,11 @@
 import Head from "next/head";
 import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
 import { BallotIcon } from "@/components/ui/RefIcons";
 
 export default function NotFound() {
+  const { t } = useTranslation("common");
+
   return (
     <div
       style={{
@@ -18,7 +21,7 @@ export default function NotFound() {
       }}
     >
       <Head>
-        <title>გვერდი ვერ მოიძებნა - საზოგადოებრივი აზრის პლატფორმა</title>
+        <title>{`${t("not-found-page-title")} - ${t("default-page-title")}`}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <BallotIcon size={56} />
@@ -26,7 +29,7 @@ export default function NotFound() {
         404
       </h1>
       <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)", margin: 0 }}>
-        გვერდი ვერ მოიძებნა
+        {t("not-found-message")}
       </p>
       <Link
         href="/"
@@ -41,7 +44,7 @@ export default function NotFound() {
           textDecoration: "none",
         }}
       >
-        მთავარ გვერდზე დაბრუნება
+        {t("not-found-back-home")}
       </Link>
     </div>
   );

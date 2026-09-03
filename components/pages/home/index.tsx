@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Swiper as SwiperType } from "swiper";
@@ -32,54 +33,40 @@ const NEW_ARRIVALS_LIMIT = 8;
 const CATEGORIES_LIMIT = 6;
 const HERO_AUTOPLAY_MS = 6000;
 
-const BENEFITS = [
-  { icon: BoxIcon, title: "სწრაფი მიწოდება", text: "შეკვეთის სწრაფი და საიმედო ტრანსპორტირება" },
-  { icon: LockIcon, title: "უსაფრთხო გადახდა", text: "დაცული და დაშიფრული გადახდის პროცესი" },
-  { icon: UndoIcon, title: "მარტივი დაბრუნება", text: "არ მოგეწონათ? მარტივად დააბრუნეთ" },
-  { icon: ClipboardIcon, title: "მხარდაჭერა", text: "დაგვიკავშირდით ნებისმიერი კითხვისთვის" },
-];
-
-const POPULAR_FILTERS = [
-  { label: "ახალი ჩამოსული", href: "/products?sort=createdAt&order=desc" },
-  { label: "ფასდაკლებული", href: "/products?sort=sale" },
-  { label: "ყველაზე პოპულარული", href: "/products?sort=popular" },
-  { label: "ტოპ შეფასებული", href: "/products?sort=rating" },
-];
-
 // Hero Slider-ის სლაიდები — რეალურ პროდუქტის ფოტოებამდე თითოეულს აქვს საკუთარი
 // გრადიენტი+ხატულა "ხელოვნური" ვიზუალი, სათაური, მოკლე ტექსტი და CTA ბმული.
-const HERO_SLIDES = [
-  {
-    eyebrow: "ახალი კოლექცია",
-    title: "ყოველდღიური სტილი, თანამედროვე ხარისხით",
-    text: "დაათვალიერეთ ჩვენი პროდუქტების არჩევანი და შეუკვეთეთ სწრაფად და უსაფრთხოდ.",
-    cta: "მაღაზიაში გადასვლა",
-    href: "/products",
-    gradientFrom: "#ebddc9",
-    gradientTo: "#c9af87",
-  },
-  {
-    eyebrow: "შეზღუდული დროით",
-    title: "ფასდაკლებები 40%-მდე",
-    text: "განაახლეთ თქვენი კოლექცია სეზონის ფავორიტებით საუკეთესო ფასად.",
-    cta: "ფასდაკლებების ნახვა",
-    href: "/products",
-    gradientFrom: "#98a6d6",
-    gradientTo: "#3b4e92",
-  },
-  {
-    eyebrow: "ახალი ჩამოსული",
-    title: "იპოვეთ ის, რაც გჭირდებათ",
-    text: "ახალი პროდუქტები რეგულარულად ემატება ჩვენს კატალოგში.",
-    cta: "ახლების ნახვა",
-    href: "/products",
-    gradientFrom: "#e3dccf",
-    gradientTo: "#b7a98c",
-  },
+// ტექსტები t()-ით მოდის (იხ. buildHeroSlides/buildBenefits) — მხოლოდ ვიზუალური
+// მონაცემები (გრადიენტი, ბმული, ხატულა) რჩება სტატიკურად.
+const HERO_SLIDE_VISUALS = [
+  { href: "/products", gradientFrom: "#ebddc9", gradientTo: "#c9af87" },
+  { href: "/products", gradientFrom: "#98a6d6", gradientTo: "#3b4e92" },
+  { href: "/products", gradientFrom: "#e3dccf", gradientTo: "#b7a98c" },
+];
+
+const BENEFITS_CONFIG = [
+  { key: "delivery", icon: BoxIcon },
+  { key: "payment", icon: LockIcon },
+  { key: "returns", icon: UndoIcon },
+  { key: "support", icon: ClipboardIcon },
 ];
 
 export const HomeComponent: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation("home");
+
+  const HERO_SLIDES = HERO_SLIDE_VISUALS.map((visual, idx) => ({
+    ...visual,
+    eyebrow: t(`hero-${idx + 1}-eyebrow`),
+    title: t(`hero-${idx + 1}-title`),
+    text: t(`hero-${idx + 1}-text`),
+    cta: t(`hero-${idx + 1}-cta`),
+  }));
+
+  const BENEFITS = BENEFITS_CONFIG.map(({ key, icon }) => ({
+    icon,
+    title: t(`benefit-${key}-title`),
+    text: t(`benefit-${key}-text`),
+  }));
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [featured, setFeatured] = useState<Product[]>([]);
@@ -189,7 +176,7 @@ export const HomeComponent: React.FC = () => {
         {isOpen && (
           <S.FilterDropdownPanel>
             <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
-              <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>ყველა</S.FilterDropdownItem>
+              <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>{t("filter-dropdown-all")}</S.FilterDropdownItem>
             </Link>
             {children.map((child) => (
               <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
@@ -213,7 +200,7 @@ export const HomeComponent: React.FC = () => {
       <S.CategoryFilterBar ref={categoryFilterBarRef}>
         <S.CategoryFilterBarInner>
           {categories.length === 0 ? (
-            <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
+            <S.FilterEmpty>{t("filter-bar-empty")}</S.FilterEmpty>
           ) : (
             categories.map(renderCategoryFilter)
           )}
@@ -268,7 +255,7 @@ export const HomeComponent: React.FC = () => {
                     key={idx}
                     active={idx === heroIndex}
                     type="button"
-                    aria-label={`სლაიდი ${idx + 1}`}
+                    aria-label={t("hero-slide-aria", { n: idx + 1 })}
                     onClick={() => heroSwiperRef.current?.slideToLoop(idx)}
                   />
                 ))}
@@ -277,14 +264,14 @@ export const HomeComponent: React.FC = () => {
               <S.HeroArrows>
                 <S.HeroArrow
                   type="button"
-                  aria-label="წინა სლაიდი"
+                  aria-label={t("hero-prev-aria")}
                   onClick={() => heroSwiperRef.current?.slidePrev()}
                 >
                   <ChevronLeftIcon size={16} />
                 </S.HeroArrow>
                 <S.HeroArrow
                   type="button"
-                  aria-label="შემდეგი სლაიდი"
+                  aria-label={t("hero-next-aria")}
                   onClick={() => heroSwiperRef.current?.slideNext()}
                 >
                   <ChevronRightIcon size={16} />
@@ -299,11 +286,11 @@ export const HomeComponent: React.FC = () => {
         {/* Popular categories */}
         <S.Section>
           <S.CategoryHeader>
-            <S.CategoryTitle>პოპულარული კატეგორიები</S.CategoryTitle>
+            <S.CategoryTitle>{t("popular-categories-title")}</S.CategoryTitle>
           </S.CategoryHeader>
 
           {!loading && categories.length === 0 ? (
-            <S.EmptyRow>კატეგორიები ჯერ არ არის დამატებული</S.EmptyRow>
+            <S.EmptyRow>{t("categories-empty")}</S.EmptyRow>
           ) : (
             <S.CategoryGrid>
               {(loading ? Array.from({ length: CATEGORIES_LIMIT }) : categories).map((category: any, idx) => {
@@ -334,10 +321,10 @@ export const HomeComponent: React.FC = () => {
         <S.Section>
           <S.SectionHeader>
             <div>
-              <S.SectionTitle>გამორჩეული პროდუქტები</S.SectionTitle>
+              <S.SectionTitle>{t("featured-title")}</S.SectionTitle>
             </div>
             <Link href="/products" passHref legacyBehavior>
-              <S.ViewAllLink>ყველას ნახვა →</S.ViewAllLink>
+              <S.ViewAllLink>{t("view-all")}</S.ViewAllLink>
             </Link>
           </S.SectionHeader>
 
@@ -356,7 +343,7 @@ export const HomeComponent: React.FC = () => {
               ))}
             </S.ProductsGrid>
           ) : featured.length === 0 ? (
-            <S.EmptyRow>პროდუქტები ჯერ არ არის დამატებული</S.EmptyRow>
+            <S.EmptyRow>{t("products-empty")}</S.EmptyRow>
           ) : (
             <S.ProductsGrid>
               {featured.map((product) => (
@@ -370,13 +357,11 @@ export const HomeComponent: React.FC = () => {
         <S.Section>
           <S.PromoBanner>
             <S.PromoText>
-              <S.PromoTitle>გაეცანით სრულ კატალოგს</S.PromoTitle>
-              <S.PromoSubtitle>
-                ახალი პროდუქტები რეგულარულად ემატება — ნუ გამოტოვებთ საინტერესო შემოთავაზებებს.
-              </S.PromoSubtitle>
+              <S.PromoTitle>{t("promo-title")}</S.PromoTitle>
+              <S.PromoSubtitle>{t("promo-subtitle")}</S.PromoSubtitle>
             </S.PromoText>
             <Link href="/products" passHref legacyBehavior>
-              <S.PromoButton>დათვალიერება</S.PromoButton>
+              <S.PromoButton>{t("promo-cta")}</S.PromoButton>
             </Link>
           </S.PromoBanner>
         </S.Section>
@@ -386,7 +371,7 @@ export const HomeComponent: React.FC = () => {
           <S.Section>
             <S.SectionHeader>
               <div>
-                <S.SectionTitle>ახალი ჩამოსული</S.SectionTitle>
+                <S.SectionTitle>{t("new-arrivals-title")}</S.SectionTitle>
               </div>
             </S.SectionHeader>
 
