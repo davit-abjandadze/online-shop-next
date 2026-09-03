@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import Link from "next/link";
 import { toast } from "react-toastify";
 import { OrdersAPI } from "@/API_Client";
 import { OrdersControllerFindAllStatusEnum } from "@/API_Client/client";
 import { Order, OrderStatus, PaginatedResponseDto } from "@/API_Client/types";
 import OrderStatusBadge from "@/components/shared/OrderStatusBadge";
+import { CDN_URL } from "@/constants";
 import {
   BuildingIcon,
   CalendarIcon,
@@ -16,12 +18,16 @@ import {
   MailIcon,
   SearchIcon,
   TruckIcon,
+  UserIcon,
 } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
 import DashboardLayout from "./DashboardLayout";
 import { ListSkeleton } from "./Skeletons";
 import * as S from "./style";
+
+const resolveImage = (image?: string) =>
+  image ? (image.startsWith("http") ? image : `${CDN_URL}${image}`) : undefined;
 
 const DELIVERY_METHOD_LABELS: Record<string, string> = {
   courier: "კურიერი",
@@ -251,7 +257,7 @@ export const OrdersPage: React.FC = () => {
       {/* ═══ ORDER DETAILS MODAL ═════════════════════════════════════════════ */}
       {detailsOrder && (
         <S.ModalOverlay {...getOverlayProps(() => setDetailsOrder(null))}>
-          <S.ModalContent onClick={(e) => e.stopPropagation()}>
+          <S.ModalContent style={{ maxWidth: 800 }} onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
               <S.ModalTitle style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <ClipboardIcon size={18} /> შეკვეთა #{detailsOrder.id}
@@ -264,85 +270,106 @@ export const OrdersPage: React.FC = () => {
             <S.BadgeGroup>
               <OrderStatusBadge status={detailsOrder.status} />
               <S.Badge variant="date">{Number(detailsOrder.totalAmount).toFixed(2)} {detailsOrder.currency}</S.Badge>
-              <S.Badge variant="date">{detailsOrder.items.length} ერთეული</S.Badge>
+              <S.Badge variant="date">
+                {detailsOrder.items.reduce((sum, item) => sum + item.quantity, 0)} ცალი ({detailsOrder.items.length} სახეობა)
+              </S.Badge>
+              <S.Badge variant="date">
+                <CalendarIcon size={13} /> {new Date(detailsOrder.createdAt).toLocaleDateString("ka-GE")}
+              </S.Badge>
             </S.BadgeGroup>
 
-            <S.UserDetailsGrid>
-              <S.UserDetailItem>
-                <S.UserDetailLabel>მომხმარებელი</S.UserDetailLabel>
-                <S.UserDetailValue>
-                  {detailsOrder.user.firstName} {detailsOrder.user.lastName}
-                </S.UserDetailValue>
-              </S.UserDetailItem>
-              <S.UserDetailItem>
-                <S.UserDetailLabel>ელ. ფოსტა</S.UserDetailLabel>
-                <S.UserDetailValue>
-                  <MailIcon size={13} /> {detailsOrder.user.email}
-                </S.UserDetailValue>
-              </S.UserDetailItem>
-              <S.UserDetailItem>
-                <S.UserDetailLabel>მიწოდების მეთოდი</S.UserDetailLabel>
-                <S.UserDetailValue>
-                  <TruckIcon size={16} /> {DELIVERY_METHOD_LABELS[detailsOrder.deliveryMethod] || detailsOrder.deliveryMethod}
-                </S.UserDetailValue>
-              </S.UserDetailItem>
+            <S.OrderDetailMetaGrid>
+              <S.OrderDetailMetaItem>
+                <S.OrderDetailMetaLabel>
+                  <UserIcon size={13} /> მომხმარებელი
+                </S.OrderDetailMetaLabel>
+                <S.OrderDetailMetaValue>
+                  {detailsOrder.user.firstName} {detailsOrder.user.lastName} (ID: {detailsOrder.user.id})
+                </S.OrderDetailMetaValue>
+              </S.OrderDetailMetaItem>
+              <S.OrderDetailMetaItem>
+                <S.OrderDetailMetaLabel>
+                  <MailIcon size={13} /> ელ. ფოსტა
+                </S.OrderDetailMetaLabel>
+                <S.OrderDetailMetaValue>{detailsOrder.user.email}</S.OrderDetailMetaValue>
+              </S.OrderDetailMetaItem>
+              <S.OrderDetailMetaItem>
+                <S.OrderDetailMetaLabel>ტელეფონი</S.OrderDetailMetaLabel>
+                <S.OrderDetailMetaValue>{detailsOrder.user.phoneNumber || "—"}</S.OrderDetailMetaValue>
+              </S.OrderDetailMetaItem>
+              <S.OrderDetailMetaItem>
+                <S.OrderDetailMetaLabel>
+                  <TruckIcon size={13} /> მიწოდების მეთოდი
+                </S.OrderDetailMetaLabel>
+                <S.OrderDetailMetaValue>
+                  {DELIVERY_METHOD_LABELS[detailsOrder.deliveryMethod] || detailsOrder.deliveryMethod}
+                </S.OrderDetailMetaValue>
+              </S.OrderDetailMetaItem>
               {detailsOrder.branch && (
-                <S.UserDetailItem>
-                  <S.UserDetailLabel>ფილიალი</S.UserDetailLabel>
-                  <S.UserDetailValue>
-                    <BuildingIcon size={16} /> {detailsOrder.branch.title} ({detailsOrder.branch.address})
-                  </S.UserDetailValue>
-                </S.UserDetailItem>
+                <S.OrderDetailMetaItem>
+                  <S.OrderDetailMetaLabel>
+                    <BuildingIcon size={13} /> ფილიალი
+                  </S.OrderDetailMetaLabel>
+                  <S.OrderDetailMetaValue>
+                    {detailsOrder.branch.title} ({detailsOrder.branch.address})
+                  </S.OrderDetailMetaValue>
+                </S.OrderDetailMetaItem>
               )}
               {detailsOrder.shippingAddress && (
-                <S.UserDetailItem>
-                  <S.UserDetailLabel>მიწოდების მისამართი</S.UserDetailLabel>
-                  <S.UserDetailValue>{detailsOrder.shippingAddress}</S.UserDetailValue>
-                </S.UserDetailItem>
+                <S.OrderDetailMetaItem>
+                  <S.OrderDetailMetaLabel>მიწოდების მისამართი</S.OrderDetailMetaLabel>
+                  <S.OrderDetailMetaValue>{detailsOrder.shippingAddress}</S.OrderDetailMetaValue>
+                </S.OrderDetailMetaItem>
               )}
-              <S.UserDetailItem>
-                <S.UserDetailLabel>შექმნის თარიღი</S.UserDetailLabel>
-                <S.UserDetailValue>
-                  <CalendarIcon size={13} /> {new Date(detailsOrder.createdAt).toLocaleString("ka-GE")}
-                </S.UserDetailValue>
-              </S.UserDetailItem>
-              <S.UserDetailItem>
-                <S.UserDetailLabel>განახლების თარიღი</S.UserDetailLabel>
-                <S.UserDetailValue>
-                  <CalendarIcon size={13} /> {new Date(detailsOrder.updatedAt).toLocaleString("ka-GE")}
-                </S.UserDetailValue>
-              </S.UserDetailItem>
+              <S.OrderDetailMetaItem>
+                <S.OrderDetailMetaLabel>განახლების თარიღი</S.OrderDetailMetaLabel>
+                <S.OrderDetailMetaValue>{new Date(detailsOrder.updatedAt).toLocaleString("ka-GE")}</S.OrderDetailMetaValue>
+              </S.OrderDetailMetaItem>
               {detailsOrder.expiresAt && (
-                <S.UserDetailItem>
-                  <S.UserDetailLabel>ვადის გასვლა</S.UserDetailLabel>
-                  <S.UserDetailValue>
-                    <CalendarIcon size={13} /> {new Date(detailsOrder.expiresAt).toLocaleString("ka-GE")}
-                  </S.UserDetailValue>
-                </S.UserDetailItem>
+                <S.OrderDetailMetaItem>
+                  <S.OrderDetailMetaLabel>ვადის გასვლა</S.OrderDetailMetaLabel>
+                  <S.OrderDetailMetaValue>{new Date(detailsOrder.expiresAt).toLocaleString("ka-GE")}</S.OrderDetailMetaValue>
+                </S.OrderDetailMetaItem>
               )}
-            </S.UserDetailsGrid>
+            </S.OrderDetailMetaGrid>
 
-            <S.UserDetailLabel style={{ display: "block", marginTop: 16, marginBottom: 8 }}>
+            <S.UserDetailLabel style={{ display: "block", marginBottom: 4 }}>
               შეკვეთის შემადგენლობა
             </S.UserDetailLabel>
-            <S.QuestionsList>
-              {detailsOrder.items.map((item) => (
-                <S.QuestionCard key={item.id} style={{ padding: "10px 14px" }}>
-                  <S.CardHeader>
-                    <div>
-                      <S.QuestionText>{item.productName}</S.QuestionText>
-                      <S.BadgeGroup style={{ marginTop: 6 }}>
-                        <S.Badge variant="date">{item.quantity} ცალი</S.Badge>
-                        <S.Badge variant="date">{Number(item.unitPrice).toFixed(2)} {detailsOrder.currency} / ცალი</S.Badge>
-                        <S.Badge variant="date">
-                          {(Number(item.unitPrice) * item.quantity).toFixed(2)} {detailsOrder.currency}
-                        </S.Badge>
-                      </S.BadgeGroup>
-                    </div>
-                  </S.CardHeader>
-                </S.QuestionCard>
-              ))}
-            </S.QuestionsList>
+            <S.OrderItemsList>
+              {detailsOrder.items.map((item) => {
+                const image = item.product ? resolveImage(item.product.images?.[0]) : undefined;
+                return (
+                  <S.OrderItemRow key={item.id}>
+                    <S.OrderItemImage>{image && <img src={image} alt={item.productName} />}</S.OrderItemImage>
+                    <S.OrderItemInfo>
+                      {item.product ? (
+                        <Link href={`/products/${item.product.id}`} passHref legacyBehavior>
+                          <S.OrderItemName as="a" style={{ cursor: "pointer" }}>
+                            {item.productName}
+                          </S.OrderItemName>
+                        </Link>
+                      ) : (
+                        <S.OrderItemName>{item.productName}</S.OrderItemName>
+                      )}
+                      <S.OrderItemMeta>
+                        {item.quantity} x {Number(item.unitPrice).toFixed(2)} {detailsOrder.currency}
+                      </S.OrderItemMeta>
+                    </S.OrderItemInfo>
+                    <S.OrderItemSubtotal>
+                      {(Number(item.unitPrice) * item.quantity).toFixed(2)} {detailsOrder.currency}
+                    </S.OrderItemSubtotal>
+                  </S.OrderItemRow>
+                );
+              })}
+            </S.OrderItemsList>
+
+            <S.OrderTotalRow>
+              სულ ჯამი
+              <S.OrderTotalValue>
+                {Number(detailsOrder.totalAmount).toFixed(2)} {detailsOrder.currency}
+              </S.OrderTotalValue>
+            </S.OrderTotalRow>
 
             <S.ModalFooter>
               <S.ActionButton type="button" variant="secondary" onClick={() => setDetailsOrder(null)}>

@@ -596,7 +596,7 @@ export const ProductsPage: React.FC = () => {
             <option value="">— კატეგორიის გარეშე —</option>
             {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
-                {categoryOptionLabel(cat, router.locale)}
+                {categoryOptionLabel(cat, router.locale)} / {cat.slug}
               </option>
             ))}
           </S.Select>

@@ -1339,3 +1339,110 @@ export const WorkingHoursTimeInput = styled(Input)`
   flex: 1;
   min-width: 0;
 `;
+
+/* ─── Order Details Modal — /orders/[id]-ის დიზაინის მიხედვით ──────────────── */
+
+export const OrderDetailMetaGrid = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: var(--ref-bg);
+  border-radius: 8px;
+`;
+
+export const OrderDetailMetaItem = styled("div")``;
+
+export const OrderDetailMetaLabel = styled("div")`
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
+export const OrderDetailMetaValue = styled("div")`
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ref-text-primary);
+  overflow-wrap: anywhere;
+`;
+
+export const OrderItemsList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+`;
+
+export const OrderItemRow = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--ref-bg);
+  border-radius: 8px;
+  padding: 12px 14px;
+`;
+
+export const OrderItemImage = styled("div")`
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--ref-bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+`;
+
+export const OrderItemInfo = styled("div")`
+  flex: 1;
+  min-width: 0;
+`;
+
+export const OrderItemName = styled("div")`
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+`;
+
+export const OrderItemMeta = styled("div")`
+  font-size: 13px;
+  color: var(--ref-text-secondary);
+`;
+
+export const OrderItemSubtotal = styled("div")`
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ref-primary);
+  white-space: nowrap;
+`;
+
+export const OrderTotalRow = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+  padding-top: 16px;
+  border-top: 1px solid var(--ref-border-soft);
+`;
+
+export const OrderTotalValue = styled("span")`
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ref-primary);
+`;

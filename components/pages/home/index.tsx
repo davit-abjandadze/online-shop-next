@@ -285,7 +285,7 @@ export const HomeComponent: React.FC = () => {
 
       <S.Container>
         {/* Popular categories */}
-        <S.Section>
+        {/* <S.Section>
           <S.CategoryHeader>
             <S.CategoryTitle>{t("popular-categories-title")}</S.CategoryTitle>
           </S.CategoryHeader>
@@ -316,7 +316,7 @@ export const HomeComponent: React.FC = () => {
               })}
             </S.CategoryGrid>
           )}
-        </S.Section>
+        </S.Section> */}
 
         {/* Featured products */}
         <S.Section>
