@@ -26,6 +26,10 @@ const fromE164 = (phone: string) => phone.replace(/^\+995/, "");
 
 export const ProfileComponent: React.FC = () => {
   const { t } = useTranslation("profile");
+  // ვალიდაციის შეტყობინებები common.json-შია (`validation-*` გასაღებები, ყველა ფორმისთვის
+  // საერთო) — "profile" namespace-ის t-ს ვამატებთ "common:" პრეფიქსს next-translate-ის
+  // namespace-cross-reference სინტაქსით.
+  const tValidation = (key: string, query?: Record<string, unknown>) => t(`common:${key}`, query);
   const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
 
@@ -46,7 +50,7 @@ export const ProfileComponent: React.FC = () => {
     setError,
     formState: { errors, isSubmitting: savingUser },
   } = useForm<ProfileEditFormValues>({
-    resolver: zodResolver(profileEditSchema),
+    resolver: zodResolver(profileEditSchema(tValidation)),
     defaultValues: {
       firstName: "",
       lastName: "",

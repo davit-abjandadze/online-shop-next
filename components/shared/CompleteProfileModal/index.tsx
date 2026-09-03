@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useTranslation from "next-translate/useTranslation";
 import * as S from "@/components/shared/AuthModal/style";
 import { CloseIcon, WarningIcon } from "@/components/ui/RefIcons";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
@@ -31,6 +32,9 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
   const { data: session } = useSession();
   const router = useRouter();
   const isMobile = useIsMobileDevice();
+  // ვალიდაციის შეტყობინებები common.json-შია (`validation-*`) — ამ მოდალს ცალკე
+  // page-level namespace არ აქვს, ამიტომ პირდაპირ "common"-ს ვიღებთ.
+  const { t } = useTranslation("common");
 
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +44,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
     watch,
     formState: { errors, isSubmitting: loading },
   } = useForm<CompleteProfileFormValues>({
-    resolver: zodResolver(completeProfileSchema),
+    resolver: zodResolver(completeProfileSchema(t)),
     defaultValues: { age: "", gender: undefined },
   });
 

@@ -47,17 +47,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { lang } = useTranslation("common");
+  const { lang, t } = useTranslation("common");
   const session = useSession();
   const isMobile = useIsMobileDevice();
 
   const loginForm = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema(t)),
     defaultValues: { email: "", password: "" },
   });
 
   const registerForm = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(registerSchema(t)),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -69,7 +69,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   });
 
   const forgotForm = useForm<ForgotPasswordFormValues>({
-    resolver: zodResolver(forgotPasswordSchema),
+    resolver: zodResolver(forgotPasswordSchema(t)),
     defaultValues: { email: "" },
   });
 

@@ -18,6 +18,8 @@ export const ChangePasswordComponent: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const { lang, t } = useTranslation("profile");
+  // ვალიდაციის შეტყობინებები common.json-შია (`validation-*`) — "common:" პრეფიქსით ვიღებთ.
+  const tValidation = (key: string, query?: Record<string, unknown>) => t(`common:${key}`, query);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -30,7 +32,7 @@ export const ChangePasswordComponent: React.FC = () => {
     reset,
     formState: { errors, isSubmitting: loading },
   } = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(changePasswordSchema(tValidation)),
     defaultValues: { oldPassword: "", newPassword: "", confirmPassword: "" },
   });
 

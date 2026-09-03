@@ -147,6 +147,9 @@ const BranchDetailPanel: React.FC<{ branch: Branch }> = ({ branch }) => {
 // შუალედური "შეკვეთა შეიქმნა, მაგრამ არაფერი არ გვთხოვს გადახდას" გვერდი არ რჩება.
 export const CheckoutComponent: React.FC = () => {
   const { t } = useTranslation("checkout");
+  // emailField/phoneNumberField/personalNumberField-ის ვალიდაციის შეტყობინებები
+  // common.json-შია (`validation-*`) — "common:" პრეფიქსით ვიღებთ "checkout" namespace-იდან.
+  const tValidation = (key: string, query?: Record<string, unknown>) => t(`common:${key}`, query);
   const { data: session, status } = useSession();
   const router = useRouter();
   const { cart, loading, refresh } = useCart();
@@ -438,7 +441,7 @@ export const CheckoutComponent: React.FC = () => {
   const handleSendEmailOtp = async () => {
     if (otpResendCooldown > 0) return;
     setOtpError(null);
-    const parsed = emailField().safeParse(emailInput);
+    const parsed = emailField(tValidation).safeParse(emailInput);
     if (!parsed.success) {
       setOtpError(parsed.error.issues[0]?.message || t("error-valid-email"));
       return;
@@ -491,7 +494,7 @@ export const CheckoutComponent: React.FC = () => {
   const handleSendPhoneOtp = async () => {
     if (phoneOtpResendCooldown > 0) return;
     setPhoneOtpError(null);
-    const parsed = phoneNumberField().safeParse(phoneInput);
+    const parsed = phoneNumberField(tValidation).safeParse(phoneInput);
     if (!parsed.success) {
       setPhoneOtpError(parsed.error.issues[0]?.message || t("error-valid-phone"));
       return;
@@ -577,7 +580,7 @@ export const CheckoutComponent: React.FC = () => {
     const newPhoneNumber = phoneInput.trim();
     const phoneChanged = newPhoneNumber !== savedPhoneNumber;
 
-    const personalNumberParsed = personalNumberField().safeParse(personalNumberInput);
+    const personalNumberParsed = personalNumberField(tValidation).safeParse(personalNumberInput);
     if (!personalNumberParsed.success) {
       toast.error((personalNumberParsed.error.issues[0]?.message || t("error-valid-personal-number")) as string);
       return;

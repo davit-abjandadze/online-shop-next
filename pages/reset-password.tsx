@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useTranslation from "next-translate/useTranslation";
 import { CheckCircleIcon, KeyIcon, WarningIcon } from "@/components/ui/RefIcons";
 import {
   ResetPasswordFormValues,
@@ -25,6 +26,9 @@ const inputStyle = {
 export default function ResetPasswordPage() {
   const router = useRouter();
   const { token } = router.query;
+  // ვალიდაციის შეტყობინებები common.json-შია (`validation-*`) — ამ გვერდს ცალკე
+  // page-level namespace არ აქვს, ამიტომ პირდაპირ "common"-ს ვიღებთ.
+  const { t } = useTranslation("common");
 
   const headTags = (
     <Head>
@@ -40,7 +44,7 @@ export default function ResetPasswordPage() {
     handleSubmit,
     formState: { errors, isSubmitting: loading },
   } = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema),
+    resolver: zodResolver(resetPasswordSchema(t)),
     defaultValues: { newPassword: "", confirmPassword: "" },
   });
 
