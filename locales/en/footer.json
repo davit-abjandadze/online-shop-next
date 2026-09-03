@@ -1,0 +1,17 @@
+{
+  "footer-brand-subtitle": "Browse our product catalog and enjoy fast, secure checkout.",
+  "footer-categories-heading": "Categories",
+  "footer-service-heading": "Services",
+  "footer-link-catalog": "Catalog",
+  "footer-link-profile": "Profile",
+  "footer-link-change-password": "Change Password",
+  "footer-link-orders": "My Orders",
+  "footer-link-terms": "Terms & Conditions",
+  "footer-newsletter-heading": "Newsletter",
+  "footer-newsletter-text": "Subscribe to hear about new collections and discounts.",
+  "footer-newsletter-placeholder": "Your email",
+  "footer-newsletter-button": "Subscribe",
+  "footer-newsletter-toast": "Newsletter subscription will be available soon",
+  "footer-copyright": "© {{year}} Online Shop. All rights reserved.",
+  "footer-made-with": "Your purchase is secure"
+}

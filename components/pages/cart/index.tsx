@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -13,6 +14,7 @@ import { Color, ProductColor } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { CartIcon, HeartIcon, LockIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
+import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 const resolveImage = (image?: string) =>
@@ -23,6 +25,7 @@ const resolveImage = (image?: string) =>
 // ამიტომ არაავტორიზებულ ვიზიტორს არსებული AuthModal-ის შესვლის ნაკადში ვმართავთ,
 // ახალი ავტორიზაციის ნაკადის აშენების ნაცვლად.
 export const CartComponent: React.FC = () => {
+  const { t } = useTranslation("cart");
   const { status } = useSession();
   const router = useRouter();
   const { cart, loading, updateItemQuantity, removeItem } = useCart();
@@ -63,7 +66,7 @@ export const CartComponent: React.FC = () => {
         <Header />
         <S.PageBackground>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            <p style={{ color: "var(--ref-text-secondary)" }}>{t("loading")}</p>
           </S.Container>
         </S.PageBackground>
       </>
@@ -77,10 +80,10 @@ export const CartComponent: React.FC = () => {
         <S.PageBackground>
           <S.AccessDeniedCard>
             <LockIcon size={48} />
-            <S.AccessDeniedTitle>საჭიროა ავტორიზაცია</S.AccessDeniedTitle>
-            <S.AccessDeniedText>კალათის სანახავად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
+            <S.AccessDeniedTitle>{t("auth-required-title")}</S.AccessDeniedTitle>
+            <S.AccessDeniedText>{t("auth-required-text")}</S.AccessDeniedText>
             <S.ActionButton type="button" onClick={() => setAuthModalOpen(true)}>
-              შესვლა
+              {t("login-button")}
             </S.ActionButton>
           </S.AccessDeniedCard>
         </S.PageBackground>
@@ -122,14 +125,14 @@ export const CartComponent: React.FC = () => {
       <S.PageBackground>
         <S.Container>
           <PurchaseSteps current="cart" completed={[]} />
-          <S.Title>კალათა</S.Title>
+          <S.Title>{t("page-title")}</S.Title>
 
           {!loading && items.length === 0 ? (
             <S.EmptyState>
               <CartIcon size={48} />
-              <S.EmptyStateTitle>კალათა ცარიელია</S.EmptyStateTitle>
+              <S.EmptyStateTitle>{t("empty-cart-title")}</S.EmptyStateTitle>
               <S.ActionButton type="button" onClick={() => router.push("/")}>
-                კატალოგში დაბრუნება
+                {t("back-to-catalog")}
               </S.ActionButton>
             </S.EmptyState>
           ) : (
@@ -159,12 +162,10 @@ export const CartComponent: React.FC = () => {
                         {itemColor && (
                           <S.ItemColor>
                             <S.ItemColorDot style={{ backgroundColor: itemColor.hexCode || "#ccc" }} />
-                            {router.locale === "en"
-                              ? itemColor.nameEn || itemColor.nameKa
-                              : itemColor.nameKa || itemColor.nameEn}
+                            {getCategoryName(itemColor, router.locale)}
                           </S.ItemColor>
                         )}
-                        {atStockLimit && <S.ItemStockWarning>მარაგის ლიმიტი მიღწეულია</S.ItemStockWarning>}
+                        {atStockLimit && <S.ItemStockWarning>{t("stock-limit-reached")}</S.ItemStockWarning>}
                       </S.ItemInfo>
 
                       <S.QuantityStepper>
@@ -195,7 +196,7 @@ export const CartComponent: React.FC = () => {
                         <S.WishlistButton
                           type="button"
                           active={saved}
-                          aria-label={saved ? "სასურველებიდან წაშლა" : "სასურველებში დამატება"}
+                          aria-label={saved ? t("aria-remove-from-wishlist") : t("aria-add-to-wishlist")}
                           onClick={() => toggleWishlist(item.product.id)}
                         >
                           <HeartIcon size={18} filled={saved} />
@@ -210,23 +211,23 @@ export const CartComponent: React.FC = () => {
               </S.ItemsList>
 
               <S.SummaryCard>
-                <S.SummaryTitle>შეკვეთა</S.SummaryTitle>
+                <S.SummaryTitle>{t("summary-title")}</S.SummaryTitle>
                 <S.SummaryRow>
-                  <span>პროდუქტი ({itemsCount})</span>
+                  <span>{t("summary-products", { count: itemsCount })}</span>
                   <span>{subtotal.toFixed(2)} ₾</span>
                 </S.SummaryRow>
                 {discount > 0 && (
                   <S.SummaryRow discount>
-                    <span>ფასდაკლება:</span>
+                    <span>{t("summary-discount")}</span>
                     <span>-{discount.toFixed(2)} ₾</span>
                   </S.SummaryRow>
                 )}
                 <S.TotalRow>
-                  მთლიანი ჯამი
+                  {t("total-row")}
                   <S.TotalValue>{total.toFixed(2)} ₾</S.TotalValue>
                 </S.TotalRow>
                 <S.CheckoutButton type="button" disabled={items.length === 0} onClick={() => router.push("/checkout")}>
-                  შეკვეთის გაგრძელება
+                  {t("continue-to-checkout")}
                 </S.CheckoutButton>
               </S.SummaryCard>
             </S.Layout>

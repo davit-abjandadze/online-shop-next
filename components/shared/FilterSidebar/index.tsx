@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { CategoryFilterEntry } from "@/API_Client/types";
+import { getCategoryName, getLocalizedValue } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 export interface PriceBounds {
@@ -24,8 +25,7 @@ interface FilterSidebarProps {
   priceBounds?: PriceBounds | null;
 }
 
-const getLabel = (entry: CategoryFilterEntry["attribute"], locale?: string) =>
-  locale === "en" ? entry.nameEn || entry.nameKa : entry.nameKa || entry.nameEn;
+const getLabel = (entry: CategoryFilterEntry["attribute"], locale?: string) => getCategoryName(entry, locale);
 
 const DEFAULT_PRICE_BOUNDS: PriceBounds = { min: 0, max: 10000 };
 
@@ -373,7 +373,7 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 <>
                   {facet.options.map((opt) => {
                     const selected = (draft[attribute.code] || "").split(",").includes(opt.code);
-                    const optLabel = locale === "en" ? opt.valueEn || opt.valueKa : opt.valueKa || opt.valueEn;
+                    const optLabel = getLocalizedValue(opt, locale);
                     return (
                       <S.CheckboxRow key={opt.id} checked={selected}>
                         <S.CheckboxLabel>

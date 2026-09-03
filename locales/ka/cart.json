@@ -1,0 +1,17 @@
+{
+  "loading": "იტვირთება...",
+  "auth-required-title": "საჭიროა ავტორიზაცია",
+  "auth-required-text": "კალათის სანახავად გთხოვთ გაიაროთ ავტორიზაცია.",
+  "login-button": "შესვლა",
+  "page-title": "კალათა",
+  "empty-cart-title": "კალათა ცარიელია",
+  "back-to-catalog": "კატალოგში დაბრუნება",
+  "stock-limit-reached": "მარაგის ლიმიტი მიღწეულია",
+  "aria-remove-from-wishlist": "სასურველებიდან წაშლა",
+  "aria-add-to-wishlist": "სასურველებში დამატება",
+  "summary-title": "შეკვეთა",
+  "summary-products": "პროდუქტი ({{count}})",
+  "summary-discount": "ფასდაკლება:",
+  "total-row": "მთლიანი ჯამი",
+  "continue-to-checkout": "შეკვეთის გაგრძელება"
+}

@@ -47,5 +47,12 @@
   "login-success": "წარმატებით შეხვედით!",
   "login-error-invalid": "არასწორი ელ-ფოსტა ან პაროლი",
   "login-error-network": "ქსელის შეცდომა. გთხოვთ შეამოწმოთ თქვენი კავშირი.",
-  "session-expired": "სესია ვადაგასულია — გთხოვთ, ხელახლა შეხვიდეთ ანგარიშზე"
+  "session-expired": "სესია ვადაგასულია — გთხოვთ, ხელახლა შეხვიდეთ ანგარიშზე",
+  "order-status-pending": "გადასახდელი",
+  "order-status-paid": "გადახდილი",
+  "order-status-processing": "მუშავდება",
+  "order-status-shipped": "გაგზავნილია",
+  "order-status-delivered": "მიწოდებულია",
+  "order-status-cancelled": "გაუქმებულია",
+  "order-status-expired": "ვადაგასულია"
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { DEFAULT_LOCALE } from "@/constants";
 
 const PUBLIC_FILE = /\.(.*)$/;
 
@@ -15,7 +16,7 @@ export async function middleware(req: NextRequest) {
   }
 
   if (req.nextUrl.locale === "default") {
-    const locale = "ka";
+    const locale = DEFAULT_LOCALE;
 
     return NextResponse.redirect(
       new URL(`/${locale}${pathname}${req.nextUrl.search}`, req.url)

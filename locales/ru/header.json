@@ -1,0 +1,18 @@
+{
+  "nav-home": "Главная",
+  "nav-catalog": "Каталог",
+  "nav-orders": "Мои заказы",
+  "search-placeholder": "Найти товар…",
+  "search-loading": "Поиск…",
+  "search-no-results": "Товары не найдены",
+  "wishlist-aria-label": "Избранные товары",
+  "profile-menu-default-name": "Пользователь",
+  "profile-menu-dashboard": "Панель управления",
+  "profile-menu-profile": "Профиль",
+  "profile-menu-orders": "Мои заказы",
+  "profile-menu-change-password": "Смена пароля",
+  "profile-menu-logout": "Выйти",
+  "login-cta": "Войти",
+  "login-cta-suffix": "/ Регистрация",
+  "cart-button-aria-label": "Корзина"
+}

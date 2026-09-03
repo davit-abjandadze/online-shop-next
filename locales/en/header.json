@@ -1,0 +1,18 @@
+{
+  "nav-home": "Home",
+  "nav-catalog": "Catalog",
+  "nav-orders": "My Orders",
+  "search-placeholder": "Search for a product…",
+  "search-loading": "Searching…",
+  "search-no-results": "No products found",
+  "wishlist-aria-label": "Wishlist",
+  "profile-menu-default-name": "User",
+  "profile-menu-dashboard": "Dashboard",
+  "profile-menu-profile": "Profile",
+  "profile-menu-orders": "My Orders",
+  "profile-menu-change-password": "Change Password",
+  "profile-menu-logout": "Log Out",
+  "login-cta": "Log In",
+  "login-cta-suffix": "/ Sign Up",
+  "cart-button-aria-label": "Cart"
+}

@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import { OtpAPI, UserAPI } from "@/API_Client";
 import { User, UserGenderEnum } from "@/API_Client/types";
@@ -24,6 +25,7 @@ const toE164 = (localNumber: string) => `+995${localNumber.replace(/\D/g, "")}`;
 const fromE164 = (phone: string) => phone.replace(/^\+995/, "");
 
 export const ProfileComponent: React.FC = () => {
+  const { t } = useTranslation("profile");
   const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
 
@@ -158,14 +160,14 @@ export const ProfileComponent: React.FC = () => {
       // შემთხვევაში "გაგზავნილად" არ ჩავთვალოთ, თორემ /otp/verify-ზე ცარიელი
       // requestId წავა და backend-ის validation-ი 400-ს დააბრუნებს
       if (!resp.data.requestId) {
-        setPhoneOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        setPhoneOtpError(t("error-otp-send-failed-retry"));
         return;
       }
       setPhoneOtpRequestId(resp.data.requestId);
       setPhoneOtpSent(true);
       setPhoneOtpResendCooldown(60);
     } catch (err: any) {
-      setPhoneOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
+      setPhoneOtpError(err?.response?.data?.message || t("error-otp-send-failed"));
     } finally {
       setPhoneOtpSending(false);
     }
@@ -189,9 +191,9 @@ export const ProfileComponent: React.FC = () => {
       setUser(res.data as User);
       setSavedPhoneNumber(phoneValue);
       resetPhoneOtpState();
-      toast.success("მობილურის ნომერი დადასტურდა და შენახულია!");
+      toast.success(t("toast-phone-verified-saved") as string);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "მობილურის ნომრის შენახვა ვერ მოხერხდა");
+      toast.error(err?.response?.data?.message || t("toast-phone-save-failed"));
     }
   };
 
@@ -199,12 +201,12 @@ export const ProfileComponent: React.FC = () => {
     setPhoneOtpError(null);
 
     if (!phoneOtpCodeInput.trim()) {
-      setPhoneOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
+      setPhoneOtpError(t("error-otp-code-required"));
       return;
     }
 
     if (!phoneOtpRequestId) {
-      setPhoneOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setPhoneOtpError(t("error-otp-session-expired"));
       setPhoneOtpSent(false);
       return;
     }
@@ -221,7 +223,7 @@ export const ProfileComponent: React.FC = () => {
       // დადასტურებისთანავე, დამატებითი დაჭერის გარეშე, ინახავს მობილურის ნომერს
       await persistVerifiedPhone(requestId, code, phoneNumber.trim());
     } catch (err: any) {
-      setPhoneOtpError(err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია");
+      setPhoneOtpError(err?.response?.data?.message || t("error-otp-invalid"));
     } finally {
       setPhoneOtpVerifying(false);
     }
@@ -241,14 +243,14 @@ export const ProfileComponent: React.FC = () => {
       });
       // იხ. handleSendPhoneOtp-ის კომენტარი — requestId-ის გარეშე "გაგზავნილად" არ ვთვლით
       if (!resp.data.requestId) {
-        setOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        setOtpError(t("error-otp-send-failed-retry"));
         return;
       }
       setOtpRequestId(resp.data.requestId);
       setOtpSent(true);
       setOtpResendCooldown(60);
     } catch (err: any) {
-      setOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
+      setOtpError(err?.response?.data?.message || t("error-otp-send-failed"));
     } finally {
       setOtpSending(false);
     }
@@ -271,9 +273,9 @@ export const ProfileComponent: React.FC = () => {
       setUser(res.data as User);
       setSavedEmail(emailValue);
       resetEmailOtpState();
-      toast.success("ელფოსტა დადასტურდა და შენახულია!");
+      toast.success(t("toast-email-verified-saved") as string);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "ელფოსტის შენახვა ვერ მოხერხდა");
+      toast.error(err?.response?.data?.message || t("toast-email-save-failed"));
     }
   };
 
@@ -281,12 +283,12 @@ export const ProfileComponent: React.FC = () => {
     setOtpError(null);
 
     if (!otpCodeInput.trim()) {
-      setOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
+      setOtpError(t("error-otp-code-required"));
       return;
     }
 
     if (!otpRequestId) {
-      setOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setOtpError(t("error-otp-session-expired"));
       setOtpSent(false);
       return;
     }
@@ -303,7 +305,7 @@ export const ProfileComponent: React.FC = () => {
       // დადასტურებისთანავე, დამატებითი დაჭერის გარეშე, ინახავს ელფოსტას
       await persistVerifiedEmail(requestId, code, email.trim());
     } catch (err: any) {
-      setOtpError(err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია");
+      setOtpError(err?.response?.data?.message || t("error-otp-invalid"));
     } finally {
       setOtpVerifying(false);
     }
@@ -329,7 +331,7 @@ export const ProfileComponent: React.FC = () => {
         personalNumber: u.personalNumber || "",
       });
     } catch {
-      toast.error("მომხმარებლის ინფორმაციის ჩატვირთვა ვერ მოხერხდა");
+      toast.error(t("toast-user-load-failed") as string);
     } finally {
       setLoadingUser(false);
     }
@@ -354,7 +356,7 @@ export const ProfileComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>{t("loading")}</p>
           </S.Container>
         </S.PageWrapper>
       </>
@@ -368,10 +370,10 @@ export const ProfileComponent: React.FC = () => {
         <S.PageWrapper>
           <S.AccessDeniedCard>
             <LockIcon size={48} />
-            <S.AccessDeniedTitle>წვდომა უარყოფილია</S.AccessDeniedTitle>
-            <S.AccessDeniedText>ამ გვერდზე გადასასვლელად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
+            <S.AccessDeniedTitle>{t("access-denied-title")}</S.AccessDeniedTitle>
+            <S.AccessDeniedText>{t("access-denied-text")}</S.AccessDeniedText>
             <S.ActionButton variant="primary" onClick={() => router.push("/")}>
-              მთავარ გვერდზე დაბრუნება
+              {t("back-to-home")}
             </S.ActionButton>
           </S.AccessDeniedCard>
         </S.PageWrapper>
@@ -449,12 +451,12 @@ export const ProfileComponent: React.FC = () => {
       if (canPersistPhone) resetPhoneOtpState();
       await updateSession({ name: `${data.firstName.trim()} ${data.lastName.trim()}` });
       if (!canPersistEmail || !canPersistPhone) {
-        toast.success("დანარჩენი მონაცემები შენახულია. დაუდასტურებელი ცვლილება ძალაში შევა დამოწმების შემდეგ.");
+        toast.success(t("toast-partial-info-saved") as string);
       } else {
-        toast.success("პროფილი წარმატებით განახლდა!");
+        toast.success(t("toast-profile-updated") as string);
       }
     } catch (err: any) {
-      const message = err?.response?.data?.message || "პროფილის განახლება ვერ მოხერხდა";
+      const message = err?.response?.data?.message || t("toast-profile-update-failed");
 
       // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
       // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
@@ -472,23 +474,23 @@ export const ProfileComponent: React.FC = () => {
   return (
     <ProfileLayout
       activeTab="info"
-      title="პროფილი"
-      subtitle="მართეთ თქვენი პირადი ინფორმაცია და ფავორიტი კითხვები"
+      title={t("page-title")}
+      subtitle={t("page-subtitle")}
     >
       <S.Card>
         {!loadingUser && purchaseBlocked && (
           <S.Alert>
             <WarningIcon size={16} />
             <span>
-              ყიდვისთვის საჭიროა{" "}
+              {t("purchase-blocked-prefix")}{" "}
               {[
-                emailNotVerified && "ელფოსტის დადასტურება",
-                phoneNotVerified && "მობილურის ნომრის დადასტურება",
-                personalNumberMissing && "პირადი ნომრის შევსება",
+                emailNotVerified && t("purchase-blocked-item-email"),
+                phoneNotVerified && t("purchase-blocked-item-phone"),
+                personalNumberMissing && t("purchase-blocked-item-personal-number"),
               ]
                 .filter(Boolean)
                 .join(", ")}
-              . ქვემოთ გაწითლებული ველები საჭიროებს თქვენს ყურადღებას.
+              {t("purchase-blocked-suffix")}
             </span>
           </S.Alert>
         )}
@@ -504,12 +506,15 @@ export const ProfileComponent: React.FC = () => {
               {user?.role && (
                 <S.Badge variant="role">
                   {user.role === "admin" ? <ShieldIcon size={14} /> : <UserIcon size={14} />}
-                  {user.role === "admin" ? "ადმინისტრატორი" : "მომხმარებელი"}
+                  {user.role === "admin" ? t("role-admin") : t("role-user")}
                 </S.Badge>
               )}
               {user?.createdAt && (
                 <S.Badge variant="date">
-                  <CalendarIcon size={13} /> რეგისტრირებულია {new Date(user.createdAt).toLocaleDateString("ka-GE")}
+                  <CalendarIcon size={13} />{" "}
+                  {t("registered-on", {
+                    date: new Date(user.createdAt).toLocaleDateString(router.locale === "ka" ? "ka-GE" : router.locale),
+                  })}
                 </S.Badge>
               )}
             </S.BadgeRow>
@@ -518,13 +523,13 @@ export const ProfileComponent: React.FC = () => {
 
         {loadingUser ? (
           <div style={{ textAlign: "center", padding: "40px" }}>
-            <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            <p style={{ color: "var(--ref-text-secondary)" }}>{t("loading")}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit(onSaveUser)}>
             <S.FormGrid>
               <S.FormGroup>
-                <S.Label>სახელი</S.Label>
+                <S.Label>{t("field-first-name")}</S.Label>
                 <S.Input
                   type="text"
                   $invalid={!!errors.firstName}
@@ -534,7 +539,7 @@ export const ProfileComponent: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>გვარი</S.Label>
+                <S.Label>{t("field-last-name")}</S.Label>
                 <S.Input
                   type="text"
                   $invalid={!!errors.lastName}
@@ -543,7 +548,7 @@ export const ProfileComponent: React.FC = () => {
                 {errors.lastName && <S.FieldError>{errors.lastName.message}</S.FieldError>}
               </S.FormGroup>
               <S.FormGroup>
-                <S.Label>ასაკი</S.Label>
+                <S.Label>{t("field-age")}</S.Label>
                 <S.Input
                   type="number"
                   min={AGE_MIN}
@@ -555,18 +560,21 @@ export const ProfileComponent: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>სქესი</S.Label>
+                <S.Label>{t("field-gender")}</S.Label>
                 <S.Select value={gender} onChange={(e) => setValue("gender", e.target.value as any)}>
                   <option value="" disabled hidden>
-                    აირჩიეთ სქესი
+                    {t("gender-placeholder")}
                   </option>
-                  <option value="male">კაცი</option>
-                  <option value="female">ქალი</option>
+                  <option value="male">{t("gender-male")}</option>
+                  <option value="female">{t("gender-female")}</option>
                 </S.Select>
                 {errors.gender && <S.FieldError>{errors.gender.message as string}</S.FieldError>}
               </S.FormGroup>
               <S.FormGroup>
-                <S.Label>ელფოსტა{emailNotVerified && !errors.email && <S.RequiredHint> — არადამოწმებული</S.RequiredHint>}</S.Label>
+                <S.Label>
+                  {t("field-email")}
+                  {emailNotVerified && !errors.email && <S.RequiredHint> {t("required-hint-unverified")}</S.RequiredHint>}
+                </S.Label>
                 <S.FieldRow>
                   <S.InputWrapper>
                     <S.Input
@@ -578,7 +586,7 @@ export const ProfileComponent: React.FC = () => {
                   {emailNeedsVerificationUi && (
                     otpVerified ? (
                       <S.VerifiedBadge>
-                        <CheckCircleIcon size={15} /> დადასტურებულია
+                        <CheckCircleIcon size={15} /> {t("otp-verified-badge")}
                       </S.VerifiedBadge>
                     ) : (
                       <S.OtpActionBtn
@@ -587,12 +595,12 @@ export const ProfileComponent: React.FC = () => {
                         disabled={otpSending || otpResendCooldown > 0 || !!errors.email}
                       >
                         {otpSending
-                          ? "იგზავნება..."
+                          ? t("otp-sending")
                           : otpResendCooldown > 0
-                          ? `ხელახლა გაგზავნა (${otpResendCooldown})`
+                          ? t("otp-resend-countdown", { seconds: otpResendCooldown })
                           : otpSent
-                          ? "ხელახლა გაგზავნა"
-                          : "დამოწმება"}
+                          ? t("otp-resend")
+                          : t("otp-verify-button")}
                       </S.OtpActionBtn>
                     )
                   )}
@@ -605,7 +613,7 @@ export const ProfileComponent: React.FC = () => {
                       <S.Input
                         type="text"
                         inputMode="numeric"
-                        placeholder="ელფოსტაზე მიღებული კოდი"
+                        placeholder={t("otp-code-placeholder-email")}
                         value={otpCodeInput}
                         onChange={(e) => setOtpCodeInput(e.target.value)}
                       />
@@ -615,7 +623,7 @@ export const ProfileComponent: React.FC = () => {
                       onClick={handleVerifyEmailOtp}
                       disabled={otpVerifying || !otpCodeInput.trim()}
                     >
-                      {otpVerifying ? "მოწმდება..." : "დადასტურება"}
+                      {otpVerifying ? t("otp-verifying") : t("otp-confirm-button")}
                     </S.OtpActionBtn>
                   </S.FieldRow>
                 )}
@@ -623,13 +631,16 @@ export const ProfileComponent: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>მობილურის ნომერი{phoneNotVerified && !errors.phoneNumber && <S.RequiredHint> — არადამოწმებული</S.RequiredHint>}</S.Label>
+                <S.Label>
+                  {t("field-phone-number")}
+                  {phoneNotVerified && !errors.phoneNumber && <S.RequiredHint> {t("required-hint-unverified")}</S.RequiredHint>}
+                </S.Label>
                 <S.FieldRow>
                   <S.InputWrapper>
                     <S.Input
                       type="tel"
                       inputMode="numeric"
-                      placeholder="5XX XX XX XX"
+                      placeholder={t("phone-placeholder")}
                       maxLength={9}
                       $invalid={!!errors.phoneNumber || phoneNotVerified}
                       {...register("phoneNumber")}
@@ -638,7 +649,7 @@ export const ProfileComponent: React.FC = () => {
                   {phoneNeedsVerificationUi && (
                     phoneOtpVerified ? (
                       <S.VerifiedBadge>
-                        <CheckCircleIcon size={15} /> დადასტურებულია
+                        <CheckCircleIcon size={15} /> {t("otp-verified-badge")}
                       </S.VerifiedBadge>
                     ) : (
                       <S.OtpActionBtn
@@ -647,12 +658,12 @@ export const ProfileComponent: React.FC = () => {
                         disabled={phoneOtpSending || phoneOtpResendCooldown > 0 || !!errors.phoneNumber}
                       >
                         {phoneOtpSending
-                          ? "იგზავნება..."
+                          ? t("otp-sending")
                           : phoneOtpResendCooldown > 0
-                          ? `ხელახლა გაგზავნა (${phoneOtpResendCooldown})`
+                          ? t("otp-resend-countdown", { seconds: phoneOtpResendCooldown })
                           : phoneOtpSent
-                          ? "ხელახლა გაგზავნა"
-                          : "დამოწმება"}
+                          ? t("otp-resend")
+                          : t("otp-verify-button")}
                       </S.OtpActionBtn>
                     )
                   )}
@@ -665,7 +676,7 @@ export const ProfileComponent: React.FC = () => {
                       <S.Input
                         type="text"
                         inputMode="numeric"
-                        placeholder="SMS-ით მიღებული კოდი"
+                        placeholder={t("otp-code-placeholder-sms")}
                         value={phoneOtpCodeInput}
                         onChange={(e) => setPhoneOtpCodeInput(e.target.value)}
                       />
@@ -675,7 +686,7 @@ export const ProfileComponent: React.FC = () => {
                       onClick={handleVerifyPhoneOtp}
                       disabled={phoneOtpVerifying || !phoneOtpCodeInput.trim()}
                     >
-                      {phoneOtpVerifying ? "მოწმდება..." : "დადასტურება"}
+                      {phoneOtpVerifying ? t("otp-verifying") : t("otp-confirm-button")}
                     </S.OtpActionBtn>
                   </S.FieldRow>
                 )}
@@ -683,7 +694,10 @@ export const ProfileComponent: React.FC = () => {
               </S.FormGroup>
 
               <S.FormGroup>
-                <S.Label>პირადი ნომერი{personalNumberMissing && !errors.personalNumber && <S.RequiredHint> — შეავსეთ</S.RequiredHint>}</S.Label>
+                <S.Label>
+                  {t("field-personal-number")}
+                  {personalNumberMissing && !errors.personalNumber && <S.RequiredHint> {t("required-hint-fill")}</S.RequiredHint>}
+                </S.Label>
                 <S.Input
                   type="text"
                   $invalid={!!errors.personalNumber || personalNumberMissing}
@@ -699,7 +713,7 @@ export const ProfileComponent: React.FC = () => {
                 variant="primary"
                 disabled={savingUser}
               >
-                {savingUser ? "ინახება..." : "ცვლილებების შენახვა"}
+                {savingUser ? t("saving") : t("save-changes")}
               </S.ActionButton>
             </S.FormFooter>
           </form>

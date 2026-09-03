@@ -4,8 +4,8 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AttributesAPI, CategoriesAPI } from "@/API_Client";
-import { Category } from "@/API_Client/client/models";
-import { Attribute, CategoryAttribute, PaginatedResponseDto } from "@/API_Client/types";
+import { Attribute, Category, CategoryAttribute, PaginatedResponseDto } from "@/API_Client/types";
+import { CreateCategoryDto, UpdateCategoryDto } from "@/API_Client/client/models";
 import { CheckSquareIcon, CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -13,10 +13,15 @@ import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
-import { CategoryFormValues, categoryFormSchema } from "./schemas";
+import { CategoryFormValues, buildNameTranslationsDto, categoryFormSchema, readNameTranslations } from "./schemas";
 import * as S from "./style";
 
-const emptyCategoryForm: CategoryFormValues = { nameKa: "", nameEn: "", slug: "", parentId: "", isActive: true };
+const emptyCategoryForm: CategoryFormValues = {
+  translations: { ka: { name: "" }, en: { name: "" }, ru: { name: "" } },
+  slug: "",
+  parentId: "",
+  isActive: true,
+};
 
 export const CategoriesPage: React.FC = () => {
   const { session } = useAdminGuard();
@@ -83,12 +88,12 @@ export const CategoriesPage: React.FC = () => {
     setCatCreateSubmitting(true);
     try {
       await CategoriesAPI(router.locale || "ka", session!.accessToken!).categoryControllerCreate({
-        nameKa: data.nameKa.trim(),
-        nameEn: data.nameEn.trim(),
+        translations: buildNameTranslationsDto(data.translations),
         slug: data.slug.trim(),
         parentId: data.parentId || undefined,
         isActive: data.isActive,
-      });
+        // TODO: generated CreateCategoryDto not yet regenerated for translations — remove cast after yarn generate:api
+      } as unknown as CreateCategoryDto);
       toast.success("კატეგორია წარმატებით დაემატა!");
       setIsCatCreateOpen(false);
       createForm.reset(emptyCategoryForm);
@@ -103,8 +108,7 @@ export const CategoriesPage: React.FC = () => {
   const handleOpenEditCat = (cat: Category) => {
     setEditingCat(cat);
     editForm.reset({
-      nameKa: cat.nameKa,
-      nameEn: cat.nameEn,
+      translations: readNameTranslations(cat.translations),
       slug: cat.slug,
       parentId: cat.parent?.id || "",
       isActive: cat.isActive,
@@ -118,12 +122,12 @@ export const CategoriesPage: React.FC = () => {
       await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerUpdate(
         String(editingCat.id),
         {
-          nameKa: data.nameKa.trim(),
-          nameEn: data.nameEn.trim(),
+          translations: buildNameTranslationsDto(data.translations),
           slug: data.slug.trim(),
           parentId: data.parentId || undefined,
           isActive: data.isActive,
-        }
+          // TODO: generated UpdateCategoryDto not yet regenerated for translations — remove cast after yarn generate:api
+        } as unknown as UpdateCategoryDto
       );
       toast.success("კატეგორია წარმატებით განახლდა!");
       setEditingCat(null);
@@ -292,13 +296,24 @@ export const CategoriesPage: React.FC = () => {
               <S.FormRow>
                 <S.FormGroup>
                   <S.Label>სახელი (ქართულად)</S.Label>
-                  <S.Input type="text" placeholder="მაგ: ელექტრონიკა" {...createForm.register("nameKa")} />
-                  {createForm.formState.errors.nameKa && <S.FieldError>{createForm.formState.errors.nameKa.message}</S.FieldError>}
+                  <S.Input type="text" placeholder="მაგ: ელექტრონიკა" {...createForm.register("translations.ka.name")} />
+                  {createForm.formState.errors.translations?.ka?.name && (
+                    <S.FieldError>{createForm.formState.errors.translations.ka.name.message}</S.FieldError>
+                  )}
                 </S.FormGroup>
                 <S.FormGroup>
                   <S.Label>სახელი (ინგლისურად)</S.Label>
-                  <S.Input type="text" placeholder="e.g. Electronics" {...createForm.register("nameEn")} />
-                  {createForm.formState.errors.nameEn && <S.FieldError>{createForm.formState.errors.nameEn.message}</S.FieldError>}
+                  <S.Input type="text" placeholder="e.g. Electronics" {...createForm.register("translations.en.name")} />
+                  {createForm.formState.errors.translations?.en?.name && (
+                    <S.FieldError>{createForm.formState.errors.translations.en.name.message}</S.FieldError>
+                  )}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>სახელი (რუსულად)</S.Label>
+                  <S.Input type="text" placeholder="напр. Электроника" {...createForm.register("translations.ru.name")} />
+                  {createForm.formState.errors.translations?.ru?.name && (
+                    <S.FieldError>{createForm.formState.errors.translations.ru.name.message}</S.FieldError>
+                  )}
                 </S.FormGroup>
               </S.FormRow>
               <S.FormRow>
@@ -345,13 +360,24 @@ export const CategoriesPage: React.FC = () => {
               <S.FormRow>
                 <S.FormGroup>
                   <S.Label>სახელი (ქართულად)</S.Label>
-                  <S.Input type="text" {...editForm.register("nameKa")} />
-                  {editForm.formState.errors.nameKa && <S.FieldError>{editForm.formState.errors.nameKa.message}</S.FieldError>}
+                  <S.Input type="text" {...editForm.register("translations.ka.name")} />
+                  {editForm.formState.errors.translations?.ka?.name && (
+                    <S.FieldError>{editForm.formState.errors.translations.ka.name.message}</S.FieldError>
+                  )}
                 </S.FormGroup>
                 <S.FormGroup>
                   <S.Label>სახელი (ინგლისურად)</S.Label>
-                  <S.Input type="text" {...editForm.register("nameEn")} />
-                  {editForm.formState.errors.nameEn && <S.FieldError>{editForm.formState.errors.nameEn.message}</S.FieldError>}
+                  <S.Input type="text" {...editForm.register("translations.en.name")} />
+                  {editForm.formState.errors.translations?.en?.name && (
+                    <S.FieldError>{editForm.formState.errors.translations.en.name.message}</S.FieldError>
+                  )}
+                </S.FormGroup>
+                <S.FormGroup>
+                  <S.Label>სახელი (რუსულად)</S.Label>
+                  <S.Input type="text" {...editForm.register("translations.ru.name")} />
+                  {editForm.formState.errors.translations?.ru?.name && (
+                    <S.FieldError>{editForm.formState.errors.translations.ru.name.message}</S.FieldError>
+                  )}
                 </S.FormGroup>
               </S.FormRow>
               <S.FormRow>

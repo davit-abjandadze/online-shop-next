@@ -5,9 +5,9 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductsAPI, CategoriesAPI, CompaniesAPI } from "@/API_Client";
-import { Category, Company, Product, ProductAttributeValueItemDto } from "@/API_Client/client/models";
+import { Company, CreateProductDto, ProductAttributeValueItemDto, UpdateProductDto } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
-import { CategoryAttribute, PaginatedResponseDto, ProductAttributeValue } from "@/API_Client/types";
+import { Category, CategoryAttribute, PaginatedResponseDto, Product, ProductAttributeValue } from "@/API_Client/types";
 import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, GridOneIcon, GridThreeIcon, GridTwoIcon, PaletteIcon, PauseIcon, PinIcon, PlayIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
@@ -21,14 +21,17 @@ import DynamicAttributeForm from "./DynamicAttributeForm";
 import AdditionalInfoForm from "./AdditionalInfoForm";
 import ProductColorsForm from "./ProductColorsForm";
 import ProductBranchesForm from "./ProductBranchesForm";
-import { ProductFormValues, productFormSchema } from "./schemas";
+import { ProductFormValues, buildProductTranslationsDto, productFormSchema, readProductTranslations } from "./schemas";
 import * as S from "./style";
 
 const PAGE_SIZE = 10;
 
 const emptyProductForm: ProductFormValues = {
-  name: "",
-  description: "",
+  translations: {
+    ka: { name: "", description: "" },
+    en: { name: "", description: "" },
+    ru: { name: "", description: "" },
+  },
   price: "",
   stock: "",
   discountPercent: "",
@@ -42,9 +45,11 @@ const emptyProductForm: ProductFormValues = {
   isActive: true,
 };
 
+// p.name/p.description ბექენდზე უკვე Accept-Language-ით ლოკალიზებული
+// convenience ველებია, სამივე ენის ედიტისთვის უვარგისი — ნამდვილი
+// მრავალენოვანი მნიშვნელობებისთვის p.translations გამოიყენება.
 const toFormValues = (p: Product): ProductFormValues => ({
-  name: p.name,
-  description: p.description || "",
+  translations: readProductTranslations(p.translations),
   price: String(p.price),
   stock: String(p.stock),
   discountPercent: p.discountPercent != null ? String(p.discountPercent) : "",
@@ -63,8 +68,9 @@ const toFormValues = (p: Product): ProductFormValues => ({
 const toDto = (data: ProductFormValues) => {
   const images = (data.images || []).map((url) => url.trim()).filter(Boolean);
   return {
-    name: data.name.trim(),
-    description: data.description?.trim() || undefined,
+    // ცარიელი en/ru ველები buildProductTranslationsDto-ს მიერ უბრალოდ არ
+    // ჩაერთვება (dto.en/dto.ru undefined რჩება).
+    translations: buildProductTranslationsDto(data.translations),
     price: Number(data.price),
     stock: Number(data.stock),
     discountPercent: data.discountPercent?.trim() ? Number(data.discountPercent) : undefined,
@@ -340,7 +346,10 @@ export const ProductsPage: React.FC = () => {
     if (!session?.accessToken) return;
     setCreateSubmitting(true);
     try {
-      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerCreate(toDto(data));
+      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerCreate(
+        // TODO: generated CreateProductDto not yet regenerated for translations — remove cast after yarn generate:api
+        toDto(data) as unknown as CreateProductDto
+      );
       toast.success("პროდუქტი წარმატებით დაემატა!");
       setIsCreateOpen(false);
       createForm.reset(emptyProductForm);
@@ -366,7 +375,8 @@ export const ProductsPage: React.FC = () => {
     try {
       await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerUpdate(
         String(editingProduct.id),
-        toDto(data)
+        // TODO: generated UpdateProductDto not yet regenerated for translations — remove cast after yarn generate:api
+        toDto(data) as unknown as UpdateProductDto
       );
       toast.success("პროდუქტი წარმატებით განახლდა!");
       setEditingProduct(null);
@@ -490,13 +500,43 @@ export const ProductsPage: React.FC = () => {
   ) => (
     <form onSubmit={onSubmit} noValidate>
       <S.FormGroup>
-        <S.Label>დასახელება</S.Label>
-        <S.Input type="text" placeholder="მაგ: უსადენო ყურსასმენი" {...form.register("name")} />
-        {form.formState.errors.name && <S.FieldError>{form.formState.errors.name.message}</S.FieldError>}
+        <S.Label>დასახელება (ქართულად)</S.Label>
+        <S.Input
+          type="text"
+          placeholder="მაგ: უსადენო ყურსასმენი"
+          {...form.register("translations.ka.name")}
+        />
+        {form.formState.errors.translations?.ka?.name && (
+          <S.FieldError>{form.formState.errors.translations.ka.name.message}</S.FieldError>
+        )}
       </S.FormGroup>
       <S.FormGroup>
-        <S.Label>აღწერა (არასავალდებულო)</S.Label>
-        <S.Textarea rows={3} {...form.register("description")} />
+        <S.Label>აღწერა ქართულად (არასავალდებულო)</S.Label>
+        <S.Textarea rows={3} {...form.register("translations.ka.description")} />
+      </S.FormGroup>
+      <S.FormGroup>
+        <S.Label>დასახელება (ინგლისურად, არასავალდებულო)</S.Label>
+        <S.Input
+          type="text"
+          placeholder="e.g. Wireless Headphones"
+          {...form.register("translations.en.name")}
+        />
+      </S.FormGroup>
+      <S.FormGroup>
+        <S.Label>აღწერა ინგლისურად (არასავალდებულო)</S.Label>
+        <S.Textarea rows={3} {...form.register("translations.en.description")} />
+      </S.FormGroup>
+      <S.FormGroup>
+        <S.Label>დასახელება (რუსულად, არასავალდებულო)</S.Label>
+        <S.Input
+          type="text"
+          placeholder="напр. Беспроводные наушники"
+          {...form.register("translations.ru.name")}
+        />
+      </S.FormGroup>
+      <S.FormGroup>
+        <S.Label>აღწერა რუსულად (არასავალდებულო)</S.Label>
+        <S.Textarea rows={3} {...form.register("translations.ru.description")} />
       </S.FormGroup>
       <S.FormRow>
         <S.FormGroup>

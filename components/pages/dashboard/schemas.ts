@@ -1,9 +1,117 @@
 import { z } from "zod";
 
+/** ბექენდის Phase 1-ის ცვლილების შემდეგ Category/Attribute/Color-ს ორი
+ * ცალკე (`nameKa`/`nameEn`) ველის ნაცვლად სამენოვანი `translations` obj
+ * აქვს — `ka` სავალდებულოა, `en`/`ru` არასავალდებულო. */
+const nameTranslationsSchema = (entityLabel: string) =>
+  z.object({
+    ka: z.object({ name: z.string().trim().min(1, `გთხოვთ შეავსოთ ${entityLabel} ქართულად`) }),
+    en: z.object({ name: z.string().trim().optional() }),
+    ru: z.object({ name: z.string().trim().optional() }),
+  });
+
+/** AttributeOption-ისთვის იგივე, `name` ველის ნაცვლად `value`-ზე. */
+const valueTranslationsSchema = z.object({
+  ka: z.object({ value: z.string().trim().min(1, "გთხოვთ შეავსოთ მნიშვნელობა ქართულად") }),
+  en: z.object({ value: z.string().trim().optional() }),
+  ru: z.object({ value: z.string().trim().optional() }),
+});
+
+/** ბექენდზე გასაგზავნ `translations` obj-ს აგებს ფორმის მნიშვნელობებიდან —
+ * `ka` ყოველთვის იგზავნება, `en`/`ru` მხოლოდ თუ მომხმარებელმა შეავსო
+ * (ცარიელი ველები არ იგზავნება, სქემის optional-ობის შესაბამისად). */
+export const buildNameTranslationsDto = (t: {
+  ka: { name: string };
+  en: { name?: string };
+  ru: { name?: string };
+}) => {
+  const dto: { ka: { name: string }; en?: { name: string }; ru?: { name: string } } = {
+    ka: { name: t.ka.name.trim() },
+  };
+  const en = t.en.name?.trim();
+  const ru = t.ru.name?.trim();
+  if (en) dto.en = { name: en };
+  if (ru) dto.ru = { name: ru };
+  return dto;
+};
+
+/** იგივე `buildNameTranslationsDto`-ს, AttributeOption-ის `value` ველზე. */
+export const buildValueTranslationsDto = (t: {
+  ka: { value: string };
+  en: { value?: string };
+  ru: { value?: string };
+}) => {
+  const dto: { ka: { value: string }; en?: { value: string }; ru?: { value: string } } = {
+    ka: { value: t.ka.value.trim() },
+  };
+  const en = t.en.value?.trim();
+  const ru = t.ru.value?.trim();
+  if (en) dto.en = { value: en };
+  if (ru) dto.ru = { value: ru };
+  return dto;
+};
+
+/** Product-ისთვის იგივე, `name`/`description` წყვილზე. `description`
+ * ყოველთვის არასავალდებულოა (ka-შიც). */
+export const buildProductTranslationsDto = (t: {
+  ka: { name: string; description?: string };
+  en: { name?: string; description?: string };
+  ru: { name?: string; description?: string };
+}) => {
+  const dto: {
+    ka: { name: string; description?: string };
+    en?: { name: string; description?: string };
+    ru?: { name: string; description?: string };
+  } = { ka: { name: t.ka.name.trim() } };
+  const kaDescription = t.ka.description?.trim();
+  if (kaDescription) dto.ka.description = kaDescription;
+
+  const enName = t.en.name?.trim();
+  const enDescription = t.en.description?.trim();
+  if (enName) dto.en = { name: enName, ...(enDescription ? { description: enDescription } : {}) };
+
+  const ruName = t.ru.name?.trim();
+  const ruDescription = t.ru.description?.trim();
+  if (ruName) dto.ru = { name: ruName, ...(ruDescription ? { description: ruDescription } : {}) };
+
+  return dto;
+};
+
+/** `translations` (`unknown` — Category/Product-ის გენერირებულ ტიპში
+ * ბუნდოვნადაა `object`) ფორმის საწყის მნიშვნელობებად კითხულობს, edit
+ * მოდალის გახსნისას. */
+export const readNameTranslations = (translations: unknown) => {
+  const t = (translations || {}) as Partial<Record<"ka" | "en" | "ru", { name?: string } | undefined>>;
+  return {
+    ka: { name: t?.ka?.name || "" },
+    en: { name: t?.en?.name || "" },
+    ru: { name: t?.ru?.name || "" },
+  };
+};
+
+export const readValueTranslations = (translations: unknown) => {
+  const t = (translations || {}) as Partial<Record<"ka" | "en" | "ru", { value?: string } | undefined>>;
+  return {
+    ka: { value: t?.ka?.value || "" },
+    en: { value: t?.en?.value || "" },
+    ru: { value: t?.ru?.value || "" },
+  };
+};
+
+export const readProductTranslations = (translations: unknown) => {
+  const t = (translations || {}) as Partial<
+    Record<"ka" | "en" | "ru", { name?: string; description?: string } | undefined>
+  >;
+  return {
+    ka: { name: t?.ka?.name || "", description: t?.ka?.description || "" },
+    en: { name: t?.en?.name || "", description: t?.en?.description || "" },
+    ru: { name: t?.ru?.name || "", description: t?.ru?.description || "" },
+  };
+};
+
 /** კატეგორიის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. */
 export const categoryFormSchema = z.object({
-  nameKa: z.string().trim().min(1, "გთხოვთ შეავსოთ კატეგორიის სახელი ქართულად"),
-  nameEn: z.string().trim().min(1, "გთხოვთ შეავსოთ კატეგორიის სახელი ინგლისურად"),
+  translations: nameTranslationsSchema("კატეგორიის სახელი"),
   slug: z
     .string()
     .trim()
@@ -40,11 +148,21 @@ export const userEditFormSchema = z.object({
 
 export type UserEditFormValues = z.infer<typeof userEditFormSchema>;
 
+/** Product-ისთვის იგივე `nameTranslationsSchema`-ს, `name`/`description`
+ * წყვილზე — `description` ყოველთვის არასავალდებულოა (ka-შიც). */
+const productTranslationsSchema = z.object({
+  ka: z.object({
+    name: z.string().trim().min(1, "გთხოვთ შეავსოთ პროდუქტის სახელი ქართულად"),
+    description: z.string().trim().optional(),
+  }),
+  en: z.object({ name: z.string().trim().optional(), description: z.string().trim().optional() }),
+  ru: z.object({ name: z.string().trim().optional(), description: z.string().trim().optional() }),
+});
+
 /** პროდუქტის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. ფასი/მარაგი ფორმაში
  * სტრინგებადაა (input-ის ბუნებრივი ტიპი), submit-ის დროს გარდაიქმნება რიცხვებად. */
 export const productFormSchema = z.object({
-  name: z.string().trim().min(1, "გთხოვთ შეავსოთ პროდუქტის სახელი"),
-  description: z.string().trim().optional(),
+  translations: productTranslationsSchema,
   price: z
     .string()
     .trim()
@@ -98,8 +216,7 @@ export type ProductFormValues = z.infer<typeof productFormSchema>;
 /** attribute-ის (მახასიათებლის) შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა.
  * `sortOrder` სტრინგადაა (input-ის ბუნებრივი ტიპი), submit-ის დროს რიცხვად გარდაიქმნება. */
 export const attributeFormSchema = z.object({
-  nameKa: z.string().trim().min(1, "გთხოვთ შეავსოთ მახასიათებლის სახელი ქართულად"),
-  nameEn: z.string().trim().min(1, "გთხოვთ შეავსოთ მახასიათებლის სახელი ინგლისურად"),
+  translations: nameTranslationsSchema("მახასიათებლის სახელი"),
   code: z
     .string()
     .trim()
@@ -119,8 +236,7 @@ export type AttributeFormValues = z.infer<typeof attributeFormSchema>;
 
 /** attribute-ის option-ის (მხოლოდ select/multi_select ტიპისთვის) ფორმის ვალიდაციის სქემა. */
 export const attributeOptionFormSchema = z.object({
-  valueKa: z.string().trim().min(1, "გთხოვთ შეავსოთ მნიშვნელობა ქართულად"),
-  valueEn: z.string().trim().min(1, "გთხოვთ შეავსოთ მნიშვნელობა ინგლისურად"),
+  translations: valueTranslationsSchema,
   code: z
     .string()
     .trim()
@@ -201,8 +317,7 @@ export type BranchFormValues = z.infer<typeof branchFormSchema>;
  * `hexCode` არასავალდებულოა — მითითების შემთხვევაში მხოლოდ ვალიდურ HEX
  * ფორმატს ვამოწმებთ (3 ან 6 სიმბოლო). */
 export const colorFormSchema = z.object({
-  nameKa: z.string().trim().min(1, "გთხოვთ შეავსოთ ფერის სახელი ქართულად"),
-  nameEn: z.string().trim().min(1, "გთხოვთ შეავსოთ ფერის სახელი ინგლისურად"),
+  translations: nameTranslationsSchema("ფერის სახელი"),
   hexCode: z
     .string()
     .trim()

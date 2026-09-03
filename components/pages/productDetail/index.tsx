@@ -1,28 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { ProductsAPI } from "@/API_Client";
-import { Product } from "@/API_Client/client/models";
-import { ProductAdditionalInfo, ProductAttributeValue, ProductColor } from "@/API_Client/types";
+import { Product, ProductAdditionalInfo, ProductAttributeValue, ProductColor } from "@/API_Client/types";
 import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useCart } from "@/context/Cart";
-import { getCategoryName } from "@/utils/getCategoryName";
+import { getCategoryName, getLocalizedValue } from "@/utils/getCategoryName";
 import * as S from "./style";
 
-const getAttributeName = (attr: { nameKa: string; nameEn: string }, locale?: string) =>
-  locale === "en" ? attr.nameEn || attr.nameKa : attr.nameKa || attr.nameEn;
-
-// AttributeOption-ს `nameKa`/`nameEn` არა, `valueKa`/`valueEn` აქვს.
-const getOptionValue = (opt: { valueKa: string; valueEn: string }, locale?: string) =>
-  locale === "en" ? opt.valueEn || opt.valueKa : opt.valueKa || opt.valueEn;
-
-const formatAttributeValue = (v: ProductAttributeValue, locale?: string) => {
-  if (v.attributeOption) return getOptionValue(v.attributeOption, locale);
-  if (v.valueBoolean !== undefined && v.valueBoolean !== null) return v.valueBoolean ? "კი" : "არა";
+const formatAttributeValue = (
+  v: ProductAttributeValue,
+  locale: string | undefined,
+  t: (key: string) => string
+) => {
+  if (v.attributeOption) return getLocalizedValue(v.attributeOption, locale);
+  if (v.valueBoolean !== undefined && v.valueBoolean !== null) return v.valueBoolean ? t("yes") : t("no");
   if (v.valueNumber !== undefined && v.valueNumber !== null) {
     return v.attribute?.unit ? `${v.valueNumber} ${v.attribute.unit}` : String(v.valueNumber);
   }
@@ -50,6 +47,7 @@ type Slide = { type: "image"; src?: string } | { type: "video"; videoId: string 
 // პროდუქტის დეტალური გვერდი.
 export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }) => {
   const router = useRouter();
+  const { t } = useTranslation("product");
   const { cart, addItem, removeItem } = useCart();
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
@@ -144,28 +142,28 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       if (!v.attribute) continue;
       const key = v.attributeId;
       const existing = byAttribute.get(key);
-      const value = formatAttributeValue(v, router.locale);
+      const value = formatAttributeValue(v, router.locale, t);
       if (!value) continue;
       if (existing) {
         existing.values.push(value);
       } else {
-        byAttribute.set(key, { name: getAttributeName(v.attribute, router.locale), values: [value] });
+        byAttribute.set(key, { name: getCategoryName(v.attribute, router.locale), values: [value] });
       }
     }
     const rows = Array.from(byAttribute.values());
     // ფიზიკური პარამეტრები (წონა/სიგრძე/სიგანე) — ბექენდიდან მოდის, სპეც-ცხრილში
     // ჩნდება მხოლოდ თუ პროდუქტისთვის შევსებულია.
     if (product.weight != null && product.weight !== "") {
-      rows.push({ name: "წონა", values: [`${product.weight} კგ`] });
+      rows.push({ name: t("weight"), values: [`${product.weight} ${t("kg-unit")}`] });
     }
     if (product.length != null && product.length !== "") {
-      rows.push({ name: "სიგრძე", values: [`${product.length} სმ`] });
+      rows.push({ name: t("length"), values: [`${product.length} ${t("cm-unit")}`] });
     }
     if (product.width != null && product.width !== "") {
-      rows.push({ name: "სიგანე", values: [`${product.width} სმ`] });
+      rows.push({ name: t("width"), values: [`${product.width} ${t("cm-unit")}`] });
     }
     return rows;
-  }, [attrValues, router.locale, product.weight, product.length, product.width]);
+  }, [attrValues, router.locale, product.weight, product.length, product.width, t]);
 
   // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
@@ -197,7 +195,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                 <>
                   <img
                     src={`https://img.youtube.com/vi/${activeSlide.videoId}/hqdefault.jpg`}
-                    alt="YouTube ვიდეო"
+                    alt={t("youtube-video-alt")}
                   />
                   <S.PlayBadge>
                     <PlayIcon size={56} />
@@ -228,7 +226,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                         <>
                           <img
                             src={`https://img.youtube.com/vi/${slide.videoId}/default.jpg`}
-                            alt="YouTube ვიდეო"
+                            alt={t("youtube-video-alt")}
                           />
                           <S.PlayBadge>
                             <PlayIcon size={22} />
@@ -258,35 +256,29 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
             <S.StockLine out={outOfStock && availableColors.length === 0}>
               {availableColors.length > 0 ? (
                   <>
-                    <CheckCircleIcon size={16} /> მარაგშია
+                    <CheckCircleIcon size={16} /> {t("in-stock")}
                   </>
               ) : outOfStock ? (
                  <>
-                    <CloseIcon className="close-icon" size={16} /> ამოწურულია
+                    <CloseIcon className="close-icon" size={16} /> {t("out-of-stock")}
                   </>
               ) : (
                   <>
-                    <CheckCircleIcon size={16} /> მარაგშია
+                    <CheckCircleIcon size={16} /> {t("in-stock")}
                   </>
               )}
             </S.StockLine>
             {product.description && <S.Description>{product.description}</S.Description>}
             {availableColors.length > 0 && (
               <S.ColorSection>
-                <S.ColorSectionLabel>ფერი</S.ColorSectionLabel>
+                <S.ColorSectionLabel>{t("color-label")}</S.ColorSectionLabel>
                 <S.ColorOptions>
                   {availableColors.map((pc) => (
                     <S.ColorOption
                       key={pc.colorId}
                       type="button"
                       active={pc.colorId === selectedColorId}
-                      title={
-                        pc.color
-                          ? router.locale === "en"
-                            ? pc.color.nameEn || pc.color.nameKa
-                            : pc.color.nameKa || pc.color.nameEn
-                          : undefined
-                      }
+                      title={pc.color ? getCategoryName(pc.color, router.locale) : undefined}
                       style={{ backgroundColor: pc.color?.hexCode || "#ccc" }}
                       onClick={() => setSelectedColorId(pc.colorId)}
                     />
@@ -301,12 +293,12 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
             >
               <CartIcon size={18} />{" "}
               {isInCart
-                ? "წაშლა კალათიდან"
+                ? t("remove-from-cart")
                 : colorSelectionRequired
-                ? "აირჩიეთ ფერი"
+                ? t("select-color")
                 : outOfStock
-                ? "ამოწურულია"
-                : "კალათაში დამატება"}
+                ? t("out-of-stock")
+                : t("add-to-cart")}
             </S.AddToCartButton>
             {specRows.length > 0 && (
               <S.SpecTable>
@@ -363,7 +355,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
               <iframe
                 key={activeSlide.videoId}
                 src={`https://www.youtube.com/embed/${activeSlide.videoId}?autoplay=1`}
-                title="product video"
+                title={t("product-video-title")}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
@@ -398,7 +390,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                     <>
                       <img
                         src={`https://img.youtube.com/vi/${slide.videoId}/default.jpg`}
-                        alt="YouTube ვიდეო"
+                        alt={t("youtube-video-alt")}
                       />
                       <S.PlayBadge>
                         <PlayIcon size={22} />

@@ -1,33 +1,40 @@
 import { GetServerSideProps } from "next";
 import { ProductsAPI } from "@/API_Client";
-import { PaginatedResponseDto } from "@/API_Client/types";
-import { Product } from "@/API_Client/client/models";
-import { BASEPATH } from "@/constants";
+import { PaginatedResponseDto, Product } from "@/API_Client/types";
+import { BASEPATH, DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/constants";
 
-const LOCALES = ["ka", "en", "ru"];
+const LOCALES = SUPPORTED_LOCALES;
 const STATIC_PATHS = [{ path: "", changefreq: "daily", priority: "1.0" }];
 
 const escapeXml = (value: string) => value.replace(/&/g, "&amp;");
 
-const buildUrlEntry = (
+// თითო path-ისთვის 3 ცალკე <url> ბლოკი გენერირდება (თითო locale-ზე თავისი <loc>),
+// ორივესთვის იგივე სრული hreflang alternate-ების კლასტერი (ka/en/ru + x-default)
+const buildUrlEntries = (
   path: string,
   options?: { lastmod?: string; changefreq?: string; priority?: string }
 ) => {
-  const alternates = LOCALES.map(
-    (locale) =>
-      `<xhtml:link rel="alternate" hreflang="${locale}" href="${escapeXml(`${BASEPATH}/${locale}${path}`)}" />`
-  ).join("");
+  const alternates = [
+    ...LOCALES.map(
+      (locale) =>
+        `<xhtml:link rel="alternate" hreflang="${locale}" href="${escapeXml(`${BASEPATH}/${locale}${path}`)}" />`
+    ),
+    `<xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(`${BASEPATH}/${DEFAULT_LOCALE}${path}`)}" />`,
+  ].join("");
 
   const lastmod = options?.lastmod ? `<lastmod>${escapeXml(options.lastmod)}</lastmod>` : "";
   const changefreq = options?.changefreq ? `<changefreq>${options.changefreq}</changefreq>` : "";
   const priority = options?.priority ? `<priority>${options.priority}</priority>` : "";
 
-  return `<url><loc>${escapeXml(`${BASEPATH}/ka${path}`)}</loc>${alternates}${lastmod}${changefreq}${priority}</url>`;
+  return LOCALES.map(
+    (locale) =>
+      `<url><loc>${escapeXml(`${BASEPATH}/${locale}${path}`)}</loc>${alternates}${lastmod}${changefreq}${priority}</url>`
+  );
 };
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
-  const urls: string[] = STATIC_PATHS.map((s) =>
-    buildUrlEntry(s.path, { changefreq: s.changefreq, priority: s.priority })
+  const urls: string[] = STATIC_PATHS.flatMap((s) =>
+    buildUrlEntries(s.path, { changefreq: s.changefreq, priority: s.priority })
   );
 
   try {
@@ -36,7 +43,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
     let hasNext = true;
 
     while (hasNext) {
-      const result = await ProductsAPI("ka", "").productsControllerFindAll(page, limit);
+      const result = await ProductsAPI(DEFAULT_LOCALE, "").productsControllerFindAll(page, limit);
       const data = result.data as unknown as PaginatedResponseDto<Product>;
       const list = Array.isArray(data?.data) ? data.data : [];
 
@@ -44,7 +51,7 @@ export const getServerSideProps: GetServerSideProps = async ({ res }) => {
         .filter((p) => p.isActive)
         .forEach((p) =>
           urls.push(
-            buildUrlEntry(`/products/${p.id}`, {
+            ...buildUrlEntries(`/products/${p.id}`, {
               lastmod: p.createdAt ? new Date(p.createdAt).toISOString() : undefined,
               changefreq: "hourly",
               priority: "0.8",

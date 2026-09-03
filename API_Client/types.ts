@@ -48,7 +48,46 @@ export interface User {
 // `Cart`/`CartItem` გენერირებულ კლიენტში აღარ ჩნდება — ხელით ვაფიქსირებთ
 // ბექენდის entity-ების ფორმას (src/cart/entities/{cart,cart-item}.entity.ts).
 // CartItem-ს ფასს არ ვინახავთ ცალკე — ყოველთვის `product.price`-დან იკითხება.
-import type { Company, Product } from "./client/models";
+import type { Company, Product as GeneratedProduct } from "./client/models";
+import type {
+  NameTranslationsDto,
+  ProductTranslationsDto,
+  ValueTranslationsDto,
+} from "./translations";
+
+// გენერირებული `Category` ტიპი (`./client/models`) ჯერ არ ასახავს ბექენდის
+// Phase 1-ის მრავალენოვან კონტენტს (`nameKa`/`nameEn` ისევ იქ წერია, რადგან
+// `yarn generate:api` ჯერ არ გაშვებულა backend-ის განახლებული swagger.json-ის
+// წინააღმდეგ) — ხელით ვაფიქსირებთ რეალურ runtime shape-ს, დანარჩენი ველები
+// უცვლელად generated `Category`-დან (src/category/entities/category.entity.ts).
+export interface Category {
+  id: string;
+  translations: NameTranslationsDto;
+  slug: string;
+  isActive: boolean;
+  sortOrder: number;
+  image?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string;
+  parent?: Category | null;
+  children?: Category[];
+  products?: Product[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// გენერირებული `Product` ტიპი (`name`/`description`) ხელუხლებელი რჩება — ეს
+// ველები ბექენდიდან ისევ მოდის, უბრალოდ ახლა უკვე `Accept-Language`-ის
+// მიხედვით ლოკალიზებულია (`resolveTranslation`, products.controller.ts
+// online-shop-nest-ში). დამატებით ემატება ორიგინალი `translations` obj —
+// admin dashboard-ს ეს სჭირდება სამივე ენის ერთდროულად რედაქტირებისთვის
+// (იხ. `translations.ka`/`.en`/`.ru`), ხოლო `category` relation-საც ზემოთ
+// გადაწერილ `Category`-ზე ვამისამართებთ, არა გენერირებულ ორიგინალზე.
+export interface Product extends Omit<GeneratedProduct, "category"> {
+  translations: ProductTranslationsDto;
+  category?: Category;
+}
 
 export interface CartItem {
   id: number;
@@ -142,8 +181,10 @@ export type AttributeType =
 export interface AttributeOption {
   id: string;
   attributeId: string;
-  valueKa: string;
-  valueEn: string;
+  // ბექენდის Phase 1-ის ცვლილების შემდეგ `valueKa`/`valueEn`-ის მაგივრად
+  // მრავალენოვანი `translations` obj მოდის — იხ. `getLocalizedValue`
+  // (`@/utils/getCategoryName`) ლოკალიზებული მნიშვნელობის წასაკითხად.
+  translations: ValueTranslationsDto;
   code: string;
   sortOrder: number;
   createdAt: string;
@@ -152,8 +193,10 @@ export interface AttributeOption {
 
 export interface Attribute {
   id: string;
-  nameKa: string;
-  nameEn: string;
+  // ბექენდის Phase 1-ის ცვლილების შემდეგ `nameKa`/`nameEn`-ის მაგივრად
+  // მრავალენოვანი `translations` obj მოდის — იხ. `getCategoryName`
+  // (`@/utils/getCategoryName`) ლოკალიზებული სახელის წასაკითხად.
+  translations: NameTranslationsDto;
   code: string;
   type: AttributeType;
   unit?: string | null;
@@ -270,8 +313,10 @@ export interface Branch {
 // ვაფიქსირებთ ბექენდის entity-ის ფორმას (src/colors/entities/color.entity.ts).
 export interface Color {
   id: string;
-  nameKa: string;
-  nameEn: string;
+  // ბექენდის Phase 1-ის ცვლილების შემდეგ `nameKa`/`nameEn`-ის მაგივრად
+  // მრავალენოვანი `translations` obj მოდის — იხ. `getCategoryName`
+  // (`@/utils/getCategoryName`) ლოკალიზებული სახელის წასაკითხად.
+  translations: NameTranslationsDto;
   hexCode?: string;
   createdAt: string;
   updatedAt: string;
@@ -317,8 +362,7 @@ export interface ProductBranch {
 // (CategoryService.getFilters).
 export interface CategoryFilterAttributeSummary {
   id: string;
-  nameKa: string;
-  nameEn: string;
+  translations: NameTranslationsDto;
   code: string;
   type: AttributeType;
   unit?: string | null;
@@ -326,8 +370,7 @@ export interface CategoryFilterAttributeSummary {
 
 export interface CategoryFilterOptionCount {
   id: string;
-  valueKa: string;
-  valueEn: string;
+  translations: ValueTranslationsDto;
   code: string;
   count: number;
 }

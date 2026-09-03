@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -11,8 +12,7 @@ import FilterSidebar, { PriceBounds } from "@/components/shared/FilterSidebar";
 import CategoryFilterBar from "@/components/shared/CategoryFilterBar";
 import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI } from "@/API_Client";
-import { Category, Product } from "@/API_Client/client/models";
-import { CategoryFiltersResponse, PaginatedResponseDto } from "@/API_Client/types";
+import { Category, CategoryFiltersResponse, PaginatedResponseDto, Product } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
 import { useCategoryFilters } from "@/hooks/useCategoryFilters";
 // Layout/Sidebar/ProductsGrid/PaginationBar-ის სტილები კატალოგის (`/products`)
@@ -21,11 +21,11 @@ import * as C from "@/components/pages/catalog/style";
 
 const PRODUCTS_PAGE_SIZE = 12;
 
-const SORT_OPTIONS = [
-  { value: "default", label: "სტანდარტული" },
-  { value: "new", label: "ახალი ჩამოსული", sortBy: "createdAt", order: "DESC" },
-  { value: "price_asc", label: "ფასი: დაბლიდან მაღლა", sortBy: "price", order: "ASC" },
-  { value: "price_desc", label: "ფასი: მაღლიდან დაბლა", sortBy: "price", order: "DESC" },
+const getSortOptions = (t: (key: string) => string) => [
+  { value: "default", label: t("sort-default") },
+  { value: "new", label: t("sort-new"), sortBy: "createdAt", order: "DESC" },
+  { value: "price_asc", label: t("sort-price-asc"), sortBy: "price", order: "ASC" },
+  { value: "price_desc", label: t("sort-price-desc"), sortBy: "price", order: "DESC" },
 ];
 
 interface CategoryProductsPageProps {
@@ -41,6 +41,8 @@ const restFiltersForBounds = (filters: Record<string, string>) => {
 
 export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug }) => {
   const router = useRouter();
+  const { t } = useTranslation("catalog");
+  const SORT_OPTIONS = getSortOptions(t);
   const { filters, subcategory, page, sortBy, order, applyFilters, setSubcategory, setPage, setSort, clearFilters } =
     useCategoryFilters();
 
@@ -155,7 +157,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
         setProducts(Array.isArray(data?.data) ? data.data : []);
         setMeta(data?.meta || null);
       })
-      .catch(() => toast.error("პროდუქტების ჩატვირთვა ვერ მოხერხდა"))
+      .catch(() => toast.error(t("load-products-error") as string))
       .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, slug, JSON.stringify(filters), subcategory, page, sortBy, order, router.locale]);
@@ -168,7 +170,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
         <C.Container>
           <C.EmptyState>
             <SearchIcon size={48} />
-            <C.EmptyStateTitle>კატეგორია არ მოიძებნა</C.EmptyStateTitle>
+            <C.EmptyStateTitle>{t("category-not-found")}</C.EmptyStateTitle>
           </C.EmptyState>
         </C.Container>
         <Footer />
@@ -184,7 +186,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
 
       <C.Container>
         <C.Breadcrumb>
-          <Link href="/">მთავარი</Link>
+          <Link href="/">{t("breadcrumb-home")}</Link>
           {category?.parent && (
             <>
               <span>/</span>
@@ -213,20 +215,20 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
           <C.Sidebar>
             {children.length > 0 && (
               <C.SidebarCard>
-                <C.SidebarCardTitle>ქვეკატეგორიები</C.SidebarCardTitle>
+                <C.SidebarCardTitle>{t("subcategories-title")}</C.SidebarCardTitle>
                 <C.SidebarCardBody>
                   {category?.parent ? (
                     <C.CategoryOption active={false} onClick={() => router.push(`/categories/${category.parent!.slug}`)}>
                       <C.CategoryOptionLabel>
                         <TagIcon size={16} />
-                        ყველა
+                        {t("all")}
                       </C.CategoryOptionLabel>
                     </C.CategoryOption>
                   ) : (
                     <C.CategoryOption active={!subcategory} onClick={() => setSubcategory(null)}>
                       <C.CategoryOptionLabel>
                         <TagIcon size={16} />
-                        ყველა
+                        {t("all")}
                       </C.CategoryOptionLabel>
                     </C.CategoryOption>
                   )}
@@ -260,13 +262,13 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
             <C.Toolbar>
               {meta && (
                 <C.ToolbarCount>
-                  ნაჩვენებია <strong>{products.length}</strong> / {meta.total}-დან
+                  {t("showing")} <strong>{products.length}</strong> {t("of-total", { total: meta.total })}
                 </C.ToolbarCount>
               )}
               <C.SortWrap>
-                <C.SortLabel>დალაგება:</C.SortLabel>
+                <C.SortLabel>{t("sort-label")}</C.SortLabel>
                 <Dropdown
-                  ariaLabel="დალაგება"
+                  ariaLabel={t("sort-aria-label")}
                   minWidth={200}
                   value={sortValue}
                   onChange={(val) => {
@@ -295,7 +297,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
             ) : products.length === 0 ? (
               <C.EmptyState>
                 <SearchIcon size={48} />
-                <C.EmptyStateTitle>ამ ფილტრებით პროდუქტი არ მოიძებნა</C.EmptyStateTitle>
+                <C.EmptyStateTitle>{t("no-products-filtered")}</C.EmptyStateTitle>
               </C.EmptyState>
             ) : (
               <C.ProductsGrid>

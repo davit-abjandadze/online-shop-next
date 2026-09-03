@@ -47,5 +47,12 @@
   "login-success": "Вы успешно вошли!",
   "login-error-invalid": "Неверный адрес электронной почты или пароль",
   "login-error-network": "Ошибка сети. Проверьте подключение.",
-  "session-expired": "Ваша сессия истекла — пожалуйста, войдите снова"
+  "session-expired": "Ваша сессия истекла — пожалуйста, войдите снова",
+  "order-status-pending": "Ожидает оплаты",
+  "order-status-paid": "Оплачен",
+  "order-status-processing": "Обрабатывается",
+  "order-status-shipped": "Отправлен",
+  "order-status-delivered": "Доставлен",
+  "order-status-cancelled": "Отменён",
+  "order-status-expired": "Просрочен"
 }

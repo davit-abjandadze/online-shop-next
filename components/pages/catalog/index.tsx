@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -10,9 +11,8 @@ import ProductCard from "@/components/shared/ProductCard";
 import CategoryFilterBar from "@/components/shared/CategoryFilterBar";
 import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI, ProductsAPI } from "@/API_Client";
-import { Category, Product } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
-import { PaginatedResponseDto } from "@/API_Client/types";
+import { Category, PaginatedResponseDto, Product } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
@@ -20,15 +20,19 @@ const PRODUCTS_PAGE_SIZE = 12;
 
 // დალაგების ხელმისაწვდომი ვარიანტები — Dropdown-ის მნიშვნელობა ორ ველად
 // (sortBy/order) იშლება SORT_OPTIONS-იდან SELECTED-ის მიხედვით.
-const SORT_OPTIONS: { value: string; label: string; sortBy?: string; order?: ProductsControllerFindAllOrderEnum }[] = [
-  { value: "default", label: "სტანდარტული" },
-  { value: "new", label: "ახალი ჩამოსული", sortBy: "createdAt", order: ProductsControllerFindAllOrderEnum.Desc },
-  { value: "price_asc", label: "ფასი: დაბლიდან მაღლა", sortBy: "price", order: ProductsControllerFindAllOrderEnum.Asc },
-  { value: "price_desc", label: "ფასი: მაღლიდან დაბლა", sortBy: "price", order: ProductsControllerFindAllOrderEnum.Desc },
+const getSortOptions = (
+  t: (key: string) => string
+): { value: string; label: string; sortBy?: string; order?: ProductsControllerFindAllOrderEnum }[] => [
+  { value: "default", label: t("sort-default") },
+  { value: "new", label: t("sort-new"), sortBy: "createdAt", order: ProductsControllerFindAllOrderEnum.Desc },
+  { value: "price_asc", label: t("sort-price-asc"), sortBy: "price", order: ProductsControllerFindAllOrderEnum.Asc },
+  { value: "price_desc", label: t("sort-price-desc"), sortBy: "price", order: ProductsControllerFindAllOrderEnum.Desc },
 ];
 
 export const CatalogComponent: React.FC = () => {
   const router = useRouter();
+  const { t } = useTranslation("catalog");
+  const SORT_OPTIONS = getSortOptions(t);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [meta, setMeta] = useState<PaginatedResponseDto<Product>["meta"] | null>(null);
@@ -103,7 +107,7 @@ export const CatalogComponent: React.FC = () => {
       setMeta(data?.meta || null);
     } catch (err) {
       console.error("Error fetching products:", err);
-      toast.error("პროდუქტების ჩატვირთვა ვერ მოხერხდა");
+      toast.error(t("load-products-error") as string);
     } finally {
       setLoading(false);
     }
@@ -141,7 +145,7 @@ export const CatalogComponent: React.FC = () => {
     categories.filter((cat) => cat.parent?.id === parentId);
 
   const categoryDropdownOptions = [
-    { value: "all", label: "ყველა კატეგორია" },
+    { value: "all", label: t("all-categories") },
     ...topLevelCategories.flatMap((cat) => [
       { value: cat.id, label: getCategoryName(cat, router.locale) },
       ...getChildCategories(cat.id).map((child) => ({
@@ -161,17 +165,17 @@ export const CatalogComponent: React.FC = () => {
 
       <S.Container>
         <S.Breadcrumb>
-          <Link href="/">მთავარი</Link>
+          <Link href="/">{t("breadcrumb-home")}</Link>
           <span>/</span>
-          <span>{activeCategory ? getCategoryName(activeCategory, router.locale) : "მაღაზია"}</span>
+          <span>{activeCategory ? getCategoryName(activeCategory, router.locale) : t("shop")}</span>
         </S.Breadcrumb>
 
         <S.PageHeader>
           <div>
-            <S.PageTitle>{activeCategory ? getCategoryName(activeCategory, router.locale) : "მაღაზია"}</S.PageTitle>
-            <S.PageSubtitle>დაათვალიერეთ ჩვენი პროდუქტების კატალოგი</S.PageSubtitle>
+            <S.PageTitle>{activeCategory ? getCategoryName(activeCategory, router.locale) : t("shop")}</S.PageTitle>
+            <S.PageSubtitle>{t("page-subtitle")}</S.PageSubtitle>
           </div>
-          {meta && <S.ResultsCount>{meta.total} პროდუქტი</S.ResultsCount>}
+          {meta && <S.ResultsCount>{t("results-count", { count: meta.total })}</S.ResultsCount>}
         </S.PageHeader>
 
         <S.Layout>
@@ -179,17 +183,17 @@ export const CatalogComponent: React.FC = () => {
               იმავე "ბარათის" ენით (bg-elevated, closed კუთხეები, shadow). */}
           <S.Sidebar>
             <S.SidebarCard>
-              <S.SidebarCardTitle>კატეგორიები</S.SidebarCardTitle>
+              <S.SidebarCardTitle>{t("categories-title")}</S.SidebarCardTitle>
               <S.SidebarCardBody>
                 <S.CategoryOption active={activeCategoryId === null} onClick={() => handleCategorySelect(null)}>
                   <S.CategoryOptionLabel>
                     <TagIcon size={16} />
-                    ყველა კატეგორია
+                    {t("all-categories")}
                   </S.CategoryOptionLabel>
                 </S.CategoryOption>
 
                 {topLevelCategories.length === 0 ? (
-                  <S.FilterEmpty>კატეგორიები ჯერ არ არის დამატებული</S.FilterEmpty>
+                  <S.FilterEmpty>{t("no-categories")}</S.FilterEmpty>
                 ) : (
                   topLevelCategories.map((category) => {
                     const children = getChildCategories(category.id);
@@ -226,7 +230,7 @@ export const CatalogComponent: React.FC = () => {
             <S.Toolbar>
               <S.MobileCategorySelect>
                 <Dropdown
-                  ariaLabel="კატეგორია"
+                  ariaLabel={t("category-aria-label")}
                   minWidth={180}
                   value={activeCategoryId === null ? "all" : activeCategoryId}
                   onChange={(val) => handleCategorySelect(val === "all" ? null : val)}
@@ -236,14 +240,14 @@ export const CatalogComponent: React.FC = () => {
 
               {meta && (
                 <S.ToolbarCount>
-                  ნაჩვენებია <strong>{products.length}</strong> / {meta.total}-დან
+                  {t("showing")} <strong>{products.length}</strong> {t("of-total", { total: meta.total })}
                 </S.ToolbarCount>
               )}
 
               <S.SortWrap>
-                <S.SortLabel>დალაგება:</S.SortLabel>
+                <S.SortLabel>{t("sort-label")}</S.SortLabel>
                 <Dropdown
-                  ariaLabel="დალაგება"
+                  ariaLabel={t("sort-aria-label")}
                   minWidth={200}
                   value={sort}
                   onChange={(val) => {
@@ -273,7 +277,7 @@ export const CatalogComponent: React.FC = () => {
               <S.EmptyState>
                 <SearchIcon size={48} />
                 <S.EmptyStateTitle>
-                  {activeCategoryId === null ? "პროდუქტები არ არის" : "ამ კატეგორიაში პროდუქტები არ არის"}
+                  {activeCategoryId === null ? t("no-products") : t("no-products-in-category")}
                 </S.EmptyStateTitle>
               </S.EmptyState>
             ) : (

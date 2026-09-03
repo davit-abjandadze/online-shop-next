@@ -1,0 +1,17 @@
+{
+  "footer-brand-subtitle": "Просматривайте каталог товаров и оформляйте заказ быстро и безопасно.",
+  "footer-categories-heading": "Категории",
+  "footer-service-heading": "Сервис",
+  "footer-link-catalog": "Каталог",
+  "footer-link-profile": "Профиль",
+  "footer-link-change-password": "Смена пароля",
+  "footer-link-orders": "Мои заказы",
+  "footer-link-terms": "Условия использования",
+  "footer-newsletter-heading": "Подписка на новости",
+  "footer-newsletter-text": "Подпишитесь на новости о новых коллекциях и скидках.",
+  "footer-newsletter-placeholder": "Ваш email",
+  "footer-newsletter-button": "Подписаться",
+  "footer-newsletter-toast": "Подписка на новости скоро будет доступна",
+  "footer-copyright": "© {{year}} Интернет-магазин. Все права защищены.",
+  "footer-made-with": "Ваша покупка защищена"
+}

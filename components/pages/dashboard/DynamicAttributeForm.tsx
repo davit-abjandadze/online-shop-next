@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { ProductAttributeValueItemDto } from "@/API_Client/client/models";
-import { CategoryAttribute, ProductAttributeValue } from "@/API_Client/types";
-import { getCategoryName } from "@/utils/getCategoryName";
+import { AttributeOption, CategoryAttribute, ProductAttributeValue } from "@/API_Client/types";
+import { getCategoryName, getLocalizedValue } from "@/utils/getCategoryName";
 import * as S from "./style";
 
-// AttributeOption-ს `nameKa`/`nameEn` არა, `valueKa`/`valueEn` აქვს —
-// getCategoryName-ის იმავე fallback-ლოგიკის მცირე ვარიაცია.
-const getOptionValue = (opt: { valueKa: string; valueEn: string }, locale?: string) =>
-  locale === "en" ? opt.valueEn || opt.valueKa : opt.valueKa || opt.valueEn;
+// AttributeOption-ს `nameKa`/`nameEn` არა, `translations.{ka,en,ru}.value` აქვს —
+// getLocalizedValue (`@/utils/getCategoryName`) კითხულობს ლოკალიზებულ მნიშვნელობას.
+const getOptionValue = (opt: AttributeOption, locale?: string) => getLocalizedValue(opt, locale);
 
 interface DynamicAttributeFormProps {
   categoryAttrs: CategoryAttribute[];

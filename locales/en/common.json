@@ -47,5 +47,12 @@
   "login-success": "Signed in successfully!",
   "login-error-invalid": "Invalid email or password",
   "login-error-network": "Network error. Please check your connection.",
-  "session-expired": "Your session has expired — please sign in again"
+  "session-expired": "Your session has expired — please sign in again",
+  "order-status-pending": "Pending payment",
+  "order-status-paid": "Paid",
+  "order-status-processing": "Processing",
+  "order-status-shipped": "Shipped",
+  "order-status-delivered": "Delivered",
+  "order-status-cancelled": "Cancelled",
+  "order-status-expired": "Expired"
 }

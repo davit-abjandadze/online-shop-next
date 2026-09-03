@@ -1,17 +1,20 @@
 import React from "react";
 import styled from "styled-components";
+import useTranslation from "next-translate/useTranslation";
 import { OrderStatus } from "@/API_Client/types";
 
 // შეკვეთის სტატუსის ერთი წყარო label/ფერისთვის — orders/orderDetail/adminOrders
-// გვერდები ერთნაირად რომ გამოსახავდნენ სტატუსს, დუბლირების გარეშე.
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: "გადასახდელი",
-  paid: "გადახდილი",
-  processing: "მუშავდება",
-  shipped: "გაგზავნილია",
-  delivered: "მიწოდებულია",
-  cancelled: "გაუქმებულია",
-  expired: "ვადაგასულია",
+// გვერდები ერთნაირად რომ გამოსახავდნენ სტატუსს, დუბლირების გარეშე. "common"
+// namespace-ია (არა "orders"), რადგან ეს badge dashboard-შიც (adminOrders) გამოიყენება,
+// სადაც "orders" namespace i18n.json-ის მიხედვით ჩატვირთული არაა.
+const STATUS_LABEL_KEYS: Record<OrderStatus, string> = {
+  pending: "order-status-pending",
+  paid: "order-status-paid",
+  processing: "order-status-processing",
+  shipped: "order-status-shipped",
+  delivered: "order-status-delivered",
+  cancelled: "order-status-cancelled",
+  expired: "order-status-expired",
 };
 
 const STATUS_VARIANT: Record<OrderStatus, "warning" | "success" | "primary" | "danger"> = {
@@ -53,10 +56,13 @@ interface OrderStatusBadgeProps {
   className?: string;
 }
 
-export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status, className }) => (
-  <Badge variant={STATUS_VARIANT[status]} className={className}>
-    {STATUS_LABELS[status] || status}
-  </Badge>
-);
+export const OrderStatusBadge: React.FC<OrderStatusBadgeProps> = ({ status, className }) => {
+  const { t } = useTranslation("common");
+  return (
+    <Badge variant={STATUS_VARIANT[status]} className={className}>
+      {STATUS_LABEL_KEYS[status] ? t(STATUS_LABEL_KEYS[status]) : status}
+    </Badge>
+  );
+};
 
 export default OrderStatusBadge;

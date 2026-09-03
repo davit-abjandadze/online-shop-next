@@ -12,7 +12,7 @@ import { ScreenClassProvider, setConfiguration } from "react-grid-system";
 import { ToastContainer, cssTransition } from "react-toastify";
 import Icon from "@/components/ui/Icon";
 import { SWRConfig } from "swr";
-import { BASEPATH } from "@/constants";
+import { BASEPATH, DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/constants";
 import NProgress from "nprogress";
 import { Router, useRouter } from "next/router";
 import { withTranslateRoutes } from "next-translate-routes";
@@ -53,13 +53,13 @@ const ToastAnimation = cssTransition({
 // TODO: Add your app providers and layout components
 // SEO-სთვის მხარდაჭერილი ენების სია — sitemap.xml-ში, hreflang link-ებში
 // და JSON-LD-ში ერთნაირად გამოსაყენებლად
-const SEO_LOCALES = ["ka", "en", "ru"] as const;
+const SEO_LOCALES = SUPPORTED_LOCALES;
 const OG_LOCALE_MAP: Record<string, string> = { ka: "ka_GE", en: "en_US", ru: "ru_RU" };
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { lang, t } = useTranslation("common");
   const router = useRouter();
-  const currentLocale = router.locale && router.locale !== "default" ? router.locale : "ka";
+  const currentLocale = router.locale && router.locale !== "default" ? router.locale : DEFAULT_LOCALE;
   const canonicalUrl = `${BASEPATH}/${currentLocale}${router.asPath}`;
 
   const websiteJsonLd = {
@@ -132,7 +132,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
         <link
           rel="alternate"
           hrefLang="x-default"
-          href={`${BASEPATH}/ka${router.asPath}`}
+          href={`${BASEPATH}/${DEFAULT_LOCALE}${router.asPath}`}
           key="hreflang-x-default"
         />
         <script

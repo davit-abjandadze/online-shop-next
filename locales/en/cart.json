@@ -1,0 +1,17 @@
+{
+  "loading": "Loading...",
+  "auth-required-title": "Login required",
+  "auth-required-text": "Please log in to view your cart.",
+  "login-button": "Log in",
+  "page-title": "Cart",
+  "empty-cart-title": "Your cart is empty",
+  "back-to-catalog": "Back to catalog",
+  "stock-limit-reached": "Stock limit reached",
+  "aria-remove-from-wishlist": "Remove from wishlist",
+  "aria-add-to-wishlist": "Add to wishlist",
+  "summary-title": "Order",
+  "summary-products": "Items ({{count}})",
+  "summary-discount": "Discount:",
+  "total-row": "Total",
+  "continue-to-checkout": "Proceed to checkout"
+}

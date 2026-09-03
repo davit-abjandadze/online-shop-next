@@ -1,5 +1,6 @@
 import React from "react";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import { KeyIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
@@ -24,6 +25,7 @@ export const ProfileLayout: React.FC<ProfileLayoutProps> = ({
   subtitle,
   children,
 }) => {
+  const { t } = useTranslation("profile");
   const router = useRouter();
 
   return (
@@ -39,10 +41,10 @@ export const ProfileLayout: React.FC<ProfileLayoutProps> = ({
           <S.Layout>
             <S.Sidebar>
               <S.SidebarItem active={activeTab === "info"} onClick={() => router.push(TAB_ROUTES.info)}>
-                <UserIcon size={18} /> პირადი ინფორმაცია
+                <UserIcon size={18} /> {t("sidebar-personal-info")}
               </S.SidebarItem>
               <S.SidebarItem active={activeTab === "password"} onClick={() => router.push(TAB_ROUTES.password)}>
-                <KeyIcon size={18} /> პაროლის შეცვლა
+                <KeyIcon size={18} /> {t("sidebar-change-password")}
               </S.SidebarItem>
             </S.Sidebar>
 

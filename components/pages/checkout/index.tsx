@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import useTranslation from "next-translate/useTranslation";
+import type { ZodIssue } from "zod";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -34,67 +36,71 @@ const resolveImage = (image?: string) =>
 
 // მისამართის ფორმის "ქალაქი" სელექტისთვის — ყველაზე ხშირად შერჩეული
 // ქართული ქალაქები (backend-ზე city უბრალო string ველია, აქ ჩამონათვალის
-// გაფართოება ბექენდის ცვლილებას არ საჭიროებს).
+// გაფართოება ბექენდის ცვლილებას არ საჭიროებს). ჩამონათვალის value ყოველთვის
+// ქართულია (ბექენდში ინახება ასე), t()-ით მხოლოდ ჩვენებადი ლეიბლი ითარგმნება.
 const GEORGIAN_CITIES = [
-  "თბილისი",
-  "ბათუმი",
-  "ქუთაისი",
-  "რუსთავი",
-  "გორი",
-  "ზუგდიდი",
-  "ფოთი",
-  "ხაშური",
-  "სამტრედია",
-  "სენაკი",
-  "ზესტაფონი",
-  "მარნეული",
-  "თელავი",
-  "ახალციხე",
-  "ოზურგეთი",
-  "ქობულეთი",
-  "ბორჯომი",
-  "გურჯაანი",
-  "ახალქალაქი",
-  "წყალტუბო",
+  { value: "თბილისი", key: "city-tbilisi" },
+  { value: "ბათუმი", key: "city-batumi" },
+  { value: "ქუთაისი", key: "city-kutaisi" },
+  { value: "რუსთავი", key: "city-rustavi" },
+  { value: "გორი", key: "city-gori" },
+  { value: "ზუგდიდი", key: "city-zugdidi" },
+  { value: "ფოთი", key: "city-poti" },
+  { value: "ხაშური", key: "city-khashuri" },
+  { value: "სამტრედია", key: "city-samtredia" },
+  { value: "სენაკი", key: "city-senaki" },
+  { value: "ზესტაფონი", key: "city-zestafoni" },
+  { value: "მარნეული", key: "city-marneuli" },
+  { value: "თელავი", key: "city-telavi" },
+  { value: "ახალციხე", key: "city-akhaltsikhe" },
+  { value: "ოზურგეთი", key: "city-ozurgeti" },
+  { value: "ქობულეთი", key: "city-kobuleti" },
+  { value: "ბორჯომი", key: "city-borjomi" },
+  { value: "გურჯაანი", key: "city-gurjaani" },
+  { value: "ახალქალაქი", key: "city-akhalkalaki" },
+  { value: "წყალტუბო", key: "city-tskaltubo" },
 ];
 
 // კვირის დღეების key-ები/ლეიბლები ფილიალის workingHours-ის ჩვენებისთვის —
 // dashboard/schemas.ts-ის BRANCH_DAY_KEYS-ის იგივე თანმიმდევრობა (mon..sun).
 const WEEK_DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 type WeekDayKey = (typeof WEEK_DAY_KEYS)[number];
-const WEEK_DAY_LABELS: Record<WeekDayKey, string> = {
-  mon: "ორშაბათი",
-  tue: "სამშაბათი",
-  wed: "ოთხშაბათი",
-  thu: "ხუთშაბათი",
-  fri: "პარასკევი",
-  sat: "შაბათი",
-  sun: "კვირა",
+const WEEK_DAY_LABEL_KEYS: Record<WeekDayKey, string> = {
+  mon: "weekday-mon",
+  tue: "weekday-tue",
+  wed: "weekday-wed",
+  thu: "weekday-thu",
+  fri: "weekday-fri",
+  sat: "weekday-sat",
+  sun: "weekday-sun",
 };
 // Date.getDay() 0=კვირა..6=შაბათი — WEEK_DAY_KEYS-ის (ორშაბათიდან იწყება) იგივე ინდექსზე გადასაყვანად.
 const jsDayToWeekDayKey = (jsDay: number): WeekDayKey => WEEK_DAY_KEYS[(jsDay + 6) % 7];
 
-const GEORGIAN_MONTHS_GENITIVE = [
-  "იანვარს",
-  "თებერვალს",
-  "მარტს",
-  "აპრილს",
-  "მაისს",
-  "ივნისს",
-  "ივლისს",
-  "აგვისტოს",
-  "სექტემბერს",
-  "ოქტომბერს",
-  "ნოემბერს",
-  "დეკემბერს",
+const MONTH_GENITIVE_KEYS = [
+  "month-genitive-1",
+  "month-genitive-2",
+  "month-genitive-3",
+  "month-genitive-4",
+  "month-genitive-5",
+  "month-genitive-6",
+  "month-genitive-7",
+  "month-genitive-8",
+  "month-genitive-9",
+  "month-genitive-10",
+  "month-genitive-11",
+  "month-genitive-12",
 ];
 
 // "ხვალ, 30 აგვისტოს" — ფილიალიდან გატანის მზადყოფნის თარიღი (მარტივი
 // მიახლოება, backend-ის რეალური ლოგისტიკის ვადის გარეშე).
-const formatPickupReadyDate = () => {
+const formatPickupReadyDate = (t: (key: string, query?: Record<string, unknown>) => string) => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
-  return `ხვალ, ${tomorrow.getDate()} ${GEORGIAN_MONTHS_GENITIVE[tomorrow.getMonth()]}`;
+  return t("pickup-tomorrow", {
+    day: tomorrow.getDate(),
+    month: t(MONTH_GENITIVE_KEYS[tomorrow.getMonth()]),
+  });
 };
 
 const emptyAddressForm: AddressFormValues = {
@@ -114,6 +120,7 @@ const fromE164 = (phone: string) => phone.replace(/^\+995/, "");
 // საათები, მიმდინარე დღის გამუქებით) — ⓘ ღილაკზე დაჭერით იშლება checkout-ის
 // ფილიალიდან-გატანის სექციაში (ორივე — არჩეული ბარათი და სიის row-ები).
 const BranchDetailPanel: React.FC<{ branch: Branch }> = ({ branch }) => {
+  const { t } = useTranslation("checkout");
   const todayKey = jsDayToWeekDayKey(new Date().getDay());
   return (
     <S.BranchDetailPanel>
@@ -124,8 +131,8 @@ const BranchDetailPanel: React.FC<{ branch: Branch }> = ({ branch }) => {
         const hours = branch.workingHours?.[day];
         return (
           <S.WorkingHoursRow key={day} $today={day === todayKey}>
-            <S.WorkingHoursDay>{WEEK_DAY_LABELS[day]}</S.WorkingHoursDay>
-            <span>{hours ? `${hours.open} - ${hours.close}` : "დახურულია"}</span>
+            <S.WorkingHoursDay>{t(WEEK_DAY_LABEL_KEYS[day])}</S.WorkingHoursDay>
+            <span>{hours ? `${hours.open} - ${hours.close}` : t("closed")}</span>
           </S.WorkingHoursRow>
         );
       })}
@@ -139,6 +146,7 @@ const BranchDetailPanel: React.FC<{ branch: Branch }> = ({ branch }) => {
 // PaymentsAPI-ის initiate-ს იძახებს და BOG-ის redirectUrl-ზე გადამისამართებს —
 // შუალედური "შეკვეთა შეიქმნა, მაგრამ არაფერი არ გვთხოვს გადახდას" გვერდი არ რჩება.
 export const CheckoutComponent: React.FC = () => {
+  const { t } = useTranslation("checkout");
   const { data: session, status } = useSession();
   const router = useRouter();
   const { cart, loading, refresh } = useCart();
@@ -340,10 +348,10 @@ export const CheckoutComponent: React.FC = () => {
 
   const handleSubmitAddress = async () => {
     if (!session?.accessToken) return;
-    const parsed = addressFormSchema.safeParse(addressFormValues);
+    const parsed = addressFormSchema(t).safeParse(addressFormValues);
     if (!parsed.success) {
       const fieldErrors: Partial<Record<keyof AddressFormValues, string>> = {};
-      parsed.error.issues.forEach((issue) => {
+      parsed.error.issues.forEach((issue: ZodIssue) => {
         const key = issue.path[0] as keyof AddressFormValues;
         if (!fieldErrors[key]) fieldErrors[key] = issue.message;
       });
@@ -372,9 +380,9 @@ export const CheckoutComponent: React.FC = () => {
       setSelectedAddressId(saved.id);
       setAddressError(null);
       setAddressModalOpen(false);
-      toast.success(editingAddressId ? "მისამართი განახლდა" : "მისამართი დაემატა");
+      toast.success((editingAddressId ? t("toast-address-updated") : t("toast-address-added")) as string);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "მისამართის შენახვა ვერ მოხერხდა");
+      toast.error(err?.response?.data?.message || t("toast-address-save-failed"));
     } finally {
       setAddressSaving(false);
     }
@@ -391,7 +399,7 @@ export const CheckoutComponent: React.FC = () => {
       setAddresses(list);
       setSelectedAddressId((prev) => (prev === id ? list.find((a) => a.isDefault)?.id ?? list[0]?.id ?? null : prev));
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "მისამართის წაშლა ვერ მოხერხდა");
+      toast.error(err?.response?.data?.message || t("toast-address-delete-failed"));
     } finally {
       setAddressDeletingId(null);
     }
@@ -432,7 +440,7 @@ export const CheckoutComponent: React.FC = () => {
     setOtpError(null);
     const parsed = emailField().safeParse(emailInput);
     if (!parsed.success) {
-      setOtpError(parsed.error.issues[0]?.message || "გთხოვთ მიუთითოთ ვალიდური ელფოსტა");
+      setOtpError(parsed.error.issues[0]?.message || t("error-valid-email"));
       return;
     }
     setOtpSending(true);
@@ -442,14 +450,14 @@ export const CheckoutComponent: React.FC = () => {
       // შემთხვევაში "გაგზავნილად" არ ჩავთვალოთ, თორემ /otp/verify-ზე ცარიელი
       // requestId წავა და backend-ის validation-ი 400-ს დააბრუნებს
       if (!resp.data.requestId) {
-        setOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        setOtpError(t("error-otp-send-failed-retry"));
         return;
       }
       setOtpRequestId(resp.data.requestId);
       setOtpSent(true);
       setOtpResendCooldown(60);
     } catch (err: any) {
-      setOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
+      setOtpError(err?.response?.data?.message || t("error-otp-send-failed"));
     } finally {
       setOtpSending(false);
     }
@@ -458,11 +466,11 @@ export const CheckoutComponent: React.FC = () => {
   const handleVerifyEmailOtp = async () => {
     setOtpError(null);
     if (!otpCodeInput.trim()) {
-      setOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
+      setOtpError(t("error-otp-code-required"));
       return;
     }
     if (!otpRequestId) {
-      setOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setOtpError(t("error-otp-session-expired"));
       setOtpSent(false);
       return;
     }
@@ -474,7 +482,7 @@ export const CheckoutComponent: React.FC = () => {
       });
       setOtpVerified(true);
     } catch (err: any) {
-      setOtpError(err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია");
+      setOtpError(err?.response?.data?.message || t("error-otp-invalid"));
     } finally {
       setOtpVerifying(false);
     }
@@ -485,7 +493,7 @@ export const CheckoutComponent: React.FC = () => {
     setPhoneOtpError(null);
     const parsed = phoneNumberField().safeParse(phoneInput);
     if (!parsed.success) {
-      setPhoneOtpError(parsed.error.issues[0]?.message || "გთხოვთ მიუთითოთ ვალიდური მობილურის ნომერი");
+      setPhoneOtpError(parsed.error.issues[0]?.message || t("error-valid-phone"));
       return;
     }
     setPhoneOtpSending(true);
@@ -495,14 +503,14 @@ export const CheckoutComponent: React.FC = () => {
       });
       // იხ. handleSendEmailOtp-ის კომენტარი — requestId-ის გარეშე "გაგზავნილად" არ ვთვლით
       if (!resp.data.requestId) {
-        setPhoneOtpError("დადასტურების კოდის გაგზავნა ვერ მოხერხდა — გთხოვთ სცადოთ ხელახლა");
+        setPhoneOtpError(t("error-otp-send-failed-retry"));
         return;
       }
       setPhoneOtpRequestId(resp.data.requestId);
       setPhoneOtpSent(true);
       setPhoneOtpResendCooldown(60);
     } catch (err: any) {
-      setPhoneOtpError(err?.response?.data?.message || "დადასტურების კოდის გაგზავნა ვერ მოხერხდა");
+      setPhoneOtpError(err?.response?.data?.message || t("error-otp-send-failed"));
     } finally {
       setPhoneOtpSending(false);
     }
@@ -526,20 +534,20 @@ export const CheckoutComponent: React.FC = () => {
       setUser(res.data as User);
       setSavedPhoneNumber(phoneValue);
       resetPhoneOtpState();
-      toast.success("მობილურის ნომერი დადასტურდა და შენახულია!");
+      toast.success(t("toast-phone-verified-saved") as string);
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "მობილურის ნომრის შენახვა ვერ მოხერხდა");
+      toast.error(err?.response?.data?.message || t("toast-phone-save-failed"));
     }
   };
 
   const handleVerifyPhoneOtp = async () => {
     setPhoneOtpError(null);
     if (!phoneOtpCodeInput.trim()) {
-      setPhoneOtpError("გთხოვთ შეიყვანოთ დადასტურების კოდი");
+      setPhoneOtpError(t("error-otp-code-required"));
       return;
     }
     if (!phoneOtpRequestId) {
-      setPhoneOtpError("კოდის გაგზავნის სესია ვადაგასულია — გთხოვთ ხელახლა გამოაგზავნოთ კოდი");
+      setPhoneOtpError(t("error-otp-session-expired"));
       setPhoneOtpSent(false);
       return;
     }
@@ -555,7 +563,7 @@ export const CheckoutComponent: React.FC = () => {
       // დადასტურებისთანავე, დამატებითი დაჭერის გარეშე, ინახავს მობილურის ნომერს
       await persistVerifiedPhone(requestId, code, phoneInput.trim());
     } catch (err: any) {
-      setPhoneOtpError(err?.response?.data?.message || "კოდი არასწორია ან ვადაგასულია");
+      setPhoneOtpError(err?.response?.data?.message || t("error-otp-invalid"));
     } finally {
       setPhoneOtpVerifying(false);
     }
@@ -571,15 +579,15 @@ export const CheckoutComponent: React.FC = () => {
 
     const personalNumberParsed = personalNumberField().safeParse(personalNumberInput);
     if (!personalNumberParsed.success) {
-      toast.error(personalNumberParsed.error.issues[0]?.message || "გთხოვთ მიუთითოთ ვალიდური პირადი ნომერი");
+      toast.error((personalNumberParsed.error.issues[0]?.message || t("error-valid-personal-number")) as string);
       return;
     }
     if (emailChanged && !otpVerified) {
-      toast.error("ელფოსტის შესაცვლელად საჭიროა ახალი ელფოსტის დადასტურება");
+      toast.error(t("error-email-verification-required") as string);
       return;
     }
     if (phoneChanged && !phoneOtpVerified) {
-      toast.error("მობილურის ნომრის შესაცვლელად საჭიროა ახალი ნომრის დადასტურება");
+      toast.error(t("error-phone-verification-required") as string);
       return;
     }
 
@@ -606,9 +614,9 @@ export const CheckoutComponent: React.FC = () => {
       setSavedPhoneNumber(newPhoneNumber);
       resetEmailOtpState();
       resetPhoneOtpState();
-      toast.success("მონაცემები წარმატებით შენახულია!");
+      toast.success(t("toast-info-saved") as string);
     } catch (err: any) {
-      const message = err?.response?.data?.message || "მონაცემების შენახვა ვერ მოხერხდა";
+      const message = err?.response?.data?.message || t("toast-info-save-failed");
 
       // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
       // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
@@ -631,7 +639,7 @@ export const CheckoutComponent: React.FC = () => {
         <Header />
         <S.PageBackground>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            <p style={{ color: "var(--ref-text-secondary)" }}>{t("loading")}</p>
           </S.Container>
         </S.PageBackground>
       </>
@@ -645,10 +653,10 @@ export const CheckoutComponent: React.FC = () => {
         <S.PageBackground>
           <S.AccessDeniedCard>
             <LockIcon size={48} />
-            <S.AccessDeniedTitle>საჭიროა ავტორიზაცია</S.AccessDeniedTitle>
-            <S.AccessDeniedText>შეკვეთის გასაფორმებლად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
+            <S.AccessDeniedTitle>{t("auth-required-title")}</S.AccessDeniedTitle>
+            <S.AccessDeniedText>{t("auth-required-text")}</S.AccessDeniedText>
             <S.ActionButton type="button" onClick={() => setAuthModalOpen(true)}>
-              შესვლა
+              {t("login-button")}
             </S.ActionButton>
           </S.AccessDeniedCard>
         </S.PageBackground>
@@ -707,11 +715,11 @@ export const CheckoutComponent: React.FC = () => {
     if (!session?.accessToken || isEmpty || purchaseBlocked) return;
 
     if (deliveryMethod === "courier" && !selectedAddress) {
-      setAddressError("გთხოვთ აირჩიოთ ან დაამატოთ მიწოდების მისამართი");
+      setAddressError(t("error-select-address"));
       return;
     }
     if (deliveryMethod === "pickup" && !selectedBranch) {
-      setBranchError("გთხოვთ აირჩიოთ ფილიალი");
+      setBranchError(t("error-select-branch"));
       return;
     }
     setAddressError(null);
@@ -740,7 +748,7 @@ export const CheckoutComponent: React.FC = () => {
       // კი client-side ნავიგაციისთვისაა, ამიტომ რეალური ბრაუზერის ნავიგაცია გვჭირდება.
       window.location.href = redirectUrl;
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "შეკვეთის გაფორმება ვერ მოხერხდა");
+      toast.error(err?.response?.data?.message || t("toast-order-failed"));
       setSubmitting(false);
     }
   };
@@ -751,14 +759,14 @@ export const CheckoutComponent: React.FC = () => {
       <S.PageBackground>
         <S.Container>
           <PurchaseSteps current={currentPurchaseStep} completed={completedPurchaseSteps} />
-          <S.Title>შეკვეთის გაფორმება</S.Title>
+          <S.Title>{t("page-title")}</S.Title>
 
           {isEmpty ? (
             <S.EmptyState>
               <CartIcon size={48} />
-              <S.EmptyStateTitle>კალათა ცარიელია</S.EmptyStateTitle>
+              <S.EmptyStateTitle>{t("empty-cart-title")}</S.EmptyStateTitle>
               <S.ActionButton type="button" onClick={() => router.push("/")}>
-                კატალოგში დაბრუნება
+                {t("back-to-catalog")}
               </S.ActionButton>
             </S.EmptyState>
           ) : (
@@ -766,32 +774,32 @@ export const CheckoutComponent: React.FC = () => {
               <S.FormColumn>
                 <S.SectionCard>
                   <S.SectionTitle>
-                    პერსონალური ინფორმაცია
+                    {t("section-personal-info")}
                     {personalInfoComplete && (
                       <S.SectionDoneBadge>
-                        <CheckCircleIcon size={15} /> დადასტურებულია
+                        <CheckCircleIcon size={15} /> {t("done-badge")}
                       </S.SectionDoneBadge>
                     )}
                   </S.SectionTitle>
                   <S.PersonalGrid>
                     <S.ReadonlyField>
-                      <S.ReadonlyLabel>სახელი</S.ReadonlyLabel>
+                      <S.ReadonlyLabel>{t("field-first-name")}</S.ReadonlyLabel>
                       <S.ReadonlyValue>{user?.firstName || "—"}</S.ReadonlyValue>
                     </S.ReadonlyField>
                     <S.ReadonlyField>
-                      <S.ReadonlyLabel>გვარი</S.ReadonlyLabel>
+                      <S.ReadonlyLabel>{t("field-last-name")}</S.ReadonlyLabel>
                       <S.ReadonlyValue>{user?.lastName || "—"}</S.ReadonlyValue>
                     </S.ReadonlyField>
                     <S.ReadonlyField >
                       <S.ReadonlyLabel>
-                        პირადი ნომერი
-                        {personalNumberMissing && <S.RequiredHint> — შეავსეთ</S.RequiredHint>}
+                        {t("field-personal-number")}
+                        {personalNumberMissing && <S.RequiredHint> {t("required-hint-fill")}</S.RequiredHint>}
                       </S.ReadonlyLabel>
                       <S.Input
                         type="text"
                         inputMode="numeric"
                         maxLength={11}
-                        placeholder="11-ციფრიანი პირადი ნომერი"
+                        placeholder={t("personal-number-placeholder")}
                         $invalid={personalNumberMissing}
                         value={personalNumberInput}
                         onChange={(e) => setPersonalNumberInput(e.target.value)}
@@ -800,8 +808,8 @@ export const CheckoutComponent: React.FC = () => {
 
                     <S.ReadonlyField >
                       <S.ReadonlyLabel>
-                        მობილურის ნომერი
-                        {phoneNotVerified && <S.RequiredHint> — არადამოწმებული</S.RequiredHint>}
+                        {t("field-phone-number")}
+                        {phoneNotVerified && <S.RequiredHint> {t("required-hint-unverified")}</S.RequiredHint>}
                       </S.ReadonlyLabel>
                       <S.FieldRow>
                         <S.InputWrapper>
@@ -809,7 +817,7 @@ export const CheckoutComponent: React.FC = () => {
                             type="tel"
                             inputMode="numeric"
                             maxLength={9}
-                            placeholder="5XX XX XX XX"
+                            placeholder={t("phone-placeholder")}
                             $invalid={!phoneInput.trim() || phoneNotVerified || !!phoneDuplicateError}
                             value={phoneInput}
                             onChange={(e) => setPhoneInput(e.target.value)}
@@ -818,7 +826,7 @@ export const CheckoutComponent: React.FC = () => {
                         {phoneNeedsVerificationUi &&
                           (phoneOtpVerified ? (
                             <S.VerifiedBadge>
-                              <CheckCircleIcon size={15} /> დადასტურებულია
+                              <CheckCircleIcon size={15} /> {t("otp-verified-badge")}
                             </S.VerifiedBadge>
                           ) : (
                             <S.OtpActionBtn
@@ -827,12 +835,12 @@ export const CheckoutComponent: React.FC = () => {
                               disabled={phoneOtpSending || phoneOtpResendCooldown > 0}
                             >
                               {phoneOtpSending
-                                ? "იგზავნება..."
+                                ? t("otp-sending")
                                 : phoneOtpResendCooldown > 0
-                                ? `ხელახლა გაგზავნა (${phoneOtpResendCooldown})`
+                                ? t("otp-resend-countdown", { seconds: phoneOtpResendCooldown })
                                 : phoneOtpSent
-                                ? "ხელახლა გაგზავნა"
-                                : "დამოწმება"}
+                                ? t("otp-resend")
+                                : t("otp-verify-button")}
                             </S.OtpActionBtn>
                           ))}
                       </S.FieldRow>
@@ -842,7 +850,7 @@ export const CheckoutComponent: React.FC = () => {
                             <S.Input
                               type="text"
                               inputMode="numeric"
-                              placeholder="SMS-ით მიღებული კოდი"
+                              placeholder={t("otp-code-placeholder-sms")}
                               value={phoneOtpCodeInput}
                               onChange={(e) => setPhoneOtpCodeInput(e.target.value)}
                             />
@@ -852,7 +860,7 @@ export const CheckoutComponent: React.FC = () => {
                             onClick={handleVerifyPhoneOtp}
                             disabled={phoneOtpVerifying || !phoneOtpCodeInput.trim()}
                           >
-                            {phoneOtpVerifying ? "მოწმდება..." : "დადასტურება"}
+                            {phoneOtpVerifying ? t("otp-verifying") : t("otp-confirm-button")}
                           </S.OtpActionBtn>
                         </S.FieldRow>
                       )}
@@ -862,8 +870,8 @@ export const CheckoutComponent: React.FC = () => {
 
                     <S.ReadonlyField >
                       <S.ReadonlyLabel>
-                        ელ-ფოსტა
-                        {emailNotVerified && <S.RequiredHint> — არადამოწმებული</S.RequiredHint>}
+                        {t("field-email")}
+                        {emailNotVerified && <S.RequiredHint> {t("required-hint-unverified")}</S.RequiredHint>}
                       </S.ReadonlyLabel>
                       <S.FieldRow>
                         <S.InputWrapper>
@@ -877,7 +885,7 @@ export const CheckoutComponent: React.FC = () => {
                         {emailNeedsVerificationUi &&
                           (otpVerified ? (
                             <S.VerifiedBadge>
-                              <CheckCircleIcon size={15} /> დადასტურებულია
+                              <CheckCircleIcon size={15} /> {t("otp-verified-badge")}
                             </S.VerifiedBadge>
                           ) : (
                             <S.OtpActionBtn
@@ -886,12 +894,12 @@ export const CheckoutComponent: React.FC = () => {
                               disabled={otpSending || otpResendCooldown > 0}
                             >
                               {otpSending
-                                ? "იგზავნება..."
+                                ? t("otp-sending")
                                 : otpResendCooldown > 0
-                                ? `ხელახლა გაგზავნა (${otpResendCooldown})`
+                                ? t("otp-resend-countdown", { seconds: otpResendCooldown })
                                 : otpSent
-                                ? "ხელახლა გაგზავნა"
-                                : "დამოწმება"}
+                                ? t("otp-resend")
+                                : t("otp-verify-button")}
                             </S.OtpActionBtn>
                           ))}
                       </S.FieldRow>
@@ -901,7 +909,7 @@ export const CheckoutComponent: React.FC = () => {
                             <S.Input
                               type="text"
                               inputMode="numeric"
-                              placeholder="ელფოსტაზე მიღებული კოდი"
+                              placeholder={t("otp-code-placeholder-email")}
                               value={otpCodeInput}
                               onChange={(e) => setOtpCodeInput(e.target.value)}
                             />
@@ -911,7 +919,7 @@ export const CheckoutComponent: React.FC = () => {
                             onClick={handleVerifyEmailOtp}
                             disabled={otpVerifying || !otpCodeInput.trim()}
                           >
-                            {otpVerifying ? "მოწმდება..." : "დადასტურება"}
+                            {otpVerifying ? t("otp-verifying") : t("otp-confirm-button")}
                           </S.OtpActionBtn>
                         </S.FieldRow>
                       )}
@@ -920,30 +928,27 @@ export const CheckoutComponent: React.FC = () => {
                     </S.ReadonlyField>
                      <S.SaveInfoRow>
                     <S.SaveInfoButton type="button" onClick={handleSavePersonalInfo} disabled={savingInfo}>
-                      {savingInfo ? "ინახება..." : "მონაცემების შენახვა"}
+                      {savingInfo ? t("saving") : t("save-info-button")}
                     </S.SaveInfoButton>
                   </S.SaveInfoRow>
                   </S.PersonalGrid>
 
-                 
+
 
                   {purchaseBlocked && (
                     <S.InfoAlert>
                       <WarningIcon size={16} />
-                      <span>
-                        შეკვეთის გასაფორმებლად საჭიროა ელფოსტის და მობილურის დადასტურება და პირადი ნომრის
-                        შევსება — შეავსეთ ველები ზემოთ და დააჭირეთ &bdquo;მონაცემების შენახვას&ldquo;.
-                      </span>
+                      <span>{t("purchase-blocked-info")}</span>
                     </S.InfoAlert>
                   )}
                 </S.SectionCard>
 
                 <S.SectionCard>
                   <S.SectionTitle>
-                    მიწოდების დეტალები
+                    {t("section-delivery-details")}
                     {deliveryComplete && (
                       <S.SectionDoneBadge>
-                        <CheckCircleIcon size={15} /> არჩეულია
+                        <CheckCircleIcon size={15} /> {t("selected-badge")}
                       </S.SectionDoneBadge>
                     )}
                   </S.SectionTitle>
@@ -954,7 +959,7 @@ export const CheckoutComponent: React.FC = () => {
                       onClick={() => setDeliveryMethod("courier")}
                     >
                       <TruckIcon size={20} />
-                      საკურიერო მომსახურება
+                      {t("delivery-method-courier")}
                     </S.MethodOption>
                     <S.MethodOption
                       $active={deliveryMethod === "pickup"}
@@ -962,32 +967,30 @@ export const CheckoutComponent: React.FC = () => {
                       onClick={() => setDeliveryMethod("pickup")}
                     >
                       <BoxIcon size={20} />
-                      ფილიალიდან გატანა
+                      {t("delivery-method-pickup")}
                     </S.MethodOption>
                   </S.MethodRow>
 
                   {deliveryMethod === "pickup" ? (
                     branchesLoading ? (
-                      <S.ReadonlyValue>იტვირთება...</S.ReadonlyValue>
+                      <S.ReadonlyValue>{t("loading")}</S.ReadonlyValue>
                     ) : branches.length === 0 ? (
-                      <S.ReadonlyValue>
-                        ამჟამად არცერთ ფილიალში არ არის მარაგში კალათის ყველა პროდუქტი ერთდროულად
-                      </S.ReadonlyValue>
+                      <S.ReadonlyValue>{t("no-branches-available")}</S.ReadonlyValue>
                     ) : (
                       <S.AddressListPanel>
                         <S.AddressSelectedCard>
                           <BoxIcon size={18} />
                           <S.AddressBody>
-                            <S.Label>ფილიალი{selectedBranch?.company?.name ? ` · ${selectedBranch.company.name}` : ""}</S.Label>
-                            <S.AddressValue>{selectedBranch?.title || "ფილიალი არ არის არჩეული"}</S.AddressValue>
+                            <S.Label>{t("branch-label")}{selectedBranch?.company?.name ? ` · ${selectedBranch.company.name}` : ""}</S.Label>
+                            <S.AddressValue>{selectedBranch?.title || t("branch-not-selected")}</S.AddressValue>
                             <span style={{ fontSize: "13px", color: "var(--ref-text-secondary)" }}>
-                              შეკვეთის აღება შესაძლებელი იქნება {formatPickupReadyDate()}
+                              {t("pickup-ready-notice", { date: formatPickupReadyDate(t) })}
                             </span>
                           </S.AddressBody>
                           {selectedBranch && (
                             <S.InfoToggleBtn
                               type="button"
-                              title="ფილიალის დეტალები"
+                              title={t("branch-details-title")}
                               onClick={() =>
                                 setExpandedBranchId((prev) => (prev === selectedBranch.id ? null : selectedBranch.id))
                               }
@@ -1002,7 +1005,7 @@ export const CheckoutComponent: React.FC = () => {
                         )}
 
                         <S.ToggleAddressesBtn type="button" onClick={() => setShowBranchList((v) => !v)}>
-                          შეცვალე ფილიალი
+                          {t("change-branch")}
                           <ChevronDownIcon
                             size={16}
                             style={{ transform: showBranchList ? "rotate(180deg)" : undefined }}
@@ -1023,7 +1026,7 @@ export const CheckoutComponent: React.FC = () => {
                                 </S.AddressBody>
                                 <S.InfoToggleBtn
                                   type="button"
-                                  title="ფილიალის დეტალები"
+                                  title={t("branch-details-title")}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setExpandedBranchId((prev) => (prev === branch.id ? null : branch.id));
@@ -1038,7 +1041,7 @@ export const CheckoutComponent: React.FC = () => {
                       </S.AddressListPanel>
                     )
                   ) : addressesLoading ? (
-                    <S.ReadonlyValue>იტვირთება...</S.ReadonlyValue>
+                    <S.ReadonlyValue>{t("loading")}</S.ReadonlyValue>
                   ) : addresses.length === 0 ? (
                     // მისამართი საერთოდ არ არსებობს — პირდაპირ დამატების ფორმა ჩანს.
                     <S.AddressFormFields>
@@ -1046,7 +1049,7 @@ export const CheckoutComponent: React.FC = () => {
                         <S.ReadonlyField>
                           <S.Input
                             type="text"
-                            placeholder="სახელი (მაგ. სამსახური, სახლი)"
+                            placeholder={t("address-name-placeholder")}
                             $invalid={!!addressFormErrors.title}
                             value={addressFormValues.title}
                             onChange={(e) => handleAddressFieldChange("title", e.target.value)}
@@ -1056,7 +1059,7 @@ export const CheckoutComponent: React.FC = () => {
                         <S.ReadonlyField>
                           <S.Input
                             type="tel"
-                            placeholder="ტელეფონის ნომერი"
+                            placeholder={t("phone-number-placeholder")}
                             $invalid={!!addressFormErrors.phoneNumber}
                             value={addressFormValues.phoneNumber}
                             onChange={(e) => handleAddressFieldChange("phoneNumber", e.target.value)}
@@ -1073,10 +1076,10 @@ export const CheckoutComponent: React.FC = () => {
                             value={addressFormValues.city}
                             onChange={(e) => handleAddressFieldChange("city", e.target.value)}
                           >
-                            <option value="">ქალაქი</option>
+                            <option value="">{t("city-select-placeholder")}</option>
                             {GEORGIAN_CITIES.map((city) => (
-                              <option key={city} value={city}>
-                                {city}
+                              <option key={city.value} value={city.value}>
+                                {t(city.key)}
                               </option>
                             ))}
                           </S.Select>
@@ -1085,7 +1088,7 @@ export const CheckoutComponent: React.FC = () => {
                         <S.ReadonlyField>
                           <S.Input
                             type="text"
-                            placeholder="მისამართი"
+                            placeholder={t("address-placeholder")}
                             $invalid={!!addressFormErrors.address}
                             value={addressFormValues.address}
                             onChange={(e) => handleAddressFieldChange("address", e.target.value)}
@@ -1096,13 +1099,13 @@ export const CheckoutComponent: React.FC = () => {
                       <S.ReadonlyField>
                         <S.Textarea
                           rows={2}
-                          placeholder="დამატებითი კომენტარი"
+                          placeholder={t("comment-placeholder")}
                           value={addressFormValues.comment}
                           onChange={(e) => handleAddressFieldChange("comment", e.target.value)}
                         />
                       </S.ReadonlyField>
                       <S.SaveInfoButton type="button" onClick={handleSubmitAddress} disabled={addressSaving}>
-                        {addressSaving ? "ინახება..." : "შენახვა"}
+                        {addressSaving ? t("saving") : t("save")}
                       </S.SaveInfoButton>
                     </S.AddressFormFields>
                   ) : (
@@ -1110,17 +1113,17 @@ export const CheckoutComponent: React.FC = () => {
                       <S.AddressSelectedCard>
                         <PinIcon size={18} />
                         <S.AddressBody>
-                          <S.Label>მისამართი</S.Label>
+                          <S.Label>{t("address-label")}</S.Label>
                           <S.AddressValue>
                             {selectedAddress
                               ? `${selectedAddress.title} - ${selectedAddress.city}, ${selectedAddress.address}`
-                              : "მისამართი არ არის არჩეული"}
+                              : t("address-not-selected")}
                           </S.AddressValue>
                         </S.AddressBody>
                       </S.AddressSelectedCard>
 
                       <S.ToggleAddressesBtn type="button" onClick={() => setShowAddressList((v) => !v)}>
-                        შეცვალე/დაამატე მისამართი
+                        {t("change-add-address")}
                         <ChevronDownIcon
                           size={16}
                           style={{ transform: showAddressList ? "rotate(180deg)" : undefined }}
@@ -1137,7 +1140,7 @@ export const CheckoutComponent: React.FC = () => {
                             >
                               <PinIcon size={16} />
                               <S.AddressBody>
-                                <S.Label>მისამართი</S.Label>
+                                <S.Label>{t("address-label")}</S.Label>
                                 <S.AddressValue>
                                   {addr.title} - {addr.city}, {addr.address}
                                 </S.AddressValue>
@@ -1145,7 +1148,7 @@ export const CheckoutComponent: React.FC = () => {
                               <S.AddressItemActions>
                                 <S.IconButton
                                   type="button"
-                                  title="რედაქტირება"
+                                  title={t("edit")}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     openEditAddressModal(addr);
@@ -1155,7 +1158,7 @@ export const CheckoutComponent: React.FC = () => {
                                 </S.IconButton>
                                 <S.IconButton
                                   type="button"
-                                  title="წაშლა"
+                                  title={t("delete")}
                                   disabled={addressDeletingId === addr.id}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -1168,7 +1171,7 @@ export const CheckoutComponent: React.FC = () => {
                             </S.AddressListItem>
                           ))}
                           <S.AddNewAddressBtn type="button" onClick={openAddAddressModal}>
-                            დაამატე ახალი მისამართი
+                            {t("add-new-address")}
                           </S.AddNewAddressBtn>
                         </>
                       )}
@@ -1180,26 +1183,26 @@ export const CheckoutComponent: React.FC = () => {
 
                 <S.SectionCard>
                   <S.SectionTitle>
-                    გადახდის მეთოდი
+                    {t("section-payment-method")}
                     {currentPurchaseStep === "payment" && (
                       <S.SectionDoneBadge>
-                        <CheckCircleIcon size={15} /> მზადაა გადასახდელად
+                        <CheckCircleIcon size={15} /> {t("ready-to-pay-badge")}
                       </S.SectionDoneBadge>
                     )}
                   </S.SectionTitle>
                   <S.MethodRow>
                     <S.MethodOption $active type="button">
-                      საქართველოს ბანკი
+                      {t("payment-bog")}
                     </S.MethodOption>
                     <S.MethodOption $disabled type="button" disabled>
-                      თიბისი ბანკი
-                      <S.SoonBadge>მალე</S.SoonBadge>
+                      {t("payment-tbc")}
+                      <S.SoonBadge>{t("coming-soon")}</S.SoonBadge>
                     </S.MethodOption>
                   </S.MethodRow>
                 </S.SectionCard>
 
                 <S.SectionCard>
-                  <S.SectionTitle>კალათის პროდუქტები ({itemsCount})</S.SectionTitle>
+                  <S.SectionTitle>{t("cart-products-section", { count: itemsCount })}</S.SectionTitle>
                   <S.OrderItemsList>
                     {items.map((item) => {
                       const image = resolveImage(item.product.images?.[0]);
@@ -1209,7 +1212,7 @@ export const CheckoutComponent: React.FC = () => {
                           <S.OrderItemImage>{image && <img src={image} alt={item.product.name} />}</S.OrderItemImage>
                           <S.OrderItemInfo>
                             <S.OrderItemName>{item.product.name}</S.OrderItemName>
-                            <S.OrderItemQty>{item.quantity} ცალი</S.OrderItemQty>
+                            <S.OrderItemQty>{t("item-qty", { count: item.quantity })}</S.OrderItemQty>
                           </S.OrderItemInfo>
                           <S.OrderItemPrice>
                             {(unitPrice * item.quantity).toFixed(2)} ₾
@@ -1226,28 +1229,28 @@ export const CheckoutComponent: React.FC = () => {
               </S.FormColumn>
 
               <S.SummaryColumn>
-                <S.SummaryTitle>შეკვეთა</S.SummaryTitle>
+                <S.SummaryTitle>{t("summary-title")}</S.SummaryTitle>
                 <S.SummaryRow>
-                  <span>პროდუქტი ({itemsCount})</span>
+                  <span>{t("summary-products", { count: itemsCount })}</span>
                   <span>{subtotal.toFixed(2)} ₾</span>
                 </S.SummaryRow>
                 <S.SummaryRow>
-                  <span>მიტანის დირებულება:</span>
-                  <span>უფასო</span>
+                  <span>{t("summary-delivery-cost")}</span>
+                  <span>{t("free")}</span>
                 </S.SummaryRow>
                 <S.Divider />
                 <S.SummaryRow>
-                  <span>სულ თანხა:</span>
+                  <span>{t("summary-total-price")}</span>
                   <span>{subtotal.toFixed(2)} ₾</span>
                 </S.SummaryRow>
                 {discount > 0 && (
                   <S.SummaryRow $discount>
-                    <span>ფასდაკლება:</span>
+                    <span>{t("summary-discount")}</span>
                     <span>-{discount.toFixed(2)} ₾</span>
                   </S.SummaryRow>
                 )}
                 <S.TotalRow>
-                  ჯამში გადასახდელი:
+                  {t("summary-total-payable")}
                   <S.TotalValue>{total.toFixed(2)} ₾</S.TotalValue>
                 </S.TotalRow>
 
@@ -1256,19 +1259,19 @@ export const CheckoutComponent: React.FC = () => {
                     <>
                       <BoxIcon size={18} />
                       <span>
-                        შეკვეთის აღება ფილიალიდან
+                        {t("delivery-notice-pickup")}
                         <br />
                         {selectedBranch?.title ? `${selectedBranch.title} — ` : ""}
-                        {formatPickupReadyDate()}
+                        {formatPickupReadyDate(t)}
                       </span>
                     </>
                   ) : (
                     <>
                       <TruckIcon size={18} />
                       <span>
-                        მიტანის თარიღი: 7-8 სექტემბერი
+                        {t("delivery-notice-courier")}
                         <br />
-                        თუ შეკვეთავთ დღეს, 13:00 საათის შემდეგ
+                        {t("delivery-notice-courier-cutoff")}
                       </span>
                     </>
                   )}
@@ -1276,7 +1279,7 @@ export const CheckoutComponent: React.FC = () => {
 
                 <S.SubmitButton type="submit" disabled={submitting || purchaseBlocked}>
                   <LockIcon size={16} />
-                  {submitting ? "მუშავდება..." : "ბარათით გადახდა (BOG)"}
+                  {submitting ? t("submitting") : t("pay-with-card")}
                 </S.SubmitButton>
               </S.SummaryColumn>
             </S.Layout>
@@ -1289,7 +1292,7 @@ export const CheckoutComponent: React.FC = () => {
         <S.ModalOverlay {...getOverlayProps(closeAddressModal)}>
           <S.ModalContent onClick={(e) => e.stopPropagation()}>
             <S.ModalHeader>
-              <S.ModalTitle>{editingAddressId ? "მისამართის რედაქტირება" : "დაამატე ახალი მისამართი"}</S.ModalTitle>
+              <S.ModalTitle>{editingAddressId ? t("modal-edit-address-title") : t("modal-add-address-title")}</S.ModalTitle>
               <S.CloseButton type="button" onClick={closeAddressModal}>
                 <CloseIcon size={16} />
               </S.CloseButton>
@@ -1298,7 +1301,7 @@ export const CheckoutComponent: React.FC = () => {
               <S.ReadonlyField>
                 <S.Input
                   type="text"
-                  placeholder="სახელი (მაგ. სამსახური, სახლი)"
+                  placeholder={t("address-name-placeholder")}
                   $invalid={!!addressFormErrors.title}
                   value={addressFormValues.title}
                   onChange={(e) => handleAddressFieldChange("title", e.target.value)}
@@ -1308,7 +1311,7 @@ export const CheckoutComponent: React.FC = () => {
               <S.ReadonlyField>
                 <S.Input
                   type="tel"
-                  placeholder="ტელეფონის ნომერი"
+                  placeholder={t("phone-number-placeholder")}
                   $invalid={!!addressFormErrors.phoneNumber}
                   value={addressFormValues.phoneNumber}
                   onChange={(e) => handleAddressFieldChange("phoneNumber", e.target.value)}
@@ -1321,10 +1324,10 @@ export const CheckoutComponent: React.FC = () => {
                   value={addressFormValues.city}
                   onChange={(e) => handleAddressFieldChange("city", e.target.value)}
                 >
-                  <option value="">აირჩიეთ</option>
+                  <option value="">{t("city-select-placeholder-choose")}</option>
                   {GEORGIAN_CITIES.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
+                    <option key={city.value} value={city.value}>
+                      {t(city.key)}
                     </option>
                   ))}
                 </S.Select>
@@ -1333,7 +1336,7 @@ export const CheckoutComponent: React.FC = () => {
               <S.ReadonlyField>
                 <S.Input
                   type="text"
-                  placeholder="მისამართი"
+                  placeholder={t("address-placeholder")}
                   $invalid={!!addressFormErrors.address}
                   value={addressFormValues.address}
                   onChange={(e) => handleAddressFieldChange("address", e.target.value)}
@@ -1343,13 +1346,13 @@ export const CheckoutComponent: React.FC = () => {
               <S.ReadonlyField>
                 <S.Textarea
                   rows={2}
-                  placeholder="დამატებითი კომენტარი"
+                  placeholder={t("comment-placeholder")}
                   value={addressFormValues.comment}
                   onChange={(e) => handleAddressFieldChange("comment", e.target.value)}
                 />
               </S.ReadonlyField>
               <S.ModalSubmitButton type="button" onClick={handleSubmitAddress} disabled={addressSaving}>
-                {addressSaving ? "ინახება..." : "შენახვა"}
+                {addressSaving ? t("saving") : t("save")}
               </S.ModalSubmitButton>
             </S.AddressFormFields>
           </S.ModalContent>

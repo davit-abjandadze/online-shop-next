@@ -1,9 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import { ProductsAPI } from "@/API_Client";
-import { Product } from "@/API_Client/client/models";
-import { ProductColor } from "@/API_Client/types";
+import { Product, ProductColor } from "@/API_Client/types";
 import { CartIcon, HeartIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
@@ -38,6 +38,7 @@ const getDisplayStats = (product: Product) => {
 // ნავიგაციას აჩერებენ (preventDefault/stopPropagation).
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
+  const { t } = useTranslation("catalog");
   const { cart, addItem, removeItem } = useCart();
   const { isSaved, toggle } = useWishlist();
   const image = product.images?.[0];
@@ -90,7 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           {oldPrice && <S.DiscountBadge>-{discountPercent}%</S.DiscountBadge>}
           <S.WishlistToggle
             type="button"
-            aria-label={saved ? "სასურველებიდან წაშლა" : "სასურველებში დამატება"}
+            aria-label={saved ? t("wishlist-remove-aria") : t("wishlist-add-aria")}
             active={saved}
             onClick={handleToggleWishlist}
           >
@@ -107,13 +108,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </S.PriceGroup>
             <S.AddButton
               type="button"
-              aria-label={isInCart ? "წაშლა კალათიდან" : "კალათაში დამატება"}
+              aria-label={isInCart ? t("remove-from-cart-aria") : t("add-to-cart-aria")}
               active={isInCart}
               disabled={outOfStock && !isInCart}
               onClick={handleAddToCart}
             >
               <CartIcon size={16} />
-              <S.AddButtonLabel active={isInCart}>წაშლა</S.AddButtonLabel>
+              <S.AddButtonLabel active={isInCart}>{t("remove-label")}</S.AddButtonLabel>
             </S.AddButton>
           </S.Footer>
         </S.Body>

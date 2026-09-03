@@ -7,6 +7,7 @@ import Document, {
   DocumentInitialProps,
 } from "next/document";
 import { ServerStyleSheet } from "styled-components";
+import { DEFAULT_LOCALE } from "@/constants";
 
 export default class MyDocument extends Document {
   static async getInitialProps(
@@ -38,7 +39,7 @@ export default class MyDocument extends Document {
   }
 
   render() {
-    const locale = this.props.__NEXT_DATA__.locale || "en";
+    const locale = this.props.__NEXT_DATA__.locale || DEFAULT_LOCALE;
     return (
       <Html lang={locale}>
         <Head>

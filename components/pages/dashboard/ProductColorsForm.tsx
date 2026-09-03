@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { ColorsAPI, ProductsAPI } from "@/API_Client";
 import { ProductColorItemDto } from "@/API_Client/client/models";
 import { Color, ProductColor } from "@/API_Client/types";
+import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 interface ProductColorsFormProps {
@@ -112,7 +113,7 @@ export const ProductColorsForm: React.FC<ProductColorsFormProps> = ({ productId,
             <S.CategoryCheckboxItem key={color.id} checked={state.checked} style={{ alignItems: "center", gap: 8 }}>
               <input type="checkbox" checked={state.checked} onChange={() => toggleColor(color.id)} />
               {color.hexCode && <S.ColorSwatch type="button" style={{ backgroundColor: color.hexCode, cursor: "default", flexShrink: 0 }} />}
-              <span style={{ flex: 1 }}>{locale === "en" ? color.nameEn || color.nameKa : color.nameKa || color.nameEn}</span>
+              <span style={{ flex: 1 }}>{getCategoryName(color, locale)}</span>
               {state.checked && (
                 <S.Input
                   type="text"

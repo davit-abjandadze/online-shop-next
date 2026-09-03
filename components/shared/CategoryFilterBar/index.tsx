@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import { ChevronDownIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI } from "@/API_Client";
-import { Category } from "@/API_Client/client/models";
+import { Category } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 

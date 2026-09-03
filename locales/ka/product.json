@@ -1,0 +1,17 @@
+{
+  "youtube-video-alt": "YouTube ვიდეო",
+  "product-video-title": "პროდუქტის ვიდეო",
+  "in-stock": "მარაგშია",
+  "out-of-stock": "ამოწურულია",
+  "color-label": "ფერი",
+  "remove-from-cart": "წაშლა კალათიდან",
+  "select-color": "აირჩიეთ ფერი",
+  "add-to-cart": "კალათაში დამატება",
+  "weight": "წონა",
+  "length": "სიგრძე",
+  "width": "სიგანე",
+  "kg-unit": "კგ",
+  "cm-unit": "სმ",
+  "yes": "კი",
+  "no": "არა"
+}

@@ -1,0 +1,17 @@
+{
+  "loading": "Загрузка...",
+  "auth-required-title": "Требуется авторизация",
+  "auth-required-text": "Для просмотра корзины, пожалуйста, авторизуйтесь.",
+  "login-button": "Войти",
+  "page-title": "Корзина",
+  "empty-cart-title": "Корзина пуста",
+  "back-to-catalog": "Вернуться в каталог",
+  "stock-limit-reached": "Достигнут лимит наличия",
+  "aria-remove-from-wishlist": "Удалить из избранного",
+  "aria-add-to-wishlist": "Добавить в избранное",
+  "summary-title": "Заказ",
+  "summary-products": "Товары ({{count}})",
+  "summary-discount": "Скидка:",
+  "total-row": "Итого",
+  "continue-to-checkout": "Перейти к оформлению"
+}

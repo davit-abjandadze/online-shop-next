@@ -2,12 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import useTranslation from "next-translate/useTranslation";
 import AuthModal from "@/components/shared/AuthModal";
 import CartButton from "@/components/shared/CartButton";
+import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
 import { useWishlist } from "@/context/Wishlist";
 import { ProductsAPI } from "@/API_Client";
-import { Product } from "@/API_Client/client/models";
-import { PaginatedResponseDto } from "@/API_Client/types";
+import { PaginatedResponseDto, Product } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import {
@@ -34,6 +35,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
+  const { t } = useTranslation("header");
   const { data: session, status } = useSession();
   const router = useRouter();
   const { count: wishlistCount } = useWishlist();
@@ -179,14 +181,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
 
           <S.Nav>
             <Link href="/" passHref legacyBehavior>
-              <S.NavLink active={router.pathname === "/"}>მთავარი</S.NavLink>
+              <S.NavLink active={router.pathname === "/"}>{t("nav-home")}</S.NavLink>
             </Link>
             <Link href="/products" passHref legacyBehavior>
-              <S.NavLink active={router.pathname.startsWith("/products")}>კატალოგი</S.NavLink>
+              <S.NavLink active={router.pathname.startsWith("/products")}>{t("nav-catalog")}</S.NavLink>
             </Link>
             <Link href="/orders" passHref legacyBehavior>
               <S.NavLink active={router.pathname.startsWith("/orders")} onClick={handleOrdersClick}>
-                ჩემი შეკვეთები
+                {t("nav-orders")}
               </S.NavLink>
             </Link>
           </S.Nav>
@@ -197,7 +199,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                 <SearchIcon size={16} />
                 <S.SearchInput
                   type="text"
-                  placeholder="მოძებნეთ პროდუქტი…"
+                  placeholder={t("search-placeholder")}
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   onFocus={() => setSuggestionsOpen(true)}
@@ -207,7 +209,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
               {suggestionsOpen && searchValue.trim() && (
                 <S.SuggestionsDropdown>
                   {suggestionsLoading ? (
-                    <S.SuggestionsStatus>იძებნება…</S.SuggestionsStatus>
+                    <S.SuggestionsStatus>{t("search-loading")}</S.SuggestionsStatus>
                   ) : suggestions.length > 0 ? (
                     suggestions.map((product) => {
                       const image = product.images?.[0];
@@ -237,7 +239,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                       );
                     })
                   ) : (
-                    <S.SuggestionsStatus>პროდუქტი ვერ მოიძებნა</S.SuggestionsStatus>
+                    <S.SuggestionsStatus>{t("search-no-results")}</S.SuggestionsStatus>
                   )}
                 </S.SuggestionsDropdown>
               )}
@@ -246,12 +248,14 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
             <S.WishlistButton
               type="button"
               onClick={() => router.push("/wishlist")}
-              aria-label="სასურველი პროდუქტები"
-              title="სასურველი პროდუქტები"
+              aria-label={t("wishlist-aria-label")}
+              title={t("wishlist-aria-label")}
             >
               <HeartIcon size={20} filled={wishlistCount > 0} />
               {wishlistCount > 0 && <S.WishlistBadge>{wishlistCount > 99 ? "99+" : wishlistCount}</S.WishlistBadge>}
             </S.WishlistButton>
+
+            <LanguageSwitcher variant="header" />
 
             {status === "authenticated" && session?.user ? (
               <>
@@ -272,39 +276,39 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                   <S.DropdownMenu>
                     <S.DropdownHeader>
                       <S.DropdownHeaderName>
-                        {session.user.name || "მომხმარებელი"}
+                        {session.user.name || t("profile-menu-default-name")}
                       </S.DropdownHeaderName>
                       <S.UserEmail>{session.user.email}</S.UserEmail>
                     </S.DropdownHeader>
 
                     {session.user.role?.toLowerCase() === "admin" && (
                       <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/dashboard"); }}>
-                        <ChartIcon size={18} /> დეშბორდი
+                        <ChartIcon size={18} /> {t("profile-menu-dashboard")}
                       </S.DropdownItem>
                     )}
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/profile"); }}>
-                      <UserIcon size={18} /> პროფილი
+                      <UserIcon size={18} /> {t("profile-menu-profile")}
                     </S.DropdownItem>
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/orders"); }}>
-                      <ClipboardIcon size={18} /> ჩემი შეკვეთები
+                      <ClipboardIcon size={18} /> {t("profile-menu-orders")}
                     </S.DropdownItem>
 
                     <S.DropdownItem onClick={() => { setDropdownOpen(false); router.push("/user/change-password"); }}>
-                      <KeyIcon size={18} /> პაროლის შეცვლა
+                      <KeyIcon size={18} /> {t("profile-menu-change-password")}
                     </S.DropdownItem>
 
                     <S.DropdownItem danger onClick={handleLogout}>
-                      <LogoutIcon size={18} /> გამოსვლა
+                      <LogoutIcon size={18} /> {t("profile-menu-logout")}
                     </S.DropdownItem>
                   </S.DropdownMenu>
                 )}
               </>
             ) : (
               <S.LoginBtn onClick={() => handleOpenLogin("login")} type="button">
-                <UserIcon size={18} /> შესვლა
-                <S.LoginBtnFullLabel> / ავტორიზაცია</S.LoginBtnFullLabel>
+                <UserIcon size={18} /> {t("login-cta")}
+                <S.LoginBtnFullLabel> {t("login-cta-suffix")}</S.LoginBtnFullLabel>
               </S.LoginBtn>
             )}
           </S.Actions>

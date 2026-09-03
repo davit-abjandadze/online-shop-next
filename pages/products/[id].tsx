@@ -2,7 +2,7 @@ import Head from "next/head";
 import { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { ProductsAPI } from "@/API_Client";
-import { Product } from "@/API_Client/client/models";
+import { Product } from "@/API_Client/types";
 import { BASEPATH } from "@/constants";
 import ProductDetailComponent from "@/components/pages/productDetail";
 

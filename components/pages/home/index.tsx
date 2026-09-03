@@ -22,9 +22,8 @@ import {
   UndoIcon,
 } from "@/components/ui/RefIcons";
 import { CategoriesAPI, ProductsAPI } from "@/API_Client";
-import { Category, Product } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
-import { PaginatedResponseDto } from "@/API_Client/types";
+import { Category, PaginatedResponseDto, Product } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 

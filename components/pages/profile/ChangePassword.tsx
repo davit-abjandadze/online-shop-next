@@ -17,7 +17,7 @@ import {
 export const ChangePasswordComponent: React.FC = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
-  const { lang } = useTranslation("common");
+  const { lang, t } = useTranslation("profile");
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -41,7 +41,7 @@ export const ChangePasswordComponent: React.FC = () => {
         <Header />
         <S.PageWrapper>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            <p style={{ fontSize: "16px", color: "var(--ref-text-secondary)" }}>{t("loading")}</p>
           </S.Container>
         </S.PageWrapper>
       </>
@@ -55,10 +55,10 @@ export const ChangePasswordComponent: React.FC = () => {
         <S.PageWrapper>
           <S.AccessDeniedCard>
             <LockIcon size={48} />
-            <S.AccessDeniedTitle>წვდომა უარყოფილია</S.AccessDeniedTitle>
-            <S.AccessDeniedText>ამ გვერდზე გადასასვლელად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
+            <S.AccessDeniedTitle>{t("access-denied-title")}</S.AccessDeniedTitle>
+            <S.AccessDeniedText>{t("access-denied-text")}</S.AccessDeniedText>
             <S.ActionButton variant="primary" onClick={() => router.push("/")}>
-              მთავარ გვერდზე დაბრუნება
+              {t("back-to-home")}
             </S.ActionButton>
           </S.AccessDeniedCard>
         </S.PageWrapper>
@@ -84,10 +84,10 @@ export const ChangePasswordComponent: React.FC = () => {
     try {
       await changePassword(data);
 
-      setSuccess("პაროლი წარმატებით შეიცვალა");
+      setSuccess(t("password-changed-success"));
       reset();
     } catch (err: any) {
-      const msg = err?.response?.data?.message || "პაროლის შეცვლა ვერ მოხერხდა";
+      const msg = err?.response?.data?.message || t("password-change-failed");
       setError(msg);
     }
   };
@@ -95,8 +95,8 @@ export const ChangePasswordComponent: React.FC = () => {
   return (
     <ProfileLayout
       activeTab="password"
-      title="პაროლის შეცვლა"
-      subtitle="შეიყვანეთ მიმდინარე და ახალი პაროლი"
+      title={t("change-password-title")}
+      subtitle={t("change-password-subtitle")}
     >
       <S.Card>
         {error && (
@@ -112,7 +112,7 @@ export const ChangePasswordComponent: React.FC = () => {
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <S.FormGroup style={{ marginBottom: "18px" }}>
-            <S.Label>მიმდინარე პაროლი</S.Label>
+            <S.Label>{t("field-old-password")}</S.Label>
             <S.InputWrapper>
               <S.Input
                 type={showPassword ? "text" : "password"}
@@ -121,18 +121,18 @@ export const ChangePasswordComponent: React.FC = () => {
                 {...register("oldPassword")}
               />
               <S.ToggleBtn type="button" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? "დამალვა" : "ჩვენება"}
+                {showPassword ? t("hide-password") : t("show-password")}
               </S.ToggleBtn>
             </S.InputWrapper>
             {errors.oldPassword && <S.FieldError>{errors.oldPassword.message}</S.FieldError>}
           </S.FormGroup>
 
           <S.FormGroup style={{ marginBottom: "18px" }}>
-            <S.Label>ახალი პაროლი</S.Label>
+            <S.Label>{t("field-new-password")}</S.Label>
             <S.InputWrapper>
               <S.Input
                 type={showPassword ? "text" : "password"}
-                placeholder="მინიმუმ 6 სიმბოლო"
+                placeholder={t("new-password-placeholder")}
                 $invalid={!!errors.newPassword}
                 {...register("newPassword")}
               />
@@ -141,11 +141,11 @@ export const ChangePasswordComponent: React.FC = () => {
           </S.FormGroup>
 
           <S.FormGroup style={{ marginBottom: "18px" }}>
-            <S.Label>გაიმეორეთ ახალი პაროლი</S.Label>
+            <S.Label>{t("field-confirm-password")}</S.Label>
             <S.InputWrapper>
               <S.Input
                 type={showPassword ? "text" : "password"}
-                placeholder="გაიმეორეთ ახალი პაროლი"
+                placeholder={t("confirm-password-placeholder")}
                 $invalid={!!errors.confirmPassword}
                 {...register("confirmPassword")}
               />
@@ -155,7 +155,7 @@ export const ChangePasswordComponent: React.FC = () => {
 
           <S.FormFooter style={{ borderTop: "none", paddingTop: 0, marginTop: "8px" }}>
             <S.ActionButton type="submit" variant="primary" disabled={loading}>
-              {loading ? "მიმდინარეობს შეცვლა..." : "პაროლის შეცვლა"}
+              {loading ? t("changing-password") : t("change-password-button")}
             </S.ActionButton>
           </S.FormFooter>
         </form>

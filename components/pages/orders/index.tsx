@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -16,6 +17,7 @@ const PAGE_SIZE = 10;
 
 // ჩემი შეკვეთების ისტორია — გვერდიანი სია, უახლესი პირველი.
 export const OrdersComponent: React.FC = () => {
+  const { t } = useTranslation("orders");
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -37,7 +39,7 @@ export const OrdersComponent: React.FC = () => {
       setOrders(Array.isArray(data?.data) ? data.data : []);
       setTotalPages(data?.meta?.totalPages || 1);
     } catch {
-      toast.error("შეკვეთების ჩატვირთვა ვერ მოხერხდა");
+      toast.error(t("toast-orders-load-failed") as string);
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,7 @@ export const OrdersComponent: React.FC = () => {
         <Header />
         <S.PageBackground>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            <p style={{ color: "var(--ref-text-secondary)" }}>{t("loading")}</p>
           </S.Container>
         </S.PageBackground>
       </>
@@ -70,10 +72,10 @@ export const OrdersComponent: React.FC = () => {
         <S.PageBackground>
           <S.AccessDeniedCard>
             <LockIcon size={48} />
-            <S.AccessDeniedTitle>საჭიროა ავტორიზაცია</S.AccessDeniedTitle>
-            <S.AccessDeniedText>შეკვეთების ისტორიის სანახავად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
+            <S.AccessDeniedTitle>{t("auth-required-title")}</S.AccessDeniedTitle>
+            <S.AccessDeniedText>{t("auth-required-text")}</S.AccessDeniedText>
             <S.PrimaryButton type="button" onClick={() => setAuthModalOpen(true)}>
-              შესვლა
+              {t("login-button")}
             </S.PrimaryButton>
           </S.AccessDeniedCard>
         </S.PageBackground>
@@ -91,14 +93,14 @@ export const OrdersComponent: React.FC = () => {
       <Header />
       <S.PageBackground>
         <S.Container>
-          <S.Title>ჩემი შეკვეთები</S.Title>
+          <S.Title>{t("page-title")}</S.Title>
 
           {!loading && orders.length === 0 ? (
             <S.EmptyState>
               <ClipboardIcon size={48} />
-              <S.EmptyStateTitle>ჯერ არცერთი შეკვეთა არ არის</S.EmptyStateTitle>
+              <S.EmptyStateTitle>{t("empty-orders-title")}</S.EmptyStateTitle>
               <S.PrimaryButton type="button" onClick={() => router.push("/")}>
-                კატალოგში დაბრუნება
+                {t("back-to-catalog")}
               </S.PrimaryButton>
             </S.EmptyState>
           ) : (
@@ -108,21 +110,22 @@ export const OrdersComponent: React.FC = () => {
                   <S.OrderCard key={order.id}>
                     <S.OrderInfo>
                       <S.OrderIdRow>
-                        <S.OrderId>შეკვეთა #{order.id}</S.OrderId>
+                        <S.OrderId>{t("order-id", { id: order.id })}</S.OrderId>
                         <OrderStatusBadge status={order.status} />
                       </S.OrderIdRow>
                       <S.OrderMeta>
-                        {new Date(order.createdAt).toLocaleDateString("ka-GE")} · {order.items.length} ერთეული
+                        {new Date(order.createdAt).toLocaleDateString(router.locale === "ka" ? "ka-GE" : router.locale)}{" "}
+                        · {t("items-count", { count: order.items.length })}
                       </S.OrderMeta>
                     </S.OrderInfo>
                     <S.OrderTotal>{Number(order.totalAmount).toFixed(2)} ₾</S.OrderTotal>
                     <S.OrderActions>
                       <S.ActionButton variant="outline" onClick={() => router.push(`/orders/${order.id}`)}>
-                        დეტალები
+                        {t("details")}
                       </S.ActionButton>
                       {order.status === "pending" && (
                         <S.ActionButton variant="primary" onClick={() => handlePayNow(order.id)}>
-                          გადახდა
+                          {t("pay")}
                         </S.ActionButton>
                       )}
                     </S.OrderActions>

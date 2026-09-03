@@ -2,6 +2,14 @@
   "locales": ["default", "ka", "en", "ru"],
   "defaultLocale": "default",
   "pages": {
-    "*": ["common"]
+    "*": ["common", "header", "footer"],
+    "pages/index": ["catalog"],
+    "pages/products": ["product", "catalog"],
+    "pages/categories": ["catalog"],
+    "pages/wishlist": ["catalog"],
+    "pages/checkout": ["checkout"],
+    "pages/cart": ["cart"],
+    "pages/orders": ["orders"],
+    "pages/user": ["profile"]
   }
 }

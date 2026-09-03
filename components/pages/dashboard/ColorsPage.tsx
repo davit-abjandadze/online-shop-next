@@ -4,19 +4,20 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ColorsAPI } from "@/API_Client";
+import { CreateColorDto, UpdateColorDto } from "@/API_Client/client/models";
 import { Color } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PaletteIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
+import { getCategoryName } from "@/utils/getCategoryName";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
-import { ColorFormValues, colorFormSchema } from "./schemas";
+import { ColorFormValues, buildNameTranslationsDto, colorFormSchema, readNameTranslations } from "./schemas";
 import * as S from "./style";
 
 const emptyColorForm: ColorFormValues = {
-  nameKa: "",
-  nameEn: "",
+  translations: { ka: { name: "" }, en: { name: "" }, ru: { name: "" } },
   hexCode: "",
 };
 
@@ -82,10 +83,10 @@ export const ColorsPage: React.FC = () => {
     setCreateSubmitting(true);
     try {
       await ColorsAPI(router.locale || "ka", session!.accessToken!).colorsControllerCreate({
-        nameKa: data.nameKa.trim(),
-        nameEn: data.nameEn.trim(),
+        translations: buildNameTranslationsDto(data.translations),
         hexCode: data.hexCode?.trim() || undefined,
-      });
+        // TODO: generated CreateColorDto not yet regenerated for translations — remove cast after yarn generate:api
+      } as unknown as CreateColorDto);
       toast.success("ფერი წარმატებით დაემატა!");
       setIsCreateOpen(false);
       createForm.reset(emptyColorForm);
@@ -100,8 +101,7 @@ export const ColorsPage: React.FC = () => {
   const handleOpenEdit = (color: Color) => {
     setEditingColor(color);
     editForm.reset({
-      nameKa: color.nameKa,
-      nameEn: color.nameEn,
+      translations: readNameTranslations(color.translations),
       hexCode: color.hexCode || "",
     });
   };
@@ -111,10 +111,10 @@ export const ColorsPage: React.FC = () => {
     setEditSubmitting(true);
     try {
       await ColorsAPI(router.locale || "ka", session.accessToken).colorsControllerUpdate(String(editingColor.id), {
-        nameKa: data.nameKa.trim(),
-        nameEn: data.nameEn.trim(),
+        translations: buildNameTranslationsDto(data.translations),
         hexCode: data.hexCode?.trim() || undefined,
-      });
+        // TODO: generated UpdateColorDto not yet regenerated for translations — remove cast after yarn generate:api
+      } as unknown as UpdateColorDto);
       toast.success("ფერი წარმატებით განახლდა!");
       setEditingColor(null);
       fetchColors();
@@ -145,13 +145,24 @@ export const ColorsPage: React.FC = () => {
       <S.FormRow>
         <S.FormGroup>
           <S.Label>დასახელება (ქართულად)</S.Label>
-          <S.Input type="text" placeholder="მაგ: წითელი" {...form.register("nameKa")} />
-          {form.formState.errors.nameKa && <S.FieldError>{form.formState.errors.nameKa.message}</S.FieldError>}
+          <S.Input type="text" placeholder="მაგ: წითელი" {...form.register("translations.ka.name")} />
+          {form.formState.errors.translations?.ka?.name && (
+            <S.FieldError>{form.formState.errors.translations.ka.name.message}</S.FieldError>
+          )}
         </S.FormGroup>
         <S.FormGroup>
           <S.Label>დასახელება (ინგლისურად)</S.Label>
-          <S.Input type="text" placeholder="e.g. Red" {...form.register("nameEn")} />
-          {form.formState.errors.nameEn && <S.FieldError>{form.formState.errors.nameEn.message}</S.FieldError>}
+          <S.Input type="text" placeholder="e.g. Red" {...form.register("translations.en.name")} />
+          {form.formState.errors.translations?.en?.name && (
+            <S.FieldError>{form.formState.errors.translations.en.name.message}</S.FieldError>
+          )}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>დასახელება (რუსულად)</S.Label>
+          <S.Input type="text" placeholder="напр. Красный" {...form.register("translations.ru.name")} />
+          {form.formState.errors.translations?.ru?.name && (
+            <S.FieldError>{form.formState.errors.translations.ru.name.message}</S.FieldError>
+          )}
         </S.FormGroup>
       </S.FormRow>
       <S.FormGroup>
@@ -198,9 +209,9 @@ export const ColorsPage: React.FC = () => {
                     <S.ColorSwatch type="button" style={{ backgroundColor: color.hexCode, cursor: "default", flexShrink: 0 }} />
                   )}
                   <div>
-                    <S.QuestionText>{router.locale === "en" ? color.nameEn || color.nameKa : color.nameKa || color.nameEn}</S.QuestionText>
+                    <S.QuestionText>{getCategoryName(color, router.locale)}</S.QuestionText>
                     <p style={{ margin: "4px 0 0 0", fontSize: "13px", color: "var(--ref-text-secondary)" }}>
-                      {color.nameKa} / {color.nameEn}
+                      {getCategoryName(color, "ka")} / {getCategoryName(color, "en")}
                       {color.hexCode && ` · ${color.hexCode}`}
                     </p>
                   </div>

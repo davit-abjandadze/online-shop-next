@@ -1,8 +1,11 @@
 import { branchFormSchema, categoryFormSchema } from "./schemas";
 
 const validCategory = {
-  nameKa: "ელექტრონიკა",
-  nameEn: "Electronics",
+  translations: {
+    ka: { name: "ელექტრონიკა" },
+    en: { name: "Electronics" },
+    ru: { name: "Электроника" },
+  },
   slug: "electronics",
   isActive: true,
 };
@@ -13,11 +16,21 @@ describe("categoryFormSchema", () => {
   });
 
   it("rejects a blank Georgian name", () => {
-    expect(categoryFormSchema.safeParse({ ...validCategory, nameKa: "   " }).success).toBe(false);
+    expect(
+      categoryFormSchema.safeParse({
+        ...validCategory,
+        translations: { ...validCategory.translations, ka: { name: "   " } },
+      }).success
+    ).toBe(false);
   });
 
-  it("rejects a blank English name", () => {
-    expect(categoryFormSchema.safeParse({ ...validCategory, nameEn: "   " }).success).toBe(false);
+  it("accepts a blank English name (optional)", () => {
+    expect(
+      categoryFormSchema.safeParse({
+        ...validCategory,
+        translations: { ...validCategory.translations, en: { name: "   " } },
+      }).success
+    ).toBe(true);
   });
 
   it("rejects a slug with invalid characters", () => {

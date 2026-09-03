@@ -1,0 +1,18 @@
+{
+  "nav-home": "მთავარი",
+  "nav-catalog": "კატალოგი",
+  "nav-orders": "ჩემი შეკვეთები",
+  "search-placeholder": "მოძებნეთ პროდუქტი…",
+  "search-loading": "იძებნება…",
+  "search-no-results": "პროდუქტი ვერ მოიძებნა",
+  "wishlist-aria-label": "სასურველი პროდუქტები",
+  "profile-menu-default-name": "მომხმარებელი",
+  "profile-menu-dashboard": "დეშბორდი",
+  "profile-menu-profile": "პროფილი",
+  "profile-menu-orders": "ჩემი შეკვეთები",
+  "profile-menu-change-password": "პაროლის შეცვლა",
+  "profile-menu-logout": "გამოსვლა",
+  "login-cta": "შესვლა",
+  "login-cta-suffix": "/ ავტორიზაცია",
+  "cart-button-aria-label": "კალათა"
+}

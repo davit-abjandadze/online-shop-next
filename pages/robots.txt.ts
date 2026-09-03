@@ -1,5 +1,5 @@
 import { GetServerSideProps } from "next";
-import { BASEPATH } from "@/constants";
+import { BASEPATH, SUPPORTED_LOCALES } from "@/constants";
 
 const PRIVATE_PATHS = [
   "/dashboard",
@@ -7,14 +7,20 @@ const PRIVATE_PATHS = [
   "/login",
   "/register",
   "/reset-password",
-  "/api/",
 ];
+
+// API route-ები არასდროს არიან locale-პრეფიქსული (იხ. middleware.ts) — ამიტომ
+// "/api/"-ს ცალკე, ჰოლი სახით ვტოვებთ, დანარჩენებს კი locale-ის მიხედვით ვამრავლებთ
+const PRIVATE_PATHS_LOCALE_AWARE = SUPPORTED_LOCALES.flatMap((locale) =>
+  PRIVATE_PATHS.map((path) => `/${locale}${path}`)
+);
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   const body = [
     "User-agent: *",
     "Allow: /",
-    ...PRIVATE_PATHS.map((path) => `Disallow: ${path}`),
+    ...PRIVATE_PATHS_LOCALE_AWARE.map((path) => `Disallow: ${path}`),
+    "Disallow: /api/",
     "",
     `Sitemap: ${BASEPATH}/sitemap.xml`,
     "",

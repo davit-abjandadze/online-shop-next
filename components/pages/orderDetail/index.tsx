@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -32,6 +33,7 @@ interface OrderDetailProps {
 // აბრუნებს სხვისი შეკვეთის/არარსებული id-ის შემთხვევაში, ორივეს აქ ცალკე,
 // გასაგებ მდგომარეობად ვამუშავებთ (არა Next-ის default error page).
 export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) => {
+  const { t } = useTranslation("orders");
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -63,7 +65,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
       } else if (err?.response?.status === 403) {
         setForbidden(true);
       } else {
-        toast.error("შეკვეთის ჩატვირთვა ვერ მოხერხდა");
+        toast.error(t("toast-order-load-failed") as string);
       }
       return undefined;
     } finally {
@@ -125,7 +127,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
       const { redirectUrl } = res.data as unknown as PaymentInitiateResponse;
       window.location.href = redirectUrl;
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || "გადახდის დაწყება ვერ მოხერხდა");
+      toast.error(err?.response?.data?.message || t("toast-payment-start-failed"));
       setPaying(false);
     }
   };
@@ -136,7 +138,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
         <Header />
         <S.PageBackground>
           <S.Container style={{ textAlign: "center", paddingTop: "100px" }}>
-            <p style={{ color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
+            <p style={{ color: "var(--ref-text-secondary)" }}>{t("loading")}</p>
           </S.Container>
         </S.PageBackground>
       </>
@@ -150,10 +152,10 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
         <S.PageBackground>
           <S.AccessDeniedCard>
             <LockIcon size={48} />
-            <S.AccessDeniedTitle>საჭიროა ავტორიზაცია</S.AccessDeniedTitle>
-            <S.AccessDeniedText>შეკვეთის სანახავად გთხოვთ გაიაროთ ავტორიზაცია.</S.AccessDeniedText>
+            <S.AccessDeniedTitle>{t("auth-required-title")}</S.AccessDeniedTitle>
+            <S.AccessDeniedText>{t("auth-required-text-detail")}</S.AccessDeniedText>
             <S.PrimaryButton type="button" onClick={() => setAuthModalOpen(true)}>
-              შესვლა
+              {t("login-button")}
             </S.PrimaryButton>
           </S.AccessDeniedCard>
         </S.PageBackground>
@@ -171,10 +173,10 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
             <S.EmptyState>
               <ClipboardIcon size={48} />
               <S.EmptyStateTitle>
-                {forbidden ? "ამ შეკვეთის ნახვის უფლება არ გაქვთ" : "შეკვეთა ვერ მოიძებნა"}
+                {forbidden ? t("forbidden-order") : t("order-not-found")}
               </S.EmptyStateTitle>
               <S.PrimaryButton type="button" onClick={() => router.push("/orders")}>
-                ჩემს შეკვეთებში დაბრუნება
+                {t("back-to-orders")}
               </S.PrimaryButton>
             </S.EmptyState>
           </S.Container>
@@ -211,34 +213,33 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
       <S.PageBackground>
         <S.Container>
           <S.BackLink type="button" onClick={() => router.push("/orders")}>
-            ← ჩემი შეკვეთები
+            ← {t("back-to-orders")}
           </S.BackLink>
 
           {paymentQuery === "success" && confirmingPayment && (
             <S.PaymentBanner variant="pending">
-              დასტურდება გადახდა... გთხოვთ დაელოდოთ.
+              {t("payment-confirming")}
             </S.PaymentBanner>
           )}
           {paymentQuery === "success" && confirmTimedOut && order.status === "pending" && (
             <S.PaymentBanner variant="pending">
-              გადახდის დადასტურებას ცოტა მეტი დრო სჭირდება — სტატუსი აქვე განახლდება, როგორც კი დამუშავდება. თუ
-              დიდხანს გაჭიანურდა, დაგვიკავშირდით.
+              {t("payment-confirm-delayed")}
             </S.PaymentBanner>
           )}
           {paymentQuery === "success" && !confirmingPayment && order.status !== "pending" && (
-            <S.PaymentBanner variant="success">გადახდა წარმატებით დასრულდა.</S.PaymentBanner>
+            <S.PaymentBanner variant="success">{t("payment-success")}</S.PaymentBanner>
           )}
           {paymentQuery === "fail" && (
             <S.PaymentBanner variant="fail">
-              გადახდა ვერ შესრულდა. შეგიძლიათ ხელახლა სცადოთ იმავე შეკვეთისთვის ან დაბრუნდეთ კალათაში.
+              {t("payment-failed")}
               <S.PaymentBannerActions>
                 {order.status === "pending" && (
                   <S.PaymentBannerButton type="button" disabled={paying} onClick={handlePayNow}>
-                    {paying ? "მუშავდება..." : "ხელახლა ცდა"}
+                    {paying ? t("submitting") : t("retry-payment")}
                   </S.PaymentBannerButton>
                 )}
                 <S.PaymentBannerLinkButton type="button" onClick={() => router.push("/cart")}>
-                  კალათაში დაბრუნება
+                  {t("back-to-cart")}
                 </S.PaymentBannerLinkButton>
               </S.PaymentBannerActions>
             </S.PaymentBanner>
@@ -246,17 +247,19 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
 
           <S.Card>
             <S.HeaderRow>
-              <S.OrderTitle>შეკვეთა #{order.id}</S.OrderTitle>
+              <S.OrderTitle>{t("order-id", { id: order.id })}</S.OrderTitle>
               <OrderStatusBadge status={order.status} />
             </S.HeaderRow>
 
             <S.MetaGrid>
               <S.MetaItem>
-                <S.MetaLabel>თარიღი</S.MetaLabel>
-                <S.MetaValue>{new Date(order.createdAt).toLocaleDateString("ka-GE")}</S.MetaValue>
+                <S.MetaLabel>{t("meta-date")}</S.MetaLabel>
+                <S.MetaValue>
+                  {new Date(order.createdAt).toLocaleDateString(router.locale === "ka" ? "ka-GE" : router.locale)}
+                </S.MetaValue>
               </S.MetaItem>
               <S.MetaItem>
-                <S.MetaLabel>მიწოდების მისამართი</S.MetaLabel>
+                <S.MetaLabel>{t("meta-shipping-address")}</S.MetaLabel>
                 <S.MetaValue>{order.shippingAddress}</S.MetaValue>
               </S.MetaItem>
             </S.MetaGrid>
@@ -297,7 +300,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
             </S.ItemsList>
 
             <S.TotalRow>
-              სულ ჯამი
+              {t("total-sum")}
               <S.TotalValueGroup>
                 <S.TotalValue>{Number(order.totalAmount).toFixed(2)} ₾</S.TotalValue>
                 {hasDiscount && <S.TotalOriginalValue>{totalOriginalAmount.toFixed(2)} ₾</S.TotalOriginalValue>}
@@ -306,7 +309,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
 
             {order.status === "pending" && (
               <S.PayButton type="button" disabled={paying} onClick={handlePayNow}>
-                {paying ? "მუშავდება..." : "გადახდა ახლავე"}
+                {paying ? t("submitting") : t("pay-now")}
               </S.PayButton>
             )}
           </S.Card>
