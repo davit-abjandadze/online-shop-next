@@ -106,14 +106,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setLoading(false);
 
       if (!res?.ok || res?.error) {
-        setError("არასწორი ელფოსტა ან პაროლი");
+        setError(t("auth-modal-error-login-invalid"));
       } else {
         onClose();
         router.push('/');
       }
     } catch (err: any) {
       setLoading(false);
-      setError("ავტორიზაციის დროს დაფიქსირდა შეცდომა");
+      setError(t("auth-modal-error-login-generic"));
     }
   };
 
@@ -133,7 +133,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       });
 
       if (response.status === 201 || response.status === 200) {
-        setSuccess("რეგისტრაცია წარმატებით დასრულდა! მიმდინარეობს შესვლა...");
+        setSuccess(t("auth-modal-success-register"));
 
         // Auto-login after registration
         const loginRes = await signIn("credentials", {
@@ -156,7 +156,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
     } catch (err: any) {
       setLoading(false);
-      const msg = err?.response?.data?.message || "რეგისტრაციისას დაფიქსირდა შეცდომა";
+      const msg = err?.response?.data?.message || t("auth-modal-error-register-generic");
 
       // ბექენდი დუბლირებულ ელფოსტას/ნომერზე მხოლოდ ტექსტურ შეტყობინებას აბრუნებს
       // (ცალკე ველის/კოდის გარეშე), ამიტომ შესაბამის ველს ტექსტის მიხედვით ვცნობთ
@@ -189,13 +189,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
       setLoading(false);
       setSuccess(
-        (resp as any)?.message ||
-          "პაროლის აღდგენის ინსტრუქცია გაიგზავნა თქვენს ელფოსტაზე"
+        (resp as any)?.message || t("auth-modal-success-forgot")
       );
     } catch (err: any) {
       setLoading(false);
       const msg =
-        err?.response?.data?.message || "შეცდომა პაროლის აღდგენისას";
+        err?.response?.data?.message || t("auth-modal-error-forgot-generic");
       setError(msg);
     }
   };
@@ -205,11 +204,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       {/* Header */}
         <S.ModalHeader>
           <S.Title>
-            {mode === "login" && "ავტორიზაცია"}
-            {mode === "register" && "რეგისტრაცია"}
-            {mode === "forgot" && "პაროლის აღდგენა"}
+            {mode === "login" && t("auth-modal-title-login")}
+            {mode === "register" && t("auth-modal-title-register")}
+            {mode === "forgot" && t("auth-modal-title-forgot")}
           </S.Title>
-          <S.CloseButton onClick={onClose} aria-label="Close">
+          <S.CloseButton onClick={onClose} aria-label={t("auth-modal-close")}>
             <CloseIcon size={16} />
           </S.CloseButton>
         </S.ModalHeader>
@@ -222,14 +221,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               onClick={() => handleTabSwitch("login")}
               type="button"
             >
-              შესვლა
+              {t("auth-modal-tab-login")}
             </S.TabButton>
             <S.TabButton
               active={mode === "register"}
               onClick={() => handleTabSwitch("register")}
               type="button"
             >
-              რეგისტრაცია
+              {t("auth-modal-tab-register")}
             </S.TabButton>
           </S.TabBar>
         )}
@@ -271,7 +270,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 fontSize: "13px",
               }}
             >
-              <GoogleIcon size={16} /> Google-ით შესვლა
+              <GoogleIcon size={16} /> {t("auth-modal-google")}
             </button>
             {/* ⚠️ დროებით გამორთულია Facebook-ით შესვლა (Facebook App ჯერ Development/Unpublished რეჟიმშია)
             <button
@@ -298,7 +297,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             */}
 
             <S.FormGroup>
-              <S.Label>ელფოსტა</S.Label>
+              <S.Label>{t("auth-modal-label-email")}</S.Label>
               <S.InputWrapper>
                 <S.Input
                   type="email"
@@ -313,7 +312,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </S.FormGroup>
 
             <S.FormGroup>
-              <S.Label>პაროლი</S.Label>
+              <S.Label>{t("auth-modal-label-password")}</S.Label>
               <S.InputWrapper>
                 <S.Input
                   type={showLoginPassword ? "text" : "password"}
@@ -325,7 +324,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="button"
                   onClick={() => setShowLoginPassword(!showLoginPassword)}
                 >
-                  {showLoginPassword ? "დამალვა" : "ჩვენება"}
+                  {showLoginPassword ? t("auth-modal-hide-password") : t("auth-modal-show-password")}
                 </S.TogglePasswordBtn>
               </S.InputWrapper>
               {loginForm.formState.errors.password && (
@@ -338,12 +337,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 type="button"
                 onClick={() => handleTabSwitch("forgot")}
               >
-                დაგავიწყდათ პაროლი?
+                {t("auth-modal-forgot-link")}
               </S.LinkBtn>
             </S.FooterLinks>
 
             <S.SubmitButton type="submit" disabled={loading}>
-              {loading ? "მიმდინარეობს შესვლა..." : "შესვლა"}
+              {loading ? t("auth-modal-login-submitting") : t("auth-modal-login-submit")}
             </S.SubmitButton>
           </S.FormContainer>
         )}
@@ -353,10 +352,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <S.FormContainer onSubmit={registerForm.handleSubmit(onRegisterSubmit)}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
               <S.FormGroup>
-                <S.Label>სახელი</S.Label>
+                <S.Label>{t("auth-modal-label-first-name")}</S.Label>
                 <S.Input
                   type="text"
-                  placeholder="გიორგი"
+                  placeholder={t("auth-modal-placeholder-first-name")}
                   $invalid={!!registerForm.formState.errors.firstName}
                   {...registerForm.register("firstName")}
                 />
@@ -365,10 +364,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 )}
               </S.FormGroup>
               <S.FormGroup>
-                <S.Label>გვარი</S.Label>
+                <S.Label>{t("auth-modal-label-last-name")}</S.Label>
                 <S.Input
                   type="text"
-                  placeholder="ბერიძე"
+                  placeholder={t("auth-modal-placeholder-last-name")}
                   $invalid={!!registerForm.formState.errors.lastName}
                   {...registerForm.register("lastName")}
                 />
@@ -379,7 +378,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
 
             <S.FormGroup>
-              <S.Label>ელფოსტა</S.Label>
+              <S.Label>{t("auth-modal-label-email")}</S.Label>
               <S.Input
                 type="email"
                 placeholder="example@domain.com"
@@ -392,7 +391,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </S.FormGroup>
 
             <S.FormGroup>
-              <S.Label>მობილურის ნომერი</S.Label>
+              <S.Label>{t("auth-modal-label-phone")}</S.Label>
               <S.InputWrapper>
                 <S.Input
                   type="tel"
@@ -409,11 +408,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </S.FormGroup>
 
             <S.FormGroup>
-              <S.Label>პაროლი</S.Label>
+              <S.Label>{t("auth-modal-label-password")}</S.Label>
               <S.InputWrapper>
                 <S.Input
                   type={showRegPassword ? "text" : "password"}
-                  placeholder="მინიმუმ 6 სიმბოლო"
+                  placeholder={t("auth-modal-placeholder-password-register")}
                   $invalid={!!registerForm.formState.errors.password}
                   {...registerForm.register("password")}
                 />
@@ -421,7 +420,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="button"
                   onClick={() => setShowRegPassword(!showRegPassword)}
                 >
-                  {showRegPassword ? "დამალვა" : "ჩვენება"}
+                  {showRegPassword ? t("auth-modal-hide-password") : t("auth-modal-show-password")}
                 </S.TogglePasswordBtn>
               </S.InputWrapper>
               {registerForm.formState.errors.password && (
@@ -430,10 +429,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </S.FormGroup>
 
             <S.FormGroup>
-              <S.Label>გაიმეორეთ პაროლი</S.Label>
+              <S.Label>{t("auth-modal-label-confirm-password")}</S.Label>
               <S.Input
                 type={showRegPassword ? "text" : "password"}
-                placeholder="გაიმეორეთ პაროლი"
+                placeholder={t("auth-modal-placeholder-confirm-password")}
                 $invalid={!!registerForm.formState.errors.confirmPassword}
                 {...registerForm.register("confirmPassword")}
               />
@@ -443,7 +442,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </S.FormGroup>
 
             <S.SubmitButton type="submit" disabled={loading}>
-              {loading ? "მიმდინარეობს რეგისტრაცია..." : "რეგისტრაცია"}
+              {loading ? t("auth-modal-register-submitting") : t("auth-modal-register-submit")}
             </S.SubmitButton>
           </S.FormContainer>
         )}
@@ -452,11 +451,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         {mode === "forgot" && (
           <S.FormContainer onSubmit={forgotForm.handleSubmit(onForgotSubmit)}>
             <p style={{ fontSize: "13px", color: "var(--ref-text-secondary)", margin: 0 }}>
-              შეიყვანეთ ელფოსტა, რომლითაც დარეგისტრირებული ხართ და გამოგიგზავნით პაროლის აღდგენის ინსტრუქციას.
+              {t("auth-modal-forgot-description")}
             </p>
 
             <S.FormGroup>
-              <S.Label>ელფოსტა</S.Label>
+              <S.Label>{t("auth-modal-label-email")}</S.Label>
               <S.Input
                 type="email"
                 placeholder="example@domain.com"
@@ -469,7 +468,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </S.FormGroup>
 
             <S.SubmitButton type="submit" disabled={loading}>
-              {loading ? "გაგზავნა..." : "აღდგენის ინსტრუქციის გაგზავნა"}
+              {loading ? t("auth-modal-forgot-submitting") : t("auth-modal-forgot-submit")}
             </S.SubmitButton>
 
             <S.FooterLinks style={{ justifyContent: "center", marginTop: "8px" }}>
@@ -477,7 +476,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 type="button"
                 onClick={() => handleTabSwitch("login")}
               >
-                ← ავტორიზაციაზე დაბრუნება
+                {t("auth-modal-back-to-login")}
               </S.LinkBtn>
             </S.FooterLinks>
           </S.FormContainer>
