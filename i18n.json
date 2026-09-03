@@ -3,13 +3,13 @@
   "defaultLocale": "default",
   "pages": {
     "*": ["common", "header", "footer"],
-    "pages/index": ["catalog", "home"],
-    "pages/products": ["product", "catalog"],
-    "pages/categories": ["catalog"],
-    "pages/wishlist": ["catalog"],
-    "pages/checkout": ["checkout"],
-    "pages/cart": ["cart"],
-    "pages/orders": ["orders"],
-    "pages/user": ["profile"]
+    "/": ["catalog", "home"],
+    "rgx:^/products": ["product", "catalog"],
+    "rgx:^/categories": ["catalog"],
+    "/wishlist": ["catalog"],
+    "/checkout": ["checkout"],
+    "/cart": ["cart"],
+    "rgx:^/orders": ["orders"],
+    "rgx:^/user": ["profile"]
   }
 }

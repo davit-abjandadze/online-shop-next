@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
@@ -8,6 +8,7 @@ import { CartIcon, HeartIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons
 import { CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
+import { getCategoryName } from "@/utils/getCategoryName";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import * as S from "./style";
 
@@ -41,6 +42,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { t } = useTranslation("catalog");
   const { cart, addItem, removeItem } = useCart();
   const { isSaved, toggle } = useWishlist();
+  const productName = getCategoryName(product, router.locale);
   const image = product.images?.[0];
   const imageSrc = image ? (image.startsWith("http") ? image : `${CDN_URL}${image}`) : undefined;
   const outOfStock = product.stock <= 0;
@@ -48,11 +50,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { rating, reviews } = getDisplayStats(product);
   const { price: displayPrice, originalPrice: oldPrice, discountPercent } = getDiscountedPrice(product);
 
+  // ფერების ჩამონათვალი მარაგთან ერთად — ბარათზე ბეიჯისთვის და "კალათაში
+  // დამატების" ავტომატური ფერის შერჩევისთვის ორივესთვის ერთი და იგივე
+  // მოთხოვნა გვჭირდება, ამიტომ ერთხელ, mount-ზე ვტვირთავთ.
+  const [productColors, setProductColors] = useState<ProductColor[]>([]);
+  const colorsInStock = productColors.filter((pc) => pc.stock > 0);
+
+  useEffect(() => {
+    let cancelled = false;
+    ProductsAPI(router.locale || "ka", "")
+      .productsControllerGetColors(String(product.id))
+      .then((res) => {
+        if (!cancelled) setProductColors((res.data as unknown as ProductColor[]) || []);
+      })
+      .catch(() => {
+        // ფერების წამოღება ვერ მოხერხდა — ბეიჯი უბრალოდ არ გამოჩნდება
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [product.id, router.locale]);
+
   // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
   const isInCart = Boolean(cartItem);
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (cartItem) {
@@ -63,18 +86,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     // თუ პროდუქტს ფერები აქვს მიბმული, ბექენდი ფერის მითითებას ითხოვს —
     // ბარათიდან პირდაპირი დამატებისას მასივში პირველი ხელმისაწვდომი ფერი
     // ავტომატურად იგულისხმება მონიშნულად.
-    let colorId: string | undefined;
-    try {
-      const res = await ProductsAPI(router.locale || "ka", "").productsControllerGetColors(
-        String(product.id)
-      );
-      const colors = (res.data as unknown as ProductColor[]) || [];
-      colorId = colors.find((c) => c.stock > 0)?.colorId;
-    } catch {
-      // ფერების წამოღება ვერ მოხერხდა — ჩუმად ვცდილობთ დამატებას ფერის გარეშე
-    }
-
-    addItem(product.id, 1, colorId);
+    addItem(product.id, 1, colorsInStock[0]?.colorId);
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -87,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <Link href={`/products/${product.id}`} passHref legacyBehavior>
       <S.Card out={outOfStock}>
         <S.ImageWrap>
-          {imageSrc ? <img src={imageSrc} alt={product.name} loading="lazy" /> : <TagIcon size={40} />}
+          {imageSrc ? <img src={imageSrc} alt={productName} loading="lazy" /> : <TagIcon size={40} />}
           {oldPrice && <S.DiscountBadge>-{discountPercent}%</S.DiscountBadge>}
           <S.WishlistToggle
             type="button"
@@ -99,7 +111,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </S.WishlistToggle>
         </S.ImageWrap>
         <S.Body>
-          <S.Name>{product.name}</S.Name>
+          <S.Name>{productName}</S.Name>
+
+          {/* {colorsInStock.length > 0 && (
+            <S.ColorStockBadge aria-label={t("colors-stock-aria")}>
+              {colorsInStock.map((pc) => (
+                <S.ColorStockItem
+                  key={pc.colorId}
+                  title={pc.color ? getCategoryName(pc.color, router.locale) : undefined}
+                >
+                  <S.ColorDot hexCode={pc.color?.hexCode} />
+                  {pc.stock}
+                </S.ColorStockItem>
+              ))}
+            </S.ColorStockBadge>
+          )} */}
 
           <S.Footer>
             <S.PriceGroup>

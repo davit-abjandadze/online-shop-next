@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductsAPI, CategoriesAPI, CompaniesAPI } from "@/API_Client";
 import { Company, CreateProductDto, ProductAttributeValueItemDto, UpdateProductDto } from "@/API_Client/client/models";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
-import { Category, CategoryAttribute, PaginatedResponseDto, Product, ProductAttributeValue } from "@/API_Client/types";
+import { Category, CategoryAttribute, PaginatedResponseDto, Product, ProductAttributeValue, ProductColor } from "@/API_Client/types";
 import { BoxIcon, CheckSquareIcon, ClipboardIcon, CloseIcon, EditIcon, GridOneIcon, GridThreeIcon, GridTwoIcon, PaletteIcon, PauseIcon, PinIcon, PlayIcon, PlusIcon, SearchIcon, TrashIcon, UploadIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
@@ -101,6 +101,9 @@ export const ProductsPage: React.FC = () => {
   const { getOverlayProps } = useOverlayCloseHandlers();
 
   const [products, setProducts] = useState<Product[]>([]);
+  // თითო პროდუქტის ფერები + თითოეულ ფერზე ცალკე მარაგი — card-ის ბეჯში
+  // საერთო stock-თან ერთად საჩვენებლად (productId-ის მიხედვით indexed).
+  const [colorsByProduct, setColorsByProduct] = useState<Record<string, ProductColor[]>>({});
   const [categories, setCategories] = useState<Category[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -288,6 +291,35 @@ export const ProductsPage: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
+
+  // მიმდინარე გვერდზე ნაჩვენები პროდუქტების ფერები + თითოეულის მარაგი —
+  // ბარათის ბეჯისთვის (`მარაგი: X` ერთად, თითო ფერზე ცალკე რაოდენობით).
+  useEffect(() => {
+    if (!session?.accessToken || products.length === 0) {
+      setColorsByProduct({});
+      return;
+    }
+    let cancelled = false;
+    Promise.all(
+      products.map((p) =>
+        ProductsAPI(router.locale || "ka", session.accessToken!)
+          .productsControllerGetColors(String(p.id))
+          .then((res) => [String(p.id), (res.data as unknown as ProductColor[]) || []] as const)
+          .catch(() => [String(p.id), [] as ProductColor[]] as const)
+      )
+    ).then((entries) => {
+      if (cancelled) return;
+      const next: Record<string, ProductColor[]> = {};
+      entries.forEach(([id, colors]) => {
+        next[id] = colors;
+      });
+      setColorsByProduct(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products, session?.accessToken]);
 
   // ─── Product ↔ Attribute values ────────────────────────────────────────────
   const editCategoryId = editForm.watch("categoryId");
@@ -820,7 +852,30 @@ export const ProductsPage: React.FC = () => {
                         {product.isActive ? "აქტიური" : "არააქტიური"}
                       </S.Badge>
                       <S.Badge variant="date">{Number(product.price).toFixed(2)} ₾</S.Badge>
-                      <S.Badge variant="date">მარაგი: {product.stock}</S.Badge>
+                      <S.Badge variant="date" style={{ flexWrap: "wrap", gap: 6 }}>
+                        <span>მარაგი: {product.stock}</span>
+                        {(colorsByProduct[String(product.id)] || [])
+                          .filter((pc) => pc.stock > 0)
+                          .map((pc) => (
+                            <span
+                              key={pc.colorId}
+                              title={pc.color ? getCategoryName(pc.color, router.locale) : undefined}
+                              style={{ display: "inline-flex", alignItems: "center", gap: 3 }}
+                            >
+                              <span
+                                style={{
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: "50%",
+                                  flexShrink: 0,
+                                  background: pc.color?.hexCode || "#ccc",
+                                  border: "1px solid var(--ref-border)",
+                                }}
+                              />
+                              {pc.stock}
+                            </span>
+                          ))}
+                      </S.Badge>
                       {!!product.discountPercent && (
                         <S.Badge variant="date">ფასდაკლება: {product.discountPercent}%</S.Badge>
                       )}

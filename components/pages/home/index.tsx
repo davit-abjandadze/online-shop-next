@@ -214,6 +214,7 @@ export const HomeComponent: React.FC = () => {
             <Swiper
               modules={[Autoplay]}
               slidesPerView={1}
+              spaceBetween={20}
               loop
               autoplay={{ delay: HERO_AUTOPLAY_MS, disableOnInteraction: false }}
               onSwiper={(swiper) => {

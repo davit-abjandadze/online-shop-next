@@ -92,6 +92,37 @@ export const Name = styled("h3")`
   overflow: hidden;
 `;
 
+export const ColorStockBadge = styled("div")`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--ref-bg);
+`;
+
+export const ColorStockItem = styled("span")`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ref-text-secondary);
+`;
+
+export const ColorDot = styled("span")<{ hexCode?: string }>`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: ${({ hexCode }) => hexCode || "#ccc"};
+  border: 1px solid rgba(0, 0, 0, 0.1);
+`;
+
 export const Footer = styled("div")`
   margin-top: 6px;
   display: flex;

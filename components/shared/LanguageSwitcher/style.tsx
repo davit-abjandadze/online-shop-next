@@ -50,6 +50,20 @@ export const TriggerLabel = styled.span`
   text-transform: uppercase;
 `;
 
+export const FlagIcon = styled.img`
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+`;
+
+export const DropdownItemLeft = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
 export const DropdownMenu = styled.div<{ variant: "header" | "footer" }>`
   position: absolute;
   ${({ variant }) => (variant === "footer" ? "bottom: calc(100% + 10px);" : "top: calc(100% + 10px);")}

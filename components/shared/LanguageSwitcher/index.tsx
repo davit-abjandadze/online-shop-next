@@ -5,10 +5,12 @@ import * as S from "./style";
 
 // `default` — next-translate-routes-ის შიდა ლოკალეა (იხ. next.config.js),
 // გადამრთველში მას არ ვაჩვენებთ.
-const LOCALES: { code: "ka" | "en" | "ru"; label: string; nativeName: string }[] = [
-  { code: "ka", label: "KA", nativeName: "ქართული" },
-  { code: "en", label: "EN", nativeName: "English" },
-  { code: "ru", label: "RU", nativeName: "Русский" },
+// `icon` — /public/icons-ში დამატებული დროშის სურათია (ge/en/ru.png); ka-ს
+// ფაილი ge.png-ია.
+const LOCALES: { code: "ka" | "en" | "ru"; label: string; nativeName: string; icon: string }[] = [
+  { code: "ka", label: "KA", nativeName: "ქართული", icon: "/icons/ge.png" },
+  { code: "en", label: "EN", nativeName: "English", icon: "/icons/en.png" },
+  { code: "ru", label: "RU", nativeName: "Русский", icon: "/icons/ru.png" },
 ];
 
 interface LanguageSwitcherProps {
@@ -54,6 +56,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "h
         aria-label="ენის შეცვლა"
         title="ენის შეცვლა"
       >
+        <S.FlagIcon src={currentLocale.icon} alt={currentLocale.label} />
         <S.TriggerLabel>{currentLocale.label}</S.TriggerLabel>
         <ChevronDownIcon size={14} />
       </S.Trigger>
@@ -67,7 +70,10 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "h
               active={locale.code === currentLocale.code}
               onClick={() => handleSelect(locale.code)}
             >
-              {locale.nativeName}
+              <S.DropdownItemLeft>
+                <S.FlagIcon src={locale.icon} alt={locale.label} />
+                {locale.nativeName}
+              </S.DropdownItemLeft>
               <span>{locale.label}</span>
             </S.DropdownItem>
           ))}
