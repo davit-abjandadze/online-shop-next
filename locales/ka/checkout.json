@@ -94,6 +94,7 @@
   "toast-info-save-failed": "მონაცემების შენახვა ვერ მოხერხდა",
   "error-select-address": "გთხოვთ აირჩიოთ ან დაამატოთ მიწოდების მისამართი",
   "error-select-branch": "გთხოვთ აირჩიოთ ფილიალი",
+  "error-select-payment": "გთხოვთ აირჩიოთ გადახდის მეთოდი",
   "toast-order-failed": "შეკვეთის გაფორმება ვერ მოხერხდა",
   "address-validation-title": "გთხოვთ მიუთითოთ მისამართის სახელი (მაგ. სახლი, სამსახური)",
   "address-validation-phone": "გთხოვთ მიუთითოთ ტელეფონის ნომერი",

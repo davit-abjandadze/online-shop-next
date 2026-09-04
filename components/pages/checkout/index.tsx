@@ -268,7 +268,7 @@ export const CheckoutComponent: React.FC = () => {
   const [addressSaving, setAddressSaving] = useState<boolean>(false);
   const [addressDeletingId, setAddressDeletingId] = useState<number | null>(null);
   const [addressError, setAddressError] = useState<string | null>(null);
-
+  
   // "ფილიალიდან გატანა" — courier-ის ალტერნატივა. deliveryMethod===pickup-ის
   // შემთხვევაში მისამართის სექცია ფილიალის შერჩევის UI-ით იცვლება.
   const [deliveryMethod, setDeliveryMethod] = useState<"courier" | "pickup">("courier");
@@ -279,6 +279,12 @@ export const CheckoutComponent: React.FC = () => {
   const [expandedBranchId, setExpandedBranchId] = useState<number | null>(null);
   const [branchError, setBranchError] = useState<string | null>(null);
 
+  // გადახდის მეთოდი — ამჟამად მხოლოდ BOG-ია ხელმისაწვდომი, მაგრამ მაინც
+  // მომხმარებლის ცალსახა არჩევანს ველოდებით (არ ვირჩევთ ავტომატურად), რომ
+  // ყოველ checkout-ზე თავად დაადასტუროს.
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"bog" | null>(null);
+  const [paymentMethodError, setPaymentMethodError] = useState<string | null>(null);
+
   const fetchAddresses = async () => {
     if (!session?.accessToken) return;
     setAddressesLoading(true);
@@ -286,9 +292,9 @@ export const CheckoutComponent: React.FC = () => {
       const res = await AddressesAPI(router.locale || "ka", session.accessToken).addressesControllerFindAll();
       const list = (res.data as unknown as Address[]) || [];
       setAddresses(list);
-      setSelectedAddressId((prev) =>
-        prev && list.some((a) => a.id === prev) ? prev : list.find((a) => a.isDefault)?.id ?? list[0]?.id ?? null
-      );
+      // ⚠️ განზრახ არ ავირჩევთ ავტომატურად default/პირველ მისამართს — მომხმარებელმა
+      // ყოველ checkout-ზე თავად უნდა აირჩიოს მიწოდების მისამართი.
+      setSelectedAddressId((prev) => (prev && list.some((a) => a.id === prev) ? prev : null));
     } catch {
       // მისამართების ჩატვირთვის ჩავარდნა UI-ს არ უნდა ბლოკავდეს — უბრალოდ ცარიელი დარჩება სია.
     } finally {
@@ -317,7 +323,10 @@ export const CheckoutComponent: React.FC = () => {
       const res = await BranchesAPI(router.locale || "ka", "").branchesControllerFindAvailable(ids);
       const list = (res.data as unknown as Branch[]) || [];
       setBranches(list);
-      setSelectedBranchId((prev) => (prev && list.some((b) => b.id === prev) ? prev : list[0]?.id ?? null));
+      // ⚠️ განზრახ არ ავირჩევთ ავტომატურად პირველ ფილიალს — მომხმარებელმა ყოველ
+      // checkout-ზე თავად უნდა აირჩიოს ფილიალი.
+      setSelectedBranchId((prev) => (prev && list.some((b) => b.id === prev) ? prev : null));
+      setShowBranchList((prev) => prev || list.length > 0);
     } catch {
       // ფილიალების ჩატვირთვის ჩავარდნა UI-ს არ უნდა ბლოკავდეს — უბრალოდ ცარიელი დარჩება სია.
     } finally {
@@ -408,7 +417,7 @@ export const CheckoutComponent: React.FC = () => {
       const listRes = await api.addressesControllerFindAll();
       const list = (listRes.data as unknown as Address[]) || [];
       setAddresses(list);
-      setSelectedAddressId((prev) => (prev === id ? list.find((a) => a.isDefault)?.id ?? list[0]?.id ?? null : prev));
+      setSelectedAddressId((prev) => (prev === id ? null : prev));
     } catch (err: any) {
       toast.error(err?.response?.data?.message || t("toast-address-delete-failed"));
     } finally {
@@ -715,6 +724,7 @@ export const CheckoutComponent: React.FC = () => {
   // ვალიდაციის მდგომარეობიდან გამოითვლება — არა სტატიკურად, გვერდის მიხედვით.
   const personalInfoComplete = !loadingUser && !purchaseBlocked;
   const deliveryComplete = deliveryMethod === "pickup" ? !!selectedBranch : !!selectedAddress;
+  const paymentComplete = !!selectedPaymentMethod;
   const currentPurchaseStep = !personalInfoComplete ? "order" : !deliveryComplete ? "address" : "payment";
   const completedPurchaseSteps: PurchaseStep[] = [
     "cart",
@@ -734,8 +744,13 @@ export const CheckoutComponent: React.FC = () => {
       setBranchError(t("error-select-branch"));
       return;
     }
+    if (!selectedPaymentMethod) {
+      setPaymentMethodError(t("error-select-payment"));
+      return;
+    }
     setAddressError(null);
     setBranchError(null);
+    setPaymentMethodError(null);
     setSubmitting(true);
     try {
       const orderRes = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerCreate(
@@ -1029,7 +1044,7 @@ export const CheckoutComponent: React.FC = () => {
                             <React.Fragment key={branch.id}>
                               <S.AddressListItem
                                 $selected={branch.id === selectedBranchId}
-                                onClick={() => setSelectedBranchId(branch.id)}
+                                onClick={() => {setSelectedBranchId(branch.id)}}
                               >
                                 <PinIcon size={16} />
                                 <S.AddressBody>
@@ -1122,18 +1137,7 @@ export const CheckoutComponent: React.FC = () => {
                     </S.AddressFormFields>
                   ) : (
                     <S.AddressListPanel>
-                      <S.AddressSelectedCard>
-                        <PinIcon size={18} />
-                        <S.AddressBody>
-                          <S.Label>{t("address-label")}</S.Label>
-                          <S.AddressValue>
-                            {selectedAddress
-                              ? `${selectedAddress.title} - ${getCityLabel(selectedAddress.city)}, ${selectedAddress.address}`
-                              : t("address-not-selected")}
-                          </S.AddressValue>
-                        </S.AddressBody>
-                      </S.AddressSelectedCard>
-
+                   
                       <S.ToggleAddressesBtn type="button" onClick={() => setShowAddressList((v) => !v)}>
                         {t("change-add-address")}
                         <ChevronDownIcon
@@ -1148,7 +1152,7 @@ export const CheckoutComponent: React.FC = () => {
                             <S.AddressListItem
                               key={addr.id}
                               $selected={addr.id === selectedAddressId}
-                              onClick={() => setSelectedAddressId(addr.id)}
+                              onClick={() => {setSelectedAddressId(addr.id); setShowAddressList(false);}}
                             >
                               <PinIcon size={16} />
                               <S.AddressBody>
@@ -1187,6 +1191,20 @@ export const CheckoutComponent: React.FC = () => {
                           </S.AddNewAddressBtn>
                         </>
                       )}
+
+                         {selectedAddress && 
+                      <S.AddressSelectedCard>
+                        <PinIcon size={18} />
+                        <S.AddressBody>
+                          <S.Label>{t("address-label")}</S.Label>
+                          <S.AddressValue>
+                            {selectedAddress
+                              ? `${selectedAddress.title} - ${getCityLabel(selectedAddress.city)}, ${selectedAddress.address}`
+                              : t("address-not-selected")}
+                          </S.AddressValue>
+                        </S.AddressBody>
+                      </S.AddressSelectedCard>
+                          } 
                     </S.AddressListPanel>
                   )}
                   {deliveryMethod === "courier" && addressError && <S.FieldError>{addressError}</S.FieldError>}
@@ -1196,14 +1214,21 @@ export const CheckoutComponent: React.FC = () => {
                 <S.SectionCard>
                   <S.SectionTitle>
                     {t("section-payment-method")}
-                    {currentPurchaseStep === "payment" && (
+                    {paymentComplete && (
                       <S.SectionDoneBadge>
                         <CheckCircleIcon size={15} /> {t("ready-to-pay-badge")}
                       </S.SectionDoneBadge>
                     )}
                   </S.SectionTitle>
                   <S.MethodRow>
-                    <S.MethodOption $active type="button">
+                    <S.MethodOption
+                      $active={selectedPaymentMethod === "bog"}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPaymentMethod("bog");
+                        setPaymentMethodError(null);
+                      }}
+                    >
                       {t("payment-bog")}
                     </S.MethodOption>
                     <S.MethodOption $disabled type="button" disabled>
@@ -1211,6 +1236,7 @@ export const CheckoutComponent: React.FC = () => {
                       <S.SoonBadge>{t("coming-soon")}</S.SoonBadge>
                     </S.MethodOption>
                   </S.MethodRow>
+                  {paymentMethodError && <S.FieldError>{paymentMethodError}</S.FieldError>}
                 </S.SectionCard>
 
                 <S.SectionCard>
@@ -1292,7 +1318,7 @@ export const CheckoutComponent: React.FC = () => {
                   )}
                 </S.DeliveryNotice>
 
-                <S.SubmitButton type="submit" disabled={submitting || purchaseBlocked}>
+                <S.SubmitButton type="submit" disabled={submitting || purchaseBlocked || !selectedPaymentMethod}>
                   <LockIcon size={16} />
                   {submitting ? t("submitting") : t("pay-with-card")}
                 </S.SubmitButton>

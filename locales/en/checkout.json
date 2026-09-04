@@ -94,6 +94,7 @@
   "toast-info-save-failed": "Failed to save information",
   "error-select-address": "Please select or add a delivery address",
   "error-select-branch": "Please select a branch",
+  "error-select-payment": "Please select a payment method",
   "toast-order-failed": "Failed to place order",
   "address-validation-title": "Please enter an address name (e.g. Home, Work)",
   "address-validation-phone": "Please enter a phone number",

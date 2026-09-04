@@ -94,6 +94,7 @@
   "toast-info-save-failed": "Не удалось сохранить данные",
   "error-select-address": "Пожалуйста, выберите или добавьте адрес доставки",
   "error-select-branch": "Пожалуйста, выберите филиал",
+  "error-select-payment": "Пожалуйста, выберите способ оплаты",
   "toast-order-failed": "Не удалось оформить заказ",
   "address-validation-title": "Пожалуйста, укажите название адреса (напр. Дом, Работа)",
   "address-validation-phone": "Пожалуйста, укажите номер телефона",
