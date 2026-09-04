@@ -79,13 +79,14 @@ export interface Category {
   updatedAt: string;
 }
 
-// გენერირებული `Product` ტიპი (`name`/`description`) ხელუხლებელი რჩება — ეს
-// ველები ბექენდიდან ისევ მოდის, უბრალოდ ახლა უკვე `Accept-Language`-ის
-// მიხედვით ლოკალიზებულია (`resolveTranslation`, products.controller.ts
-// online-shop-nest-ში). დამატებით ემატება ორიგინალი `translations` obj —
-// admin dashboard-ს ეს სჭირდება სამივე ენის ერთდროულად რედაქტირებისთვის
-// (იხ. `translations.ka`/`.en`/`.ru`), ხოლო `category` relation-საც ზემოთ
-// გადაწერილ `Category`-ზე ვამისამართებთ, არა გენერირებულ ორიგინალზე.
+// გენერირებულ `Product` ტიპს (`./client/models`) აღარ აქვს ცალკე `name`/
+// `description` ველები — ბექენდი ეს კონტენტი მხოლოდ `translations` obj-ის
+// სახით აბრუნებს (`translations.ka`/`.en`/`.ru`), იხ. src/products/entities/
+// product.entity.ts online-shop-nest-ში. ლოკალიზებული `name`/`description`
+// ვკითხულობთ `getCategoryName`/`getLocalizedDescription`-ით
+// (utils/getCategoryName.ts), არა უშუალოდ `product.name`-ით. `category`
+// relation-საც ზემოთ გადაწერილ `Category`-ზე ვამისამართებთ, არა
+// გენერირებულ ორიგინალზე.
 export interface Product extends Omit<GeneratedProduct, "category"> {
   translations: ProductTranslationsDto;
   category?: Category;

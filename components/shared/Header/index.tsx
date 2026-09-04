@@ -11,6 +11,7 @@ import { ProductsAPI } from "@/API_Client";
 import { PaginatedResponseDto, Product } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
+import { getCategoryName } from "@/utils/getCategoryName";
 import {
   ChartIcon,
   ChevronDownIcon,
@@ -219,6 +220,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                           : `${CDN_URL}${image}`
                         : undefined;
                       const { price: displayPrice, originalPrice: oldPrice } = getDiscountedPrice(product);
+                      const productName = getCategoryName(product, router.locale);
                       return (
                         <S.SuggestionItem
                           key={product.id}
@@ -226,10 +228,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                           onClick={() => handleSuggestionClick(product.id)}
                         >
                           <S.SuggestionImage>
-                            {imageSrc ? <img src={imageSrc} alt={product.name} /> : <TagIcon size={20} />}
+                            {imageSrc ? <img src={imageSrc} alt={productName} /> : <TagIcon size={20} />}
                           </S.SuggestionImage>
                           <S.SuggestionInfo>
-                            <S.SuggestionName>{product.name}</S.SuggestionName>
+                            <S.SuggestionName>{productName}</S.SuggestionName>
                             <S.SuggestionPriceGroup>
                               <S.SuggestionPrice>{displayPrice.toFixed(2)} ₾</S.SuggestionPrice>
                               {oldPrice && <S.SuggestionOldPrice>{oldPrice.toFixed(2)} ₾</S.SuggestionOldPrice>}

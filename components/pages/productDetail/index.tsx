@@ -10,7 +10,7 @@ import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon } from "@/compo
 import { CDN_URL } from "@/constants";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useCart } from "@/context/Cart";
-import { getCategoryName, getLocalizedValue } from "@/utils/getCategoryName";
+import { getCategoryName, getLocalizedDescription, getLocalizedValue } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 const formatAttributeValue = (
@@ -58,6 +58,8 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
   const [selectedColorId, setSelectedColorId] = useState<string | undefined>(undefined);
   const thumbsTrackRef = useRef<HTMLDivElement>(null);
 
+  const productName = getCategoryName(product, router.locale);
+  const productDescription = getLocalizedDescription(product, router.locale);
   const images = product.images && product.images.length > 0 ? product.images : [];
   const youtubeId = getYoutubeId(product.videoUrl);
 
@@ -202,7 +204,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                   </S.PlayBadge>
                 </>
               ) : activeImage ? (
-                <img src={activeImage} alt={product.name} />
+                <img src={activeImage} alt={productName} />
               ) : (
                 <TagIcon size={64} />
               )}
@@ -233,7 +235,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                           </S.PlayBadge>
                         </>
                       ) : (
-                        <img src={resolveImage(slide.src)} alt={`${product.name} ${idx + 1}`} />
+                        <img src={resolveImage(slide.src)} alt={`${productName} ${idx + 1}`} />
                       )}
                     </S.Thumbnail>
                   ))}
@@ -251,7 +253,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                 <TagIcon size={14} /> {getCategoryName(product.category, router.locale)}
               </S.CategoryLabel>
             )}
-            <S.Title>{product.name}</S.Title>
+            <S.Title>{productName}</S.Title>
             <S.Price>{Number(product.price).toFixed(2)} ₾</S.Price>
             <S.StockLine out={outOfStock && availableColors.length === 0}>
               {availableColors.length > 0 ? (
@@ -268,7 +270,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                   </>
               )}
             </S.StockLine>
-            {product.description && <S.Description>{product.description}</S.Description>}
+            {productDescription && <S.Description>{productDescription}</S.Description>}
             {availableColors.length > 0 && (
               <S.ColorSection>
                 <S.ColorSectionLabel>{t("color-label")}</S.ColorSectionLabel>
@@ -360,7 +362,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                 allowFullScreen
               />
             ) : (
-              <img src={resolveImage(activeSlide.src)} alt={product.name} />
+              <img src={resolveImage(activeSlide.src)} alt={productName} />
             )}
           </S.LightboxContent>
           {slides.length > 1 && (
@@ -397,7 +399,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                       </S.PlayBadge>
                     </>
                   ) : (
-                    <img src={resolveImage(slide.src)} alt={`${product.name} ${idx + 1}`} />
+                    <img src={resolveImage(slide.src)} alt={`${productName} ${idx + 1}`} />
                   )}
                 </S.Thumbnail>
               ))}

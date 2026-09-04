@@ -99,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <Link href={`/products/${product.id}`} passHref legacyBehavior>
       <S.Card out={outOfStock}>
         <S.ImageWrap>
-          {imageSrc ? <img src={imageSrc} alt={product.name} loading="lazy" /> : <TagIcon size={40} />}
+          {imageSrc ? <img src={imageSrc} alt={productName} loading="lazy" /> : <TagIcon size={40} />}
           {oldPrice && <S.DiscountBadge>-{discountPercent}%</S.DiscountBadge>}
           <S.WishlistToggle
             type="button"
@@ -111,7 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </S.WishlistToggle>
         </S.ImageWrap>
         <S.Body>
-          <S.Name>{product.name}</S.Name>
+          <S.Name>{productName}</S.Name>
 
           {/* {colorsInStock.length > 0 && (
             <S.ColorStockBadge aria-label={t("colors-stock-aria")}>

@@ -18,7 +18,7 @@ export const AUTH_URL = process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:50
 export const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL || "";
 
 // მხარდაჭერილი locale-ები და default locale — ერთი წყარო სიმართლისთვის
-// (middleware.ts, _app.tsx, _document.tsx, sitemap.xml.ts, robots.txt.ts)
+// (next.config.js, _app.tsx, _document.tsx, sitemap.xml.ts, robots.txt.ts)
 export const DEFAULT_LOCALE = "ka";
 export const SUPPORTED_LOCALES = ["ka", "en", "ru"] as const;
 

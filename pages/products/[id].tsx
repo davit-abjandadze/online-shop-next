@@ -6,6 +6,7 @@ import { ProductsAPI } from "@/API_Client";
 import { Product } from "@/API_Client/types";
 import { BASEPATH } from "@/constants";
 import ProductDetailComponent from "@/components/pages/productDetail";
+import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
 
 interface ProductDetailPageProps {
   product: Product | null;
@@ -35,10 +36,12 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product }) => {
     );
   }
 
-  const title = truncate(`${product.name} — ${tc("default-page-title")}`, 95);
-  const description = product.description
-    ? truncate(product.description, 155)
-    : t("meta-description-fallback", { name: product.name });
+  const productName = getCategoryName(product, currentLocale);
+  const productDescription = getLocalizedDescription(product, currentLocale);
+  const title = truncate(`${productName} — ${tc("default-page-title")}`, 95);
+  const description = productDescription
+    ? truncate(productDescription, 155)
+    : t("meta-description-fallback", { name: productName });
   const url = `${BASEPATH}/${currentLocale}/products/${product.id}`;
   const image = product.images?.[0];
 

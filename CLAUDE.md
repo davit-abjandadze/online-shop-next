@@ -59,12 +59,19 @@ otherwise show the internal `_error` page instead of returning NextAuth's normal
 
 ### i18n and routing
 `next-translate` + `next-translate-routes` drive locale-prefixed routing for `ka`/`en`/`ru` (plus an
-internal `default` locale). `middleware.ts` redirects the `default` locale to `ka` for normal pages, while
-explicitly passing through `/api/*`, `/_next/*`, and static files unmodified — this exists because
-next-translate-routes' rewrites + a Next.js matcher together break API routes (a documented bug), so this
-middleware deliberately has no `matcher` export and instead filters via conditionals inside the function
-body. Be careful changing this — reintroducing a `matcher` config is what previously broke API auth
-callbacks. Translation strings live under `locales/{en,ka,ru}`.
+internal `default` locale). The `default` → `ka` redirect for locale-prefix-less requests is done via a
+declarative `redirects()` rule in `next.config.js` (matching Next's internal `/default/...` pathname),
+**not** a `middleware.ts` file. This is deliberate: on Next.js 13.4.16, the mere *presence* of any
+`middleware.ts` — even a trivial no-op one — breaks locale detection for client-side `_next/data/<buildId>/
+<locale>/...` requests (the request gets routed through an internal "middleware-invoke" round-trip that
+always resolves to the `default` locale, regardless of the URL's real locale segment). This was confirmed
+by patching `node_modules/next/dist/server/next-server.js` to trace `normalizeNextData`/`__nextLocale` and
+observing it flip from `ka` to `default` purely based on whether `middleware.ts` existed — independent of
+matcher config or middleware body. Declarative `redirects()` doesn't go through that code path, so it
+doesn't hit the bug. **Do not reintroduce `middleware.ts`** for locale redirection without re-verifying this
+against the installed Next version; if middleware becomes necessary again for something else, retest
+`_next/data` locale resolution across `ka`/`en`/`ru` before shipping. Translation strings live under
+`locales/{en,ka,ru}`.
 
 ### Environments
 Four app environments — `Dev`/`Test`/`Preprod`/`Production` — selected via the `ENVIRONMENT` env var at

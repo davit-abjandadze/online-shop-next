@@ -9,7 +9,7 @@ const PRIVATE_PATHS = [
   "/reset-password",
 ];
 
-// API route-ები არასდროს არიან locale-პრეფიქსული (იხ. middleware.ts) — ამიტომ
+// API route-ები არასდროს არიან locale-პრეფიქსული (იხ. next.config.js redirects()) — ამიტომ
 // "/api/"-ს ცალკე, ჰოლი სახით ვტოვებთ, დანარჩენებს კი locale-ის მიხედვით ვამრავლებთ
 const PRIVATE_PATHS_LOCALE_AWARE = SUPPORTED_LOCALES.flatMap((locale) =>
   PRIVATE_PATHS.map((path) => `/${locale}${path}`)
