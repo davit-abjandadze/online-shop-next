@@ -18,5 +18,6 @@
   "mobile-menu-aria-label": "მენიუ",
   "mobile-menu-close-aria-label": "მენიუს დახურვა",
   "mobile-menu-language-label": "ენები",
-  "mobile-menu-filter-label": "ფილტრი"
+  "mobile-menu-filter-label": "ფილტრი",
+  "mobile-menu-search-label": "ძებნა"
 }

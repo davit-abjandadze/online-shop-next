@@ -18,5 +18,6 @@
   "mobile-menu-aria-label": "Menu",
   "mobile-menu-close-aria-label": "Close menu",
   "mobile-menu-language-label": "Languages",
-  "mobile-menu-filter-label": "Filter"
+  "mobile-menu-filter-label": "Filter",
+  "mobile-menu-search-label": "Search"
 }

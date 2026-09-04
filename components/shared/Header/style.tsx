@@ -557,6 +557,56 @@ export const MobileMenuSectionLabel = styled.div`
    ნაცვლად. */
 export const MobileMenuFilterWrapper = styled.div``;
 
+/* დესკტოპის SearchWrapper/SearchForm 1100px-ზე უკვე იმალება (იხ. ზემოთ),
+   ამიტომ drawer-ში ცალკე, ყოველთვის ხილულ ვერსიას ვიყენებთ იმავე
+   სტილისტიკით — უბრალოდ სრულ სიგანეზე გაწელილს. */
+export const MobileMenuSearchWrapper = styled.div`
+  position: relative;
+`;
+
+export const MobileMenuSearchForm = styled.form`
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--ref-bg-subtle);
+  border-radius: 12px;
+  padding: 10px 14px;
+  width: 100%;
+  color: var(--ref-text-disabled);
+
+  &:focus-within {
+    color: var(--ref-primary);
+  }
+`;
+
+export const MobileMenuSearchInput = styled.input`
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 14px;
+  color: var(--ref-text-primary);
+  font-family: inherit;
+
+  &::placeholder {
+    color: var(--ref-text-disabled);
+  }
+`;
+
+/* drawer-ის შიგნით მინიშნებების სია absolute-ის ნაცვლად ჩვეულებრივ
+   დინებაშია ჩასმული — drawer თავად სქროლავს (overflow-y: auto), ცალკე
+   float-ი overflow-ს ართულებდა. */
+export const MobileMenuSuggestionsDropdown = styled.div`
+  margin-top: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  background: var(--ref-bg-elevated);
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 14px;
+  padding: 8px;
+`;
+
 export const DropdownItem = styled.button<{ danger?: boolean }>`
   width: 100%;
   display: flex;

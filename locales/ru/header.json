@@ -18,5 +18,6 @@
   "mobile-menu-aria-label": "Меню",
   "mobile-menu-close-aria-label": "Закрыть меню",
   "mobile-menu-language-label": "Языки",
-  "mobile-menu-filter-label": "Фильтр"
+  "mobile-menu-filter-label": "Фильтр",
+  "mobile-menu-search-label": "Поиск"
 }

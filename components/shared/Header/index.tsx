@@ -306,13 +306,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                 გატანილი (იხ. S.DesktopLanguageSwitcher/S.MobileMenuButton) —
                 ვიწრო ეკრანზე ორივეს ჩვენება ადგილს ართმევდა ლოგოსა და
                 კალათის/პროფილის ხატულებს. */}
+        
+            {status === "authenticated" && session?.user && (
+                <CartButton />
+            )}
             <S.DesktopLanguageSwitcher>
               <LanguageSwitcher variant="header" />
             </S.DesktopLanguageSwitcher>
-
             {status === "authenticated" && session?.user ? (
               <>
-                <CartButton />
                 <S.ProfileTrigger
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   type="button"
@@ -409,6 +411,61 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
               </S.MobileMenuHeader>
 
               <S.MobileMenuBody>
+                <S.MobileMenuSection>
+                  <S.MobileMenuSectionLabel>{t("mobile-menu-search-label")}</S.MobileMenuSectionLabel>
+                  <S.MobileMenuSearchWrapper>
+                    <S.MobileMenuSearchForm onSubmit={handleSearchSubmit}>
+                      <SearchIcon size={16} />
+                      <S.MobileMenuSearchInput
+                        type="text"
+                        placeholder={t("search-placeholder")}
+                        value={searchValue}
+                        onChange={(e) => setSearchValue(e.target.value)}
+                        onFocus={() => setSuggestionsOpen(true)}
+                      />
+                    </S.MobileMenuSearchForm>
+
+                    {suggestionsOpen && searchValue.trim() && (
+                      <S.MobileMenuSuggestionsDropdown>
+                        {suggestionsLoading ? (
+                          <S.SuggestionsStatus>{t("search-loading")}</S.SuggestionsStatus>
+                        ) : suggestions.length > 0 ? (
+                          suggestions.map((product) => {
+                            const image = product.images?.[0];
+                            const imageSrc = image
+                              ? image.startsWith("http")
+                                ? image
+                                : `${CDN_URL}${image}`
+                              : undefined;
+                            const { price: displayPrice, originalPrice: oldPrice } = getDiscountedPrice(product);
+                            const productName = getCategoryName(product, router.locale);
+                            return (
+                              <S.SuggestionItem
+                                key={product.id}
+                                type="button"
+                                onClick={() => handleSuggestionClick(product.id)}
+                              >
+                                <S.SuggestionImage>
+                                  {imageSrc ? <img src={imageSrc} alt={productName} /> : <TagIcon size={20} />}
+                                </S.SuggestionImage>
+                                <S.SuggestionInfo>
+                                  <S.SuggestionName>{productName}</S.SuggestionName>
+                                  <S.SuggestionPriceGroup>
+                                    <S.SuggestionPrice>{displayPrice.toFixed(2)} ₾</S.SuggestionPrice>
+                                    {oldPrice && <S.SuggestionOldPrice>{oldPrice.toFixed(2)} ₾</S.SuggestionOldPrice>}
+                                  </S.SuggestionPriceGroup>
+                                </S.SuggestionInfo>
+                              </S.SuggestionItem>
+                            );
+                          })
+                        ) : (
+                          <S.SuggestionsStatus>{t("search-no-results")}</S.SuggestionsStatus>
+                        )}
+                      </S.MobileMenuSuggestionsDropdown>
+                    )}
+                  </S.MobileMenuSearchWrapper>
+                </S.MobileMenuSection>
+
                 <S.MobileMenuSection>
                   <S.MobileMenuSectionLabel>{t("mobile-menu-filter-label")}</S.MobileMenuSectionLabel>
                   <S.MobileMenuFilterWrapper>
