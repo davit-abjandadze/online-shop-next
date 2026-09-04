@@ -8,7 +8,6 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import Dropdown from "@/components/shared/Dropdown";
 import ProductCard from "@/components/shared/ProductCard";
-import CategoryFilterBar from "@/components/shared/CategoryFilterBar";
 import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI, ProductsAPI } from "@/API_Client";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
@@ -158,10 +157,6 @@ export const CatalogComponent: React.FC = () => {
   return (
     <S.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
-
-      {/* კატეგორიების ზოლი ჰედერის ქვემოთ — მთავარი გვერდის CategoryFilterBar-ის
-          იმავე პოზიციითა და ვიზუალით (იხ. components/shared/CategoryFilterBar). */}
-      <CategoryFilterBar />
 
       <S.Container>
         <S.Breadcrumb>

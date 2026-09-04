@@ -381,6 +381,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
             </S.MobileMenuButton>
           </S.Actions>
         </S.Container>
+
+        {/* დესკტოპზე კატეგორიების დროპდაუნ-ზოლი ჰედერშივეა ჩაშენებული — აქამდე
+            ცალკეულ გვერდებზე (home/catalog/categoryProducts) იყო დუბლირებული.
+            HeaderWrapper-ის შიგნითაა (და არა ცალკე sticky-ით), რომ სქროლისას
+            მთელი ჰედერი ერთ ბლოკად რჩებოდეს ზემოთ — ცალკე რომ ყოფილიყო,
+            HeaderWrapper-ის sticky-ს ქვემოთ სქროლთან ერთად გაიჭრებოდა.
+            თავად CategoryFilterBar 960px-ზე დაბლა თავს მალავს (იხ.
+            components/shared/CategoryFilterBar/style.ts) — მობაილზე ბურგერ
+            მენიუშია (S.MobileMenuFilterWrapper ზემოთ). */}
+        <CategoryFilterBar />
       </S.HeaderWrapper>
 
       {/* ბექდროპი+drawer document.body-ში პორტალდება (იხ. `mounted`-ის კომენტარი

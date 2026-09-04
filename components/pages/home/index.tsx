@@ -14,7 +14,6 @@ import {
   ArrowRightIcon,
   BoxIcon,
   CartIcon,
-  ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ClipboardIcon,
@@ -84,21 +83,6 @@ export const HomeComponent: React.FC = () => {
   const [heroIndex, setHeroIndex] = useState(0);
   const heroSwiperRef = useRef<SwiperType | null>(null);
 
-  // ჰედერის ქვემოთ კატეგორიების დროპდაუნ-ზოლი — რომელი კატეგორიის დროპდაუნია
-  // გახსნილი (id ან null). ერთდროულად მხოლოდ ერთი შეიძლება იყოს გახსნილი.
-  const [openCategoryDropdown, setOpenCategoryDropdown] = useState<number | string | null>(null);
-  const categoryFilterBarRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (categoryFilterBarRef.current && !categoryFilterBarRef.current.contains(event.target as Node)) {
-        setOpenCategoryDropdown(null);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   useEffect(() => {
     const fetchHomeData = async () => {
       setLoading(true);
@@ -157,70 +141,12 @@ export const HomeComponent: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.locale]);
 
-  // ერთი კატეგორიის დროპდაუნი ჰედერის ქვემოთ ზოლში. თუ ქვეკატეგორია აქვს,
-  // ხელის დაჭერისას იშლება "ყველა" + ქვეკატეგორიების სია — "ყველა" ისევე
-  // ფილტრავს, როგორც ადრე კატეგორიაზე დაჭერა ფილტრავდა. თუ ქვეკატეგორია არ
-  // აქვს (მაგ. აკუმულატორი), პირდაპირ ბმულია კატეგორიის გვერდზე, დროპდაუნის გარეშე.
-  const renderCategoryFilter = (category: Category) => {
-    const children = category.children || [];
-    const name = getCategoryName(category, router.locale);
-
-    if (children.length === 0) {
-      return (
-        <Link key={category.id} href={`/categories/${category.slug}`} passHref legacyBehavior>
-          <S.FilterBarLink>{name}</S.FilterBarLink>
-        </Link>
-      );
-    }
-
-    const isOpen = openCategoryDropdown === category.id;
-
-    return (
-      <S.FilterDropdown key={category.id}>
-        <S.FilterDropdownTrigger
-          type="button"
-          open={isOpen}
-          onClick={() => setOpenCategoryDropdown((prev) => (prev === category.id ? null : category.id))}
-        >
-          {name}
-          <S.FilterDropdownChevron open={isOpen}>
-            <ChevronDownIcon size={14} />
-          </S.FilterDropdownChevron>
-        </S.FilterDropdownTrigger>
-
-        {isOpen && (
-          <S.FilterDropdownPanel>
-            <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
-              <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>{t("filter-dropdown-all")}</S.FilterDropdownItem>
-            </Link>
-            {children.map((child) => (
-              <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
-                <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>
-                  {getCategoryName(child, router.locale)}
-                </S.FilterDropdownItem>
-              </Link>
-            ))}
-          </S.FilterDropdownPanel>
-        )}
-      </S.FilterDropdown>
-    );
-  };
-
   return (
     <S.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
 
-      {/* კატეგორიების დროპდაუნ-ზოლი ჰედერის ქვემოთ — ჰერო სლაიდერის ყოფილი
-          გვერდითი ფილტრის ნაცვლად (იხ. renderCategoryFilter). */}
-      <S.CategoryFilterBar ref={categoryFilterBarRef}>
-        <S.CategoryFilterBarInner>
-          {categories.length === 0 ? (
-            <S.FilterEmpty>{t("filter-bar-empty")}</S.FilterEmpty>
-          ) : (
-            categories.map(renderCategoryFilter)
-          )}
-        </S.CategoryFilterBarInner>
-      </S.CategoryFilterBar>
+      {/* კატეგორიების დროპდაუნ-ზოლი ჰედერშივეა ჩაშენებული (იხ.
+          components/shared/Header) — მთავარ გვერდზე ცალკე აღარ დუბლირდება. */}
 
       {/* Hero Slider — swiper-ით, 1 სლაიდი ერთ ხედში, ავტომატური გადართვით.
           სლაიდები ადმინ დეშბორდიდან მოდის (/dashboard/hero-slides), საჯარო

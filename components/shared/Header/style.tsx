@@ -2,7 +2,10 @@ import styled from "styled-components";
 
 export const HeaderWrapper = styled.header`
   width: 100%;
-  height: 76px;
+  /* fixed 76px-ის ნაცვლად კონტენტზე მორგებული სიმაღლე — ქვემოთ CategoryFilterBar-იც
+     ამავე wrapper-შია ჩასმული (იხ. Header/index.tsx), რომ სქროლისას ორივე
+     ერთ sticky ბლოკად რჩებოდეს ზემოთ, ცალკე რომ ყოფილიყო, ეს ზოლი sticky
+     ჰედერის ქვემოთ სქროლთან ერთად "გაიჭრებოდა". */
   /* მინის ეფექტი: სქროლისას ქვედა კონტენტი ოდნავ გაჩანს ბლურის მიღმა */
   background: color-mix(in srgb, var(--ref-bg-elevated) 88%, transparent);
   backdrop-filter: blur(14px);
@@ -16,7 +19,7 @@ export const HeaderWrapper = styled.header`
 
 export const Container = styled.div`
   max-width: 1320px;
-  height: 100%;
+  height: 76px;
   margin: 0 auto;
   padding: 0 24px;
   display: flex;
