@@ -1,33 +1,54 @@
 import styled from "styled-components";
 
 export const Section = styled("section")`
-  padding: 30px 0;
+  padding: 24px 0;
 
-  @media (max-width: 640px) {
-    padding: 24px 0;
+  @media (min-width: 640px) {
+    padding: 30px 0;
   }
 `;
 
+/* Mobile-first: ვიწრო ეკრანზე სათაური საკუთარ სტრიქონზეა (column), ისრები +
+   "ყველას ნახვა" ცალკე მწკრივად, სრულ სიგანეზე გადანაწილებული — რომ გრძელი
+   სათაური აღარ ეჯახებოდეს/იჭყლიტებოდეს ნავიგაციასთან ერთ row-ში. */
 export const SectionHeader = styled("div")`
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 28px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
 `;
 
 export const SectionTitle = styled("h2")`
   margin: 0;
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 800;
   color: var(--ref-text-primary);
+
+  @media (min-width: 640px) {
+    font-size: 24px;
+  }
 `;
 
 export const SectionHeaderActions = styled("div")`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 18px;
+  width: 100%;
   flex-shrink: 0;
+
+  @media (min-width: 640px) {
+    width: auto;
+  }
 `;
 
 export const ViewAllLink = styled("a")`
@@ -81,11 +102,17 @@ export const SliderNavButton = styled("button")`
 
 export const ScrollRow = styled("div")`
   .swiper-slide {
-    width: 260px;
+    /* მობაილზე ერთი სლაიდი ივსება მთლიან სიგანეზე (peek-ის ნაცვლად) — ერთი
+       პროდუქტი ჩანდეს ეკრანზე ერთდროულად, არა ორი-სამი ნაწილობრივ. */
+    width: 100%;
     height: auto;
 
-    @media (max-width: 640px) {
-      width: 200px;
+    @media (min-width: 480px) {
+      width: 220px;
+    }
+
+    @media (min-width: 640px) {
+      width: 260px;
     }
   }
 `;

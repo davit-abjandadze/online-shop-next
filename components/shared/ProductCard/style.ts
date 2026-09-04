@@ -35,6 +35,12 @@ export const ImageWrap = styled("div")`
     height: 100%;
     object-fit: cover;
   }
+
+  @media (max-width: 640px) {
+     img {
+    object-fit: contain;
+  }
+  }
 `;
 
 export const DiscountBadge = styled("span")`

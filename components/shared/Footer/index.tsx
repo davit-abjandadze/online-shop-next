@@ -107,30 +107,15 @@ export const Footer: React.FC = () => {
                 <S.FooterLink>{t("footer-link-terms")}</S.FooterLink>
               </Link>
             </S.LinkColumn>
-
-            <S.LinkColumn>
-              <S.LinkColumnTitle>{t("footer-newsletter-heading")}</S.LinkColumnTitle>
-              <S.NewsletterText>
-                {t("footer-newsletter-text")}
-              </S.NewsletterText>
-              <S.NewsletterForm onSubmit={handleNewsletterSubmit}>
-                <MailIcon size={16} />
-                <S.NewsletterInput
-                  type="email"
-                  required
-                  placeholder={t("footer-newsletter-placeholder")}
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                />
-                <S.NewsletterButton type="submit">{t("footer-newsletter-button")}</S.NewsletterButton>
-              </S.NewsletterForm>
-            </S.LinkColumn>
           </S.LinksGroup>
         </S.Top>
 
         <S.Bottom>
           <S.Copyright>{t("footer-copyright", { year })}</S.Copyright>
-          <LanguageSwitcher variant="footer" />
+          {/* დესკტოპზეც და მობაილზეც Header-ის ბურგერ მენიუს იგივე inline
+              დროშების მწკრივია — ცალკე დროპდაუნის ვარიანტი (`variant="footer"`)
+              აღარ გამოიყენება. */}
+          <LanguageSwitcher variant="mobile-inline" />
           <S.MadeWith>
             <CartIcon size={16} /> {t("footer-made-with")}
           </S.MadeWith>

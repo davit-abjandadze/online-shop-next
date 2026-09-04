@@ -14,5 +14,9 @@
   "profile-menu-logout": "გამოსვლა",
   "login-cta": "შესვლა",
   "login-cta-suffix": "/ ავტორიზაცია",
-  "cart-button-aria-label": "კალათა"
+  "cart-button-aria-label": "კალათა",
+  "mobile-menu-aria-label": "მენიუ",
+  "mobile-menu-close-aria-label": "მენიუს დახურვა",
+  "mobile-menu-language-label": "ენები",
+  "mobile-menu-filter-label": "ფილტრი"
 }

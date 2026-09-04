@@ -7,11 +7,9 @@
   "footer-link-change-password": "პაროლის შეცვლა",
   "footer-link-orders": "ჩემი შეკვეთები",
   "footer-link-terms": "წესები და პირობები",
-  "footer-newsletter-heading": "სიახლეების გამოწერა",
-  "footer-newsletter-text": "გამოიწერეთ სიახლეები ახალი კოლექციებისა და ფასდაკლებების შესახებ.",
-  "footer-newsletter-placeholder": "თქვენი ელფოსტა",
-  "footer-newsletter-button": "გამოწერა",
-  "footer-newsletter-toast": "სიახლეების გამოწერა მალე ხელმისაწვდომი იქნება",
+
+
+
   "footer-copyright": "© {{year}} ონლაინ მაღაზია. ყველა უფლება დაცულია.",
   "footer-made-with": "თქვენი შეძენა უსაფრთხოა"
 }

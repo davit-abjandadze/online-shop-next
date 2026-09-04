@@ -6,6 +6,10 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   position: relative;
   flex-shrink: 0;
+
+@media (max-width: 768px) {
+  max-width: 160px
+}
 `;
 
 export const Trigger = styled.button<{ variant: "header" | "footer" }>`
@@ -62,6 +66,7 @@ export const DropdownItemLeft = styled.span`
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 11px;
 `;
 
 export const DropdownMenu = styled.div<{ variant: "header" | "footer" }>`
@@ -103,4 +108,40 @@ export const DropdownItem = styled.button<{ active?: boolean }>`
   &:hover {
     background: var(--ref-bg-subtle);
   }
+`;
+
+/* `variant="mobile-inline"` — Header-ის მობაილის ბურგერ-drawer-ისთვის:
+   დროპდაუნის ნაცვლად დროშები პირდაპირ ერთ მწკრივში ჩანს, უშუალოდ
+   დაჭერით გადადის (იხ. Header/index.tsx). */
+export const InlineRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  
+`;
+
+export const InlineFlagButton = styled.button<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 2px;
+  border-radius: 50%;
+  border: 2px solid ${({ active }) => (active ? "var(--ref-primary)" : "transparent")};
+  background: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+`;
+
+export const InlineFlagIcon = styled.img`
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 `;

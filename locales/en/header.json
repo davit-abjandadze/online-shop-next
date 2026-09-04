@@ -14,5 +14,9 @@
   "profile-menu-logout": "Log Out",
   "login-cta": "Log In",
   "login-cta-suffix": "/ Sign Up",
-  "cart-button-aria-label": "Cart"
+  "cart-button-aria-label": "Cart",
+  "mobile-menu-aria-label": "Menu",
+  "mobile-menu-close-aria-label": "Close menu",
+  "mobile-menu-language-label": "Languages",
+  "mobile-menu-filter-label": "Filter"
 }

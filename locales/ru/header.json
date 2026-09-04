@@ -14,5 +14,9 @@
   "profile-menu-logout": "Выйти",
   "login-cta": "Войти",
   "login-cta-suffix": "/ Регистрация",
-  "cart-button-aria-label": "Корзина"
+  "cart-button-aria-label": "Корзина",
+  "mobile-menu-aria-label": "Меню",
+  "mobile-menu-close-aria-label": "Закрыть меню",
+  "mobile-menu-language-label": "Языки",
+  "mobile-menu-filter-label": "Фильтр"
 }

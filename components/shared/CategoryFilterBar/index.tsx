@@ -15,7 +15,13 @@ import * as S from "./style";
 // ქვეკატეგორიების სია; თუ არა, პირდაპირ ბმულია კატეგორიის გვერდზე.
 // კატალოგისა (/products) და კატეგორიის (/categories/[slug]) გვერდებზეც
 // გამოიყენება, რომ საიტის მასშტაბით ერთნაირი იყოს.
-export const CategoryFilterBar: React.FC = () => {
+interface CategoryFilterBarProps {
+  // "vertical" — Header-ის მობაილის ბურგერ-drawer-ში გამოსაყენებელი ვარიანტია
+  // (იხ. components/shared/CategoryFilterBar/style.ts).
+  layout?: "horizontal" | "vertical";
+}
+
+export const CategoryFilterBar: React.FC<CategoryFilterBarProps> = ({ layout = "horizontal" }) => {
   const { t } = useTranslation("catalog");
   const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -57,7 +63,7 @@ export const CategoryFilterBar: React.FC = () => {
     if (children.length === 0) {
       return (
         <Link key={category.id} href={`/categories/${category.slug}`} passHref legacyBehavior>
-          <S.FilterBarLink>{name}</S.FilterBarLink>
+          <S.FilterBarLink layout={layout}>{name}</S.FilterBarLink>
         </Link>
       );
     }
@@ -65,10 +71,11 @@ export const CategoryFilterBar: React.FC = () => {
     const isOpen = openCategoryDropdown === category.id;
 
     return (
-      <S.FilterDropdown key={category.id}>
+      <S.FilterDropdown key={category.id} layout={layout}>
         <S.FilterDropdownTrigger
           type="button"
           open={isOpen}
+          layout={layout}
           onClick={() => setOpenCategoryDropdown((prev) => (prev === category.id ? null : category.id))}
         >
           {name}
@@ -78,13 +85,15 @@ export const CategoryFilterBar: React.FC = () => {
         </S.FilterDropdownTrigger>
 
         {isOpen && (
-          <S.FilterDropdownPanel>
+          <S.FilterDropdownPanel layout={layout}>
             <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
-              <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>{t("all")}</S.FilterDropdownItem>
+              <S.FilterDropdownItem layout={layout} onClick={() => setOpenCategoryDropdown(null)}>
+                {t("all")}
+              </S.FilterDropdownItem>
             </Link>
             {children.map((child) => (
               <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
-                <S.FilterDropdownItem onClick={() => setOpenCategoryDropdown(null)}>
+                <S.FilterDropdownItem layout={layout} onClick={() => setOpenCategoryDropdown(null)}>
                   {getCategoryName(child, router.locale)}
                 </S.FilterDropdownItem>
               </Link>
@@ -96,8 +105,8 @@ export const CategoryFilterBar: React.FC = () => {
   };
 
   return (
-    <S.CategoryFilterBar ref={barRef}>
-      <S.CategoryFilterBarInner>
+    <S.CategoryFilterBar ref={barRef} layout={layout}>
+      <S.CategoryFilterBarInner layout={layout}>
         {categories.length === 0 ? (
           <S.FilterEmpty>{t("no-categories")}</S.FilterEmpty>
         ) : (

@@ -74,6 +74,14 @@ export const CartIcon: React.FC<RefIconProps> = ({ size = 24, className, style }
   </svg>
 );
 
+/* ბურგერ მენიუს ხატულა — მობაილზე ჰედერის დამატებითი ელემენტების (ფილტრი,
+   ენა, ნავიგაცია) ჩამკეც პანელის გამომხმობი ღილაკი. მონოქრომული (currentColor). */
+export const MenuIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path d="M3.5 6.5h17M3.5 12h17M3.5 17.5h17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
 export const SearchIcon: React.FC<RefIconProps> = ({ size = 24, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="1.8" />

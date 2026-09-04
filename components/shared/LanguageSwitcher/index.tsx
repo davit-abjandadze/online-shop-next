@@ -14,7 +14,9 @@ const LOCALES: { code: "ka" | "en" | "ru"; label: string; nativeName: string; ic
 ];
 
 interface LanguageSwitcherProps {
-  variant?: "header" | "footer";
+  // "mobile-inline" — Header-ის ბურგერ-drawer-ის ვარიანტია: დროპდაუნის
+  // ნაცვლად დროშები ერთ მწკრივში ჩანს, დაჭერით პირდაპირ გადადის.
+  variant?: "header" | "footer" | "mobile-inline";
 }
 
 export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "header" }) => {
@@ -46,6 +48,28 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = "h
       locale: targetLocale,
     });
   };
+
+  // მობაილის ბურგერ-drawer-ში დროპდაუნის მაგივრად დროშები ერთ მწკრივში
+  // პირდაპირ ჩანს — დაჭერაზე უშუალოდ ერთდება ენა, გახსნა-დახურვის state
+  // საერთოდ არ სჭირდება (იხ. Header/index.tsx).
+  if (variant === "mobile-inline") {
+    return (
+      <S.InlineRow>
+        {LOCALES.map((locale) => (
+          <S.InlineFlagButton
+            key={locale.code}
+            type="button"
+            active={locale.code === currentLocale.code}
+            onClick={() => handleSelect(locale.code)}
+            aria-label={locale.nativeName}
+            title={locale.nativeName}
+          >
+            <S.InlineFlagIcon src={locale.icon} alt={locale.label} />
+          </S.InlineFlagButton>
+        ))}
+      </S.InlineRow>
+    );
+  }
 
   return (
     <S.Wrapper ref={wrapperRef}>

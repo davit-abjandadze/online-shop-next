@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -6,6 +7,7 @@ import useTranslation from "next-translate/useTranslation";
 import AuthModal from "@/components/shared/AuthModal";
 import CartButton from "@/components/shared/CartButton";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
+import CategoryFilterBar from "@/components/shared/CategoryFilterBar";
 import { useWishlist } from "@/context/Wishlist";
 import { ProductsAPI } from "@/API_Client";
 import { PaginatedResponseDto, Product } from "@/API_Client/types";
@@ -16,9 +18,11 @@ import {
   ChartIcon,
   ChevronDownIcon,
   ClipboardIcon,
+  CloseIcon,
   HeartIcon,
   KeyIcon,
   LogoutIcon,
+  MenuIcon,
   SearchIcon,
   TagIcon,
   UserIcon,
@@ -48,9 +52,27 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
   const [suggestions, setSuggestions] = useState<Product[]>([]);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  // მობაილის ბურგერ მენიუ — ნავიგაცია, ენა და კატეგორიების ფილტრი, რაც
+  // ვიწრო ეკრანზე Header-ის მთავარი მწკრივიდან გატანილია (იხ. S.MobileMenuButton).
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // drawer-ს (ბექდროპთან ერთად) document.body-ში ვპორტალავთ — HeaderWrapper-ს
+  // `backdrop-filter` აქვს, რაც `position: fixed`-ის containing block-ს
+  // HeaderWrapper-ის საკუთარ (76px სიმაღლის) ბლოკზე ზღუდავს viewport-ის
+  // ნაცვლად, ამიტომ drawer-იც ბოლომდე ვერ იწელებოდა და კონტენტს ეფარებოდა.
+  // createPortal SSR-ზე `document` არ არსებობს — `mounted`-ით ვიცავთ.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  // ღილაკიც ცალკე ref-ითაა (და არა mobileMenuRef-ის შიგნით), რადგან პანელი
+  // Actions-ის გარეთაა — outside-click ჰენდლერს ორივეზე ცალკე უნდა შემოწმება,
+  // თორემ თავად ღილაკზე დაჭერისას mousedown ჯერ დახურავს პანელს, click-ის
+  // toggle-ი კი მაშინვე ისევ გახსნის.
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   // ბოლო გაგზავნილი მოთხოვნის id — pending პასუხებიდან მხოლოდ ბოლოს
   // ვითვალისწინებთ (თუ საძიებო ველი მანამდე კიდევ შეიცვალა).
   const searchRequestIdRef = useRef(0);
@@ -70,10 +92,33 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
       ) {
         setSuggestionsOpen(false);
       }
+      const target = event.target as Node;
+      const clickedInsideMobileMenu =
+        (mobileMenuRef.current && mobileMenuRef.current.contains(target)) ||
+        (mobileMenuButtonRef.current && mobileMenuButtonRef.current.contains(target));
+      if (!clickedInsideMobileMenu) {
+        setMobileMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // გვერდის შეცვლისას ბურგერ მენიუ თავისით იხურება.
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [router.asPath]);
+
+  // Drawer-ის ღიაობისას ფონის სქროლი იბლოკება — თორემ drawer-ის შიგნით
+  // სქროლვისას უკნიდან გვერდიც ერთდროულად იძვრებოდა.
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileMenuOpen]);
 
   // საძიებო მინიშნებების ჩატვირთვა — debounce-ით, რომ ტაიპისას ყოველ
   // სიმბოლოზე ცალკე რექვესთი არ გაიგზავნოს. ძებნა ერთდროულად ქართულ და
@@ -257,7 +302,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
               {wishlistCount > 0 && <S.WishlistBadge>{wishlistCount > 99 ? "99+" : wishlistCount}</S.WishlistBadge>}
             </S.WishlistButton>
 
-            <LanguageSwitcher variant="header" />
+            {/* დესკტოპზე ენის გადამრთველი აქვე ჩანს, მობაილზე კი ბურგერ მენიუშია
+                გატანილი (იხ. S.DesktopLanguageSwitcher/S.MobileMenuButton) —
+                ვიწრო ეკრანზე ორივეს ჩვენება ადგილს ართმევდა ლოგოსა და
+                კალათის/პროფილის ხატულებს. */}
+            <S.DesktopLanguageSwitcher>
+              <LanguageSwitcher variant="header" />
+            </S.DesktopLanguageSwitcher>
 
             {status === "authenticated" && session?.user ? (
               <>
@@ -313,9 +364,67 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                 <S.LoginBtnFullLabel> {t("login-cta-suffix")}</S.LoginBtnFullLabel>
               </S.LoginBtn>
             )}
+
+            {/* ბურგერ მენიუს ღილაკი — მხოლოდ მობაილზე ჩანს (იხ. S.MobileMenuButton),
+                შიგნით ნავიგაცია, ენა და კატეგორიების ფილტრია. */}
+            <S.MobileMenuButton
+              ref={mobileMenuButtonRef}
+              type="button"
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-label={t("mobile-menu-aria-label")}
+              aria-expanded={mobileMenuOpen}
+              open={mobileMenuOpen}
+            >
+              <MenuIcon size={22} />
+            </S.MobileMenuButton>
           </S.Actions>
         </S.Container>
       </S.HeaderWrapper>
+
+      {/* ბექდროპი+drawer document.body-ში პორტალდება (იხ. `mounted`-ის კომენტარი
+          ზემოთ) — თორემ HeaderWrapper-ის `backdrop-filter`-ის გამო `position: fixed`
+          viewport-ის ნაცვლად თავად HeaderWrapper-ის (76px) ბლოკს დაემორჩილებოდა. */}
+      {mounted &&
+        mobileMenuOpen &&
+        createPortal(
+          <>
+            {/* მინის ბუნდოვანი ფონი — drawer-ის მარცხნივ დარჩენილი ეკრანის ნაწილი
+                (~20%) ისევ ჩანს, უბრალოდ დაბლურულია/დაბნელებული. */}
+            <S.MobileMenuBackdrop
+              type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <S.MobileMenuPanel ref={mobileMenuRef}>
+              <S.MobileMenuHeader>
+                <S.MobileMenuTitle>{t("mobile-menu-aria-label")}</S.MobileMenuTitle>
+                <S.MobileMenuCloseButton
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  aria-label={t("mobile-menu-close-aria-label")}
+                >
+                  <CloseIcon size={18} />
+                </S.MobileMenuCloseButton>
+              </S.MobileMenuHeader>
+
+              <S.MobileMenuBody>
+                <S.MobileMenuSection>
+                  <S.MobileMenuSectionLabel>{t("mobile-menu-filter-label")}</S.MobileMenuSectionLabel>
+                  <S.MobileMenuFilterWrapper>
+                    <CategoryFilterBar layout="vertical" />
+                  </S.MobileMenuFilterWrapper>
+                </S.MobileMenuSection>
+
+                <S.MobileMenuSection>
+                  <S.MobileMenuSectionLabel>{t("mobile-menu-language-label")}</S.MobileMenuSectionLabel>
+                  <LanguageSwitcher variant="mobile-inline" />
+                </S.MobileMenuSection>
+              </S.MobileMenuBody>
+            </S.MobileMenuPanel>
+          </>,
+          document.body
+        )}
 
       {/* 3-in-1 Unified Auth Modal */}
       <AuthModal

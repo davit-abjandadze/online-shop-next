@@ -1,5 +1,12 @@
 import styled from "styled-components";
 
+/* ---------- Breakpoints (mobile-first: საბაზისო წესები მობაილისთვისაა,
+   min-width მედია-queries თანდათან ამატებს დესკტოპის სტილებს) ----------
+   sm: >=640px (დიდი ტელეფონი / პატარა ტაბლეტი)
+   md: >=900px (ტაბლეტი / სივრცე ჰერო-სლაიდერის row განლაგებისთვის)
+   lg: >=1024px (მცირე დესკტოპი)
+*/
+
 export const PageBackground = styled("div")`
   min-height: 100vh;
   background-color: var(--ref-bg);
@@ -8,34 +15,43 @@ export const PageBackground = styled("div")`
 export const Container = styled("div")`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 12px;
 
-  @media (max-width: 640px) {
-    padding: 0 12px;
+  @media (min-width: 640px) {
+    padding: 0 24px;
   }
 `;
 
 export const Section = styled("section")`
-  padding: 30px 0;
+  padding: 36px 0;
 
-  @media (max-width: 640px) {
-    padding: 36px 0;
+  @media (min-width: 640px) {
+    padding: 30px 0;
   }
 `;
 
 export const SectionHeader = styled("div")`
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 28px;
+  gap: 12px 16px;
+  margin-bottom: 20px;
+
+  @media (min-width: 640px) {
+    margin-bottom: 28px;
+  }
 `;
 
 export const SectionTitle = styled("h2")`
   margin: 0 0 4px 0;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--ref-text-primary);
+
+  @media (min-width: 640px) {
+    font-size: 24px;
+  }
 `;
 
 
@@ -88,11 +104,12 @@ export const HeroRow = styled("div")`
      სიმაღლეს ყოველთვის მთლიანად იმეორებს, თუნდაც კატეგორია ცოტა იყოს და
      პანელის საკუთარი კონტენტი ნაკლებ სივრცეს იკავებდეს. */
   align-items: stretch;
-  gap: 24px;
-  padding: 30px 24px;
+  gap: 20px;
+  padding: 24px 16px;
 
-  @media (max-width: 900px) {
-    padding: 40px 28px;
+  @media (min-width: 900px) {
+    gap: 24px;
+    padding: 30px 24px;
   }
 `;
 
@@ -106,18 +123,36 @@ export const CategoryFilterBar = styled("div")`
   z-index: 5;
   background: var(--ref-bg-elevated);
   border-bottom: 1px solid var(--ref-border-soft);
+
+  /* 960px-ზე დაბლა კატეგორიების ფილტრი Header-ის ბურგერ მენიუშია გატანილი
+     (იხ. components/shared/Header) — აქ დუბლირებული აღარ ჩანს. */
+  @media (max-width: 960px) {
+    display: none;
+  }
 `;
 
 export const CategoryFilterBarInner = styled("div")`
   max-width: 1320px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   gap: 4px;
 
-  @media (max-width: 900px) {
-    padding: 0 16px;
+  /* მობაილზე/ტაბლეტზე default-ად სქროლადია (ScrollRow-ის იგივე პატერნი) —
+     row-ი ეკრანს არ ავრცელებს ჰორიზონტალურად. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    padding: 0 24px;
+    overflow-x: visible;
   }
 `;
 
@@ -149,6 +184,7 @@ export const FilterBarLink = styled("a")`
   display: flex;
   align-items: center;
   padding: 14px 14px;
+  flex-shrink: 0;
   white-space: nowrap;
   font-size: 14px;
   font-weight: 600;
@@ -218,29 +254,38 @@ export const HeroSliderArea = styled("div")`
 `;
 
 export const HeroSlide = styled("div")`
-  min-height: 340px;
+  min-height: 0;
   display: flex;
+  flex-direction: column-reverse;
   align-items: center;
-  justify-content: space-between;
-  gap: 32px;
+  justify-content: center;
+  text-align: center;
+  gap: 24px;
 
-  @media (max-width: 900px) {
-    min-height: 0;
-    flex-direction: column-reverse;
-    text-align: center;
+  @media (min-width: 900px) {
+    min-height: 340px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    gap: 32px;
   }
 `;
 
 export const HeroContent = styled("div")`
-  max-width: 480px;
+  max-width: 100%;
   position: relative;
   z-index: 1;
+
+  @media (min-width: 900px) {
+    max-width: 480px;
+  }
 `;
 
 export const HeroEyebrow = styled("div")`
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 8px;
   margin-bottom: 16px;
 
@@ -252,8 +297,8 @@ export const HeroEyebrow = styled("div")`
     color: #00dfff;
   }
 
-  @media (max-width: 900px) {
-    justify-content: center;
+  @media (min-width: 900px) {
+    justify-content: flex-start;
   }
 `;
 
@@ -265,27 +310,41 @@ export const HeroEyebrowBar = styled("span")`
 `;
 
 export const HeroTitle = styled("h1")`
-  margin: 0 0 16px 0;
+  margin: 0 0 14px 0;
   font-weight: 400;
-  font-size: 46px;
-  line-height: 1.14;
+  font-size: 26px;
+  line-height: 1.2;
 
-  @media (max-width: 640px) {
-    font-size: 30px;
+  @media (min-width: 640px) {
+    font-size: 34px;
+  }
+
+  @media (min-width: 1024px) {
+    margin: 0 0 16px 0;
+    font-size: 46px;
+    line-height: 1.14;
   }
 `;
 
 export const HeroText = styled("p")`
-  margin: 0 0 28px 0;
-  font-size: 15px;
-  line-height: 1.7;
+  margin: 0 0 22px 0;
+  font-size: 14px;
+  line-height: 1.6;
   color: rgba(255, 255, 255, 0.68);
+
+  @media (min-width: 640px) {
+    margin: 0 0 28px 0;
+    font-size: 15px;
+    line-height: 1.7;
+  }
 `;
 
 export const HeroButton = styled("a")`
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
+  width: 100%;
   padding: 15px 28px;
   border-radius: 14px;
   background: var(--ref-primary);
@@ -296,6 +355,11 @@ export const HeroButton = styled("a")`
   box-shadow: 0 16px 30px -10px rgba(0, 191, 255, 0.55);
   transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 
+  @media (min-width: 640px) {
+    display: inline-flex;
+    width: auto;
+  }
+
   &:hover {
     background: var(--ref-primary-hover);
     transform: translateY(-2px);
@@ -304,9 +368,9 @@ export const HeroButton = styled("a")`
 
 export const HeroArt = styled("div")<{ from: string; to: string; image?: string }>`
   flex-shrink: 0;
-  width: 320px;
-  height: 320px;
-  border-radius: 28px;
+  width: 180px;
+  height: 180px;
+  border-radius: 22px;
   background: ${({ from, to, image }) =>
     image ? `url(${image}) center / cover no-repeat` : `linear-gradient(160deg, ${from}, ${to})`};
   display: flex;
@@ -314,9 +378,15 @@ export const HeroArt = styled("div")<{ from: string; to: string; image?: string 
   justify-content: center;
   color: rgba(11, 20, 38, 0.2);
 
-  @media (max-width: 640px) {
-    width: 200px;
-    height: 200px;
+  @media (min-width: 640px) {
+    width: 240px;
+    height: 240px;
+  }
+
+  @media (min-width: 900px) {
+    width: 320px;
+    height: 320px;
+    border-radius: 28px;
   }
 `;
 
@@ -325,15 +395,16 @@ export const HeroArt = styled("div")<{ from: string; to: string; image?: string 
    არასდროს გადაეფაროს კონტენტს ან CTA ღილაკს, სლაიდის სიმაღლის შეცვლის მიუხედავად. */
 export const HeroControls = styled("div")`
   display: flex;
+  flex-direction: column-reverse;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
-  margin-top: 30px;
+  margin-top: 20px;
 
-  @media (max-width: 900px) {
-    justify-content: center;
-    flex-direction: column-reverse;
-    gap: 20px;
+  @media (min-width: 900px) {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 30px;
   }
 `;
 
@@ -395,14 +466,14 @@ export const CategoryTitle = styled("h2")`
 
 export const CategoryGrid = styled("div")`
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 
-  @media (max-width: 960px) {
+  @media (min-width: 480px) {
     grid-template-columns: repeat(3, 1fr);
   }
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(2, 1fr);
+  @media (min-width: 960px) {
+    grid-template-columns: repeat(6, 1fr);
   }
 `;
 
@@ -465,17 +536,18 @@ export const EmptyRow = styled("p")`
 
 export const ProductsGrid = styled("div")`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 16px;
 
-  @media (max-width: 1024px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  @media (max-width: 720px) {
+  @media (min-width: 460px) {
     grid-template-columns: repeat(2, 1fr);
   }
-  @media (max-width: 460px) {
-    grid-template-columns: 1fr;
+  @media (min-width: 720px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
   }
 `;
 
@@ -502,18 +574,23 @@ export const SkeletonBlock = styled("div")<{ height?: string }>`
 
 export const PromoBanner = styled("div")`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 40px 48px;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+  padding: 32px 20px;
   border-radius: 24px;
   background: var(--ref-bg-elevated);
   border: 1px solid var(--ref-border-soft);
 
-  @media (max-width: 720px) {
-    flex-direction: column;
-    text-align: center;
-    padding: 32px 24px;
+  @media (min-width: 720px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+    gap: 24px;
+    padding: 40px 48px;
   }
 `;
 
@@ -523,22 +600,32 @@ export const PromoText = styled("div")`
 
 export const PromoTitle = styled("h3")`
   margin: 0 0 8px 0;
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--ref-text-primary);
+
+  @media (min-width: 640px) {
+    font-size: 26px;
+  }
 `;
 
 export const PromoSubtitle = styled("p")`
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--ref-text-secondary);
+
+  @media (min-width: 640px) {
+    font-size: 15px;
+  }
 `;
 
 export const PromoButton = styled("a")`
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
   padding: 14px 26px;
   border-radius: 12px;
   background: var(--ref-primary);
@@ -547,6 +634,10 @@ export const PromoButton = styled("a")`
   font-weight: 700;
   text-decoration: none;
   transition: background 0.15s ease, transform 0.15s ease;
+
+  @media (min-width: 720px) {
+    width: auto;
+  }
 
   &:hover {
     background: var(--ref-primary-hover);
@@ -558,14 +649,28 @@ export const PromoButton = styled("a")`
 
 export const ScrollRow = styled("div")`
   display: flex;
-  gap: 20px;
+  gap: 16px;
   overflow-x: auto;
   padding-bottom: 8px;
   scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 
   & > * {
     scroll-snap-align: start;
-    flex: 0 0 240px;
+    flex: 0 0 200px;
+  }
+
+  @media (min-width: 640px) {
+    gap: 20px;
+
+    & > * {
+      flex: 0 0 240px;
+    }
   }
 `;
 
@@ -573,11 +678,15 @@ export const ScrollRow = styled("div")`
 
 export const BenefitsGrid = styled("div")`
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 16px;
 
-  @media (max-width: 720px) {
+  @media (min-width: 481px) {
     grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
   }
 `;
 

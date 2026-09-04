@@ -26,6 +26,10 @@ export const Container = styled.div`
      ასე სერჩის გაფართოებისას (focus-within) მენიუ აღარ იძვრება ადგილიდან */
   justify-content: flex-start;
   gap: 40px;
+
+  @media (max-width: 960px) {
+    padding: 0 16px;
+  }
 `;
 
 export const LogoLink = styled.a`
@@ -381,6 +385,177 @@ export const UserEmail = styled.div`
   color: var(--ref-text-secondary);
   word-break: break-all;
 `;
+
+/* ---------- მობაილის ბურგერ მენიუ — ნავიგაცია/ენა/ფილტრი, Nav-ის იმავე
+   960px breakpoint-ზე გადადის (იხ. Nav ზემოთ), რომ ერთ ეკრანის სიგანეზე
+   Nav-იც და ენის გადამრთველიც ერთდროულად იცვლებოდეს ბურგერით ---------- */
+
+export const DesktopLanguageSwitcher = styled.div`
+  display: contents;
+
+  @media (max-width: 960px) {
+    display: none;
+  }
+`;
+
+export const MobileMenuButton = styled.button<{ open?: boolean }>`
+  display: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ref-border-soft);
+  border-radius: 50%;
+  background: ${({ open }) => (open ? "var(--ref-border-soft)" : "var(--ref-bg-subtle)")};
+  color: ${({ open }) => (open ? "var(--ref-primary)" : "var(--ref-text-secondary)")};
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    background: var(--ref-border-soft);
+    border-color: var(--ref-primary);
+    color: var(--ref-primary);
+  }
+
+  @media (max-width: 960px) {
+    display: flex;
+  }
+`;
+
+/* მინის ბუნდოვანი ფონი მარჯვნიდან ამოსული პანელის უკან — თავად გვერდის
+   დარჩენილი ~20% (მარცხენა კიდე) ისევ ჩანს, უბრალოდ დაბლურულია/დაბნელებული,
+   რომ ცხადი იყოს, რომ პანელი მოდალურია. დაჭერაზე იხურება (იგივე ეფექტი,
+   რასაც document-ის mousedown-listener ისედაც აკეთებს outside click-ზე). */
+export const MobileMenuBackdrop = styled.button`
+  display: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+
+  @media (max-width: 960px) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.32);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    /* document.body-ში პორტალდება (იხ. Header/index.tsx) — ჰედერის საკუთარი
+       z-index:100-ის ნაცვლად საკმარისად მაღალი ვსვამთ, გვერდის ნებისმიერ
+       კონტენტს (სლაიდერი, სტიკი ბლოკები) რომ გადაფაროს, მაგრამ ნამდვილ
+       მოდალებზე (AuthModal, z-index:1000) დაბლა დარჩეს. */
+    z-index: 500;
+    animation: mobileMenuBackdropFadeIn 0.2s ease;
+  }
+
+  @keyframes mobileMenuBackdropFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+
+/* მარჯვნიდან ამოსული drawer — ეკრანის სიგანის ~80%-ს იკავებს (მარცხენა
+   ~20%-ზე დაბლურული ფონი ჩანს, იხ. MobileMenuBackdrop), მაქსიმუმ 340px-მდე
+   უფრო ფართო მობაილებზე/ტაბლეტებზეც რომ არ გაიჭიმოს გადაჭარბებით. */
+export const MobileMenuPanel = styled.div`
+  display: none;
+
+  @media (max-width: 960px) {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 80%;
+    max-width: 340px;
+    background: var(--ref-bg-elevated);
+    box-shadow: var(--ref-shadow-lg);
+    z-index: 501;
+    overflow-y: auto;
+    animation: mobileMenuSlideIn 0.22s ease;
+  }
+
+  @keyframes mobileMenuSlideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+  }
+`;
+
+export const MobileMenuHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--ref-border-soft);
+`;
+
+export const MobileMenuTitle = styled.span`
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+`;
+
+export const MobileMenuCloseButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: var(--ref-text-secondary);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s ease;
+    background: var(--ref-bg-subtle);
+
+
+`;
+
+export const MobileMenuBody = styled.div`
+  padding: 8px 16px 24px;
+`;
+
+export const MobileMenuNav = styled.nav`
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ref-border-soft);
+`;
+
+export const MobileMenuNavLink = styled.a<{ active?: boolean }>`
+  padding: 12px 6px;
+  font-size: 15px;
+  font-weight: ${({ active }) => (active ? 700 : 500)};
+  color: ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-text-primary)")};
+`;
+
+export const MobileMenuSection = styled.div`
+  padding: 16px 0;
+  border-bottom: 1px solid var(--ref-border-soft);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+`;
+
+export const MobileMenuSectionLabel = styled.div`
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ref-text-secondary);
+
+`;
+
+/* CategoryFilterBar-ს აქ `layout="vertical"` ვარიანტით ვიყენებთ (იხ.
+   components/shared/CategoryFilterBar) — კატეგორიები drawer-ში ქვევით
+   ეწერება, dropdown-ებიც ტრიგერის ქვემოთ ინლაინში იშლება ცალკე ბუშტის
+   ნაცვლად. */
+export const MobileMenuFilterWrapper = styled.div``;
 
 export const DropdownItem = styled.button<{ danger?: boolean }>`
   width: 100%;
