@@ -452,3 +452,90 @@ export const readHeroSlideTranslations = (translations: unknown) => {
     },
   };
 };
+
+/** პროდუქტების სლაიდერის ბლოკის (product-sliders) `translations`-ის
+ * ვალიდაციის სქემა — `ka.title` სავალდებულოა, დანარჩენი ველები/ენები
+ * არასავალდებულოა (იგივე hero-slide-ის translations სქემის პატერნი). */
+const productSliderTranslationsSchema = z.object({
+  ka: z.object({
+    title: z.string().trim().min(1, "გთხოვთ შეავსოთ სათაური ქართულად"),
+    viewAllText: z.string().trim().optional(),
+  }),
+  en: z.object({
+    title: z.string().trim().optional(),
+    viewAllText: z.string().trim().optional(),
+  }),
+  ru: z.object({
+    title: z.string().trim().optional(),
+    viewAllText: z.string().trim().optional(),
+  }),
+});
+
+/** პროდუქტების სლაიდერის ბლოკის შექმნა/რედაქტირების ფორმის ვალიდაციის
+ * სქემა. `key`-ს frontend ნებისმიერ გვერდზე ბლოკის ჩასაშენებლად იყენებს
+ * (`GET /product-sliders/key/:key`) — ლათინური ასოები/ციფრები/დეფისი. */
+export const productSliderFormSchema = z.object({
+  key: z
+    .string()
+    .trim()
+    .min(1, "გთხოვთ მიუთითოთ key")
+    .regex(/^[a-z0-9-]+$/, "key უნდა შეიცავდეს მხოლოდ ლათინურ ასოებს, ციფრებს და დეფისს"),
+  translations: productSliderTranslationsSchema,
+  viewAllLink: z
+    .string()
+    .trim()
+    .optional()
+    .refine((v) => !v || /^https?:\/\//.test(v) || v.startsWith("/"), "ლინკი უნდა იწყებოდეს http(s)://-ით ან /-ით"),
+  isActive: z.boolean(),
+  sortOrder: z
+    .string()
+    .trim()
+    .refine((v) => v === "" || (!isNaN(Number(v)) && Number.isInteger(Number(v))), "sortOrder უნდა იყოს მთელი რიცხვი"),
+});
+
+export type ProductSliderFormValues = z.infer<typeof productSliderFormSchema>;
+
+/** ბექენდზე გასაგზავნ `translations` obj-ს აგებს პროდუქტების სლაიდერის
+ * ფორმის მნიშვნელობებიდან — `ka.title` ყოველთვის იგზავნება, დანარჩენი
+ * (`viewAllText`-ის და en/ru-ს ჩათვლით) მხოლოდ თუ შევსებულია. */
+export const buildProductSliderTranslationsDto = (t: {
+  ka: { title: string; viewAllText?: string };
+  en: { title?: string; viewAllText?: string };
+  ru: { title?: string; viewAllText?: string };
+}) => {
+  const buildEntry = (e: { title?: string; viewAllText?: string }) => {
+    const entry: { title?: string; viewAllText?: string } = {};
+    const title = e.title?.trim();
+    const viewAllText = e.viewAllText?.trim();
+    if (title) entry.title = title;
+    if (viewAllText) entry.viewAllText = viewAllText;
+    return entry;
+  };
+
+  const dto: {
+    ka: { title: string; viewAllText?: string };
+    en?: { title?: string; viewAllText?: string };
+    ru?: { title?: string; viewAllText?: string };
+  } = { ka: { ...buildEntry(t.ka), title: t.ka.title.trim() } };
+
+  const en = buildEntry(t.en);
+  if (en.title) dto.en = en;
+
+  const ru = buildEntry(t.ru);
+  if (ru.title) dto.ru = ru;
+
+  return dto;
+};
+
+/** `translations` (`unknown`) ფორმის საწყის მნიშვნელობებად კითხულობს,
+ * edit მოდალის გახსნისას. */
+export const readProductSliderTranslations = (translations: unknown) => {
+  const t = (translations || {}) as Partial<
+    Record<"ka" | "en" | "ru", { title?: string; viewAllText?: string } | undefined>
+  >;
+  return {
+    ka: { title: t?.ka?.title || "", viewAllText: t?.ka?.viewAllText || "" },
+    en: { title: t?.en?.title || "", viewAllText: t?.en?.viewAllText || "" },
+    ru: { title: t?.ru?.title || "", viewAllText: t?.ru?.viewAllText || "" },
+  };
+};

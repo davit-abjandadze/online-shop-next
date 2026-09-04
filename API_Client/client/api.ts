@@ -27,6 +27,7 @@ export * from './apis/hero-slides-api';
 export * from './apis/orders-api';
 export * from './apis/otp-api';
 export * from './apis/payments-api';
+export * from './apis/product-sliders-api';
 export * from './apis/products-api';
 export * from './apis/users-api';
 

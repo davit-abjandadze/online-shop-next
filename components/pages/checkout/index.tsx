@@ -27,6 +27,7 @@ import {
   CloseIcon,
 } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
+import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
 import { emailField, personalNumberField, phoneNumberField } from "@/components/shared/validation/schemas";
 import { AddressFormValues, addressFormSchema } from "./schemas";
 import * as S from "./style";
@@ -1218,11 +1219,14 @@ export const CheckoutComponent: React.FC = () => {
                     {items.map((item) => {
                       const image = resolveImage(item.product.images?.[0]);
                       const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(item.product);
+                      const productName = getCategoryName(item.product, router.locale);
+                      const productDescription = getLocalizedDescription(item.product, router.locale);
                       return (
                         <S.OrderItemCard key={item.id}>
-                          <S.OrderItemImage>{image && <img src={image} alt={item.product.name} />}</S.OrderItemImage>
+                          <S.OrderItemImage>{image && <img src={image} alt={productName} />}</S.OrderItemImage>
                           <S.OrderItemInfo>
-                            <S.OrderItemName>{item.product.name}</S.OrderItemName>
+                            <S.OrderItemName>{productName}</S.OrderItemName>
+                            {productDescription && <S.OrderItemDescription>{productDescription}</S.OrderItemDescription>}
                             <S.OrderItemQty>{t("item-qty", { count: item.quantity })}</S.OrderItemQty>
                           </S.OrderItemInfo>
                           <S.OrderItemPrice>

@@ -355,6 +355,7 @@ export const HeroArrow = styled("button")`
   justify-content: center;
   cursor: pointer;
   transition: background 0.15s ease;
+  padding-top: 4px;
 
   &:hover {
     background: rgba(255, 255, 255, 0.22);

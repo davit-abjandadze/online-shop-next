@@ -14,6 +14,7 @@ import {
   OtpApi,
   PaymentsApi,
   ProductsApi,
+  ProductSlidersApi,
   UsersApi,
 } from "./client";
 import axios from "axios";
@@ -219,6 +220,14 @@ export const CompaniesAPI = (acceptLanguage: string, accessToken: string) => {
 export const HeroSlidesAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new HeroSlidesApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const ProductSlidersAPI = (
+  acceptLanguage: string,
+  accessToken: string
+) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new ProductSlidersApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

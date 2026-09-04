@@ -14,7 +14,7 @@ import { Color, ProductColor } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { CartIcon, HeartIcon, LockIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
-import { getCategoryName } from "@/utils/getCategoryName";
+import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
 import * as S from "./style";
 
 const resolveImage = (image?: string) =>
@@ -148,17 +148,18 @@ export const CartComponent: React.FC = () => {
                     ? colorsByProductId[item.product.id]?.find((pc) => pc.colorId === item.colorId)?.color
                     : undefined;
 
+                  const productName = getCategoryName(item.product, router.locale);
+                  const productDescription = getLocalizedDescription(item.product, router.locale);
+
                   return (
                     <S.Item key={item.id}>
-                      <S.ItemImage>{image && <img src={image} alt={item.product.name} />}</S.ItemImage>
+                      <S.ItemImage>{image && <img src={image} alt={productName} />}</S.ItemImage>
 
                       <S.ItemInfo>
                         <Link href={`/products/${item.product.id}`} passHref legacyBehavior>
-                          <S.ItemName>{item.product.name}</S.ItemName>
+                          <S.ItemName>{productName}</S.ItemName>
                         </Link>
-                        {item.product.description && (
-                          <S.ItemDescription>{item.product.description}</S.ItemDescription>
-                        )}
+                        {productDescription && <S.ItemDescription>{productDescription}</S.ItemDescription>}
                         {itemColor && (
                           <S.ItemColor>
                             <S.ItemColorDot style={{ backgroundColor: itemColor.hexCode || "#ccc" }} />

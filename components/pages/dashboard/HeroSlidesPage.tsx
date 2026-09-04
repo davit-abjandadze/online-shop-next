@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Select, { StylesConfig } from "react-select";
 import { HeroSlidesAPI, ProductsAPI } from "@/API_Client";
 import { CreateHeroSlideDto, UpdateHeroSlideDto } from "@/API_Client/client/models";
 import { HeroSlide, PaginatedResponseDto, Product } from "@/API_Client/types";
@@ -39,6 +40,45 @@ const emptyHeroSlideForm: HeroSlideFormValues = {
 // სურათის URL-ს CDN-ის საბაზო მისამართთან აერთებს (თუ უკვე absolute არაა) —
 // იგივე ლოგიკა, რაც ProductsPage.tsx-შია.
 const resolveImage = (url: string) => (url.startsWith("http") ? url : `${CDN_URL}${url}`);
+
+interface ProductOption {
+  value: number;
+  label: string;
+}
+
+/**
+ * "მიბმული პროდუქტი"-ის ძებნადი select — ProductSliderItemsForm.tsx-ის
+ * იგივე react-select თემასთან შესაბამისობაში მოყვანილი სტილებით, ოღონდ
+ * ერთჯერადი (isMulti={false}) არჩევანისთვის.
+ */
+const productSelectStyles: StylesConfig<ProductOption, false> = {
+  control: (base, state) => ({
+    ...base,
+    minHeight: 32,
+    borderRadius: 7,
+    borderColor: state.isFocused ? "var(--ref-primary)" : "var(--ref-border)",
+    background: "var(--ref-bg-elevated)",
+    boxShadow: "none",
+    fontSize: "12.5px",
+    "&:hover": { borderColor: "var(--ref-primary)" },
+  }),
+  menu: (base) => ({
+    ...base,
+    background: "var(--ref-bg-elevated)",
+    border: "1px solid var(--ref-border)",
+    zIndex: 5,
+  }),
+  option: (base, state) => ({
+    ...base,
+    fontSize: "12.5px",
+    background: state.isFocused ? "var(--ref-bg-hover, var(--ref-border))" : "transparent",
+    color: "var(--ref-text-primary)",
+    cursor: "pointer",
+  }),
+  input: (base) => ({ ...base, color: "var(--ref-text-primary)" }),
+  singleValue: (base) => ({ ...base, color: "var(--ref-text-primary)" }),
+  placeholder: (base) => ({ ...base, color: "var(--ref-text-secondary)" }),
+};
 
 /**
  * მთავარი გვერდის hero სლაიდერის admin CRUD — სამომავლოდ დინამიური
@@ -296,14 +336,29 @@ export const HeroSlidesPage: React.FC = () => {
       <S.FormRow>
         <S.FormGroup>
           <S.Label>მიბმული პროდუქტი (არასავალდებულო)</S.Label>
-          <S.Select {...form.register("productId")}>
-            <option value="">— არცერთი —</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {getCategoryName(p, "ka")}
-              </option>
-            ))}
-          </S.Select>
+          <Controller
+            control={form.control}
+            name="productId"
+            render={({ field }) => {
+              const options: ProductOption[] = products.map((p) => ({
+                value: p.id,
+                label: getCategoryName(p, "ka"),
+              }));
+              const selected = options.find((o) => String(o.value) === field.value) || null;
+              return (
+                <Select<ProductOption, false>
+                  isClearable
+                  isSearchable
+                  options={options}
+                  value={selected}
+                  onChange={(option) => field.onChange(option ? String(option.value) : "")}
+                  placeholder="— პროდუქტის ძიება —"
+                  noOptionsMessage={() => "პროდუქტი ვერ მოიძებნა"}
+                  styles={productSelectStyles}
+                />
+              );
+            }}
+          />
         </S.FormGroup>
         <S.FormGroup>
           <S.Label>ღილაკის ლინკი (არასავალდებულო)</S.Label>

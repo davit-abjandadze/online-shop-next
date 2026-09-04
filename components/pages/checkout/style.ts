@@ -343,6 +343,20 @@ export const OrderItemName = styled("div")`
   white-space: nowrap;
 `;
 
+// პროდუქტის აღწერილობა შეკვეთის ბარათზე — cart-ის ItemDescription-ის იგივე
+// 2-ხაზიანი clamp-ით (components/pages/cart/style.ts).
+export const OrderItemDescription = styled("p")`
+  margin: 0;
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
 export const OrderItemQty = styled("span")`
   font-size: 12px;
   color: var(--ref-text-secondary);

@@ -9,6 +9,7 @@ import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import ProductCard from "@/components/shared/ProductCard";
+import ProductSliderBlock from "@/components/shared/ProductSliderBlock";
 import {
   ArrowRightIcon,
   BoxIcon,
@@ -343,6 +344,8 @@ export const HomeComponent: React.FC = () => {
           )}
         </S.Section> */}
 
+<ProductSliderBlock keyName="popular-slider" />
+
         {/* Featured products */}
         <S.Section>
           <S.SectionHeader>
@@ -392,36 +395,7 @@ export const HomeComponent: React.FC = () => {
           </S.PromoBanner>
         </S.Section>
 
-        {/* New arrivals */}
-        {(loading || newArrivals.length > 0) && (
-          <S.Section>
-            <S.SectionHeader>
-              <div>
-                <S.SectionTitle>{t("new-arrivals-title")}</S.SectionTitle>
-              </div>
-            </S.SectionHeader>
-
-            {loading ? (
-              <S.ScrollRow>
-                {Array.from({ length: 4 }).map((_, idx) => (
-                  <S.SkeletonCard key={idx}>
-                    <S.SkeletonBlock height="220px" />
-                    <div style={{ padding: 14 }}>
-                      <S.SkeletonBlock height="14px" />
-                    </div>
-                  </S.SkeletonCard>
-                ))}
-              </S.ScrollRow>
-            ) : (
-              <S.ScrollRow>
-                {newArrivals.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </S.ScrollRow>
-            )}
-          </S.Section>
-        )}
-
+     
         {/* Benefits / trust */}
         <S.Section>
           <S.BenefitsGrid>

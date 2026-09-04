@@ -12,6 +12,7 @@ type TranslationEntry = {
   eyebrow?: string;
   title?: string;
   buttonText?: string;
+  viewAllText?: string;
 };
 type RawTranslations = Partial<Record<"ka" | "en" | "ru", TranslationEntry | undefined>>;
 
@@ -57,3 +58,7 @@ export const getLocalizedEyebrow = (entity: { translations?: unknown }, locale?:
 
 export const getLocalizedButtonText = (entity: { translations?: unknown }, locale?: string): string =>
   resolveField(entity.translations, "buttonText", locale);
+
+/** ProductSlider-ისთვის იგივე ლოგიკა, "ყველას ნახვა" ღილაკის ტექსტისთვის. */
+export const getLocalizedViewAllText = (entity: { translations?: unknown }, locale?: string): string =>
+  resolveField(entity.translations, "viewAllText", locale);

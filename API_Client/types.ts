@@ -50,6 +50,7 @@ export interface User {
 // CartItem-ს ფასს არ ვინახავთ ცალკე — ყოველთვის `product.price`-დან იკითხება.
 import type { Company, Product as GeneratedProduct } from "./client/models";
 import type { HeroSlideTranslationsDto } from "./client/models";
+import type { ProductSliderTranslationsDto } from "./client/models";
 import type {
   NameTranslationsDto,
   ProductTranslationsDto,
@@ -418,4 +419,44 @@ export interface HeroSlide {
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
+}
+
+// იგივე მიზეზით (ProductSlidersController-ის ADMIN endpoint-ებს OpenAPI-ში
+// ცხადი პასუხის ტიპი არ აქვს მითითებული, იხ.
+// src/product-sliders/product-sliders.controller.ts online-shop-nest-ში)
+// `ProductSlider`/`ProductSliderItem` გენერირებულ კლიენტში აღარ ჩნდება —
+// ხელით ვაფიქსირებთ ბექენდის entity-ების ფორმას
+// (src/product-sliders/entities/product-slider{,-item}.entity.ts). `admin`
+// endpoint-ი (`FindOne`/`FindAllPaginated`) `items`-ს პროდუქტ-ობიექტებით
+// აბრუნებს, sortOrder-ით უკვე დალაგებულს.
+export interface ProductSliderItem {
+  id: string;
+  product: Product;
+  sortOrder: number;
+}
+
+export interface ProductSlider {
+  id: string;
+  key: string;
+  translations: ProductSliderTranslationsDto;
+  viewAllLink?: string;
+  isActive: boolean;
+  sortOrder: number;
+  items?: ProductSliderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// საჯარო `GET /product-sliders`/`GET /product-sliders/key/:key` პასუხი —
+// title/viewAllText უკვე resolve-ილია მიმდინარე locale-ის მიხედვით
+// (enrichProductSlider, product-sliders.controller.ts-ში), `products`კი
+// უკვე sortOrder-ით დალაგებული, პროდუქტების ობიექტების მასივია (არა
+// junction-ჩანაწერები, `items`-ისგან განსხვავებით).
+export interface ResolvedProductSlider {
+  id: string;
+  key: string;
+  title?: string;
+  viewAllText?: string;
+  viewAllLink?: string;
+  products: Product[];
 }

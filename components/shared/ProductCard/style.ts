@@ -90,6 +90,7 @@ export const Name = styled("h3")`
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  min-height:37px;
 `;
 
 export const ColorStockBadge = styled("div")`
