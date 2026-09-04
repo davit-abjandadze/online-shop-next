@@ -246,6 +246,46 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
+         * @param {string} id 
+         * @param {any} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerFindSimilar: async (id: string, limit?: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsControllerFindSimilar', 'id', id)
+            const localVarPath = `/products/{id}/similar`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (limit !== undefined) {
+                for (const [key, value] of Object.entries(limit)) {
+                    localVarQueryParameter[key] = value;
+                }
+            }
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -743,6 +783,20 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
+         * @param {string} id 
+         * @param {any} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsControllerFindSimilar(id: string, limit?: any, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerFindSimilar(id, limit, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerFindSimilar']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -953,6 +1007,17 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
+         * @param {string} id 
+         * @param {any} [limit] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerFindSimilar(id: string, limit?: any, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerFindSimilar(id, limit, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
          * @param {string} id 
          * @param {*} [options] Override http request option.
@@ -1128,6 +1193,18 @@ export class ProductsApi extends BaseAPI {
      */
     public productsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
+     * @param {string} id 
+     * @param {any} [limit] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productsControllerFindSimilar(id: string, limit?: any, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerFindSimilar(id, limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

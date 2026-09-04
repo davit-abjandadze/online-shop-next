@@ -4,6 +4,7 @@ import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
+import SimilarProductsSlider from "@/components/shared/SimilarProductsSlider";
 import { ProductsAPI } from "@/API_Client";
 import { Product, ProductAdditionalInfo, ProductAttributeValue, ProductColor } from "@/API_Client/types";
 import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon } from "@/components/ui/RefIcons";
@@ -331,6 +332,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
               ))}
           </S.AdditionalInfoSection>
         )}
+        <SimilarProductsSlider productId={product.id} />
       </S.Container>
 
       <Footer />
