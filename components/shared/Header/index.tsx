@@ -67,6 +67,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
+  // მობაილის ბურგერ მენიუს საძიებო ველიც ცალკე ref-ითაა (და არა searchRef-ის
+  // შიგნით), რადგან drawer document.body-ში პორტალდება — searchRef მხოლოდ
+  // დესკტოპის S.SearchWrapper-ს ეხმაურება. ამ ref-ის გარეშე mousedown-ზე
+  // outside-click ჰენდლერი მობაილის suggestion-ზე დაჭერისას drop-down-ს
+  // მაშინვე ხურავდა, click (navigation) ხდებოდა უკვე წაშლილ ელემენტზე.
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
   // ღილაკიც ცალკე ref-ითაა (და არა mobileMenuRef-ის შიგნით), რადგან პანელი
   // Actions-ის გარეთაა — outside-click ჰენდლერს ორივეზე ცალკე უნდა შემოწმება,
@@ -86,10 +92,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
       ) {
         setDropdownOpen(false);
       }
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
+      const clickedInsideSearch =
+        (searchRef.current && searchRef.current.contains(event.target as Node)) ||
+        (mobileSearchRef.current && mobileSearchRef.current.contains(event.target as Node));
+      if (!clickedInsideSearch) {
         setSuggestionsOpen(false);
       }
       const target = event.target as Node;
@@ -363,7 +369,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
             ) : (
               <S.LoginBtn onClick={() => handleOpenLogin("login")} type="button">
                 <UserIcon size={18} /> {t("login-cta")}
-                <S.LoginBtnFullLabel> {t("login-cta-suffix")}</S.LoginBtnFullLabel>
               </S.LoginBtn>
             )}
 
@@ -423,7 +428,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
               <S.MobileMenuBody>
                 <S.MobileMenuSection>
                   <S.MobileMenuSectionLabel>{t("mobile-menu-search-label")}</S.MobileMenuSectionLabel>
-                  <S.MobileMenuSearchWrapper>
+                  <S.MobileMenuSearchWrapper ref={mobileSearchRef}>
                     <S.MobileMenuSearchForm onSubmit={handleSearchSubmit}>
                       <SearchIcon size={16} />
                       <S.MobileMenuSearchInput

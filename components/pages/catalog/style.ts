@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 export const PageBackground = styled("div")`
   min-height: 100vh;
@@ -119,6 +119,17 @@ export const SidebarCard = styled("div")`
   box-shadow: var(--ref-shadow-sm);
   border: 1px solid var(--ref-border-soft);
   overflow: hidden;
+
+  /* 900px-ს ქვემოთ ეს კომპონენტი მხოლოდ მობილურის ფილტრის popup-ში
+     (renderSubcategoryFilter) გამოჩნდება — იქ FilterSidebar-ის სექციების
+     იმავე "ერთიანი სია" იერს იმეორებს, ცალკე ბარათის ნაცვლად. */
+  @media (max-width: 900px) {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    border-bottom: 1px solid var(--ref-border-soft);
+  }
 `;
 
 export const SidebarCardTitle = styled("div")`
@@ -130,6 +141,12 @@ export const SidebarCardTitle = styled("div")`
   font-weight: 700;
   color: var(--ref-text-primary);
   border-bottom: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 900px) {
+    padding: 14px 2px 6px;
+    font-size: 12.5px;
+    border-bottom: none;
+  }
 `;
 
 export const SidebarCardBody = styled("div")`
@@ -139,6 +156,15 @@ export const SidebarCardBody = styled("div")`
   gap: 2px;
   max-height: 420px;
   overflow-y: auto;
+
+  /* ქვეკატეგორიები მობილურზე აღარ იმალება საკუთარ (შიდა) სქროლში —
+     მთლიანი ფილტრის popup თავად ისქროლება (MobileFilterModalBody),
+     ამიტომ აქ სიმაღლის შეზღუდვა/სქროლი იხსნება. */
+  @media (max-width: 900px) {
+    padding: 0 2px 14px;
+    max-height: none;
+    overflow-y: visible;
+  }
 `;
 
 export const CategoryOption = styled("button")<{ active?: boolean }>`
@@ -216,6 +242,138 @@ export const MobileCategorySelect = styled("div")`
   @media (max-width: 900px) {
     display: flex;
   }
+`;
+
+/* ---------- Mobile filter — Sidebar (subcategორიები + FilterSidebar)
+   900px-ს ქვემოთ საერთოდ იმალება (იხ. Sidebar-ის media query), ამიტომ
+   იმავე კონტენტს toggle-ღილაკით გახსნილი popup-ის სახით ვაჩვენებთ —
+   AuthModal-ის ვიზუალური ენით (components/shared/AuthModal/style.tsx:
+   Overlay/ModalContainer/ModalHeader/CloseButton), მაგრამ ცენტრის
+   ნაცვლად ეკრანის ბოლოში ეკვრება (bottom sheet), ქვემოდან ამოსული. ---------- */
+
+export const MobileFilterBar = styled("div")`
+  display: none;
+
+  @media (max-width: 900px) {
+    display: flex;
+    margin-bottom: 14px;
+  }
+`;
+
+export const MobileFilterToggle = styled("button")<{ active?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--ref-border-soft);
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  svg:last-child {
+    margin-left: auto;
+    transition: transform 0.15s ease;
+    transform: rotate(${({ active }) => (active ? "180deg" : "0deg")});
+  }
+`;
+
+// AuthModal-ის Overlay-ის იგივე დაბლურული ფონი, უბრალოდ მოდალი ცენტრის
+// ნაცვლად ეკრანის ბოლოში ეკვრება (bottom sheet).
+export const MobileFilterOverlay = styled("div")`
+  position: fixed;
+  inset: 0;
+  background: var(--ref-overlay);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+`;
+
+const filterModalSlideUp = keyframes`
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+`;
+
+// ეკრანის ბოლოში მიდგმული popup — სრული სიგანე, ზედა კუთხეები მრგვალი,
+// ქვემოდან ამოსული slide-up ანიმაციით. AuthModal-ის ModalContainer-ის
+// იგივე box-shadow/ფონი, უბრალოდ bottom-sheet განლაგებით.
+export const MobileFilterModal = styled("div")`
+  background: var(--ref-bg-elevated);
+  width: 100%;
+  max-height: 85vh;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.2), 0 -2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: ${filterModalSlideUp} 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+`;
+
+export const MobileFilterModalHeader = styled("div")`
+  flex-shrink: 0;
+  padding: 16px 20px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ref-bg);
+`;
+
+export const MobileFilterModalTitle = styled("h3")`
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+  margin: 0;
+  font-family: inherit;
+`;
+
+export const MobileFilterModalClose = styled("button")`
+  background: var(--ref-bg-subtle);
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ref-text-secondary);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--ref-bg);
+    color: var(--ref-text-primary);
+    transform: rotate(90deg);
+  }
+`;
+
+export const MobileFilterModalBody = styled("div")`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 4px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+// "გაფილტვრა"/"გასუფთავება" ღილაკები — MobileFilterModalBody-ის სქროლს
+// მიღმა, მოდალის ცალკე (flex-shrink: 0) ქვედა ზოლში, რომ ფილტრის
+// შიგთავსის სქროლვისას არასდროს არ ქრებოდეს (FilterSidebar-ს ამ
+// შემთხვევაში `hideApplyBar` გადაეცემა და საკუთარ ApplyBar-ს არ რენდერავს).
+export const MobileFilterModalFooter = styled("div")`
+  flex-shrink: 0;
+  padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  border-top: 1px solid var(--ref-bg);
+  background: var(--ref-bg-elevated);
 `;
 
 export const SortWrap = styled("div")`

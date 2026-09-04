@@ -9,6 +9,15 @@ export const FilterForm = styled("form")`
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  /* 900px-ს ქვემოთ FilterSidebar მხოლოდ mobile popup-შია ხილული (იხ.
+     categoryProducts/index.tsx-ის MobileFilterModal). იქ ცალკე "ბარათებად"
+     დაყოფის ნაცვლად ერთიან უწყვეტ სიად გამოიყურება — გამყოფად თითო
+     სექციას შორის თხელი ხაზი კმარა (იხ. FilterCard-ის mobile override),
+     ამიტომ ფორმის საკუთარ gap-საც 0-ს ვუტოლებთ. */
+  @media (max-width: 900px) {
+    gap: 0;
+  }
 `;
 
 export const FilterCard = styled("div")`
@@ -17,6 +26,21 @@ export const FilterCard = styled("div")`
   box-shadow: var(--ref-shadow-sm);
   border: 1px solid var(--ref-border-soft);
   overflow: hidden;
+
+  /* მობილურის popup-ში აღარ გამოიყურება ცალკე "ყუთად" — ბარათის ფონი/ჩრდილი/
+     ბორდერი/მომრგვალება იხსნება, სექციებს შორის მხოლოდ თხელი გამყოფი ხაზი
+     რჩება (ბოლო სექციას გამყოფის გარეშე). */
+  @media (max-width: 900px) {
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    border-bottom: 1px solid var(--ref-border-soft);
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
 `;
 
 export const FilterCardTitle = styled("div")`
@@ -29,6 +53,12 @@ export const FilterCardTitle = styled("div")`
   font-weight: 700;
   color: var(--ref-text-primary);
   border-bottom: 1px solid var(--ref-border-soft);
+
+  @media (max-width: 900px) {
+    padding: 14px 2px 6px;
+    font-size: 12.5px;
+    border-bottom: none;
+  }
 `;
 
 export const FilterCardBody = styled("div")`
@@ -36,6 +66,20 @@ export const FilterCardBody = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  @media (max-width: 900px) {
+    padding: 0 2px 14px;
+    gap: 8px;
+  }
+`;
+
+// select/multi_select ვარიანტების სია — სადაც ადგილი ხელს უწყობს
+// (მოკლე ლეიბლები, ფართო popup), ორ სვეტად თვითონ ეწყობა (auto-fill),
+// ვიწროზე კი ერთ სვეტად ეცემა — ცალკე breakpoint-ის გარეშე.
+export const CheckboxGrid = styled("div")`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 2px 10px;
 `;
 
 export const CheckboxRow = styled("label")<{ checked?: boolean }>`
@@ -48,10 +92,17 @@ export const CheckboxRow = styled("label")<{ checked?: boolean }>`
   font-weight: ${({ checked }) => (checked ? 700 : 500)};
   color: ${({ checked }) => (checked ? "var(--ref-primary)" : "var(--ref-text-primary)")};
   cursor: pointer;
+  min-width: 0;
 
   input {
     accent-color: var(--ref-primary);
     cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 900px) {
+    padding: 5px 4px;
+    font-size: 12.5px;
   }
 `;
 
@@ -69,6 +120,7 @@ export const OptionCount = styled("span")`
   font-size: 12px;
   color: var(--ref-text-secondary);
   font-weight: 500;
+  flex-shrink: 0;
 `;
 
 export const RangeRow = styled("div")`
@@ -91,6 +143,11 @@ export const RangeInput = styled("input")`
     outline: none;
     border-color: var(--ref-primary);
   }
+
+  @media (max-width: 900px) {
+    padding: 7px 9px;
+    font-size: 12.5px;
+  }
 `;
 
 export const TextInput = styled(RangeInput)``;
@@ -110,6 +167,11 @@ export const BooleanOption = styled("button")<{ active?: boolean }>`
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+
+  @media (max-width: 900px) {
+    padding: 6px 0;
+    font-size: 11.5px;
+  }
 `;
 
 export const ClearButton = styled("button")`

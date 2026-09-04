@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import useTranslation from "next-translate/useTranslation";
 import { CategoryFilterEntry } from "@/API_Client/types";
 import { getCategoryName, getLocalizedValue } from "@/utils/getCategoryName";
@@ -24,6 +24,20 @@ interface FilterSidebarProps {
   // ფასის დიაპაზონი — სლაიდერის ბორდერებისთვის. თუ არ მოვიდა/ცარიელია,
   // ვიყენებთ DEFAULT_PRICE_BOUNDS-ს.
   priceBounds?: PriceBounds | null;
+  // მობილურის popup-ში "გაფილტვრა"/"გასუფთავება" ღილაკები კომპონენტის
+  // საკუთარი (scroll-ირებადი) სვინგის ნაცვლად მოდალის ფიქსირებულ ქვედა
+  // ზოლში გამოიტანება (იხ. categoryProducts/index.tsx-ის
+  // MobileFilterModalFooter) — რომ ისინი ფილტრის სქროლვისას არასდროს
+  // არ ქრებოდეს. ამ შემთხვევაში შიდა ApplyBar საერთოდ არ დაირენდერება,
+  // მაგრამ apply/clear მაინც ref-ის საშუალებით (`FilterSidebarHandle`)
+  // და `onStateChange`-ით (isDirty/hasDraftFilters) კვლავ ხელმისაწვდომია.
+  hideApplyBar?: boolean;
+  onStateChange?: (state: { isDirty: boolean; hasDraftFilters: boolean }) => void;
+}
+
+export interface FilterSidebarHandle {
+  apply: () => void;
+  clear: () => void;
 }
 
 const getLabel = (entry: CategoryFilterEntry["attribute"], locale?: string) => getCategoryName(entry, locale);
@@ -283,14 +297,16 @@ const PriceFilter: React.FC<{
  * მხოლოდ ლოკალურ draft-ს (`draft` state) ეხება, რომ ყოველ toggle/keystroke-ზე
  * გვერდი აღარ განახლდეს და ლინკი აღარ იცვლებოდეს.
  */
-export const FilterSidebar: React.FC<FilterSidebarProps> = ({
+export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebarProps>(({
   facets,
   filters,
   locale,
   onApply,
   onClear,
   priceBounds,
-}) => {
+  hideApplyBar,
+  onStateChange,
+}, ref) => {
   const { t } = useTranslation("catalog");
   const [draft, setDraft] = useState<Record<string, string>>(filters);
 
@@ -328,6 +344,20 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   const handleApply = () => {
     onApply(draft);
   };
+
+  // მობილურის popup-ში apply/clear ღილაკები კომპონენტის გარეთ (ფიქსირებულ
+  // ქვედა ზოლში) დგას — `hideApplyBar`-ის შემთხვევაში იმ ღილაკებმა
+  // `ref.current.apply()`/`ref.current.clear()`-ით უნდა შეძლონ ამ draft-ის
+  // მართვა.
+  useImperativeHandle(ref, () => ({ apply: handleApply, clear: handleClear }), [draft]);
+
+  // ატვირთვისას/ცვლილებაზე გარეთა (ფიქსირებული) ღილაკებს ვამცნობთ
+  // isDirty/hasDraftFilters-ს, რომ მათი გარეგნობა (pending/დისეიბლდი)
+  // შიდა ApplyBar-ის მსგავსად განახლდეს.
+  useEffect(() => {
+    onStateChange?.({ isDirty, hasDraftFilters });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDirty, hasDraftFilters]);
 
   return (
     // ფორმა — Enter-ზე ნებისმიერი ველიდან ფილტრი დაუყოვნებლივ გაეშვება
@@ -371,26 +401,29 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
           <S.FilterCard key={attribute.id}>
             <S.FilterCardTitle>{label}</S.FilterCardTitle>
             <S.FilterCardBody>
-              {/* select/multi_select */}
+              {/* select/multi_select — მოკლე ლეიბლები სივრცის მიხედვით
+                  ავტომატურად ორ (ან მეტ) სვეტად ეწყობა, იხ. S.CheckboxGrid */}
               {facet.options && (
                 <>
-                  {facet.options.map((opt) => {
-                    const selected = (draft[attribute.code] || "").split(",").includes(opt.code);
-                    const optLabel = getLocalizedValue(opt, locale);
-                    return (
-                      <S.CheckboxRow key={opt.id} checked={selected}>
-                        <S.CheckboxLabel>
-                          <input
-                            type="checkbox"
-                            checked={selected}
-                            onChange={() => toggleOption(attribute.code, opt.code)}
-                          />
-                          {optLabel}
-                        </S.CheckboxLabel>
-                        <S.OptionCount>{opt.count}</S.OptionCount>
-                      </S.CheckboxRow>
-                    );
-                  })}
+                  <S.CheckboxGrid>
+                    {facet.options.map((opt) => {
+                      const selected = (draft[attribute.code] || "").split(",").includes(opt.code);
+                      const optLabel = getLocalizedValue(opt, locale);
+                      return (
+                        <S.CheckboxRow key={opt.id} checked={selected}>
+                          <S.CheckboxLabel>
+                            <input
+                              type="checkbox"
+                              checked={selected}
+                              onChange={() => toggleOption(attribute.code, opt.code)}
+                            />
+                            {optLabel}
+                          </S.CheckboxLabel>
+                          <S.OptionCount>{opt.count}</S.OptionCount>
+                        </S.CheckboxRow>
+                      );
+                    })}
+                  </S.CheckboxGrid>
                   {facet.options.length === 0 && <S.EmptyFacets>{t("filter-no-options")}</S.EmptyFacets>}
                 </>
               )}
@@ -457,10 +490,11 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
         );
       })}
 
-      <S.ApplyBar>
-        <S.ApplyButton type="submit" pending={isDirty}>
-          {t("filter-apply")}
-        </S.ApplyButton>
+      {!hideApplyBar && (
+        <S.ApplyBar>
+          <S.ApplyButton type="submit" pending={isDirty}>
+            {t("filter-apply")}
+          </S.ApplyButton>
           <S.ClearFilterButton
             type="button"
             onClick={() => hasDraftFilters && handleClear()}
@@ -478,9 +512,12 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
               <path d="M3 21 21 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
             </svg>
           </S.ClearFilterButton>
-      </S.ApplyBar>
+        </S.ApplyBar>
+      )}
     </S.FilterForm>
   );
-};
+});
+
+FilterSidebar.displayName = "FilterSidebar";
 
 export default FilterSidebar;

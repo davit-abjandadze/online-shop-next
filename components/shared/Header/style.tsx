@@ -31,7 +31,8 @@ export const Container = styled.div`
   gap: 40px;
 
   @media (max-width: 960px) {
-    padding: 0 16px;
+    padding: 0 16px 0 6px;
+  gap: 20px;
   }
 `;
 
@@ -304,14 +305,6 @@ export const LoginBtn = styled.button`
 
   @media (max-width: 420px) {
     padding: 9px 14px;
-  }
-`;
-
-/* "/ ავტორიზაცია" იკუმშება ვიწრო ეკრანებზე, თორემ ღილაკის სრული ტექსტი
-   ჰედერის სივრცეს გადადის და გვერდს ჰორიზონტალურად ავრცელებს */
-export const LoginBtnFullLabel = styled.span`
-  @media (max-width: 420px) {
-    display: none;
   }
 `;
 

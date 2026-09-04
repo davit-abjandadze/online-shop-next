@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { toast } from "react-toastify";
@@ -8,8 +9,13 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import Dropdown from "@/components/shared/Dropdown";
 import ProductCard from "@/components/shared/ProductCard";
-import FilterSidebar, { PriceBounds } from "@/components/shared/FilterSidebar";
-import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
+import FilterSidebar, { FilterSidebarHandle, PriceBounds } from "@/components/shared/FilterSidebar";
+// მობილურის ფიქსირებული "გაფილტვრა"/"გასუფთავება" ღილაკებისთვის —
+// FilterSidebar-ის საკუთარი ApplyButton/ClearFilterButton სტილების reuse,
+// რომ ორივე (desktop-ის შიდა ApplyBar და mobile-ის ფიქსირებული ზოლი)
+// ვიზუალურად იდენტური იყოს.
+import * as FSStyle from "@/components/shared/FilterSidebar/style";
+import { CloseIcon, SearchIcon, SliderIcon, TagIcon, ChevronDownIcon } from "@/components/ui/RefIcons";
 import { CategoriesAPI } from "@/API_Client";
 import { Category, CategoryFiltersResponse, PaginatedResponseDto, Product } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
@@ -54,6 +60,29 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+  const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
+  // მობილურის popup-ში "გაფილტვრა"/"გასუფთავება" ღილაკები FilterSidebar-ის
+  // შიგნიდან ფიქსირებულ ქვედა ზოლში (MobileFilterModalFooter) გამოაქვს —
+  // ref-ით ვმართავთ apply/clear-ს, state-ით კი ვსინქრონებთ pending/disabled
+  // გარეგნობას (იხ. FilterSidebar-ის onStateChange).
+  const mobileFilterRef = useRef<FilterSidebarHandle>(null);
+  const [mobileFilterState, setMobileFilterState] = useState({ isDirty: false, hasDraftFilters: false });
+  // popup document.body-ში პორტალდება (Header-ის მობაილ მენიუს იმავე
+  // პრინციპით) — SSR-ზე `document` არ არსებობს, `mounted`-ით ვიცავთ.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // popup-ის ღიაობისას ფონის სქროლი იბლოკება.
+  useEffect(() => {
+    if (!mobileFilterOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileFilterOpen]);
 
   const sortValue =
     SORT_OPTIONS.find((o) => o.sortBy === sortBy && o.order === order)?.value || (sortBy ? "default" : "default");
@@ -161,6 +190,44 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, slug, JSON.stringify(filters), subcategory, page, sortBy, order, router.locale]);
 
+  // ქვეკატეგორიების სია — desktop Sidebar-ში და mobile ფილტრის პანელში
+  // ორივეგან იმეორება, ამიტომ ერთხელ ვშლით და ორივეგან ვიყენებთ.
+  const renderSubcategoryFilter = () =>
+    children.length > 0 && (
+      <C.SidebarCard>
+        <C.SidebarCardTitle>{t("subcategories-title")}</C.SidebarCardTitle>
+        <C.SidebarCardBody>
+          {category?.parent ? (
+            <C.CategoryOption active={false} onClick={() => router.push(`/categories/${category.parent!.slug}`)}>
+              <C.CategoryOptionLabel>
+                <TagIcon size={16} />
+                {t("all")}
+              </C.CategoryOptionLabel>
+            </C.CategoryOption>
+          ) : (
+            <C.CategoryOption active={!subcategory} onClick={() => setSubcategory(null)}>
+              <C.CategoryOptionLabel>
+                <TagIcon size={16} />
+                {t("all")}
+              </C.CategoryOptionLabel>
+            </C.CategoryOption>
+          )}
+          {children.map((child) => (
+            <C.CategoryOption
+              key={child.id}
+              active={category?.parent ? child.slug === category.slug : subcategory === child.slug}
+              onClick={() => router.push(`/categories/${child.slug}`)}
+            >
+              <C.CategoryOptionLabel>
+                <TagIcon size={16} />
+                {getCategoryName(child, router.locale)}
+              </C.CategoryOptionLabel>
+            </C.CategoryOption>
+          ))}
+        </C.SidebarCardBody>
+      </C.SidebarCard>
+    );
+
   if (notFound) {
     return (
       <C.PageBackground>
@@ -207,42 +274,90 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
           {meta && <C.ResultsCount>{t("results-count", { count: meta.total })}</C.ResultsCount>}
         </C.PageHeader> */}
 
+        {/* Sidebar (ქვეკატეგორიები + FilterSidebar) 900px-ს ქვემოთ საერთოდ
+            იმალება — მობილურზე იმავე კონტენტს toggle-ღილაკით გამოსაშლელი
+            popup-ის სახით ვაჩვენებთ (იხ. C.MobileFilterModal). */}
+        <C.MobileFilterBar>
+          <C.MobileFilterToggle
+            type="button"
+            active={mobileFilterOpen}
+            onClick={() => setMobileFilterOpen((open) => !open)}
+            aria-expanded={mobileFilterOpen}
+          >
+            <SliderIcon size={16} />
+            {t("filter-title")}
+            <ChevronDownIcon size={16} />
+          </C.MobileFilterToggle>
+        </C.MobileFilterBar>
+
+        {mounted &&
+          mobileFilterOpen &&
+          createPortal(
+            <C.MobileFilterOverlay onClick={() => setMobileFilterOpen(false)}>
+              <C.MobileFilterModal onClick={(e) => e.stopPropagation()}>
+                <C.MobileFilterModalHeader>
+                  <C.MobileFilterModalTitle>{t("filter-title")}</C.MobileFilterModalTitle>
+                  <C.MobileFilterModalClose
+                    type="button"
+                    onClick={() => setMobileFilterOpen(false)}
+                    aria-label={t("filter-modal-close-aria")}
+                  >
+                    <CloseIcon size={16} />
+                  </C.MobileFilterModalClose>
+                </C.MobileFilterModalHeader>
+
+                <C.MobileFilterModalBody>
+                  {renderSubcategoryFilter()}
+                  <FilterSidebar
+                    ref={mobileFilterRef}
+                    facets={facets}
+                    filters={filters}
+                    locale={router.locale}
+                    onApply={(next) => {
+                      applyFilters(next);
+                      setMobileFilterOpen(false);
+                    }}
+                    onClear={clearFilters}
+                    priceBounds={priceBounds}
+                    hideApplyBar
+                    onStateChange={setMobileFilterState}
+                  />
+                </C.MobileFilterModalBody>
+
+                <C.MobileFilterModalFooter>
+                  <FSStyle.ApplyButton
+                    type="button"
+                    pending={mobileFilterState.isDirty}
+                    onClick={() => mobileFilterRef.current?.apply()}
+                  >
+                    {t("filter-apply")}
+                  </FSStyle.ApplyButton>
+                  <FSStyle.ClearFilterButton
+                    type="button"
+                    onClick={() => mobileFilterState.hasDraftFilters && mobileFilterRef.current?.clear()}
+                    title={t("filter-clear-aria")}
+                    aria-label={t("filter-clear-aria")}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4z"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path d="M3 21 21 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </FSStyle.ClearFilterButton>
+                </C.MobileFilterModalFooter>
+              </C.MobileFilterModal>
+            </C.MobileFilterOverlay>,
+            document.body
+          )}
+
         <C.Layout>
           <C.Sidebar>
-            {children.length > 0 && (
-              <C.SidebarCard>
-                <C.SidebarCardTitle>{t("subcategories-title")}</C.SidebarCardTitle>
-                <C.SidebarCardBody>
-                  {category?.parent ? (
-                    <C.CategoryOption active={false} onClick={() => router.push(`/categories/${category.parent!.slug}`)}>
-                      <C.CategoryOptionLabel>
-                        <TagIcon size={16} />
-                        {t("all")}
-                      </C.CategoryOptionLabel>
-                    </C.CategoryOption>
-                  ) : (
-                    <C.CategoryOption active={!subcategory} onClick={() => setSubcategory(null)}>
-                      <C.CategoryOptionLabel>
-                        <TagIcon size={16} />
-                        {t("all")}
-                      </C.CategoryOptionLabel>
-                    </C.CategoryOption>
-                  )}
-                  {children.map((child) => (
-                    <C.CategoryOption
-                      key={child.id}
-                      active={category?.parent ? child.slug === category.slug : subcategory === child.slug}
-                      onClick={() => router.push(`/categories/${child.slug}`)}
-                    >
-                      <C.CategoryOptionLabel>
-                        <TagIcon size={16} />
-                        {getCategoryName(child, router.locale)}
-                      </C.CategoryOptionLabel>
-                    </C.CategoryOption>
-                  ))}
-                </C.SidebarCardBody>
-              </C.SidebarCard>
-            )}
+            {renderSubcategoryFilter()}
 
             <FilterSidebar
               facets={facets}

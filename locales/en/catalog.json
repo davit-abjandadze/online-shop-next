@@ -45,5 +45,6 @@
   "filter-boolean-no": "No",
   "filter-text-search-placeholder": "Search...",
   "filter-apply": "Filter",
-  "filter-clear-aria": "Clear filters"
+  "filter-clear-aria": "Clear filters",
+  "filter-modal-close-aria": "Close filters"
 }
