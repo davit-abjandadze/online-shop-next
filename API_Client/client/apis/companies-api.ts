@@ -70,11 +70,15 @@ export const CompaniesApiAxiosParamCreator = function (configuration?: Configura
         },
         /**
          * 
-         * @summary აქტიური კომპანიების სია
+         * @summary აქტიური კომპანიების გვერდიანი სია
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {CompaniesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        companiesControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        companiesControllerFindAll: async (page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllOrderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/companies`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -86,6 +90,22 @@ export const CompaniesApiAxiosParamCreator = function (configuration?: Configura
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (order !== undefined) {
+                localVarQueryParameter['order'] = order;
+            }
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -99,11 +119,15 @@ export const CompaniesApiAxiosParamCreator = function (configuration?: Configura
         },
         /**
          * 
-         * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
+         * @summary ყველა კომპანიის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {CompaniesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        companiesControllerFindAllAdmin: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        companiesControllerFindAllAdmin: async (page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllAdminOrderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/companies/admin/all`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -119,6 +143,22 @@ export const CompaniesApiAxiosParamCreator = function (configuration?: Configura
             // authentication bearer required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (order !== undefined) {
+                localVarQueryParameter['order'] = order;
+            }
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -266,24 +306,32 @@ export const CompaniesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary აქტიური კომპანიების სია
+         * @summary აქტიური კომპანიების გვერდიანი სია
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {CompaniesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async companiesControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerFindAll(options);
+        async companiesControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllOrderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerFindAll(page, limit, sortBy, order, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerFindAll']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
+         * @summary ყველა კომპანიის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {CompaniesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async companiesControllerFindAllAdmin(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerFindAllAdmin(options);
+        async companiesControllerFindAllAdmin(page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllAdminOrderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.companiesControllerFindAllAdmin(page, limit, sortBy, order, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CompaniesApi.companiesControllerFindAllAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -349,21 +397,29 @@ export const CompaniesApiFactory = function (configuration?: Configuration, base
         },
         /**
          * 
-         * @summary აქტიური კომპანიების სია
+         * @summary აქტიური კომპანიების გვერდიანი სია
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {CompaniesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        companiesControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.companiesControllerFindAll(options).then((request) => request(axios, basePath));
+        companiesControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllOrderEnum, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerFindAll(page, limit, sortBy, order, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
+         * @summary ყველა კომპანიის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {CompaniesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        companiesControllerFindAllAdmin(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.companiesControllerFindAllAdmin(options).then((request) => request(axios, basePath));
+        companiesControllerFindAllAdmin(page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllAdminOrderEnum, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.companiesControllerFindAllAdmin(page, limit, sortBy, order, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -416,22 +472,30 @@ export class CompaniesApi extends BaseAPI {
 
     /**
      * 
-     * @summary აქტიური კომპანიების სია
+     * @summary აქტიური კომპანიების გვერდიანი სია
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {CompaniesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public companiesControllerFindAll(options?: RawAxiosRequestConfig) {
-        return CompaniesApiFp(this.configuration).companiesControllerFindAll(options).then((request) => request(this.axios, this.basePath));
+    public companiesControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllOrderEnum, options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerFindAll(page, limit, sortBy, order, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary ყველა კომპანიის სია, დახურულების ჩათვლით (ADMIN)
+     * @summary ყველა კომპანიის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {CompaniesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public companiesControllerFindAllAdmin(options?: RawAxiosRequestConfig) {
-        return CompaniesApiFp(this.configuration).companiesControllerFindAllAdmin(options).then((request) => request(this.axios, this.basePath));
+    public companiesControllerFindAllAdmin(page?: number, limit?: number, sortBy?: string, order?: CompaniesControllerFindAllAdminOrderEnum, options?: RawAxiosRequestConfig) {
+        return CompaniesApiFp(this.configuration).companiesControllerFindAllAdmin(page, limit, sortBy, order, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -469,3 +533,13 @@ export class CompaniesApi extends BaseAPI {
     }
 }
 
+export const CompaniesControllerFindAllOrderEnum = {
+    Asc: 'ASC',
+    Desc: 'DESC',
+} as const;
+export type CompaniesControllerFindAllOrderEnum = typeof CompaniesControllerFindAllOrderEnum[keyof typeof CompaniesControllerFindAllOrderEnum];
+export const CompaniesControllerFindAllAdminOrderEnum = {
+    Asc: 'ASC',
+    Desc: 'DESC',
+} as const;
+export type CompaniesControllerFindAllAdminOrderEnum = typeof CompaniesControllerFindAllAdminOrderEnum[keyof typeof CompaniesControllerFindAllAdminOrderEnum];

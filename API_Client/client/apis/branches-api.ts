@@ -70,12 +70,16 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-         * @param {string} [companyId] 
+         * @summary აქტიური ფილიალების გვერდიანი სია (checkout-ისთვის)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {BranchesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAll: async (companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        branchesControllerFindAll: async (page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllOrderEnum, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/branches`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -87,6 +91,22 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (order !== undefined) {
+                localVarQueryParameter['order'] = order;
+            }
 
             if (companyId !== undefined) {
                 localVarQueryParameter['companyId'] = companyId;
@@ -104,12 +124,16 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-         * @param {string} [companyId] 
+         * @summary ყველა ფილიალის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {BranchesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAllAdmin: async (companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        branchesControllerFindAllAdmin: async (page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllAdminOrderEnum, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/branches/admin/all`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -125,6 +149,22 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             // authentication bearer required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (order !== undefined) {
+                localVarQueryParameter['order'] = order;
+            }
 
             if (companyId !== undefined) {
                 localVarQueryParameter['companyId'] = companyId;
@@ -277,26 +317,34 @@ export const BranchesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-         * @param {string} [companyId] 
+         * @summary აქტიური ფილიალების გვერდიანი სია (checkout-ისთვის)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {BranchesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerFindAll(companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAll(companyId, options);
+        async branchesControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllOrderEnum, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAll(page, limit, sortBy, order, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerFindAll']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-         * @param {string} [companyId] 
+         * @summary ყველა ფილიალის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {BranchesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerFindAllAdmin(companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAllAdmin(companyId, options);
+        async branchesControllerFindAllAdmin(page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllAdminOrderEnum, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAllAdmin(page, limit, sortBy, order, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerFindAllAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -362,23 +410,31 @@ export const BranchesApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
-         * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-         * @param {string} [companyId] 
+         * @summary აქტიური ფილიალების გვერდიანი სია (checkout-ისთვის)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {BranchesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAll(companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerFindAll(companyId, options).then((request) => request(axios, basePath));
+        branchesControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllOrderEnum, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.branchesControllerFindAll(page, limit, sortBy, order, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-         * @param {string} [companyId] 
+         * @summary ყველა ფილიალის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {BranchesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAllAdmin(companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerFindAllAdmin(companyId, options).then((request) => request(axios, basePath));
+        branchesControllerFindAllAdmin(page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllAdminOrderEnum, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.branchesControllerFindAllAdmin(page, limit, sortBy, order, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -431,24 +487,32 @@ export class BranchesApi extends BaseAPI {
 
     /**
      * 
-     * @summary აქტიური ფილიალების სია (checkout-ისთვის)
-     * @param {string} [companyId] 
+     * @summary აქტიური ფილიალების გვერდიანი სია (checkout-ისთვის)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {BranchesControllerFindAllOrderEnum} [order] დალაგების მიმართულება
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerFindAll(companyId?: string, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerFindAll(companyId, options).then((request) => request(this.axios, this.basePath));
+    public branchesControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllOrderEnum, companyId?: string, options?: RawAxiosRequestConfig) {
+        return BranchesApiFp(this.configuration).branchesControllerFindAll(page, limit, sortBy, order, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary ყველა ფილიალის სია, დახურულების ჩათვლით (ADMIN)
-     * @param {string} [companyId] 
+     * @summary ყველა ფილიალის გვერდიანი სია, დახურულების ჩათვლით (ADMIN)
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {BranchesControllerFindAllAdminOrderEnum} [order] დალაგების მიმართულება
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerFindAllAdmin(companyId?: string, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerFindAllAdmin(companyId, options).then((request) => request(this.axios, this.basePath));
+    public branchesControllerFindAllAdmin(page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllAdminOrderEnum, companyId?: string, options?: RawAxiosRequestConfig) {
+        return BranchesApiFp(this.configuration).branchesControllerFindAllAdmin(page, limit, sortBy, order, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -486,3 +550,13 @@ export class BranchesApi extends BaseAPI {
     }
 }
 
+export const BranchesControllerFindAllOrderEnum = {
+    Asc: 'ASC',
+    Desc: 'DESC',
+} as const;
+export type BranchesControllerFindAllOrderEnum = typeof BranchesControllerFindAllOrderEnum[keyof typeof BranchesControllerFindAllOrderEnum];
+export const BranchesControllerFindAllAdminOrderEnum = {
+    Asc: 'ASC',
+    Desc: 'DESC',
+} as const;
+export type BranchesControllerFindAllAdminOrderEnum = typeof BranchesControllerFindAllAdminOrderEnum[keyof typeof BranchesControllerFindAllAdminOrderEnum];
