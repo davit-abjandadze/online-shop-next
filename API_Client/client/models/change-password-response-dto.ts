@@ -17,5 +17,9 @@
 export interface ChangePasswordResponseDto {
     'statusCode': number;
     'message': string;
+    /**
+     * ახალი access token — ძველი ამ მოთხოვნის შემდეგ ბათილია
+     */
+    'access_token': string;
 }
 

@@ -123,10 +123,11 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
          * @param {string} [sortBy] დალაგების ველი
          * @param {CategoryControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {string} [parentId] მხოლოდ ამ მშობელი კატეგორიის შვილების დაბრუნება
+         * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით (მხოლოდ ADMIN-ისთვის)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        categoryControllerFindAll: async (page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        categoryControllerFindAll: async (page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, isActive?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/categories`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -157,6 +158,10 @@ export const CategoriesApiAxiosParamCreator = function (configuration?: Configur
 
             if (parentId !== undefined) {
                 localVarQueryParameter['parentId'] = parentId;
+            }
+
+            if (isActive !== undefined) {
+                localVarQueryParameter['isActive'] = isActive;
             }
 
 
@@ -528,11 +533,12 @@ export const CategoriesApiFp = function(configuration?: Configuration) {
          * @param {string} [sortBy] დალაგების ველი
          * @param {CategoryControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {string} [parentId] მხოლოდ ამ მშობელი კატეგორიის შვილების დაბრუნება
+         * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით (მხოლოდ ADMIN-ისთვის)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.categoryControllerFindAll(page, limit, sortBy, order, parentId, options);
+        async categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, isActive?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.categoryControllerFindAll(page, limit, sortBy, order, parentId, isActive, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CategoriesApi.categoryControllerFindAll']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -693,11 +699,12 @@ export const CategoriesApiFactory = function (configuration?: Configuration, bas
          * @param {string} [sortBy] დალაგების ველი
          * @param {CategoryControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {string} [parentId] მხოლოდ ამ მშობელი კატეგორიის შვილების დაბრუნება
+         * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით (მხოლოდ ADMIN-ისთვის)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.categoryControllerFindAll(page, limit, sortBy, order, parentId, options).then((request) => request(axios, basePath));
+        categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, isActive?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.categoryControllerFindAll(page, limit, sortBy, order, parentId, isActive, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -828,11 +835,12 @@ export class CategoriesApi extends BaseAPI {
      * @param {string} [sortBy] დალაგების ველი
      * @param {CategoryControllerFindAllOrderEnum} [order] დალაგების მიმართულება
      * @param {string} [parentId] მხოლოდ ამ მშობელი კატეგორიის შვილების დაბრუნება
+     * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით (მხოლოდ ADMIN-ისთვის)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, options?: RawAxiosRequestConfig) {
-        return CategoriesApiFp(this.configuration).categoryControllerFindAll(page, limit, sortBy, order, parentId, options).then((request) => request(this.axios, this.basePath));
+    public categoryControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: CategoryControllerFindAllOrderEnum, parentId?: string, isActive?: boolean, options?: RawAxiosRequestConfig) {
+        return CategoriesApiFp(this.configuration).categoryControllerFindAll(page, limit, sortBy, order, parentId, isActive, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

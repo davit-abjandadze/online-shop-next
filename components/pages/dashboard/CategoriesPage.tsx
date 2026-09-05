@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AttributesAPI, CategoriesAPI } from "@/API_Client";
 import { Attribute, Category, CategoryAttribute, PaginatedResponseDto } from "@/API_Client/types";
-import { CreateCategoryDto, UpdateCategoryDto } from "@/API_Client/client/models";
 import { CheckSquareIcon, CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -92,8 +91,7 @@ export const CategoriesPage: React.FC = () => {
         slug: data.slug.trim(),
         parentId: data.parentId || undefined,
         isActive: data.isActive,
-        // TODO: generated CreateCategoryDto not yet regenerated for translations — remove cast after yarn generate:api
-      } as unknown as CreateCategoryDto);
+      });
       toast.success("კატეგორია წარმატებით დაემატა!");
       setIsCatCreateOpen(false);
       createForm.reset(emptyCategoryForm);
@@ -126,8 +124,7 @@ export const CategoriesPage: React.FC = () => {
           slug: data.slug.trim(),
           parentId: data.parentId || undefined,
           isActive: data.isActive,
-          // TODO: generated UpdateCategoryDto not yet regenerated for translations — remove cast after yarn generate:api
-        } as unknown as UpdateCategoryDto
+        }
       );
       toast.success("კატეგორია წარმატებით განახლდა!");
       setEditingCat(null);

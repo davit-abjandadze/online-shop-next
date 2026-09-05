@@ -92,34 +92,32 @@ export const authOptions: NextAuthOptions = {
     // მხოლოდ OAuth პროვაიდერებისთვის (Google, Facebook)
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
-          // Facebook-ის profile სტრუქტურა განსხვავებულია:
-          // - Google: given_name, family_name
-          // - Facebook: name (სრული სახელი ერთ ველში)
-          let firstName = "";
-          let lastName = "";
-
-          if (account.provider === "google") {
-            firstName = (profile as any)?.given_name || "";
-            lastName = (profile as any)?.family_name || "";
-          } else if (account.provider === "facebook") {
-            // Facebook-ზე name არის "დათა ბერიძე" ფორმატში
-            const fullName = (profile as any)?.name || "";
-            const nameParts = fullName.split(" ");
-            firstName = nameParts[0] || "";
-            lastName = nameParts.slice(1).join(" ") || "";
-          }
-
-          // ვაგზავნით ბექენდზე
+          // ⚠️ ბექენდის /auth/google ახლა აღარ ენდობა კლიენტისგან გამოგზავნილ
+          // email/firstName/lastName-ს (account takeover-ის პრევენცია) — მხოლოდ
+          // Google-ის ნამდვილ id_token-ს იღებს და თავად ამოწმებს ხელმოწერას/aud/
+          // ვადას, email/სახელი კი ვერიფიცირებული payload-იდან თავად ამოაქვს
+          // (იხ. AuthService.googleLogin). ამიტომ აქ firstName/lastName-ის აწყობა
+          // აღარ გვჭირდება Google-ისთვის — უბრალოდ account.id_token-ს ვაბარებთ.
           const endpoint = account.provider === "google" ? "/auth/google" : "/auth/facebook";
-          
+
+          const body =
+            account.provider === "google"
+              ? { idToken: account.id_token }
+              : (() => {
+                  // Facebook-ზე name არის "დათა ბერიძე" ფორმატში
+                  const fullName = (profile as any)?.name || "";
+                  const nameParts = fullName.split(" ");
+                  return {
+                    email: user.email,
+                    firstName: nameParts[0] || "",
+                    lastName: nameParts.slice(1).join(" ") || "",
+                  };
+                })();
+
           const response = await fetch(`${API_URL}${endpoint}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              email: user.email,
-              firstName,
-              lastName,
-            }),
+            body: JSON.stringify(body),
           });
 
           const data = await response.json();

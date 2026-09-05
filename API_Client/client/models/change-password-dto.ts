@@ -20,7 +20,7 @@ export interface ChangePasswordDto {
      */
     'oldPassword': string;
     /**
-     * ახალი პაროლი (მინიმუმ 6 სიმბოლო)
+     * ახალი პაროლი (მინიმუმ 8 სიმბოლო, დიდი და პატარა ასო და ციფრი)
      */
     'newPassword': string;
 }

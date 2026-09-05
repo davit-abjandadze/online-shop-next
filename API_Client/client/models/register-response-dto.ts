@@ -15,11 +15,10 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { TokenDataDto } from './token-data-dto';
+import type { TokenUserDto } from './token-user-dto';
 
 export interface RegisterResponseDto {
-    'statusCode': number;
-    'message': string;
-    'data': TokenDataDto;
+    'access_token': string;
+    'user': TokenUserDto;
 }
 

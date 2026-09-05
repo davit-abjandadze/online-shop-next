@@ -28,6 +28,8 @@ import type { ChangePasswordResponseDto } from '../models';
 // @ts-ignore
 import type { ForgotPasswordDto } from '../models';
 // @ts-ignore
+import type { GoogleLoginDto } from '../models';
+// @ts-ignore
 import type { LoginDto } from '../models';
 // @ts-ignore
 import type { LoginResponseDto } from '../models';
@@ -184,10 +186,13 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+         * @param {GoogleLoginDto} googleLoginDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        authControllerGoogleLogin: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        authControllerGoogleLogin: async (googleLoginDto: GoogleLoginDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'googleLoginDto' is not null or undefined
+            assertParamExists('authControllerGoogleLogin', 'googleLoginDto', googleLoginDto)
             const localVarPath = `/auth/google`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -200,11 +205,13 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            localVarHeaderParameter['Content-Type'] = 'application/json';
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(googleLoginDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -377,11 +384,12 @@ export const AuthApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+         * @param {GoogleLoginDto} googleLoginDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async authControllerGoogleLogin(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoginResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerGoogleLogin(options);
+        async authControllerGoogleLogin(googleLoginDto: GoogleLoginDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LoginResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.authControllerGoogleLogin(googleLoginDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthApi.authControllerGoogleLogin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -475,11 +483,12 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
         /**
          * 
          * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+         * @param {GoogleLoginDto} googleLoginDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        authControllerGoogleLogin(options?: RawAxiosRequestConfig): AxiosPromise<LoginResponseDto> {
-            return localVarFp.authControllerGoogleLogin(options).then((request) => request(axios, basePath));
+        authControllerGoogleLogin(googleLoginDto: GoogleLoginDto, options?: RawAxiosRequestConfig): AxiosPromise<LoginResponseDto> {
+            return localVarFp.authControllerGoogleLogin(googleLoginDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -563,11 +572,12 @@ export class AuthApi extends BaseAPI {
     /**
      * 
      * @summary Google-ით ავტორიზაცია/რეგისტრაცია
+     * @param {GoogleLoginDto} googleLoginDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public authControllerGoogleLogin(options?: RawAxiosRequestConfig) {
-        return AuthApiFp(this.configuration).authControllerGoogleLogin(options).then((request) => request(this.axios, this.basePath));
+    public authControllerGoogleLogin(googleLoginDto: GoogleLoginDto, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).authControllerGoogleLogin(googleLoginDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

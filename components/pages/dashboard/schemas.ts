@@ -112,11 +112,18 @@ export const readProductTranslations = (translations: unknown) => {
 /** კატეგორიის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა. */
 export const categoryFormSchema = z.object({
   translations: nameTranslationsSchema("კატეგორიის სახელი"),
+  // ბექენდის CreateCategoryDto-ს ზუსტად იგივე regex (src/category/dto/create-category.dto.ts) —
+  // წინა, ლაქსი ვერსია (`[a-z0-9-]+`) წამყვან/მბოლო ტირეს და ორმაგ ტირეს
+  // (მაგ. "-electronics", "electro--nics") frontend-ზე ვალიდურად თვლიდა,
+  // მაგრამ ბექენდი მაინც 400-ს აბრუნებდა — ხელახლა-ვალიდირება საჭირო.
   slug: z
     .string()
     .trim()
     .min(1, "გთხოვთ მიუთითოთ slug")
-    .regex(/^[a-z0-9-]+$/, "slug უნდა შეიცავდეს მხოლოდ ლათინურ პატარა ასოებს, ციფრებს და ტირეს"),
+    .regex(
+      /^[a-z0-9]+(-[a-z0-9]+)*$/,
+      "slug უნდა შეიცავდეს მხოლოდ ლათინურ პატარა ასოებს, ციფრებს და ტირეს (ტირე არ შეიძლება თავში/ბოლოში ან ორმაგად)"
+    ),
   parentId: z.string().optional(),
   isActive: z.boolean(),
 });

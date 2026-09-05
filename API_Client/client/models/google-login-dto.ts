@@ -13,12 +13,11 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { UserDataDto } from './user-data-dto';
 
-export interface TokenDataDto {
-    'access_token': string;
-    'user': UserDataDto;
+export interface GoogleLoginDto {
+    /**
+     * Google Identity Services-ის მიერ გაცემული ID Token (JWT)
+     */
+    'idToken': string;
 }
 
