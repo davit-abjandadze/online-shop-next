@@ -16,10 +16,24 @@
 // May contain unused imports in some cases
 // @ts-ignore
 import type { Category } from './category';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { Product } from './product';
 
 export interface CategoryResponseDto {
-    'statusCode': number;
-    'message': string;
-    'data'?: Category | null;
+    'id': string;
+    'translations': object;
+    'slug': string;
+    'isActive': boolean;
+    'sortOrder': number;
+    'image'?: string;
+    'seoTitle'?: string;
+    'seoDescription'?: string;
+    'seoKeywords'?: string;
+    'parent'?: Category | null;
+    'children'?: Array<Category>;
+    'products'?: Array<Product>;
+    'createdAt': string;
+    'updatedAt': string;
 }
 

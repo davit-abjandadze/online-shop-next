@@ -32,6 +32,15 @@ const LoginForm: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.query.sessionExpired]);
 
+  // პაროლის შეცვლის შემდეგ ChangePassword-მა signOut() გამოიძახა და აქ
+  // redirect გააკეთა — ამის შესახებ toast-ს ვაჩვენებთ.
+  useEffect(() => {
+    if (router.query.passwordChanged) {
+      toast.success(t("password-changed-relogin") as string);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.query.passwordChanged]);
+
   const schema = z.object({
     email: z
       .string()

@@ -15,13 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ValueTranslationsDto } from './value-translations-dto';
+import type { ValuePartialTranslationsDto } from './value-partial-translations-dto';
 
 export interface UpdateAttributeOptionDto {
-    /**
-     * მრავალენოვანი მნიშვნელობა — { ka: {value}, en?, ru? }, ka სავალდებულოა
-     */
-    'translations'?: ValueTranslationsDto;
     /**
      * უნიკალური კოდი (attribute-ის ფარგლებში), მხოლოდ ლათინური ასოები/ციფრები/ტირე
      */
@@ -30,5 +26,6 @@ export interface UpdateAttributeOptionDto {
      * დალაგების რიგი
      */
     'sortOrder'?: number;
+    'translations'?: ValuePartialTranslationsDto;
 }
 

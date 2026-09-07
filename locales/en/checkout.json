@@ -96,6 +96,7 @@
   "error-select-branch": "Please select a branch",
   "error-select-payment": "Please select a payment method",
   "toast-order-failed": "Failed to place order",
+  "toast-payment-start-failed": "Order was created, but payment could not be started — you can retry from the order page",
   "address-validation-title": "Please enter an address name (e.g. Home, Work)",
   "address-validation-phone": "Please enter a phone number",
   "address-validation-city": "Please select a city",

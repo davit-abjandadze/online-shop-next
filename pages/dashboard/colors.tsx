@@ -1,6 +1,7 @@
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
 import ColorsPage from "@/components/pages/dashboard/ColorsPage";
+export { getAdminServerSideProps as getServerSideProps } from "@/utils/getAdminServerSideProps";
 
 export default function DashboardColorsPage() {
   const { t } = useTranslation("common");

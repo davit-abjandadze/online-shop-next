@@ -1,6 +1,7 @@
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
 import HeroSlidesPage from "@/components/pages/dashboard/HeroSlidesPage";
+export { getAdminServerSideProps as getServerSideProps } from "@/utils/getAdminServerSideProps";
 
 export default function DashboardHeroSlidesPage() {
   const { t } = useTranslation("common");

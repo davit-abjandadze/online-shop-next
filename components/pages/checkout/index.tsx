@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
@@ -732,8 +732,16 @@ export const CheckoutComponent: React.FC = () => {
     ...(deliveryComplete ? (["address"] as const) : []),
   ];
 
+  // React state (submitting) update-ის commit-ი async operation-ია და button-ის
+  // disabled ატრიბუტს UI-ში ერთი re-render-ის დაგვიანებით ეხება — swift double-click-ის
+  // ან Enter-ის ორჯერ დაჭერის შემთხვევაში ეს window საკმარისია რომ onSubmit ხელახლა
+  // გაეშვას და დუბლირებული შეკვეთა/გადახდა შეიქმნას. Ref არის სინქრონული flag,
+  // რომელიც ამ race-ს კეტავს — state-ის განახლების მოლოდინი აღარ სჭირდება.
+  const submittingRef = useRef(false);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     if (!session?.accessToken || isEmpty || purchaseBlocked) return;
 
     if (deliveryMethod === "courier" && !selectedAddress) {
@@ -751,7 +759,10 @@ export const CheckoutComponent: React.FC = () => {
     setAddressError(null);
     setBranchError(null);
     setPaymentMethodError(null);
+    submittingRef.current = true;
     setSubmitting(true);
+
+    let order: Order | undefined;
     try {
       const orderRes = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerCreate(
         deliveryMethod === "pickup"
@@ -761,12 +772,26 @@ export const CheckoutComponent: React.FC = () => {
               shippingAddress: `${selectedAddress!.title} - ${selectedAddress!.city}, ${selectedAddress!.address}`,
             }
       );
-      const order = orderRes.data as unknown as Order;
+      order = orderRes.data as unknown as Order;
 
       // createFromCart-მა კალათა უკვე დაცარიელა backend-ზე — Header-ის
       // ბეჯის განახლებისთვის client-side cache-საც ვასინქრონებთ.
       refresh();
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || t("toast-order-failed"));
+      submittingRef.current = false;
+      setSubmitting(false);
+      return;
+    }
 
+    // შეკვეთა უკვე შექმნილია (და კალათა დაცარიელებული) — თუ სწორედ აქედან,
+    // გადახდის ინიციაციის ჩავარდნისას, უბრალოდ toast-ს ვაჩვენებდით და
+    // checkout-ზევე დავტოვებდით მომხმარებელს, ის ჩიხში აღმოჩნდებოდა: აღარც
+    // კალათა აქვს დასაბრუნებელი და აღარც იცის შექმნილი შეკვეთის ID, საიდანაც
+    // ხელახლა გადახდის დაწყება შეეძლო (orderDetail-ს ეს "ხელახლა გადახდის"
+    // ფუნქციონალი უკვე აქვს). ამიტომ ასეთ შემთხვევაში პირდაპირ შეკვეთის
+    // დეტალების გვერდზე გადავამისამართებთ, სადაც "ხელახლა გადახდის" ღილაკია.
+    try {
       const paymentRes = await PaymentsAPI(router.locale || "ka", session.accessToken).paymentsControllerInitiate(
         String(order.id)
       );
@@ -775,8 +800,10 @@ export const CheckoutComponent: React.FC = () => {
       // კი client-side ნავიგაციისთვისაა, ამიტომ რეალური ბრაუზერის ნავიგაცია გვჭირდება.
       window.location.href = redirectUrl;
     } catch (err: any) {
-      toast.error(err?.response?.data?.message || t("toast-order-failed"));
+      toast.error(err?.response?.data?.message || t("toast-payment-start-failed"));
+      submittingRef.current = false;
       setSubmitting(false);
+      router.push(`/orders/${order.id}?payment=fail`);
     }
   };
 

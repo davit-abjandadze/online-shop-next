@@ -88,31 +88,26 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
 
 // ⭐ 3. ახალი signIn callback: Google-ით შესვლისას ვუკავშირდებით ბექენდს
-        async signIn({ user, account, profile }) {
+        async signIn({ user, account }) {
     // მხოლოდ OAuth პროვაიდერებისთვის (Google, Facebook)
       if (account?.provider === "google" || account?.provider === "facebook") {
         try {
-          // ⚠️ ბექენდის /auth/google ახლა აღარ ენდობა კლიენტისგან გამოგზავნილ
-          // email/firstName/lastName-ს (account takeover-ის პრევენცია) — მხოლოდ
-          // Google-ის ნამდვილ id_token-ს იღებს და თავად ამოწმებს ხელმოწერას/aud/
-          // ვადას, email/სახელი კი ვერიფიცირებული payload-იდან თავად ამოაქვს
-          // (იხ. AuthService.googleLogin). ამიტომ აქ firstName/lastName-ის აწყობა
-          // აღარ გვჭირდება Google-ისთვის — უბრალოდ account.id_token-ს ვაბარებთ.
+          // ⚠️ ბექენდის /auth/google და /auth/facebook აღარ ენდობიან კლიენტისგან
+          // გამოგზავნილ email/firstName/lastName-ს (account takeover-ის პრევენცია) —
+          // ადრე Facebook-ის შტოს ჩამორჩენოდა Google-ისთვის უკვე გასწორებული ეს
+          // ხვრელი: profile.name/user.email პირდაპირ იგზავნებოდა ბექენდში, რაც
+          // ნებისმიერს საშუალებას აძლევდა Facebook-ის ნებისმიერი (თუნდაც არავერიფიცირებული)
+          // ანგარიშით შესულიყო ვინმეს არსებულ email-ზე. ახლა ორივე პროვაიდერისთვის
+          // მხოლოდ Facebook/Google-ის ნამდვილ ტოკენს ვაბარებთ ბექენდს, რომელიც თავად
+          // ამოწმებს მას (Google — id_token-ის ხელმოწერას/aud/ვადას, Facebook —
+          // access_token-ს Graph API-ის debug_token-ით) და email/სახელს მხოლოდ
+          // ვერიფიცირებული პასუხიდან იღებს (იხ. AuthService.googleLogin/facebookLogin).
           const endpoint = account.provider === "google" ? "/auth/google" : "/auth/facebook";
 
           const body =
             account.provider === "google"
               ? { idToken: account.id_token }
-              : (() => {
-                  // Facebook-ზე name არის "დათა ბერიძე" ფორმატში
-                  const fullName = (profile as any)?.name || "";
-                  const nameParts = fullName.split(" ");
-                  return {
-                    email: user.email,
-                    firstName: nameParts[0] || "",
-                    lastName: nameParts.slice(1).join(" ") || "",
-                  };
-                })();
+              : { accessToken: account.access_token };
 
           const response = await fetch(`${API_URL}${endpoint}`, {
             method: "POST",
@@ -144,6 +139,7 @@ export const authOptions: NextAuthOptions = {
         token.access_token = (user as any).access_token;
         token.role = (user as any).role;
         token.id = (user as any).id;
+        token.roleCheckedAt = Date.now();
       }
       // პროფილის ფორმიდან useSession().update(...) გამოძახებისას აქ ვანახლებთ
       // token-ს, რომ ჰედერშიც (და ყველგან, სადაც session.user.name გამოიყენება)
@@ -151,6 +147,38 @@ export const authOptions: NextAuthOptions = {
       if (trigger === "update" && session?.name) {
         token.name = session.name;
       }
+
+      // ⚠️ FIX: role დემოტირების შემდეგ ადმინის წვდომა 7 დღემდე რჩებოდა, რადგან
+      // JWT session-ს (maxAge: 7 დღე) role მხოლოდ login-ისას ედება და მერე აღარ
+      // ბრუნდება ბექენდთან გადასამოწმებლად. აქედან გამომდინარე, role-ს პერიოდულად
+      // (5 წუთში ერთხელ) ვახლებთ ბექენდიდან, რომ დემოტირება/დაბლოკვა სწრაფად აისახოს
+      // და არა მხოლოდ ხელახალი login-ის ან token-ის ვადის გასვლის შემდეგ.
+      const ROLE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+      const lastChecked = (token.roleCheckedAt as number) || 0;
+      if (token.id && token.access_token && Date.now() - lastChecked > ROLE_CHECK_INTERVAL_MS) {
+        try {
+          const response = await axios.get(`${API_URL}/users/${token.id}`, {
+            headers: { Authorization: `Bearer ${token.access_token}` },
+            validateStatus: () => true,
+            timeout: 5000,
+          });
+
+          if (response.status === 200 && response.data?.role) {
+            token.role = response.data.role;
+            token.roleCheckedAt = Date.now();
+          } else if (response.status === 401 || response.status === 404) {
+            // მომხმარებელი წაშლილია ან access_token აღარ არის ვალიდური —
+            // token-ს ვასუფთავებთ, session callback-ში role აღარ ექნება.
+            token.role = undefined;
+            token.roleCheckedAt = Date.now();
+          }
+        } catch (error) {
+          // ქსელური/დროებითი შეცდომისას ძველ role-ს ვტოვებთ უცვლელად, რომ
+          // backend-ის დროებითმა მიუწვდომლობამ არ დაბლოკოს მომხმარებელი.
+          console.error("Role re-check failed:", error);
+        }
+      }
+
       return token;
     },
 

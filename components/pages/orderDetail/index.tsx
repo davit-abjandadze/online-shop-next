@@ -117,8 +117,15 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentQuery, order?.id, order?.status]);
 
+  // checkout-ის onSubmit-ის მსგავსად, state-ის commit-ს (disabled ღილაკზე) ერთი
+  // re-render-ის დაგვიანება აქვს — swift double-click სწორედ ამ window-ში სვამს
+  // მეორე request-ს. Ref სინქრონულად კეტავს ამ race-ს.
+  const payingRef = useRef(false);
+
   const handlePayNow = async () => {
+    if (payingRef.current) return;
     if (!session?.accessToken || !order) return;
+    payingRef.current = true;
     setPaying(true);
     try {
       const res = await PaymentsAPI(router.locale || "ka", session.accessToken).paymentsControllerInitiate(
@@ -128,6 +135,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
       window.location.href = redirectUrl;
     } catch (err: any) {
       toast.error(err?.response?.data?.message || t("toast-payment-start-failed"));
+      payingRef.current = false;
       setPaying(false);
     }
   };

@@ -27,5 +27,6 @@ declare module "next-auth/jwt" {
     access_token?: string;
     id?: string; // ← ეს დაამატე!
     role?: string;
+    roleCheckedAt?: number; // ← role-ის ბოლო გადამოწმების დროის ნიშნული (ბექენდიდან)
   }
 }

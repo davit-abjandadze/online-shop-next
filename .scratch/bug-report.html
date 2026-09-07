@@ -1,0 +1,321 @@
+<title>Online Shop Bug Audit</title>
+<style>
+:root{
+  --bg:#faf9f7; --surface:#ffffff; --border:#e7e3dd; --text:#1f1d1a; --text-dim:#6b665e;
+  --mono-bg:#f2efe9; --link:#8a4a2d;
+  --crit:#c0362c; --crit-bg:#fdecea;
+  --high:#b5651d; --high-bg:#fdf1e3;
+  --med:#9a7d0a; --med-bg:#fbf6e3;
+  --low:#5a6b57; --low-bg:#eef1ec;
+  --ok:#2f6f4e; --ok-bg:#eaf5ef;
+}
+:root:not([data-theme="light"]) {
+  @media (prefers-color-scheme: dark) {
+    --bg:#171614; --surface:#201f1c; --border:#37342e; --text:#ece8e1; --text-dim:#a39d92;
+    --mono-bg:#2a2822; --link:#e0a37c;
+    --crit:#ff6f61; --crit-bg:#3a1815;
+    --high:#f0a35f; --high-bg:#3a2712;
+    --med:#e0c455; --med-bg:#362f0f;
+    --low:#a9bba4; --low-bg:#242a20;
+    --ok:#8fd0ac; --ok-bg:#15281e;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#171614; --surface:#201f1c; --border:#37342e; --text:#ece8e1; --text-dim:#a39d92;
+  --mono-bg:#2a2822; --link:#e0a37c;
+  --crit:#ff6f61; --crit-bg:#3a1815;
+  --high:#f0a35f; --high-bg:#3a2712;
+  --med:#e0c455; --med-bg:#362f0f;
+  --low:#a9bba4; --low-bg:#242a20;
+  --ok:#8fd0ac; --ok-bg:#15281e;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Georgia',-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  line-height:1.55;
+}
+.wrap{max-width:880px;margin:0 auto;padding:48px 24px 96px}
+header.top{margin-bottom:40px}
+.eyebrow{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim); margin:0 0 10px;
+}
+h1{font-size:34px; margin:0 0 12px; letter-spacing:-.01em}
+.meta{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:13.5px; color:var(--text-dim); display:flex; gap:18px; flex-wrap:wrap; margin-top:6px;
+}
+.summary-bar{
+  display:flex; gap:10px; margin:28px 0 6px; flex-wrap:wrap;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.chip{
+  border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600;
+  display:flex; align-items:center; gap:8px; border:1px solid var(--border);
+}
+.chip b{font-size:16px}
+.chip.crit{background:var(--crit-bg); color:var(--crit)}
+.chip.high{background:var(--high-bg); color:var(--high)}
+.chip.med{background:var(--med-bg); color:var(--med)}
+.chip.low{background:var(--low-bg); color:var(--low)}
+
+section.group{margin-top:44px}
+.group-head{
+  display:flex; align-items:baseline; gap:12px; margin-bottom:18px;
+  border-bottom:2px solid var(--border); padding-bottom:10px;
+}
+.group-head h2{
+  font-size:19px; margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.01em;
+}
+.group-head .dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.dot.crit{background:var(--crit)}
+.dot.high{background:var(--high)}
+.dot.med{background:var(--med)}
+.dot.low{background:var(--low)}
+.group-head .count{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:12.5px; color:var(--text-dim); margin-left:auto;
+}
+
+.bug{
+  background:var(--surface); border:1px solid var(--border); border-left-width:4px;
+  border-radius:10px; padding:18px 20px; margin-bottom:14px;
+}
+.bug.crit{border-left-color:var(--crit)}
+.bug.high{border-left-color:var(--high)}
+.bug.med{border-left-color:var(--med)}
+.bug.low{border-left-color:var(--low)}
+.bug-title{
+  font-size:16px; font-weight:700; margin:0 0 8px;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.bug-loc{
+  font-family:'SFMono-Regular',Consolas,Menlo,monospace; font-size:12.5px;
+  background:var(--mono-bg); color:var(--link); border-radius:6px; padding:3px 8px;
+  display:inline-block; margin-bottom:10px;
+}
+.bug p{margin:8px 0; font-size:14.5px}
+.bug .scenario{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:13.5px; color:var(--text-dim); border-top:1px dashed var(--border);
+  margin-top:12px; padding-top:10px;
+}
+.bug .scenario b{color:var(--text)}
+code.inline{
+  font-family:'SFMono-Regular',Consolas,Menlo,monospace; background:var(--mono-bg);
+  padding:1px 6px; border-radius:4px; font-size:.92em;
+}
+
+.fixed-box{
+  margin-top:44px; background:var(--ok-bg); border:1px solid var(--border); border-left:4px solid var(--ok);
+  border-radius:10px; padding:18px 20px;
+}
+.fixed-box h2{
+  font-size:15.5px; margin:0 0 8px; color:var(--ok);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.fixed-box ul{margin:0; padding-left:20px; font-size:14px}
+
+.reco{
+  margin-top:28px; padding:20px 22px; border-radius:10px; background:var(--surface);
+  border:1px solid var(--border);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.reco h2{font-size:15.5px; margin:0 0 10px}
+.reco ol{margin:0; padding-left:20px; font-size:14px; line-height:1.7}
+
+footer.foot{
+  margin-top:56px; padding-top:20px; border-top:1px solid var(--border);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:12.5px; color:var(--text-dim);
+}
+
+@media (max-width:600px){
+  .wrap{padding:32px 16px 72px}
+  h1{font-size:26px}
+  .summary-bar{gap:8px}
+  .chip{padding:7px 11px; font-size:12px}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Online Shop Next &middot; Bug Audit</p>
+    <h1>საიტის ბაგების აუდიტი</h1>
+    <div class="meta">
+      <span>📅 2026-09-07</span>
+      <span>🔍 კოდის რევიუ + ცოცხალი გადამოწმება</span>
+      <span>16 ბაგი, 4 სფერო</span>
+    </div>
+    <div class="summary-bar">
+      <div class="chip crit"><b>3</b> კრიტიკული</div>
+      <div class="chip high"><b>6</b> მაღალი</div>
+      <div class="chip med"><b>7</b> საშუალო</div>
+      <div class="chip low"><b>3</b> დაბალი / შენიშვნა</div>
+    </div>
+  </header>
+
+  <section class="group">
+    <div class="group-head">
+      <span class="dot crit"></span>
+      <h2>🔴 კრიტიკული — რეალურ ფულს/მონაცემებს ეხება</h2>
+      <span class="count">3 ბაგი</span>
+    </div>
+
+    <div class="bug crit">
+      <p class="bug-title">1. Product Slider-ის items-ის შენახვა არაფერს არ ინახავს</p>
+      <div class="bug-loc">components/pages/dashboard/ProductSliderItemsForm.tsx:133-135</div>
+      <p><code class="inline">productIds</code> აწყობილია, როგორც JS <code class="inline">Set</code> — Axios body-ს <code class="inline">JSON.stringify</code>-ავს, <code class="inline">JSON.stringify(new Set(...))</code> კი იძლევა <code class="inline">"{}"</code>-ს, არა მასივს. საწყისი პრობლემა გენერირებულ ტიპშივეა (<code class="inline">set-product-slider-items-dto.ts</code> აცხადებს <code class="inline">Set&lt;number&gt;</code>-ს <code class="inline">number[]</code>-ის მაგივრად).</p>
+      <p class="scenario"><b>სცენარი:</b> ადმინი ამატებს/აწყობს პროდუქტებს „Featured products" სლაიდერში, ტოასტი აჩვენებს წარმატებას — backend-ს ცარიელი <code class="inline">{}</code> მიდის, სლაიდერი ცარიელი რჩება reload-მდე.</p>
+    </div>
+
+    <div class="bug crit">
+      <p class="bug-title">2. Checkout-ის double-submit → დუბლირებული შეკვეთა/გადახდა</p>
+      <div class="bug-loc">components/pages/checkout/index.tsx:735-781 (+ orderDetail/index.tsx:120-133)</div>
+      <p><code class="inline">onSubmit</code>-ს არ აქვს საკუთარი re-entrancy guard — მხოლოდ <code class="inline">disabled={submitting}</code> იცავს ღილაკს, რაც ეფექტს იძენს React-ის state commit-ის შემდეგ. იგივე race „Pay Now"-შიც არის orderDetail გვერდზე.</p>
+      <p class="scenario"><b>სცენარი:</b> სწრაფი double-click ან Enter+click checkout-ზე → ორი შეკვეთა და ორი BOG payment სესია ერთი კალათიდან.</p>
+    </div>
+
+    <div class="bug crit">
+      <p class="bug-title">3. შეკვეთა შექმნილია, გადახდის ინიციაცია ჩავარდა → მომხმარებელი ჩიხშია</p>
+      <div class="bug-loc">components/pages/checkout/index.tsx:756-781</div>
+      <p><code class="inline">ordersControllerCreate</code> წარმატებულია → კალათა იცლება → <code class="inline">paymentsControllerInitiate</code> ჩავარდება → catch მხოლოდ toast-ს აჩვენებს, არსად გადამისამართებს.</p>
+      <p class="scenario"><b>სცენარი:</b> კალათა ცარიელია, ფორმა იცვლება „ცარიელი კალათის" ხედით — მომხმარებელს არ აქვს გვერდიდან გადახდის გამეორების გზა, თავად უნდა მიხვდეს <code class="inline">/orders</code>-ზე წასვლას.</p>
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head">
+      <span class="dot high"></span>
+      <h2>🟠 მაღალი სიმძიმის</h2>
+      <span class="count">6 ბაგი</span>
+    </div>
+
+    <div class="bug high">
+      <p class="bug-title">4. Role დემოტირების შემდეგ ადმინის წვდომა 7 დღემდე რჩება</p>
+      <div class="bug-loc">pages/api/auth/[...nextauth].ts:142-155</div>
+      <p><code class="inline">token.role</code> მხოლოდ საწყის login-ზე ისეტება. <code class="inline">session.update()</code> role-ცვლილებაზე არსად გამოიძახება.</p>
+      <p class="scenario"><b>სცენარი:</b> ადმინი UsersPage-იდან დემოტირებას უკეთებს მომხმარებელს — ძველი JWT-ით (<code class="inline">maxAge: 7 days</code>) admin UI-ზე წვდომა logout-მდე გრძელდება.</p>
+    </div>
+
+    <div class="bug high">
+      <p class="bug-title">5. Dashboard დაცულია მხოლოდ client-side-ზე</p>
+      <div class="bug-loc">hooks/useAdminGuard.ts</div>
+      <p><code class="inline">middleware.ts</code> და <code class="inline">getServerSideProps</code> guard არსად არის <code class="inline">/dashboard/*</code>-ზე — მთელი admin UI/კოდი იგზავნება ნებისმიერ authenticated კლიენტთან.</p>
+      <p class="scenario"><b>სცენარი:</b> დაცვა მხოლოდ UI-ს რენდერს წყვეტს, network calls-ზე პირდაპირი წვდომა არ არის დაცული ამ დონეზე.</p>
+    </div>
+
+    <div class="bug high">
+      <p class="bug-title">6. Facebook OAuth branch-ს დარჩა Google-ისთვის გასწორებული account-takeover ხვრელი</p>
+      <div class="bug-loc">pages/api/auth/[...nextauth].ts:91-115</div>
+      <p>Google-ისთვის client-ის <code class="inline">profile.name</code>/<code class="inline">email</code>-ს აღარ ენდობა (მხოლოდ <code class="inline">id_token</code> იგზავნება). Facebook branch (commented out providers-ში) კვლავ აგზავნის დაუვერიფიცირებელ ველებს.</p>
+      <p class="scenario"><b>სცენარი:</b> Facebook providers-ში დაბრუნდება ამ კოდის გადახედვის გარეშე → attacker-controlled email/name backend-ს სხვისი ანგარიშის მოსაპარად.</p>
+    </div>
+
+    <div class="bug high">
+      <p class="bug-title">7. <code class="inline">/api/auth/change-password</code> — მკვდარი, დაუცველი stub endpoint</p>
+      <div class="bug-loc">pages/api/auth/change-password.ts:23-25</div>
+      <p>Session-შემოწმების ან backend-გამოძახების გარეშე უბრალოდ აბრუნებს „წარმატებას". ამჟამად გამოუყენებელია, მაგრამ ცოცხალია და public.</p>
+      <p class="scenario"><b>სცენარი:</b> ნებისმიერს შეუძლია POST-ის გაგზავნა ამ route-ზე და ყალბი „success" პასუხის მიღება.</p>
+    </div>
+
+    <div class="bug high">
+      <p class="bug-title">8. Google/Facebook login-ის ჩავარდნაზე მომხმარებელი ვერაფერს ხედავს</p>
+      <div class="bug-loc">pages/api/auth/[...nextauth].ts:91-138</div>
+      <p><code class="inline">AuthModal</code> <code class="inline">redirect: false</code>-ს არ გადასცემს Google login-ზე → <code class="inline">/login?error=AccessDenied</code>, მაგრამ <code class="inline">error</code> query param არსად იკითხება.</p>
+      <p class="scenario"><b>სცენარი:</b> backend-ის <code class="inline">/auth/google</code> ჩავარდნაზე მომხმარებელი უბრალოდ login გვერდზე ხედავს, ახსნის გარეშე.</p>
+    </div>
+
+    <div class="bug high">
+      <p class="bug-title">9. პაროლის შეცვლის შემდეგ არსებული სესია არ უქმდება</p>
+      <div class="bug-loc">components/pages/profile/ChangePassword.tsx:87-90</div>
+      <p>წარმატებული ცვლილების შემდეგ <code class="inline">signOut()</code> არსად გამოიძახება.</p>
+      <p class="scenario"><b>სცენარი:</b> ანგარიშის მოპარვის გამო შეცვლილი პაროლის შემდეგაც მოპარული სესია აქტიური რჩება.</p>
+    </div>
+  </section>
+
+  <section class="group">
+    <div class="group-head">
+      <span class="dot med"></span>
+      <h2>🟡 საშუალო სიმძიმის</h2>
+      <span class="count">7 ბაგი</span>
+    </div>
+
+    <div class="bug med">
+      <p class="bug-title">10. Attribute Option-ის წაშლას double-click იცავს ცუდად</p>
+      <div class="bug-loc">components/pages/dashboard/AttributesPage.tsx:262-275, 504-510</div>
+      <p><code class="inline">ConfirmDialog</code>-ს <code class="inline">confirming</code> prop არ გადაეცემა → შესაძლებელია ორმაგი delete request.</p>
+    </div>
+
+    <div class="bug med">
+      <p class="bug-title">11. Category-ს parent-ის არჩევა ციკლს დაუშვებს</p>
+      <div class="bug-loc">components/pages/dashboard/CategoriesPage.tsx:386-398</div>
+      <p>Dropdown-იდან მხოლოდ საკუთარი id გამოირიცხება, არა შვილობილი კატეგორიები — შესაძლებელია parent/child ციკლი.</p>
+    </div>
+
+    <div class="bug med">
+      <p class="bug-title">12. „Additional info"-ს წაშლას confirm dialog აკლია</p>
+      <div class="bug-loc">components/pages/dashboard/AdditionalInfoForm.tsx:204-213</div>
+      <p>ერთი დაწკაპუნება პირდაპირ შლის, სხვა dashboard-ისგან განსხვავებით.</p>
+    </div>
+
+    <div class="bug med">
+      <p class="bug-title">13. კატალოგის ფილტრი არ ერეაგირებს URL query-ის ცვლილებაზე იმავე გვერდზე ყოფნისას</p>
+      <div class="bug-loc">components/pages/catalog/index.tsx:51-62</div>
+      <p>Sync effect დამოკიდებულია მხოლოდ <code class="inline">[router.isReady]</code>-ზე.</p>
+      <p class="scenario"><b>სცენარი:</b> Footer-იდან სხვა კატეგორიაზე გადასვლა იმავე გვერდზე ყოფნისას სია არ განახლდება სრულ reload-მდე.</p>
+    </div>
+
+    <div class="bug med">
+      <p class="bug-title">14. პროდუქტის გალერეის სურათის ინდექსი „გადაყვება" პროდუქტებს შორის</p>
+      <div class="bug-loc">components/pages/productDetail/index.tsx:54, 68-76</div>
+      <p><code class="inline">activeImageIdx</code> არ იცლება პროდუქტის ცვლილებაზე.</p>
+      <p class="scenario"><b>სცენარი:</b> 5-სურათიან პროდუქტზე ბოლო სურათზე ყოფნისას 2-სურათიან პროდუქტზე გადასვლა → placeholder ნაცვლად რეალური სურათისა.</p>
+    </div>
+
+    <div class="bug med">
+      <p class="bug-title">15. Logout ყოველთვის ka ლოკალზე აბრუნებს</p>
+      <div class="bug-loc">components/shared/Header/index.tsx:184-188</div>
+      <p><code class="inline">window.location.replace("/")</code> ლოკალზე მიბმული navigation-ის მაგივრად.</p>
+      <p class="scenario"><b>სცენარი:</b> <code class="inline">/ru</code> ან <code class="inline">/en</code>-ზე მყოფი მომხმარებელი logout-ის შემდეგ უცებ ქართულ ვერსიაზე ხვდება.</p>
+    </div>
+
+    <div class="bug med">
+      <p class="bug-title">16. Mobile viewport-ის ჰორიზონტალური overflow კვლავ შესაძლებელია</p>
+      <div class="bug-loc">styles/globals.css:96-118</div>
+      <p><code class="inline">#__next</code>-ის <code class="inline">overflow-x: hidden</code> safety-net დაკომენტარებულია.</p>
+      <p class="scenario"><b>სცენარი:</b> გრძელი ქართული სიტყვები <code class="inline">nowrap</code>-იან ელემენტებში ვიწრო viewport-ზე გვერდს განზე ატანენ.</p>
+    </div>
+  </section>
+
+  <div class="fixed-box">
+    <h2>⚪ დაბალი / შენიშვნები</h2>
+    <ul>
+      <li><b>AuthModal რეგისტრაცია</b> — auto-login-ის ჩავარდნაზე მომხმარებელს არანაირი შეტყობინება არ უჩნდება.</li>
+      <li><b>OTP-ის ვადაგასვლა</b> (profile/index.tsx:445-447) — cepe-ს შენახვაზე expired OTP ცალკე არ მუშავდება, ზოგადი toast-ია.</li>
+      <li><b><code class="inline">toDto as unknown as ...Dto</code></b> cast-ები — TODO-ებია compile-time დაცვის გარეშე.</li>
+    </ul>
+  </div>
+
+  <div class="fixed-box" style="margin-top:16px">
+    <h2>✅ დადასტურდა, რომ მოგვარებულია</h2>
+    <ul>
+      <li>ProductCard-ის მრავალენოვანი <code class="inline">name</code>-ის წაკითხვის ბაგი — აღარ მოიძებნა.</li>
+      <li>Product-detail navigation-ზე <code class="inline">router.reload()</code> workaround — კოდში აღარ არის.</li>
+    </ul>
+  </div>
+
+  <div class="reco">
+    <h2>რეკომენდებული პრიორიტეტი</h2>
+    <ol>
+      <li>#1 — Product Slider save (მონაცემების დაკარგვა)</li>
+      <li>#2, #3 — Checkout race + stranded payment (რეალური ფული)</li>
+      <li>#4, #5 — Auth/role-ის dashboard დაცვა (უსაფრთხოება)</li>
+      <li>დანარჩენი — UX/მონაცემთა თანმიმდევრულობის გამოსწორება</li>
+    </ol>
+  </div>
+
+  <footer class="foot">კოდის სტატიკური რევიუ (4 პარალელური აგენტი) + ცოცხალი smoke-ტესტი dev გარემოში &middot; online-shop-next</footer>
+</div>

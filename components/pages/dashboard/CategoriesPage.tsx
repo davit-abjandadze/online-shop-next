@@ -103,6 +103,24 @@ export const CategoriesPage: React.FC = () => {
     }
   });
 
+  // ერთი კატეგორიის ყველა შვილი (რეკურსიულად) — რომ არ დაუშვას ციკლური მშობელ-შვილობა
+  // (მაგ. კატეგორია ვერ გახდება საკუთარი შვილის შვილი).
+  const getDescendantIds = (rootId: string, allCategories: Category[]): Set<string> => {
+    const descendants = new Set<string>();
+    const stack = [rootId];
+    while (stack.length > 0) {
+      const currentId = stack.pop()!;
+      allCategories.forEach((c) => {
+        const parentId = c.parent?.id;
+        if (parentId === currentId && !descendants.has(String(c.id))) {
+          descendants.add(String(c.id));
+          stack.push(String(c.id));
+        }
+      });
+    }
+    return descendants;
+  };
+
   const handleOpenEditCat = (cat: Category) => {
     setEditingCat(cat);
     editForm.reset({
@@ -220,6 +238,10 @@ export const CategoriesPage: React.FC = () => {
   // მიბმული attribute-ების id-ები — dropdown-ში მხოლოდ ჯერ არ მიბმულები ჩნდება.
   const linkedAttributeIds = new Set(categoryAttrs.map((ca) => ca.attributeId));
   const availableToAdd = allAttributes.filter((a) => !linkedAttributeIds.has(a.id));
+
+  // რედაქტირებადი კატეგორიის ყველა შვილი — რომ „მშობელი კატეგორია" dropdown-მა არ დაუშვას
+  // ციკლური მშობელ-შვილობის შექმნა (კატეგორია საკუთარი შვილის შვილად რომ არ იქცეს).
+  const editingCatDescendantIds = editingCat ? getDescendantIds(String(editingCat.id), categories) : new Set<string>();
 
   return (
     <DashboardLayout
@@ -388,7 +410,12 @@ export const CategoriesPage: React.FC = () => {
                   <S.Select {...editForm.register("parentId")}>
                     <option value="">— root კატეგორია —</option>
                     {categories
-                      .filter((cat) => cat.id !== editingCat?.id)
+                      .filter((cat) => {
+                        if (!editingCat) return true;
+                        if (String(cat.id) === String(editingCat.id)) return false;
+                        // საკუთარი შვილების (და მათი შვილების) გამორიცხვა, რომ არ შეიქმნას ციკლი
+                        return !editingCatDescendantIds.has(String(cat.id));
+                      })
                       .map((cat) => (
                         <option key={cat.id} value={cat.id}>
                           {getCategoryName(cat, router.locale)}

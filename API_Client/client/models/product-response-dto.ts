@@ -15,11 +15,26 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { Product } from './product';
+import type { Category } from './category';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { Company } from './company';
 
 export interface ProductResponseDto {
-    'statusCode': number;
-    'message': string;
-    'data'?: Product | null;
+    'id': number;
+    'translations': object;
+    'price': string;
+    'stock': number;
+    'discountPercent'?: number;
+    'images'?: Array<string>;
+    'videoUrl'?: string;
+    'weight'?: string;
+    'length'?: string;
+    'width'?: string;
+    'isActive': boolean;
+    'category'?: Category;
+    'company'?: Company;
+    'createdAt': string;
+    'updatedAt': string;
 }
 

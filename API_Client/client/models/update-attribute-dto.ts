@@ -15,13 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { NameTranslationsDto } from './name-translations-dto';
+import type { NamePartialTranslationsDto } from './name-partial-translations-dto';
 
 export interface UpdateAttributeDto {
-    /**
-     * მრავალენოვანი სახელი — { ka: {name}, en?, ru? }, ka სავალდებულოა
-     */
-    'translations'?: NameTranslationsDto;
     /**
      * უნიკალური კოდი (frontend filter query-ებისთვის), მხოლოდ ლათინური ასოები/ციფრები/ტირე
      */
@@ -46,6 +42,7 @@ export interface UpdateAttributeDto {
      * დალაგების რიგი
      */
     'sortOrder'?: number;
+    'translations'?: NamePartialTranslationsDto;
 }
 
 export const UpdateAttributeDtoTypeEnum = {

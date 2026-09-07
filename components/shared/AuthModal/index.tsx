@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as S from "./style";
 import { AuthAPI } from "@/API_Client";
 import useTranslation from "next-translate/useTranslation";
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { CheckCircleIcon, CloseIcon, FacebookIcon, GoogleIcon, WarningIcon } from "@/components/ui/RefIcons";
 import { useIsMobileDevice } from "@/hooks/useIsMobileDevice";
 import MobilePopup from "@/components/ui/MobilePopup";
@@ -38,6 +38,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 }) => {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -81,6 +82,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     registerForm.reset();
     forgotForm.reset();
   }, [initialMode, isOpen]);
+
+  // Google/Facebook-ით შესვლისას ბრაუზერი მთლიანად NextAuth-ზე გადადის
+  // (redirect: false აქ არ გამოიყენება, რადგან OAuth ასე მუშაობს) და
+  // ჩავარდნისას (signIn callback აბრუნებს false-ს, მაგ. ბექენდმა ვერ
+  // გადაამოწმა ტოკენი) NextAuth ავტომატურად pages.signIn-ზე ("/login")
+  // გვაბრუნებს ?error=... პარამეტრით — აქამდე ეს არსად არ იკითხებოდა და
+  // მომხმარებელი უბრალოდ ისევ login მოდალთან რჩებოდა ისე, რომ არაფერი
+  // ეცნობებოდა ჩავარდნის შესახებ.
+  useEffect(() => {
+    const oauthError = searchParams?.get("error");
+    if (isOpen && oauthError) {
+      setMode("login");
+      setError(t("auth-modal-error-oauth"));
+      router.replace("/login");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, searchParams]);
 
   if (!isOpen) return null;
 

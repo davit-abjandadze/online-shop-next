@@ -81,6 +81,10 @@ export const PaymentsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
             if (orderId !== undefined) {
                 localVarQueryParameter['orderId'] = orderId;
             }

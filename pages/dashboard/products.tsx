@@ -1,6 +1,7 @@
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
 import ProductsPage from "@/components/pages/dashboard/ProductsPage";
+export { getAdminServerSideProps as getServerSideProps } from "@/utils/getAdminServerSideProps";
 
 export default function DashboardProductsPage() {
   const { t } = useTranslation("common");

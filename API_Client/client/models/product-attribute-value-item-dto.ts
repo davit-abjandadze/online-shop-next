@@ -26,7 +26,7 @@ export interface ProductAttributeValueItemDto {
     /**
      * არჩეული option-ები (multi_select ტიპისთვის)
      */
-    'attributeOptionIds'?: Array<string>;
+    'attributeOptionIds'?: Set<string>;
     /**
      * ტექსტური მნიშვნელობა (text ტიპისთვის)
      */

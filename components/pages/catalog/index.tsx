@@ -48,18 +48,18 @@ export const CatalogComponent: React.FC = () => {
   // ბმული იმავე გვერდიდან გახსნას რომ იძლეოდეს. `?category=` კი საშუალებას
   // აძლევს მთავარი გვერდის კატეგორიის ბარათებს პირდაპირ გაფილტრულ კატალოგზე
   // გადაიყვანონ მომხმარებელი.
+  // დამოკიდებულია `router.query.page`/`router.query.category`-ზე (არა მხოლოდ
+  // `router.isReady`-ზე), რომ იმავე გვერდზე ყოფნისას query-ის ცვლილებაზეც
+  // მოხდეს რეაგირება — მაგ. Header-იდან სხვა კატეგორიის/გვერდის ბმულზე გადასვლისას.
   useEffect(() => {
     if (!router.isReady) return;
     const queryPage = parseInt(router.query.page as string, 10);
-    if (!isNaN(queryPage) && queryPage > 0 && queryPage !== page) {
-      setPage(queryPage);
-    }
-    const queryCategory = router.query.category as string | undefined;
-    if (queryCategory && queryCategory !== activeCategoryId) {
-      setActiveCategoryId(queryCategory);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
+    const nextPage = !isNaN(queryPage) && queryPage > 0 ? queryPage : 1;
+    setPage((prev) => (prev !== nextPage ? nextPage : prev));
+
+    const queryCategory = (router.query.category as string | undefined) ?? null;
+    setActiveCategoryId((prev) => (prev !== queryCategory ? queryCategory : prev));
+  }, [router.isReady, router.query.page, router.query.category]);
 
   const goToPage = (newPage: number) => {
     setPage(newPage);

@@ -15,13 +15,11 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { NamePartialTranslationsDto } from './name-partial-translations-dto';
+import type { HeroSlideTranslationDto } from './hero-slide-translation-dto';
 
-export interface UpdateColorDto {
-    /**
-     * HEX კოდი frontend-ის სვოჩისთვის
-     */
-    'hexCode'?: string;
-    'translations'?: NamePartialTranslationsDto;
+export interface HeroSlidePartialTranslationsDto {
+    'ka'?: HeroSlideTranslationDto;
+    'en'?: HeroSlideTranslationDto;
+    'ru'?: HeroSlideTranslationDto;
 }
 

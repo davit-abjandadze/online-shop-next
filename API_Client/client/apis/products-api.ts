@@ -213,7 +213,7 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary კონკრეტული პროდუქტის მიღება
+         * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -233,6 +233,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -307,6 +311,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -339,6 +347,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -373,6 +385,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -405,6 +421,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -770,7 +790,7 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary კონკრეტული პროდუქტის მიღება
+         * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -997,7 +1017,7 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
-         * @summary კონკრეტული პროდუქტის მიღება
+         * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
          * @param {string} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -1186,7 +1206,7 @@ export class ProductsApi extends BaseAPI {
 
     /**
      * 
-     * @summary კონკრეტული პროდუქტის მიღება
+     * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
      * @param {string} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

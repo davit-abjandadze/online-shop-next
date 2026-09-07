@@ -15,13 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ProductTranslationsDto } from './product-translations-dto';
+import type { ProductPartialTranslationsDto } from './product-partial-translations-dto';
 
 export interface UpdateProductDto {
-    /**
-     * მრავალენოვანი სახელი/აღწერა — { ka: {name, description?}, en?, ru? }, ka სავალდებულოა
-     */
-    'translations'?: ProductTranslationsDto;
     /**
      * ფასი
      */
@@ -66,5 +62,6 @@ export interface UpdateProductDto {
      * მფლობელი კომპანიის ID (წინასწარ /companies-ზე შექმნილი)
      */
     'companyId'?: string;
+    'translations'?: ProductPartialTranslationsDto;
 }
 

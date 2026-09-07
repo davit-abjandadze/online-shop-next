@@ -15,13 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { HeroSlideTranslationsDto } from './hero-slide-translations-dto';
+import type { HeroSlidePartialTranslationsDto } from './hero-slide-partial-translations-dto';
 
 export interface UpdateHeroSlideDto {
-    /**
-     * მრავალენოვანი ტექსტი — { ka: {eyebrow?, title, description?, buttonText?}, en?, ru? }, ka სავალდებულოა
-     */
-    'translations'?: HeroSlideTranslationsDto;
     /**
      * სლაიდის სურათის URL
      */
@@ -42,5 +38,6 @@ export interface UpdateHeroSlideDto {
      * დალაგების რიგი
      */
     'sortOrder'?: number;
+    'translations'?: HeroSlidePartialTranslationsDto;
 }
 

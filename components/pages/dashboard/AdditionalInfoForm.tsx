@@ -4,6 +4,7 @@ import { ProductsAPI } from "@/API_Client";
 import { ProductAdditionalInfo } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
+import ConfirmDialog from "./ConfirmDialog";
 import { RichTextEditor } from "./RichTextEditor";
 import * as S from "./style";
 
@@ -50,6 +51,7 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
   const [editSubmitting, setEditSubmitting] = useState<boolean>(false);
 
   const [deleteSubmittingId, setDeleteSubmittingId] = useState<string | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const fetchItems = async () => {
     setLoading(true);
@@ -127,12 +129,15 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
     }
   };
 
-  const handleDelete = async (infoId: string) => {
+  const handleConfirmDelete = async () => {
+    if (!deleteTargetId) return;
+    const infoId = deleteTargetId;
     setDeleteSubmittingId(infoId);
     try {
       await ProductsAPI(locale, accessToken).productsControllerRemoveAdditionalInfo(String(productId), infoId);
       toast.success("ბლოკი წარმატებით წაიშალა!");
       if (editingId === infoId) setEditingId(null);
+      setDeleteTargetId(null);
       fetchItems();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "ბლოკის წაშლა ვერ მოხერხდა");
@@ -206,7 +211,7 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
                     </S.CloseButton>
                     <S.CloseButton
                       aria-label="წაშლა"
-                      onClick={() => handleDelete(info.id)}
+                      onClick={() => setDeleteTargetId(info.id)}
                       disabled={deleteSubmittingId === info.id}
                     >
                       <TrashIcon size={15} />
@@ -265,6 +270,15 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
           <PlusIcon size={14} /> ბლოკის დამატება
         </S.AddImageButton>
       )}
+
+      <ConfirmDialog
+        open={!!deleteTargetId}
+        title="ბლოკის წაშლა"
+        description="ნამდვილად გსურთ ამ დამატებითი ინფორმაციის ბლოკის წაშლა? ეს მოქმედება შეუქცევადია."
+        confirming={!!deleteTargetId && deleteSubmittingId === deleteTargetId}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setDeleteTargetId(null)}
+      />
     </div>
   );
 };

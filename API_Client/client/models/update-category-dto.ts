@@ -15,13 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { NameTranslationsDto } from './name-translations-dto';
+import type { NamePartialTranslationsDto } from './name-partial-translations-dto';
 
 export interface UpdateCategoryDto {
-    /**
-     * მრავალენოვანი სახელი — { ka: {name}, en?, ru? }, ka სავალდებულოა
-     */
-    'translations'?: NameTranslationsDto;
     /**
      * უნიკალური slug URL-ისთვის (მხოლოდ ლათინური ასოები, ციფრები, ტირე)
      */
@@ -54,5 +50,6 @@ export interface UpdateCategoryDto {
      * SEO საკვანძო სიტყვები
      */
     'seoKeywords'?: string;
+    'translations'?: NamePartialTranslationsDto;
 }
 

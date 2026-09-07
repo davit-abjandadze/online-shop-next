@@ -15,17 +15,13 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ProductSliderTranslationsDto } from './product-slider-translations-dto';
+import type { ProductSliderPartialTranslationsDto } from './product-slider-partial-translations-dto';
 
 export interface UpdateProductSliderDto {
     /**
      * სტაბილური იდენტიფიკატორი (slug), რომლითაც frontend-ი ბლოკს ნებისმიერ გვერდზე embed-ავს — GET /product-sliders/key/:key
      */
     'key'?: string;
-    /**
-     * მრავალენოვანი ტექსტი — { ka: {title, viewAllText?}, en?, ru? }, ka სავალდებულოა
-     */
-    'translations'?: ProductSliderTranslationsDto;
     /**
      * \"ყველას ნახვა\" ღილაკის ლინკი (მაგ. კონკრეტულ კატეგორიაზე ან ფილტრზე)
      */
@@ -42,5 +38,6 @@ export interface UpdateProductSliderDto {
      * ბლოკში ჩასასმელი პროდუქტების ID-ები, სასურველი რიგით (მასივის თანმიმდევრობა = ჩვენების რიგი). სურვილისამებრ — შემდეგ ცალკეც შეიძლება PUT /product-sliders/:id/items-ით
      */
     'productIds'?: Set<number>;
+    'translations'?: ProductSliderPartialTranslationsDto;
 }
 

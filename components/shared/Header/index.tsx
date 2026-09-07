@@ -184,7 +184,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
   const handleLogout = async () => {
     setDropdownOpen(false);
     await signOut({ redirect: false });
-    window.location.replace("/")
+    // მთავარ გვერდზე გადამისამართებისას მიმდინარე ლოკალი უნდა შენარჩუნდეს —
+    // უბრალო "/"-ზე გადასვლა ყოველთვის default (ka) ლოკალზე გადაამისამართებდა,
+    // რადგან locale-ლესი მოთხოვნები next.config.js-ის redirects()-ით ka-ზე გადამისამართდება.
+    const locale = router.locale && router.locale !== "default" ? router.locale : "ka";
+    window.location.replace(`/${locale}`);
   };
 
   // ორდერების ბმული ავტორიზაციას მოითხოვს — არაავტორიზებულს ავტორიზაციის

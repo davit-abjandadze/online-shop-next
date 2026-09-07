@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -88,6 +88,18 @@ export const ChangePasswordComponent: React.FC = () => {
 
       setSuccess(t("password-changed-success"));
       reset();
+
+      // პაროლის შეცვლის შემდეგ backend-ის მიერ გაცემული ძველი access token
+      // (მაგ. ანგარიშის მოპარვის შემთხვევაში მოპარული სესია) JWT-ის ვადის
+      // ამოწურვამდე (7 დღემდე) კვლავ ვალიდურად რჩებოდა, რადგან აქ signOut()
+      // არსად გამოიძახებოდა — მიმდინარე სესიას ვწყვეტთ და მომხმარებელს
+      // ვთხოვთ ახალი პაროლით ხელახლა შესვლას, სანამ success შეტყობინებას
+      // დაინახავს.
+      setTimeout(() => {
+        signOut({ redirect: false }).finally(() => {
+          router.push({ pathname: "/login", query: { passwordChanged: "1" } });
+        });
+      }, 1500);
     } catch (err: any) {
       const msg = err?.response?.data?.message || t("password-change-failed");
       setError(msg);

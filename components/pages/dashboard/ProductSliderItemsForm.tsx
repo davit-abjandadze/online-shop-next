@@ -131,7 +131,12 @@ export const ProductSliderItemsForm: React.FC<ProductSliderItemsFormProps> = ({
     setSaving(true);
     try {
       await ProductSlidersAPI(locale, accessToken).productSlidersControllerSetItems(sliderId, {
-        productIds: new Set(orderedIds),
+        // გენერირებული DTO-ს ტიპი productIds-ს Set<number>-ად აცხადებს, თუმცა
+        // ბექენდის @IsArray() ვალიდაცია ნამდვილ მასივს ითხოვს — Set ობიექტი ამ
+        // ვალიდაციას ვერ გადის (Array.isArray(new Set()) === false), ამიტომ
+        // request ყოველთვის 400-ით ეცემოდა და პროდუქტები არასდროს ინახებოდა.
+        // აქ თვითონ ტიპს ვუთანხმებთ (cast), ხოლო რეალურად ნამდვილ მასივს ვაგზავნით.
+        productIds: Array.from(new Set(orderedIds)) as unknown as Set<number>,
       });
       toast.success("ბლოკის პროდუქტები წარმატებით შეინახა!");
     } catch (err: any) {

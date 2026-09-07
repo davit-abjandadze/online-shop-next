@@ -74,6 +74,13 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
   const activeSlide = slides[activeImageIdx];
   const activeImage = activeSlide?.type === "image" ? resolveImage(activeSlide.src) : undefined;
 
+  // პროდუქტების შორის კლიენტსაიდ ნავიგაციისას კომპონენტი ხელახლა არ იტვირთება —
+  // წინა პროდუქტის გალერეის ინდექსი "გადაჰყვებოდა" ახალ პროდუქტს. პროდუქტის შეცვლისას ვარესეთებთ.
+  useEffect(() => {
+    setActiveImageIdx(0);
+    setLightboxOpen(false);
+  }, [product.id]);
+
   // მარაგში მხოლოდ ის ფერები ჩნდება, რომლებსაც stock > 0 აქვთ.
   const availableColors = React.useMemo(
     () => productColors.filter((pc) => pc.stock > 0),

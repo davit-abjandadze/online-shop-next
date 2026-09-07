@@ -1,6 +1,7 @@
 import Head from "next/head";
 import useTranslation from "next-translate/useTranslation";
 import CategoriesPage from "@/components/pages/dashboard/CategoriesPage";
+export { getAdminServerSideProps as getServerSideProps } from "@/utils/getAdminServerSideProps";
 
 export default function DashboardCategoryPage() {
   const { t } = useTranslation("common");

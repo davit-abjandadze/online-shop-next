@@ -74,6 +74,7 @@ export const AttributesPage: React.FC = () => {
   const [editingOption, setEditingOption] = useState<AttributeOption | null>(null);
   const [optionSubmitting, setOptionSubmitting] = useState<boolean>(false);
   const [deleteOptionTarget, setDeleteOptionTarget] = useState<AttributeOption | null>(null);
+  const [deleteOptionSubmitting, setDeleteOptionSubmitting] = useState<boolean>(false);
 
   const createForm = useForm<AttributeFormValues>({
     resolver: zodResolver(attributeFormSchema),
@@ -260,7 +261,8 @@ export const AttributesPage: React.FC = () => {
   });
 
   const handleConfirmDeleteOption = async () => {
-    if (!editingAttr || !deleteOptionTarget || !session?.accessToken) return;
+    if (!editingAttr || !deleteOptionTarget || !session?.accessToken || deleteOptionSubmitting) return;
+    setDeleteOptionSubmitting(true);
     try {
       await AttributesAPI(router.locale || "ka", session.accessToken).attributeControllerRemoveOption(
         String(editingAttr.id),
@@ -271,6 +273,8 @@ export const AttributesPage: React.FC = () => {
       await refetchEditingAttr();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "Option-ის წაშლა ვერ მოხერხდა");
+    } finally {
+      setDeleteOptionSubmitting(false);
     }
   };
 
@@ -505,6 +509,7 @@ export const AttributesPage: React.FC = () => {
         open={!!deleteOptionTarget}
         title="Option-ის წაშლა"
         description="ნამდვილად გსურთ ამ option-ის წაშლა?"
+        confirming={deleteOptionSubmitting}
         onConfirm={handleConfirmDeleteOption}
         onCancel={() => setDeleteOptionTarget(null)}
       />
