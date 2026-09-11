@@ -13,6 +13,7 @@ import { CategoriesAPI, ProductsAPI } from "@/API_Client";
 import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { Category, PaginatedResponseDto, Product } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
+import { scrollToTopSmooth } from "@/utils/scrollToTop";
 import * as S from "./style";
 
 const PRODUCTS_PAGE_SIZE = 12;
@@ -63,12 +64,14 @@ export const CatalogComponent: React.FC = () => {
 
   const goToPage = (newPage: number) => {
     setPage(newPage);
+    // scroll: false — თორემ Next.js router.push-ის დეფოლტ მყისიერი
+    // scroll-to-top ჩვენს ქვემოთ დაწერილ smooth scroll-ს გადაფარავს
     router.push(
       { pathname: router.pathname, query: { ...router.query, page: String(newPage) } },
       undefined,
-      { shallow: true }
+      { shallow: true, scroll: false }
     );
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollToTopSmooth();
   };
 
   // "ყველა კატეგორია" კვლავ /products-ზე რჩება, კონკრეტული კატეგორია კი

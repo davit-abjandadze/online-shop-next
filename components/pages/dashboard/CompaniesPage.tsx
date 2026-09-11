@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CompaniesAPI } from "@/API_Client";
 import { Company } from "@/API_Client/client/models";
+import { PaginatedResponseDto } from "@/API_Client/types";
 import { BuildingIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
@@ -63,7 +64,8 @@ export const CompaniesPage: React.FC = () => {
     setLoadingCompanies(true);
     try {
       const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
-      setCompanies((res.data as unknown as Company[]) || []);
+      const data = res.data as unknown as PaginatedResponseDto<Company>;
+      setCompanies(Array.isArray(data?.data) ? data.data : []);
     } catch {
       toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
     } finally {

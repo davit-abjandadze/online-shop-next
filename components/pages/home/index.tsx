@@ -100,6 +100,7 @@ export const HomeComponent: React.FC = () => {
             undefined,
             undefined,
             undefined,
+            undefined,
             true
           ),
           ProductsAPI(router.locale || "ka", "").productsControllerFindAll(
@@ -107,6 +108,7 @@ export const HomeComponent: React.FC = () => {
             NEW_ARRIVALS_LIMIT,
             "createdAt",
             ProductsControllerFindAllOrderEnum.Desc,
+            undefined,
             undefined,
             undefined,
             undefined,

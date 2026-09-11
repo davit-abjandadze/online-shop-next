@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
+import { scrollToTopSmooth } from "@/utils/scrollToTop";
 
 // URL query-ის ეს key-ები დაცულია — ყველა დანარჩენი non-reserved query key
 // attribute-ის code-ად ითვლება (`?brand=bosch&amperage_min=60`), Phase 5
@@ -54,7 +55,9 @@ export const useCategoryFilters = () => {
       else query[key] = value;
     });
     if (!opts.keepPage) delete query.page;
-    router.push({ pathname: router.pathname, query }, undefined, { shallow: true });
+    // scroll: false — თორემ Next.js router.push-ის დეფოლტ მყისიერი
+    // scroll-to-top setPage-ის ქვემოთ smooth scroll-ს გადაფარავს
+    router.push({ pathname: router.pathname, query }, undefined, { shallow: true, scroll: false });
   };
 
   const setFilter = (code: string, value: string | undefined, opts: { debounceMs?: number } = {}) => {
@@ -100,6 +103,7 @@ export const useCategoryFilters = () => {
   const setPage = (page: number) => {
     setState((prev) => ({ ...prev, page }));
     pushQuery({ page: String(page) }, { keepPage: true });
+    scrollToTopSmooth();
   };
 
   const setSort = (sortBy?: string, order?: string) => {

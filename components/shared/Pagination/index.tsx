@@ -1,5 +1,6 @@
 import Icon from "@/components/ui/Icon";
 import React from "react";
+import { scrollToTopSmooth } from "@/utils/scrollToTop";
 import * as S from "./style";
 
 type PaginationProps = {
@@ -13,6 +14,11 @@ const Pagination: React.FC<PaginationProps> = ({
   page,
   totalPages,
 }) => {
+  const handleRouteToWithScroll = (targetPage: number) => {
+    handleRouteTo(targetPage);
+    scrollToTopSmooth();
+  };
+
   return (
     <S.PaginationWrapper>
       <S.PaginationList>
@@ -21,7 +27,7 @@ const Pagination: React.FC<PaginationProps> = ({
             if (page == 1) {
               return;
             }
-            handleRouteTo(page - 1);
+            handleRouteToWithScroll(page - 1);
           }}
           active={page != 1}
         >
@@ -29,11 +35,11 @@ const Pagination: React.FC<PaginationProps> = ({
         </S.PaginationListSwitch>
         {page == 1 && (
           <>
-            <S.PaginationListItem onClick={() => handleRouteTo(1)} active>
+            <S.PaginationListItem onClick={() => handleRouteToWithScroll(1)} active>
               {page}
             </S.PaginationListItem>
             {totalPages > 1 && (
-              <S.PaginationListItem onClick={() => handleRouteTo(2)}>
+              <S.PaginationListItem onClick={() => handleRouteToWithScroll(2)}>
                 {page + 1}
               </S.PaginationListItem>
             )}
@@ -45,14 +51,14 @@ const Pagination: React.FC<PaginationProps> = ({
             {totalPages > 2 && (
               <S.PaginationListItem
                 onClick={() =>
-                  handleRouteTo(totalPages - (totalPages > 3 ? 1 : 0))
+                  handleRouteToWithScroll(totalPages - (totalPages > 3 ? 1 : 0))
                 }
               >
                 {totalPages - (totalPages > 3 ? 1 : 0)}
               </S.PaginationListItem>
             )}
             {totalPages > 3 && (
-              <S.PaginationListItem onClick={() => handleRouteTo(totalPages)}>
+              <S.PaginationListItem onClick={() => handleRouteToWithScroll(totalPages)}>
                 {totalPages}
               </S.PaginationListItem>
             )}
@@ -61,7 +67,7 @@ const Pagination: React.FC<PaginationProps> = ({
         {page >= 2 && (
           <>
             {totalPages > 4 && page > 2 && (
-              <S.PaginationListItem onClick={() => handleRouteTo(1)}>
+              <S.PaginationListItem onClick={() => handleRouteToWithScroll(1)}>
                 1
               </S.PaginationListItem>
             )}
@@ -72,17 +78,17 @@ const Pagination: React.FC<PaginationProps> = ({
             )}
             <S.PaginationListItem
               className={totalPages > 4 && page > 3 ? "hide-xs" : ""}
-              onClick={() => handleRouteTo(page - 1)}
+              onClick={() => handleRouteToWithScroll(page - 1)}
             >
               {page - 1}
             </S.PaginationListItem>
-            <S.PaginationListItem onClick={() => handleRouteTo(page)} active>
+            <S.PaginationListItem onClick={() => handleRouteToWithScroll(page)} active>
               {page}
             </S.PaginationListItem>
             {totalPages - page > 0 && (
               <S.PaginationListItem
                 className={totalPages - page > 2 ? "hide-xs" : ""}
-                onClick={() => handleRouteTo(page + 1)}
+                onClick={() => handleRouteToWithScroll(page + 1)}
               >
                 {page + 1}
               </S.PaginationListItem>
@@ -93,7 +99,7 @@ const Pagination: React.FC<PaginationProps> = ({
               </S.PaginationListItem>
             )}
             {totalPages - page > 1 && (
-              <S.PaginationListItem onClick={() => handleRouteTo(totalPages)}>
+              <S.PaginationListItem onClick={() => handleRouteToWithScroll(totalPages)}>
                 {totalPages}
               </S.PaginationListItem>
             )}
@@ -104,7 +110,7 @@ const Pagination: React.FC<PaginationProps> = ({
             if (page == totalPages) {
               return;
             }
-            handleRouteTo(page + 1);
+            handleRouteToWithScroll(page + 1);
           }}
           active={page != totalPages}
         >

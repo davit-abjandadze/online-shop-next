@@ -285,6 +285,16 @@ export const CheckoutComponent: React.FC = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"bog" | null>(null);
   const [paymentMethodError, setPaymentMethodError] = useState<string | null>(null);
 
+  // React state (submitting) update-ის commit-ი async operation-ია და button-ის
+  // disabled ატრიბუტს UI-ში ერთი re-render-ის დაგვიანებით ეხება — swift double-click-ის
+  // ან Enter-ის ორჯერ დაჭერის შემთხვევაში ეს window საკმარისია რომ onSubmit ხელახლა
+  // გაეშვას და დუბლირებული შეკვეთა/გადახდა შეიქმნას. Ref არის სინქრონული flag,
+  // რომელიც ამ race-ს კეტავს — state-ის განახლების მოლოდინი აღარ სჭირდება.
+  // ⚠️ ეს ჰუკი ქვემოთ (status === "loading"/"unauthenticated") early return-ების წინ
+  // უნდა დარჩეს — წინააღმდეგ შემთხვევაში auth-ის სტატუსის მიხედვით სხვადასხვა
+  // რაოდენობის ჰუკი გამოიძახება და React "Rendered more hooks..." გადააგდებს.
+  const submittingRef = useRef(false);
+
   const fetchAddresses = async () => {
     if (!session?.accessToken) return;
     setAddressesLoading(true);
@@ -731,13 +741,6 @@ export const CheckoutComponent: React.FC = () => {
     ...(personalInfoComplete ? (["order"] as const) : []),
     ...(deliveryComplete ? (["address"] as const) : []),
   ];
-
-  // React state (submitting) update-ის commit-ი async operation-ია და button-ის
-  // disabled ატრიბუტს UI-ში ერთი re-render-ის დაგვიანებით ეხება — swift double-click-ის
-  // ან Enter-ის ორჯერ დაჭერის შემთხვევაში ეს window საკმარისია რომ onSubmit ხელახლა
-  // გაეშვას და დუბლირებული შეკვეთა/გადახდა შეიქმნას. Ref არის სინქრონული flag,
-  // რომელიც ამ race-ს კეტავს — state-ის განახლების მოლოდინი აღარ სჭირდება.
-  const submittingRef = useRef(false);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

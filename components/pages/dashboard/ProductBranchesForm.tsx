@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { BranchesAPI, ProductsAPI } from "@/API_Client";
 import { ProductBranchItemDto } from "@/API_Client/client/models";
-import { Branch, ProductBranch } from "@/API_Client/types";
+import { Branch, PaginatedResponseDto, ProductBranch } from "@/API_Client/types";
 import * as S from "./style";
 
 interface ProductBranchesFormProps {
@@ -36,7 +36,8 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
         BranchesAPI(locale, accessToken).branchesControllerFindAllAdmin(),
         ProductsAPI(locale, accessToken).productsControllerGetBranches(String(productId)),
       ]);
-      const branches = (branchesRes.data as unknown as Branch[]) || [];
+      const branchesData = branchesRes.data as unknown as PaginatedResponseDto<Branch>;
+      const branches = Array.isArray(branchesData?.data) ? branchesData.data : [];
       const productBranches = (productBranchesRes.data as unknown as ProductBranch[]) || [];
       setAllBranches(branches);
 

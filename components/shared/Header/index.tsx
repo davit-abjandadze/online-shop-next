@@ -151,6 +151,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
           undefined,
           undefined,
           undefined,
+          undefined,
           true
         );
         // ტაიპისას შუალედში კიდევ შეიცვალა ველი — ამ პასუხს ვიგნორებთ.

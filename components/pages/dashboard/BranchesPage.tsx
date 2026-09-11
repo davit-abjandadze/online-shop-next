@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BranchesAPI, CompaniesAPI } from "@/API_Client";
 import { Company } from "@/API_Client/client/models";
-import { Branch, BranchWorkingHours } from "@/API_Client/types";
+import { Branch, BranchWorkingHours, PaginatedResponseDto } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PinIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -92,7 +92,8 @@ export const BranchesPage: React.FC = () => {
     setLoadingBranches(true);
     try {
       const res = await BranchesAPI(router.locale || "ka", session.accessToken).branchesControllerFindAllAdmin();
-      setBranches((res.data as unknown as Branch[]) || []);
+      const data = res.data as unknown as PaginatedResponseDto<Branch>;
+      setBranches(Array.isArray(data?.data) ? data.data : []);
     } catch {
       toast.error("ფილიალების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -104,7 +105,8 @@ export const BranchesPage: React.FC = () => {
     if (!session?.accessToken) return;
     try {
       const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
-      setCompanies((res.data as unknown as Company[]) || []);
+      const data = res.data as unknown as PaginatedResponseDto<Company>;
+      setCompanies(Array.isArray(data?.data) ? data.data : []);
     } catch {
       toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
     }

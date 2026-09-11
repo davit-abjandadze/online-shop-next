@@ -11,6 +11,7 @@ import { OrdersAPI } from "@/API_Client";
 import { Order } from "@/API_Client/types";
 import { PaginatedResponseDto } from "@/API_Client/types";
 import { ClipboardIcon, LockIcon } from "@/components/ui/RefIcons";
+import { scrollToTopSmooth } from "@/utils/scrollToTop";
 import * as S from "./style";
 
 const PAGE_SIZE = 10;
@@ -135,13 +136,25 @@ export const OrdersComponent: React.FC = () => {
 
               {totalPages > 1 && (
                 <S.PaginationBar>
-                  <S.PageButton onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}>
+                  <S.PageButton
+                    onClick={() => {
+                      setPage((p) => Math.max(1, p - 1));
+                      scrollToTopSmooth();
+                    }}
+                    disabled={page <= 1}
+                  >
                     ←
                   </S.PageButton>
                   <S.PageIndicator>
                     {page} / {totalPages}
                   </S.PageIndicator>
-                  <S.PageButton onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages}>
+                  <S.PageButton
+                    onClick={() => {
+                      setPage((p) => Math.min(totalPages, p + 1));
+                      scrollToTopSmooth();
+                    }}
+                    disabled={page >= totalPages}
+                  >
                     →
                   </S.PageButton>
                 </S.PaginationBar>

@@ -132,6 +132,7 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
          * @param {ProductsControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {string} [search] საძიებო ტექსტი — ეძებს name და description ველებში
          * @param {string} [categoryId] გაფილტვრა კატეგორიის მიხედვით
+         * @param {string} [companyId] გაფილტვრა მფლობელი კომპანიის მიხედვით
          * @param {number} [minPrice] მინიმალური ფასი
          * @param {number} [maxPrice] მაქსიმალური ფასი
          * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით
@@ -140,7 +141,7 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerFindAll: async (page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerFindAll: async (page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, companyId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/products`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -179,6 +180,10 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
 
             if (categoryId !== undefined) {
                 localVarQueryParameter['categoryId'] = categoryId;
+            }
+
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
             }
 
             if (minPrice !== undefined) {
@@ -774,6 +779,7 @@ export const ProductsApiFp = function(configuration?: Configuration) {
          * @param {ProductsControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {string} [search] საძიებო ტექსტი — ეძებს name და description ველებში
          * @param {string} [categoryId] გაფილტვრა კატეგორიის მიხედვით
+         * @param {string} [companyId] გაფილტვრა მფლობელი კომპანიის მიხედვით
          * @param {number} [minPrice] მინიმალური ფასი
          * @param {number} [maxPrice] მაქსიმალური ფასი
          * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით
@@ -782,8 +788,8 @@ export const ProductsApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerFindAll(page, limit, sortBy, order, search, categoryId, minPrice, maxPrice, isActive, hasDiscount, discountPercent, options);
+        async productsControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, companyId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerFindAll(page, limit, sortBy, order, search, categoryId, companyId, minPrice, maxPrice, isActive, hasDiscount, discountPercent, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerFindAll']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -1004,6 +1010,7 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          * @param {ProductsControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {string} [search] საძიებო ტექსტი — ეძებს name და description ველებში
          * @param {string} [categoryId] გაფილტვრა კატეგორიის მიხედვით
+         * @param {string} [companyId] გაფილტვრა მფლობელი კომპანიის მიხედვით
          * @param {number} [minPrice] მინიმალური ფასი
          * @param {number} [maxPrice] მაქსიმალური ფასი
          * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით
@@ -1012,8 +1019,8 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.productsControllerFindAll(page, limit, sortBy, order, search, categoryId, minPrice, maxPrice, isActive, hasDiscount, discountPercent, options).then((request) => request(axios, basePath));
+        productsControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, companyId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerFindAll(page, limit, sortBy, order, search, categoryId, companyId, minPrice, maxPrice, isActive, hasDiscount, discountPercent, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1192,6 +1199,7 @@ export class ProductsApi extends BaseAPI {
      * @param {ProductsControllerFindAllOrderEnum} [order] დალაგების მიმართულება
      * @param {string} [search] საძიებო ტექსტი — ეძებს name და description ველებში
      * @param {string} [categoryId] გაფილტვრა კატეგორიის მიხედვით
+     * @param {string} [companyId] გაფილტვრა მფლობელი კომპანიის მიხედვით
      * @param {number} [minPrice] მინიმალური ფასი
      * @param {number} [maxPrice] მაქსიმალური ფასი
      * @param {boolean} [isActive] გაფილტვრა აქტიურობის მიხედვით
@@ -1200,8 +1208,8 @@ export class ProductsApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options?: RawAxiosRequestConfig) {
-        return ProductsApiFp(this.configuration).productsControllerFindAll(page, limit, sortBy, order, search, categoryId, minPrice, maxPrice, isActive, hasDiscount, discountPercent, options).then((request) => request(this.axios, this.basePath));
+    public productsControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: ProductsControllerFindAllOrderEnum, search?: string, categoryId?: string, companyId?: string, minPrice?: number, maxPrice?: number, isActive?: boolean, hasDiscount?: boolean, discountPercent?: number, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerFindAll(page, limit, sortBy, order, search, categoryId, companyId, minPrice, maxPrice, isActive, hasDiscount, discountPercent, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

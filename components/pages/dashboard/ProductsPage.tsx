@@ -116,6 +116,7 @@ export const ProductsPage: React.FC = () => {
   const [searchText, setSearchText] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [filterCategoryId, setFilterCategoryId] = useState<string>("");
+  const [filterCompanyId, setFilterCompanyId] = useState<string>("");
   const [filterIsActive, setFilterIsActive] = useState<string>("");
   const [minPriceText, setMinPriceText] = useState<string>("");
   const [maxPriceText, setMaxPriceText] = useState<string>("");
@@ -150,6 +151,7 @@ export const ProductsPage: React.FC = () => {
   }, [
     debouncedSearch,
     filterCategoryId,
+    filterCompanyId,
     filterIsActive,
     debouncedMinPrice,
     debouncedMaxPrice,
@@ -162,6 +164,7 @@ export const ProductsPage: React.FC = () => {
   const hasActiveFilters =
     debouncedSearch !== "" ||
     filterCategoryId !== "" ||
+    filterCompanyId !== "" ||
     filterIsActive !== "" ||
     debouncedMinPrice !== "" ||
     debouncedMaxPrice !== "" ||
@@ -173,6 +176,7 @@ export const ProductsPage: React.FC = () => {
   const handleResetFilters = () => {
     setSearchText("");
     setFilterCategoryId("");
+    setFilterCompanyId("");
     setFilterIsActive("");
     setMinPriceText("");
     setMaxPriceText("");
@@ -228,6 +232,7 @@ export const ProductsPage: React.FC = () => {
         (filterOrder || undefined) as ProductsControllerFindAllOrderEnum | undefined,
         debouncedSearch || undefined,
         filterCategoryId || undefined,
+        filterCompanyId || undefined,
         debouncedMinPrice === "" ? undefined : Number(debouncedMinPrice),
         debouncedMaxPrice === "" ? undefined : Number(debouncedMaxPrice),
         filterIsActive === "" ? undefined : filterIsActive === "true",
@@ -259,7 +264,8 @@ export const ProductsPage: React.FC = () => {
     if (!session?.accessToken) return;
     try {
       const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
-      setCompanies((res.data as unknown as Company[]) || []);
+      const data = res.data as unknown as PaginatedResponseDto<Company>;
+      setCompanies(Array.isArray(data?.data) ? data.data : []);
     } catch {
       toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
     }
@@ -275,6 +281,7 @@ export const ProductsPage: React.FC = () => {
     page,
     debouncedSearch,
     filterCategoryId,
+    filterCompanyId,
     filterIsActive,
     debouncedMinPrice,
     debouncedMaxPrice,
@@ -727,6 +734,18 @@ export const ProductsPage: React.FC = () => {
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
                   {categoryOptionLabel(cat, router.locale)}
+                </option>
+              ))}
+            </S.Select>
+          </S.FilterGroup>
+
+          <S.FilterGroup>
+            <S.FilterLabel>კომპანია</S.FilterLabel>
+            <S.Select value={filterCompanyId} onChange={(e) => setFilterCompanyId(e.target.value)}>
+              <option value="">ყველა</option>
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
                 </option>
               ))}
             </S.Select>
