@@ -91,7 +91,13 @@ export const DynamicAttributeForm: React.FC<DynamicAttributeFormProps> = ({
         if (state.attributeOptionId) items.push({ attributeId: ca.attributeId, attributeOptionId: state.attributeOptionId });
       } else if (type === "multi_select") {
         if (state.attributeOptionIds && state.attributeOptionIds.length > 0) {
-          items.push({ attributeId: ca.attributeId, attributeOptionIds: state.attributeOptionIds });
+          // გენერირებული DTO-ს ტიპი attributeOptionIds-ს Set<string>-ად აცხადებს
+          // (ProductSliderItemsForm.tsx-ის productIds-ის იგივე გენერატორის ხარვეზი),
+          // თუმცა რეალურად ნამდვილ მასივს ვაგზავნით — მხოლოდ ტიპს ვუთანხმებთ.
+          items.push({
+            attributeId: ca.attributeId,
+            attributeOptionIds: state.attributeOptionIds as unknown as Set<string>,
+          });
         }
       } else if (type === "number" || type === "range") {
         if (state.valueNumber !== undefined && state.valueNumber !== "") {
