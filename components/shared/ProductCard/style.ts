@@ -78,6 +78,29 @@ export const WishlistToggle = styled("button")<{ active?: boolean }>`
   }
 `;
 
+export const ShareToggle = styled("button")`
+  position: absolute;
+  top: 10px;
+  right: 46px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ref-text-secondary);
+  box-shadow: var(--ref-shadow-sm);
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    transform: scale(1.08);
+    color: var(--ref-primary);
+  }
+`;
+
 export const Body = styled("div")`
   display: flex;
   flex-direction: column;

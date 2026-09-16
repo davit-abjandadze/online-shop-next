@@ -152,5 +152,12 @@
   "cancel": "Отмена",
   "editing": "Сохранить изменения",
   "save": "Сохранить",
-  "nothing-found": "Ничего не найдено"
+  "nothing-found": "Ничего не найдено",
+  "share-button-aria": "Поделиться",
+  "share-modal-title": "Поделиться",
+  "share-copy-link": "Скопировать ссылку",
+  "share-copy-success": "Скопировано!",
+  "share-facebook": "Facebook",
+  "share-messenger": "Messenger",
+  "share-close-aria": "Закрыть"
 }

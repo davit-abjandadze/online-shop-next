@@ -261,6 +261,34 @@ export const Title = styled("h1")`
   color: var(--ref-text-primary);
 `;
 
+export const TitleRow = styled("div")`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+`;
+
+export const ShareButton = styled("button")`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--ref-border-soft);
+  border-radius: 50%;
+  background: var(--ref-bg-elevated);
+  color: var(--ref-text-secondary);
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    transform: scale(1.08);
+    color: var(--ref-primary);
+    border-color: var(--ref-primary);
+  }
+`;
+
 export const Price = styled("div")`
   font-size: 28px;
   font-weight: 800;

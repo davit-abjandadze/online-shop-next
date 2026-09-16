@@ -530,3 +530,44 @@ export const BuildingIcon: React.FC<RefIconProps> = ({ size = 24, className, sty
   </svg>
 );
 
+/* გაზიარების (share) ხატულა — სამი წერტილი დამაკავშირებელი ხაზებით, პროდუქტის
+   ბარათსა და დეტალურ გვერდზე "გაზიარების" ღილაკისთვის. */
+export const ShareIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <circle cx="18" cy="5" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <circle cx="6" cy="12" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <circle cx="18" cy="19" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M8.2 10.6l7.6-4.2M8.2 13.4l7.6 4.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+  </svg>
+);
+
+/* ბმულის კოპირების ხატულა — ორი გადაფარული ფურცელი. */
+export const CopyIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <rect x="8" y="8" width="12" height="12" rx="2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+    <path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2" fill="none" stroke="currentColor" strokeWidth="1.6" />
+  </svg>
+);
+
+/* Facebook Messenger-ის ბრენდირებული ხატულა — გაზიარების პოპაპში Messenger-ში გაზიარებისთვის. */
+export const MessengerIcon: React.FC<RefIconProps> = ({ size = 18, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <defs>
+      <linearGradient id="messenger-gradient" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stopColor="#00C6FF" />
+        <stop offset="0.5" stopColor="#0068FF" />
+        <stop offset="1" stopColor="#A033FF" />
+      </linearGradient>
+    </defs>
+    <circle cx="12" cy="12" r="10" fill="url(#messenger-gradient)" />
+    <path
+      d="M12 6.2c-3.7 0-6.6 2.7-6.6 6.3 0 2.05 0.94 3.86 2.42 5.05.13.1.2.27.21.44l.04 1.34a.55.55 0 00.77.49l1.5-.66a.55.55 0 01.4-.02c.4.11.83.17 1.26.17 3.7 0 6.6-2.7 6.6-6.3s-2.9-6.34-6.6-6.34z"
+      fill="#ffffff"
+    />
+    <path
+      d="M6.9 14.9l2.4-3.8a.7.7 0 011.02-.19l1.7 1.27c.16.12.38.12.54 0l2.6-1.97c.34-.26.77.15.53.5l-2.4 3.8a.7.7 0 01-1.02.19l-1.7-1.27a.42.42 0 00-.54 0l-2.6 1.97c-.34.26-.77-.15-.53-.5z"
+      fill="url(#messenger-gradient)"
+    />
+  </svg>
+);
+

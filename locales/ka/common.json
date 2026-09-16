@@ -152,5 +152,12 @@
   "cancel": "გაუქმება",
   "editing": "შენახვა",
   "save": "შენახვა",
-  "nothing-found": "ვერაფერი მოიძებნა"
+  "nothing-found": "ვერაფერი მოიძებნა",
+  "share-button-aria": "გაზიარება",
+  "share-modal-title": "გაზიარება",
+  "share-copy-link": "ბმულის კოპირება",
+  "share-copy-success": "დაკოპირდა!",
+  "share-facebook": "Facebook",
+  "share-messenger": "Messenger",
+  "share-close-aria": "დახურვა"
 }

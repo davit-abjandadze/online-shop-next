@@ -4,11 +4,12 @@ import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
+import ShareModal from "@/components/shared/ShareModal";
 import SimilarProductsSlider from "@/components/shared/SimilarProductsSlider";
 import { ProductsAPI } from "@/API_Client";
-import { Product, ProductAdditionalInfo, ProductAttributeValue, ProductColor } from "@/API_Client/types";
-import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon } from "@/components/ui/RefIcons";
-import { CDN_URL } from "@/constants";
+import { Product, ProductAdditionalInfo, ProductAttributeValue, ProductBranch, ProductColor } from "@/API_Client/types";
+import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon, ShareIcon } from "@/components/ui/RefIcons";
+import { BASEPATH, CDN_URL } from "@/constants";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useCart } from "@/context/Cart";
 import { getCategoryName, getLocalizedDescription, getLocalizedValue } from "@/utils/getCategoryName";
@@ -49,8 +50,11 @@ type Slide = { type: "image"; src?: string } | { type: "video"; videoId: string 
 export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }) => {
   const router = useRouter();
   const { t } = useTranslation("product");
+  const { t: tc } = useTranslation("common");
   const { cart, addItem, removeItem } = useCart();
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+  const [shareModalOpen, setShareModalOpen] = useState<boolean>(false);
+  const [branches, setBranches] = useState<ProductBranch[]>([]);
   const [activeImageIdx, setActiveImageIdx] = useState<number>(0);
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [attrValues, setAttrValues] = useState<ProductAttributeValue[]>([]);
@@ -120,6 +124,13 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       .then((res) => setProductColors((res.data as unknown as ProductColor[]) || []))
       .catch(() => {
         // ფერების ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
+      });
+
+    ProductsAPI(router.locale || "ka", "")
+      .productsControllerGetBranches(String(product.id))
+      .then((res) => setBranches((res.data as unknown as ProductBranch[]) || []))
+      .catch(() => {
+        // ფილიალების სია გაზიარების პოპაპისთვისაა საჭირო — არასავალდებულოა
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product.id, router.locale]);
@@ -261,7 +272,16 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                 <TagIcon size={14} /> {getCategoryName(product.category, router.locale)}
               </S.CategoryLabel>
             )}
-            <S.Title>{productName}</S.Title>
+            <S.TitleRow>
+              <S.Title>{productName}</S.Title>
+              <S.ShareButton
+                type="button"
+                aria-label={tc("share-button-aria")}
+                onClick={() => setShareModalOpen(true)}
+              >
+                <ShareIcon size={17} />
+              </S.ShareButton>
+            </S.TitleRow>
             <S.Price>{Number(product.price).toFixed(2)} ₾</S.Price>
             <S.StockLine out={outOfStock && availableColors.length === 0}>
               {availableColors.length > 0 ? (
@@ -418,6 +438,16 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       )}
 
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} initialMode="login" />
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        url={`${BASEPATH}/${router.locale && router.locale !== "default" ? router.locale : "ka"}/products/${product.id}`}
+        title={productName}
+        price={`${Number(product.price).toFixed(2)} ₾`}
+        imageSrc={resolveImage(product.images?.[0])}
+        description={productDescription}
+        address={branches[0]?.branch?.address}
+      />
     </S.PageBackground>
   );
 };

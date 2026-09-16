@@ -152,5 +152,12 @@
   "cancel": "Cancel",
   "editing": "Save Changes",
   "save": "Save",
-  "nothing-found": "Nothing found"
+  "nothing-found": "Nothing found",
+  "share-button-aria": "Share",
+  "share-modal-title": "Share",
+  "share-copy-link": "Copy link",
+  "share-copy-success": "Copied!",
+  "share-facebook": "Facebook",
+  "share-messenger": "Messenger",
+  "share-close-aria": "Close"
 }

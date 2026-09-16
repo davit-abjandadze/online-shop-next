@@ -4,8 +4,9 @@ import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { ProductsAPI } from "@/API_Client";
 import { Product, ProductColor } from "@/API_Client/types";
-import { CartIcon, HeartIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons";
-import { CDN_URL } from "@/constants";
+import { CartIcon, HeartIcon, ShareIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons";
+import ShareModal from "@/components/shared/ShareModal";
+import { BASEPATH, CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
 import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
@@ -40,6 +41,7 @@ const getDisplayStats = (product: Product) => {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const router = useRouter();
   const { t } = useTranslation("catalog");
+  const { t: tc } = useTranslation("common");
   const { cart, addItem, removeItem } = useCart();
   const { isSaved, toggle } = useWishlist();
   const productName = getCategoryName(product, router.locale);
@@ -55,6 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // დამატების" ავტომატური ფერის შერჩევისთვის ორივესთვის ერთი და იგივე
   // მოთხოვნა გვჭირდება, ამიტომ ერთხელ, mount-ზე ვტვირთავთ.
   const [productColors, setProductColors] = useState<ProductColor[]>([]);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
   const colorsInStock = productColors.filter((pc) => pc.stock > 0);
 
   useEffect(() => {
@@ -96,12 +99,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     toggle(product.id);
   };
 
+  const handleOpenShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShareModalOpen(true);
+  };
+
   return (
+    <>
     <Link href={`/products/${product.id}`} passHref legacyBehavior>
       <S.Card out={outOfStock}>
         <S.ImageWrap>
           {imageSrc ? <img src={imageSrc} alt={productName} loading="lazy" /> : <TagIcon size={40} />}
           {oldPrice && <S.DiscountBadge>-{discountPercent}%</S.DiscountBadge>}
+          <S.ShareToggle
+            type="button"
+            aria-label={tc("share-button-aria")}
+            onClick={handleOpenShare}
+          >
+            <ShareIcon size={15} />
+          </S.ShareToggle>
           <S.WishlistToggle
             type="button"
             aria-label={saved ? t("wishlist-remove-aria") : t("wishlist-add-aria")}
@@ -148,6 +165,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </S.Body>
       </S.Card>
     </Link>
+    {shareModalOpen && (
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        url={`${BASEPATH}/${router.locale || "ka"}/products/${product.id}`}
+        title={productName}
+        price={`${displayPrice.toFixed(2)} ₾`}
+        imageSrc={imageSrc}
+        description={productDescription}
+      />
+    )}
+    </>
   );
 };
 
