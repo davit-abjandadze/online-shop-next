@@ -8,7 +8,7 @@ import { CartIcon, HeartIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons
 import { CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
-import { getCategoryName } from "@/utils/getCategoryName";
+import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import * as S from "./style";
 
@@ -43,6 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { cart, addItem, removeItem } = useCart();
   const { isSaved, toggle } = useWishlist();
   const productName = getCategoryName(product, router.locale);
+  const productDescription = getLocalizedDescription(product, router.locale);
   const image = product.images?.[0];
   const imageSrc = image ? (image.startsWith("http") ? image : `${CDN_URL}${image}`) : undefined;
   const outOfStock = product.stock <= 0;
@@ -112,6 +113,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </S.ImageWrap>
         <S.Body>
           <S.Name>{productName}</S.Name>
+          {/* {productDescription && <S.Description>{productDescription}</S.Description>} */}
 
           {/* {colorsInStock.length > 0 && (
             <S.ColorStockBadge aria-label={t("colors-stock-aria")}>

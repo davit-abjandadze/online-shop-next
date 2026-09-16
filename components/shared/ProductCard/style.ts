@@ -99,6 +99,18 @@ export const Name = styled("h3")`
   min-height:37px;
 `;
 
+export const Description = styled("p")`
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ref-text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
 export const ColorStockBadge = styled("div")`
   display: flex;
   align-items: center;
@@ -131,7 +143,6 @@ export const ColorDot = styled("span")<{ hexCode?: string }>`
 `;
 
 export const Footer = styled("div")`
-  margin-top: 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
