@@ -6,6 +6,7 @@ import { OrdersAPI } from "@/API_Client";
 import { OrdersControllerFindAllStatusEnum } from "@/API_Client/client";
 import { Order, OrderStatus, PaginatedResponseDto } from "@/API_Client/types";
 import OrderStatusBadge from "@/components/shared/OrderStatusBadge";
+import OrderStatusTimeline from "@/components/shared/OrderStatusTimeline";
 import { CDN_URL } from "@/constants";
 import {
   BuildingIcon,
@@ -62,7 +63,24 @@ export const OrdersPage: React.FC = () => {
   const [gridColumns, setGridColumns] = useState<1 | 2 | 3>(1);
 
   // ─── დეტალების მოდალში გახსნილი შეკვეთა ──────────────────────────────────────
+  // სიაში დაბრუნებულ Order-ს statusHistory არ აქვს (backend-ის paginate()
+  // ცალკე query builder-ია, ეს relation არ იტვირთება) — მოდალის გახსნისას
+  // სრულ ობიექტს ცალკე ვითხოვთ GET /orders/:id-დან.
   const [detailsOrder, setDetailsOrder] = useState<Order | null>(null);
+
+  const handleOpenDetails = async (order: Order) => {
+    setDetailsOrder(order);
+    if (!session?.accessToken) return;
+    try {
+      const res = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerFindOne(
+        String(order.id)
+      );
+      setDetailsOrder(res.data as unknown as Order);
+    } catch {
+      // მოდალი უკვე ღიაა სიის ობიექტით — statusHistory-ის გარეშე დარჩენა
+      // საკმარისია, ვერხოტვას აქ არ ვაჩვენებთ.
+    }
+  };
 
   // ორდერისთვის pending select-ის მნიშვნელობა და "ინახება" flag — status
   // update-ისას შესაბამისი row-ს ვამოწმებთ, სხვას არ ვბლოკავთ.
@@ -224,7 +242,7 @@ export const OrdersPage: React.FC = () => {
                       >
                         {savingId === order.id ? "ინახება..." : "შენახვა"}
                       </S.ActionButton>
-                      <S.ActionButton variant="outline" onClick={() => setDetailsOrder(order)}>
+                      <S.ActionButton variant="outline" onClick={() => handleOpenDetails(order)}>
                         <SearchIcon size={16} /> დეტალები
                       </S.ActionButton>
                     </S.CardActions>
@@ -332,6 +350,12 @@ export const OrdersPage: React.FC = () => {
                 </S.OrderDetailMetaItem>
               )}
             </S.OrderDetailMetaGrid>
+
+            {!!detailsOrder.statusHistory?.length && (
+              <S.OrderStatusHistorySection>
+                <OrderStatusTimeline statusHistory={detailsOrder.statusHistory} locale={router.locale} />
+              </S.OrderStatusHistorySection>
+            )}
 
             <S.UserDetailLabel style={{ display: "block", marginBottom: 4 }}>
               შეკვეთის შემადგენლობა

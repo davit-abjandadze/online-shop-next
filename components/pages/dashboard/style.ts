@@ -1342,6 +1342,13 @@ export const WorkingHoursTimeInput = styled(Input)`
 
 /* ─── Order Details Modal — /orders/[id]-ის დიზაინის მიხედვით ──────────────── */
 
+export const OrderStatusHistorySection = styled("div")`
+  margin: 16px 0;
+  padding: 14px 16px;
+  background: var(--ref-bg);
+  border-radius: 8px;
+`;
+
 export const OrderDetailMetaGrid = styled("div")`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
