@@ -1,0 +1,17 @@
+{
+  "page-title": "Branches",
+  "page-subtitle": "Explore all our branches on the map — address, contact details, and working hours",
+  "loading": "Loading…",
+  "error": "Failed to load branches",
+  "empty": "No branches found",
+  "list-title": "Branch list",
+  "address-label": "Address",
+  "phone-label": "Phone",
+  "email-label": "Email",
+  "hours-label": "Working hours",
+  "company-label": "Company",
+  "closed-today": "Closed today",
+  "always-closed": "Always closed",
+  "show-on-map": "Show on map",
+  "get-directions": "Get directions"
+}

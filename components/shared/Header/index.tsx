@@ -240,13 +240,16 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
             <Link href="/" passHref legacyBehavior>
               <S.NavLink active={router.pathname === "/"}>{t("nav-home")}</S.NavLink>
             </Link>
-            <Link href="/products" passHref legacyBehavior>
+            {/* <Link href="/products" passHref legacyBehavior>
               <S.NavLink active={router.pathname.startsWith("/products")}>{t("nav-catalog")}</S.NavLink>
-            </Link>
+            </Link> */}
             <Link href="/orders" passHref legacyBehavior>
               <S.NavLink active={router.pathname.startsWith("/orders")} onClick={handleOrdersClick}>
                 {t("nav-orders")}
               </S.NavLink>
+            </Link>
+            <Link href="/branches" passHref legacyBehavior>
+              <S.NavLink active={router.pathname.startsWith("/branches")}>{t("nav-branches")}</S.NavLink>
             </Link>
           </S.Nav>
 

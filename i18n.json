@@ -10,6 +10,7 @@
     "/checkout": ["checkout"],
     "/cart": ["cart"],
     "rgx:^/orders": ["orders"],
-    "rgx:^/user": ["profile"]
+    "rgx:^/user": ["profile"],
+    "/branches": ["branches"]
   }
 }

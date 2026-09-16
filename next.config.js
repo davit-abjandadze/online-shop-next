@@ -41,10 +41,13 @@ const nextConfig = {
         // პრეფიქსი არასდროს ჩანს. ამიტომ პირდაპირ ამ პრეფიქსზე matching სჯობს
         // ნეგატიურ lookahead-ს source-ის დასაწყისში (რომელიც api/_next-ს ვერ
         // ფილტრავდა, რადგან "default" იყო რეალური პირველი სეგმენტი).
-        // /public-ის ცნობილი დირექტორიები (icons, images) და favicon.png ასევე
-        // გამორიცხულია — წინააღმდეგ შემთხვევაში ისინიც /ka/-ზე გადამისამართდებოდა
-        // და 404-ს გამოიწვევდა (ლოგო და ენის სვიჩერის დროშების სურათები არ ჩანდა).
-        source: "/default/:path((?!api|_next|icons|images|favicon.png).*)",
+        // /public-ის ცნობილი დირექტორიები (icons, images, maplibre-gl) და
+        // favicon.png ასევე გამორიცხულია — წინააღმდეგ შემთხვევაში ისინიც /ka/-ზე
+        // გადამისამართდებოდა და 404-ს გამოიწვევდა (მაგ. MapLibre GL-ის worker
+        // სკრიპტი /maplibre-gl/maplibre-gl-worker.mjs 404-ობდა, რის გამოც
+        // ვექტორული ტაილების parsing საერთოდ ვერ ხერხდებოდა — მხოლოდ ფონი
+        // ჩანდა, გზების/წარწერების გარეშე).
+        source: "/default/:path((?!api|_next|icons|images|maplibre-gl|favicon.png).*)",
         // constants.ts-ის DEFAULT_LOCALE ვერ import-დება აქ პირდაპირ (next.config.js
         // CommonJS-ია, constants.ts TS module) — მნიშვნელობა (ka) ხელით სინქრონიზებულია
         destination: "/ka/:path*",

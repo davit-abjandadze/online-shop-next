@@ -2,6 +2,7 @@
   "nav-home": "Home",
   "nav-catalog": "Catalog",
   "nav-orders": "My Orders",
+  "nav-branches": "Branches",
   "search-placeholder": "Search for a product…",
   "search-loading": "Searching…",
   "search-no-results": "No products found",

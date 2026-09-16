@@ -182,6 +182,35 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @summary ყველა აქტიური ფილიალი pagination-ის გარეშე (ფილიალების გვერდი + რუკა)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        branchesControllerFindAllForMap: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/branches/all`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
          * @param {string} [productIds] 
          * @param {*} [options] Override http request option.
@@ -351,6 +380,18 @@ export const BranchesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary ყველა აქტიური ფილიალი pagination-ის გარეშე (ფილიალების გვერდი + რუკა)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async branchesControllerFindAllForMap(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAllForMap(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerFindAllForMap']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
          * @param {string} [productIds] 
          * @param {*} [options] Override http request option.
@@ -438,6 +479,15 @@ export const BranchesApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @summary ყველა აქტიური ფილიალი pagination-ის გარეშე (ფილიალების გვერდი + რუკა)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        branchesControllerFindAllForMap(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.branchesControllerFindAllForMap(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
          * @param {string} [productIds] 
          * @param {*} [options] Override http request option.
@@ -513,6 +563,16 @@ export class BranchesApi extends BaseAPI {
      */
     public branchesControllerFindAllAdmin(page?: number, limit?: number, sortBy?: string, order?: BranchesControllerFindAllAdminOrderEnum, companyId?: string, options?: RawAxiosRequestConfig) {
         return BranchesApiFp(this.configuration).branchesControllerFindAllAdmin(page, limit, sortBy, order, companyId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary ყველა აქტიური ფილიალი pagination-ის გარეშე (ფილიალების გვერდი + რუკა)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public branchesControllerFindAllForMap(options?: RawAxiosRequestConfig) {
+        return BranchesApiFp(this.configuration).branchesControllerFindAllForMap(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
