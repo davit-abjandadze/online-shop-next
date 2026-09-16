@@ -2,14 +2,15 @@ import React from "react";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import Header from "@/components/shared/Header";
-import { KeyIcon, UserIcon } from "@/components/ui/RefIcons";
+import { KeyIcon, PinIcon, UserIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
-type ProfileTab = "info" | "password";
+type ProfileTab = "info" | "password" | "addresses";
 
 const TAB_ROUTES: Record<ProfileTab, string> = {
   info: "/user/profile",
   password: "/user/change-password",
+  addresses: "/user/addresses",
 };
 
 interface ProfileLayoutProps {
@@ -45,6 +46,9 @@ export const ProfileLayout: React.FC<ProfileLayoutProps> = ({
               </S.SidebarItem>
               <S.SidebarItem active={activeTab === "password"} onClick={() => router.push(TAB_ROUTES.password)}>
                 <KeyIcon size={18} /> {t("sidebar-change-password")}
+              </S.SidebarItem>
+              <S.SidebarItem active={activeTab === "addresses"} onClick={() => router.push(TAB_ROUTES.addresses)}>
+                <PinIcon size={18} /> {t("sidebar-addresses")}
               </S.SidebarItem>
             </S.Sidebar>
 
