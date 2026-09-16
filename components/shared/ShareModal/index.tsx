@@ -89,19 +89,20 @@ export const ShareModal: React.FC<ShareModalProps> = ({
       <S.Actions>
         <S.ActionButton type="button" onClick={handleCopyLink}>
           <S.ActionIconWrap>
-            <CopyIcon size={20} />
+            <CopyIcon size={28} />
           </S.ActionIconWrap>
           {t("share-copy-link")}
         </S.ActionButton>
         <S.ActionButton type="button" onClick={handleFacebookShare}>
           <S.ActionIconWrap>
-            <FacebookIcon size={26} />
+            <img src="/icons/fb.png" alt="Facebook" />
           </S.ActionIconWrap>
           {t("share-facebook")}
         </S.ActionButton>
         <S.ActionButton type="button" onClick={handleMessengerShare}>
           <S.ActionIconWrap>
-            <MessengerIcon size={26} />
+                       <img src="/icons/messenger.png" alt="Messenger" />
+
           </S.ActionIconWrap>
           {t("share-messenger")}
         </S.ActionButton>

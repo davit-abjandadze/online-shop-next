@@ -28,5 +28,12 @@
   "meta-date": "თარიღი",
   "meta-shipping-address": "მიწოდების მისამართი",
   "total-sum": "სულ ჯამი",
-  "pay-now": "გადახდა ახლავე"
+  "pay-now": "გადახდა ახლავე",
+  "timeline-title": "სტატუსის ისტორია",
+  "timeline-changed-by-admin-named": "{{name}}-ის მიერ",
+  "timeline-changed-by-admin": "ადმინის მიერ",
+  "timeline-auto-created": "შეკვეთა შექმნილია",
+  "timeline-auto-paid": "გადახდილია სისტემურად",
+  "timeline-auto-expired": "ვადა ამოეწურა ავტომატურად",
+  "timeline-auto-generic": "შეიცვალა ავტომატურად"
 }

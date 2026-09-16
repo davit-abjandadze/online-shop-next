@@ -88,6 +88,12 @@ export const MetaValue = styled("div")`
   color: var(--ref-text-primary);
 `;
 
+export const StatusHistorySection = styled("div")`
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--ref-border-soft);
+`;
+
 export const ItemsList = styled("div")`
   display: flex;
   flex-direction: column;

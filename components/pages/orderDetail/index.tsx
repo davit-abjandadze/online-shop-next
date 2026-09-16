@@ -8,6 +8,7 @@ import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import OrderStatusBadge from "@/components/shared/OrderStatusBadge";
+import OrderStatusTimeline from "@/components/shared/OrderStatusTimeline";
 import { OrdersAPI, PaymentsAPI } from "@/API_Client";
 import { Order, PaymentInitiateResponse } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
@@ -271,6 +272,12 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
                 <S.MetaValue>{order.shippingAddress}</S.MetaValue>
               </S.MetaItem>
             </S.MetaGrid>
+
+            {!!order.statusHistory?.length && (
+              <S.StatusHistorySection>
+                <OrderStatusTimeline statusHistory={order.statusHistory} locale={router.locale} />
+              </S.StatusHistorySection>
+            )}
 
             <S.ItemsList>
               {itemsWithPricing.map(({ item, originalUnitPrice }) => {

@@ -162,4 +162,10 @@ export const ActionIconWrap = styled.span`
   justify-content: center;
   width: 36px;
   height: 36px;
+
+  img{
+    width:26px;
+    height:26px;
+
+}
 `;

@@ -28,5 +28,12 @@
   "meta-date": "Дата",
   "meta-shipping-address": "Адрес доставки",
   "total-sum": "Итого",
-  "pay-now": "Оплатить сейчас"
+  "pay-now": "Оплатить сейчас",
+  "timeline-title": "История статуса",
+  "timeline-changed-by-admin-named": "{{name}}",
+  "timeline-changed-by-admin": "Администратором",
+  "timeline-auto-created": "Заказ создан",
+  "timeline-auto-paid": "Оплачено автоматически",
+  "timeline-auto-expired": "Истёк автоматически",
+  "timeline-auto-generic": "Изменено автоматически"
 }

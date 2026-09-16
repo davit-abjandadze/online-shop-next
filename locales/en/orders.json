@@ -28,5 +28,12 @@
   "meta-date": "Date",
   "meta-shipping-address": "Delivery address",
   "total-sum": "Total",
-  "pay-now": "Pay now"
+  "pay-now": "Pay now",
+  "timeline-title": "Status history",
+  "timeline-changed-by-admin-named": "By {{name}}",
+  "timeline-changed-by-admin": "By admin",
+  "timeline-auto-created": "Order created",
+  "timeline-auto-paid": "Paid automatically",
+  "timeline-auto-expired": "Expired automatically",
+  "timeline-auto-generic": "Changed automatically"
 }

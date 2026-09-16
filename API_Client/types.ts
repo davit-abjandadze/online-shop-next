@@ -147,11 +147,30 @@ export interface OrderUserSummary {
   phoneNumber?: string;
 }
 
+// ვინც ხელით შეცვალა სტატუსი (ADMIN) — undefined სისტემური/ავტომატური
+// გადასვლისას (BOG webhook pending→paid, cron-ის pending→expired).
+export interface OrderStatusHistoryChangedBy {
+  id: number;
+  firstName: string;
+  lastName: string;
+}
+
+// order.statusHistory-ის ერთი ჩანაწერი — მხოლოდ GET /orders/:id-ზე მოდის
+// (იხ. orders.service.ts findOrderOrThrow-ის includeHistory), ქრონოლოგიურად
+// დალაგებული (ASC, პირველი = ყველაზე ძველი).
+export interface OrderStatusHistory {
+  id: number;
+  status: OrderStatus;
+  createdAt: string;
+  changedBy?: OrderStatusHistoryChangedBy;
+}
+
 export interface Order {
   id: number;
   user: OrderUserSummary;
   items: OrderItem[];
   status: OrderStatus;
+  statusHistory?: OrderStatusHistory[];
   totalAmount: string;
   currency: string;
   deliveryMethod: DeliveryMethod;
