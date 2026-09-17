@@ -15,6 +15,7 @@ import {
   PaymentsApi,
   ProductsApi,
   ProductSlidersApi,
+  StatsApi,
   UsersApi,
 } from "./client";
 import axios from "axios";
@@ -228,6 +229,11 @@ export const ProductSlidersAPI = (
 ) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new ProductSlidersApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const StatsAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new StatsApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

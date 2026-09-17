@@ -1241,6 +1241,39 @@ export const ChartCanvasWrapper = styled("div")`
   height: 240px;
 `;
 
+export const ChartSummaryRow = styled("div")`
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+`;
+
+export const ChartSummaryValue = styled("div")`
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ref-text-primary);
+`;
+
+export const TrendBadge = styled("div")<{ direction: "up" | "down" | "flat" }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: ${({ direction }) =>
+    direction === "up" ? "var(--ref-success)" : direction === "down" ? "var(--ref-danger)" : "var(--ref-text-secondary)"};
+  background: ${({ direction }) =>
+    direction === "up" ? "var(--ref-success-soft)" : direction === "down" ? "var(--ref-danger-soft)" : "var(--ref-bg)"};
+`;
+
+export const ChartSummaryHint = styled("div")`
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+`;
+
 export const PeriodSelector = styled("div")`
   display: flex;
   gap: 3px;
@@ -1452,4 +1485,130 @@ export const OrderTotalValue = styled("span")`
   font-size: 20px;
   font-weight: 800;
   color: var(--ref-primary);
+`;
+
+// F4 ფაზა — შეკვეთების სტატუსების ანალიტიკა (status-breakdown ბარ-ჩარტი + transition-times ცხრილი).
+export const ChartHintRow = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ref-text-secondary);
+`;
+
+export const HintTooltip = styled("span")`
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  color: var(--ref-text-secondary);
+
+  &:hover > div,
+  &:focus-within > div {
+    opacity: 1;
+    visibility: visible;
+  }
+`;
+
+export const HintTooltipBubble = styled("div")`
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+  background: var(--ref-text-primary);
+  color: var(--ref-bg-elevated);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  padding: 8px 10px;
+  border-radius: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.15s ease;
+  z-index: 5;
+  text-align: left;
+
+  @media (max-width: 480px) {
+    width: 180px;
+  }
+`;
+
+export const Table = styled("table")`
+  width: 100%;
+  border-collapse: collapse;
+`;
+
+export const Thead = styled("thead")``;
+
+export const Th = styled("th")`
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ref-text-secondary);
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--ref-border-soft);
+  white-space: nowrap;
+`;
+
+export const Td = styled("td")`
+  font-size: 13px;
+  color: var(--ref-text-primary);
+  padding: 10px;
+  border-bottom: 1px solid var(--ref-border-soft);
+  white-space: nowrap;
+`;
+
+export const Tr = styled("tr")`
+  &:last-child ${Td} {
+    border-bottom: none;
+  }
+`;
+
+export const TableScroll = styled("div")`
+  overflow-x: auto;
+`;
+
+export const TransitionArrow = styled("span")`
+  color: var(--ref-text-secondary);
+  margin: 0 6px;
+`;
+
+// F6 ფაზა — მომხმარებელთა ლოიალობის ბარათი (repeat vs one-time მყიდველები).
+export const LoyaltyBarTrack = styled("div")`
+  display: flex;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--ref-bg-subtle);
+  margin: 12px 0 10px;
+`;
+
+export const LoyaltyBarFill = styled("span")<{ width: number; color: string }>`
+  width: ${({ width }) => width}%;
+  background: ${({ color }) => color};
+  transition: width 0.3s ease;
+`;
+
+export const LoyaltyLegend = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+`;
+
+export const LoyaltyLegendItem = styled("div")`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ref-text-primary);
+`;
+
+export const LoyaltyDot = styled("span")<{ color: string }>`
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: ${({ color }) => color};
+  flex-shrink: 0;
 `;

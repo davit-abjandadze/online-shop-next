@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Header from "@/components/shared/Header";
-import { BoxIcon, BuildingIcon, CheckSquareIcon, ClipboardIcon, GridThreeIcon, LockIcon, PaletteIcon, PeopleIcon, PinIcon, SliderIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BoxIcon, BuildingIcon, ChartIcon, CheckSquareIcon, ClipboardIcon, GridThreeIcon, LockIcon, PaletteIcon, PeopleIcon, PinIcon, SliderIcon, TagIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import * as S from "./style";
 
@@ -13,6 +13,7 @@ interface DashboardTabConfig {
 }
 
 const TABS: DashboardTabConfig[] = [
+  { href: "/dashboard/stats", label: "სტატისტიკა", icon: ChartIcon },
   { href: "/dashboard/products", label: "პროდუქტები", icon: BoxIcon },
   { href: "/dashboard/category", label: "კატეგორიები", icon: TagIcon },
   { href: "/dashboard/attributes", label: "მახასიათებლები", icon: CheckSquareIcon },
