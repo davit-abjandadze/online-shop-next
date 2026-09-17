@@ -1035,7 +1035,7 @@ export const CheckoutComponent: React.FC = () => {
                       <S.ReadonlyValue>{t("no-branches-available")}</S.ReadonlyValue>
                     ) : (
                       <S.AddressListPanel>
-                        <S.AddressSelectedCard>
+                        <S.AddressSelectedCard $isEmpty={!selectedBranch}>
                           <BoxIcon size={18} />
                           <S.AddressBody>
                             <S.Label>{t("branch-label")}{selectedBranch?.company?.name ? ` · ${selectedBranch.company.name}` : ""}</S.Label>

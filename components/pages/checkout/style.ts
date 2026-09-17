@@ -611,12 +611,12 @@ export const AddressValue = styled("div")`
 
 // მიმდინარედ არჩეული მისამართის ბარათი — წითელი კონტური, დიზაინის
 // მიხედვით (screenshot-ის "არჩეული მისამართი" ბლოკი).
-export const AddressSelectedCard = styled("div")`
+export const AddressSelectedCard = styled("div")<{ $isEmpty?: boolean }>`
   display: flex;
   gap: 10px;
   padding: 14px;
   border-radius: 10px;
-  background: var(--ref-success-soft);
+  background: ${({ $isEmpty }) => ($isEmpty ? "var(--ref-danger-soft)" : "var(--ref-success-soft)")};
 `;
 
 export const ToggleAddressesBtn = styled("button")`
