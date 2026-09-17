@@ -412,6 +412,22 @@ export interface CategoryFilterEntry {
 
 export type CategoryFiltersResponse = CategoryFilterEntry[];
 
+// იგივე მიზეზით (NotificationsUserController-ის findAll-ს OpenAPI-ში ცხადი
+// პასუხის ტიპი არ აქვს მითითებული, იხ.
+// src/notifications/notifications-user.controller.ts online-shop-nest-ში)
+// `NotificationListItem` გენერირებულ კლიენტში აღარ ჩნდება — ხელით ვაფიქსირებთ
+// ბექენდის NotificationListItemResponseDto-ს ფორმას (findAllForUser,
+// notifications.service.ts). `snippet` უკვე ტეგებმოცილებული, შემოკლებული
+// preview-ია (`contentHtml`-ს დროპდაუნის სია არ ჩატანს).
+export interface NotificationListItem {
+  id: number;
+  title: string;
+  snippet: string;
+  imageUrl?: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 // იგივე მიზეზით (FavoritesController-ის მეთოდებს OpenAPI-ში ცხადი პასუხის
 // ტიპი არ აქვს მითითებული, იხ. src/favorites/favorites.controller.ts
 // online-shop-nest-ში) `Favorite` გენერირებულ კლიენტში აღარ ჩნდება — ხელით

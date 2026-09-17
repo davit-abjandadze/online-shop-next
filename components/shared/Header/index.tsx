@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import AuthModal from "@/components/shared/AuthModal";
 import CartButton from "@/components/shared/CartButton";
+import NotificationBell from "@/components/shared/NotificationBell";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
 import CategoryFilterBar from "@/components/shared/CategoryFilterBar";
 import { useWishlist } from "@/context/Wishlist";
@@ -322,7 +323,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                 კალათის/პროფილის ხატულებს. */}
         
             {status === "authenticated" && session?.user && (
+              <>
+                <NotificationBell />
                 <CartButton />
+              </>
             )}
             <S.DesktopLanguageSwitcher>
               <LanguageSwitcher variant="header" />

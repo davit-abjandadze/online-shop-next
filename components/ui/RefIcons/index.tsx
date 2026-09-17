@@ -403,6 +403,19 @@ export const HeartIcon: React.FC<RefIconProps & { filled?: boolean }> = ({ size 
   </svg>
 );
 
+export const BellIcon: React.FC<RefIconProps> = ({ size = 20, className, style }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
+    <path
+      d="M18 15.2V11a6 6 0 10-12 0v4.2c0 .3-.1.6-.3.9L4 18h16l-1.7-1.9a1.5 1.5 0 01-.3-.9z"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    <path d="M9.5 21a2.5 2.5 0 005 0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+  </svg>
+);
+
 export const TruckIcon: React.FC<RefIconProps> = ({ size = 22, className, style }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} style={style}>
     <rect x="1" y="6" width="13" height="10" rx="1" fill="none" stroke="currentColor" strokeWidth="1.6" />

@@ -89,6 +89,46 @@ html {
   color-scheme: light;
 }
 
+/* გლობალური სქროლბარის სტილი — ყველა სქროლადი ელემენტისთვის, body-ს გარდა:
+   თხელი ზოლი, 2px-ით მომრგვალებული თავ-ბოლო, ზემოთ/ქვემოთ ისრების (scrollbar
+   buttons) გარეშე. */
+*:not(body)::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*:not(body)::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*:not(body)::-webkit-scrollbar-thumb {
+  background-color: var(--ref-border, #d3e6f2);
+  border-radius: 2px;
+}
+
+*:not(body)::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+*:not(body)::-webkit-scrollbar-button:single-button,
+*:not(body)::-webkit-scrollbar-button:start,
+*:not(body)::-webkit-scrollbar-button:end {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+*:not(body)::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*:not(body) {
+  scrollbar-width: thin;
+}
+
 html,
 body {
   width: 100%;

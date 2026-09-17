@@ -20,6 +20,7 @@ import useTranslation from "next-translate/useTranslation";
 import Head from "next/head";
 import { CartProvider } from "@/context/Cart";
 import { WishlistProvider } from "@/context/Wishlist";
+import { NotificationsProvider } from "@/context/Notifications";
 import ErrorBoundary from "@/components/shared/ErrorBoundary";
 
 NProgress.configure({ showSpinner: false });
@@ -161,9 +162,11 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
             {/* <GlobalProvider> */}
               <CartProvider>
                 <WishlistProvider>
-                  <ErrorBoundary>
-                    <Component {...pageProps} />
-                  </ErrorBoundary>
+                  <NotificationsProvider>
+                    <ErrorBoundary>
+                      <Component {...pageProps} />
+                    </ErrorBoundary>
+                  </NotificationsProvider>
                 </WishlistProvider>
               </CartProvider>
               <ToastContainer

@@ -10,6 +10,8 @@ import {
   Configuration,
   FavoritesApi,
   HeroSlidesApi,
+  NotificationsAdminApi,
+  NotificationsApi,
   OrdersApi,
   OtpApi,
   PaymentsApi,
@@ -234,6 +236,16 @@ export const ProductSlidersAPI = (
 export const StatsAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new StatsApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const NotificationsAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new NotificationsApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const NotificationsAdminAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new NotificationsAdminApi(ApiConfig, API_URL, axiosInstance);
 };
 
 

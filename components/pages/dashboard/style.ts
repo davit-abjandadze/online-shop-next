@@ -1020,6 +1020,92 @@ export const AddImageButton = styled("button")`
   }
 `;
 
+// შეტყობინების მოდალის ღილაკების (actions) ჩამონათვალი — თითო ღილაკს აქვს
+// label + type (close/link) + url (მხოლოდ link-ის შემთხვევაში).
+export const ActionsBuilderList = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+export const ActionBuilderRow = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--ref-border);
+  border-radius: 8px;
+  background: var(--ref-bg-subtle);
+`;
+
+export const ActionBuilderField = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 120px;
+`;
+
+export const RadioGroup = styled("div")`
+  display: flex;
+  gap: 12px;
+  height: 32px;
+  align-items: center;
+`;
+
+export const RadioItem = styled("label")`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--ref-text-primary);
+  cursor: pointer;
+
+  input {
+    accent-color: var(--ref-primary);
+  }
+`;
+
+export const RemoveActionBtn = styled("button")`
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ref-border);
+  border-radius: 7px;
+  background: var(--ref-bg-elevated);
+  color: var(--ref-danger);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--ref-danger-soft, rgba(229, 72, 77, 0.1));
+    border-color: var(--ref-danger);
+  }
+`;
+
+export const AddActionBtn = styled("button")`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border: 1px dashed var(--ref-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--ref-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--ref-primary);
+    background: var(--ref-primary-soft);
+  }
+`;
+
 // პროდუქტის "დამატებითი ინფორმაციის" ბლოკების სია (title + description +
 // sortOrder) — თითო ბლოკს თავისი ბარათი აქვს, რედაქტირება/წაშლის ღილაკებით.
 export const AdditionalInfoList = styled("div")`

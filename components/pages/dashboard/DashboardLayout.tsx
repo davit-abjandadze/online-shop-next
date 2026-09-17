@@ -2,7 +2,7 @@ import React from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Header from "@/components/shared/Header";
-import { BoxIcon, BuildingIcon, ChartIcon, CheckSquareIcon, ClipboardIcon, GridThreeIcon, LockIcon, PaletteIcon, PeopleIcon, PinIcon, SliderIcon, TagIcon } from "@/components/ui/RefIcons";
+import { BellIcon, BoxIcon, BuildingIcon, ChartIcon, CheckSquareIcon, ClipboardIcon, GridThreeIcon, LockIcon, PaletteIcon, PeopleIcon, PinIcon, SliderIcon, TagIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import * as S from "./style";
 
@@ -24,6 +24,7 @@ const TABS: DashboardTabConfig[] = [
   { href: "/dashboard/branches", label: "ფილიალები", icon: PinIcon },
   { href: "/dashboard/hero-slides", label: "მთავარი სლაიდერი", icon: SliderIcon },
   { href: "/dashboard/product-sliders", label: "პროდუქტების სლაიდერები", icon: GridThreeIcon },
+  { href: "/dashboard/notifications", label: "შეტყობინებები", icon: BellIcon },
 ];
 
 interface DashboardLayoutProps {
