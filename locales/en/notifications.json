@@ -1,0 +1,12 @@
+{
+  "bell-aria-label": "Notifications",
+  "dropdown-title": "Notifications",
+  "mark-all-read": "Mark all as read",
+  "empty-list": "No notifications",
+  "loading": "Loading...",
+  "load-more": "Show more",
+  "toast-list-load-error": "Failed to load notifications",
+  "toast-detail-load-error": "Failed to load notification",
+  "toast-mark-all-success": "All notifications marked as read",
+  "toast-mark-all-error": "Action failed"
+}

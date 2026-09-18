@@ -187,11 +187,11 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 
          * @summary კონკრეტული შეკვეთის მიღება (საკუთარი ან ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ordersControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        ordersControllerFindOne: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('ordersControllerFindOne', 'id', id)
             const localVarPath = `/orders/{id}`
@@ -224,12 +224,12 @@ export const OrdersApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 
          * @summary შეკვეთის სტატუსის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateOrderStatusDto} updateOrderStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ordersControllerUpdateStatus: async (id: string, updateOrderStatusDto: UpdateOrderStatusDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        ordersControllerUpdateStatus: async (id: number, updateOrderStatusDto: UpdateOrderStatusDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('ordersControllerUpdateStatus', 'id', id)
             // verify required parameter 'updateOrderStatusDto' is not null or undefined
@@ -322,11 +322,11 @@ export const OrdersApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary კონკრეტული შეკვეთის მიღება (საკუთარი ან ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async ordersControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async ordersControllerFindOne(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ordersControllerFindOne(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrdersApi.ordersControllerFindOne']?.[localVarOperationServerIndex]?.url;
@@ -335,12 +335,12 @@ export const OrdersApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary შეკვეთის სტატუსის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateOrderStatusDto} updateOrderStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async ordersControllerUpdateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async ordersControllerUpdateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.ordersControllerUpdateStatus(id, updateOrderStatusDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['OrdersApi.ordersControllerUpdateStatus']?.[localVarOperationServerIndex]?.url;
@@ -396,22 +396,22 @@ export const OrdersApiFactory = function (configuration?: Configuration, basePat
         /**
          * 
          * @summary კონკრეტული შეკვეთის მიღება (საკუთარი ან ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ordersControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        ordersControllerFindOne(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.ordersControllerFindOne(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary შეკვეთის სტატუსის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateOrderStatusDto} updateOrderStatusDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        ordersControllerUpdateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        ordersControllerUpdateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.ordersControllerUpdateStatus(id, updateOrderStatusDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -465,23 +465,23 @@ export class OrdersApi extends BaseAPI {
     /**
      * 
      * @summary კონკრეტული შეკვეთის მიღება (საკუთარი ან ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public ordersControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+    public ordersControllerFindOne(id: number, options?: RawAxiosRequestConfig) {
         return OrdersApiFp(this.configuration).ordersControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary შეკვეთის სტატუსის განახლება (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {UpdateOrderStatusDto} updateOrderStatusDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public ordersControllerUpdateStatus(id: string, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig) {
+    public ordersControllerUpdateStatus(id: number, updateOrderStatusDto: UpdateOrderStatusDto, options?: RawAxiosRequestConfig) {
         return OrdersApiFp(this.configuration).ordersControllerUpdateStatus(id, updateOrderStatusDto, options).then((request) => request(this.axios, this.basePath));
     }
 }

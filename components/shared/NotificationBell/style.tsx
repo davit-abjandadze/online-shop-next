@@ -227,6 +227,12 @@ export const LoadMoreBtn = styled.button`
   }
 `;
 
+// მობილურ MobilePopup-ში (bottom-sheet) კონტენტს საკუთარი padding არ აქვს —
+// ეს wrapper ამატებს იმ padding-ს, რასაც დესქტოპზე S.ModalContent/S.Dropdown იძლევა.
+export const MobileContentPadding = styled.div`
+  padding: 20px 16px 8px;
+`;
+
 export const ModalOverlay = styled.div`
   position: fixed;
   inset: 0;

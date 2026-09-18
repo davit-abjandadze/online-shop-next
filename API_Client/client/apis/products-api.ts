@@ -45,12 +45,12 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerAddAdditionalInfo: async (id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerAddAdditionalInfo: async (id: number, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerAddAdditionalInfo', 'id', id)
             // verify required parameter 'createProductAdditionalInfoDto' is not null or undefined
@@ -219,11 +219,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerFindOne: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerFindOne', 'id', id)
             const localVarPath = `/products/{id}`
@@ -256,12 +256,12 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
-         * @param {string} id 
+         * @param {number} id 
          * @param {any} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerFindSimilar: async (id: string, limit?: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerFindSimilar: async (id: number, limit?: any, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerFindSimilar', 'id', id)
             const localVarPath = `/products/{id}/similar`
@@ -296,11 +296,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetAdditionalInfo: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerGetAdditionalInfo: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerGetAdditionalInfo', 'id', id)
             const localVarPath = `/products/{id}/additional-info`
@@ -333,11 +333,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის attribute value-ების სია
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetAttributeValues: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerGetAttributeValues: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerGetAttributeValues', 'id', id)
             const localVarPath = `/products/{id}/attribute-values`
@@ -370,11 +370,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტზე მიბმული ფილიალების სია (stock-ითურთ)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetBranches: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerGetBranches: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerGetBranches', 'id', id)
             const localVarPath = `/products/{id}/branches`
@@ -407,11 +407,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტზე მიბმული ფერების სია (stock-ითურთ)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetColors: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerGetColors: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerGetColors', 'id', id)
             const localVarPath = `/products/{id}/colors`
@@ -444,11 +444,11 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerRemove: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerRemove', 'id', id)
             const localVarPath = `/products/{id}`
@@ -481,12 +481,12 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {string} infoId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerRemoveAdditionalInfo: async (id: string, infoId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerRemoveAdditionalInfo: async (id: number, infoId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerRemoveAdditionalInfo', 'id', id)
             // verify required parameter 'infoId' is not null or undefined
@@ -522,12 +522,12 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის attribute value-ების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductAttributeValuesDto} setProductAttributeValuesDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerSetAttributeValues: async (id: string, setProductAttributeValuesDto: SetProductAttributeValuesDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerSetAttributeValues: async (id: number, setProductAttributeValuesDto: SetProductAttributeValuesDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerSetAttributeValues', 'id', id)
             // verify required parameter 'setProductAttributeValuesDto' is not null or undefined
@@ -564,12 +564,12 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის ფილიალების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductBranchesDto} setProductBranchesDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerSetBranches: async (id: string, setProductBranchesDto: SetProductBranchesDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerSetBranches: async (id: number, setProductBranchesDto: SetProductBranchesDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerSetBranches', 'id', id)
             // verify required parameter 'setProductBranchesDto' is not null or undefined
@@ -606,12 +606,12 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის ფერების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductColorsDto} setProductColorsDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerSetColors: async (id: string, setProductColorsDto: SetProductColorsDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerSetColors: async (id: number, setProductColorsDto: SetProductColorsDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerSetColors', 'id', id)
             // verify required parameter 'setProductColorsDto' is not null or undefined
@@ -648,12 +648,12 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateProductDto} updateProductDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerUpdate: async (id: string, updateProductDto: UpdateProductDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerUpdate: async (id: number, updateProductDto: UpdateProductDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerUpdate', 'id', id)
             // verify required parameter 'updateProductDto' is not null or undefined
@@ -691,13 +691,13 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {string} infoId 
          * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerUpdateAdditionalInfo: async (id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        productsControllerUpdateAdditionalInfo: async (id: number, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('productsControllerUpdateAdditionalInfo', 'id', id)
             // verify required parameter 'infoId' is not null or undefined
@@ -746,12 +746,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerAddAdditionalInfo(id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerAddAdditionalInfo(id: number, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerAddAdditionalInfo(id, createProductAdditionalInfoDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerAddAdditionalInfo']?.[localVarOperationServerIndex]?.url;
@@ -797,11 +797,11 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerFindOne(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerFindOne(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerFindOne']?.[localVarOperationServerIndex]?.url;
@@ -810,12 +810,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
-         * @param {string} id 
+         * @param {number} id 
          * @param {any} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerFindSimilar(id: string, limit?: any, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerFindSimilar(id: number, limit?: any, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerFindSimilar(id, limit, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerFindSimilar']?.[localVarOperationServerIndex]?.url;
@@ -824,11 +824,11 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerGetAdditionalInfo(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerGetAdditionalInfo(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerGetAdditionalInfo(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerGetAdditionalInfo']?.[localVarOperationServerIndex]?.url;
@@ -837,11 +837,11 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის attribute value-ების სია
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerGetAttributeValues(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerGetAttributeValues(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerGetAttributeValues(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerGetAttributeValues']?.[localVarOperationServerIndex]?.url;
@@ -850,11 +850,11 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტზე მიბმული ფილიალების სია (stock-ითურთ)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerGetBranches(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerGetBranches(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerGetBranches(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerGetBranches']?.[localVarOperationServerIndex]?.url;
@@ -863,11 +863,11 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტზე მიბმული ფერების სია (stock-ითურთ)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerGetColors(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerGetColors(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerGetColors(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerGetColors']?.[localVarOperationServerIndex]?.url;
@@ -876,11 +876,11 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerRemove(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerRemove(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerRemove']?.[localVarOperationServerIndex]?.url;
@@ -889,12 +889,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {string} infoId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerRemoveAdditionalInfo(id: string, infoId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerRemoveAdditionalInfo(id: number, infoId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerRemoveAdditionalInfo(id, infoId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerRemoveAdditionalInfo']?.[localVarOperationServerIndex]?.url;
@@ -903,12 +903,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის attribute value-ების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductAttributeValuesDto} setProductAttributeValuesDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerSetAttributeValues(id: string, setProductAttributeValuesDto: SetProductAttributeValuesDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerSetAttributeValues(id: number, setProductAttributeValuesDto: SetProductAttributeValuesDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerSetAttributeValues(id, setProductAttributeValuesDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerSetAttributeValues']?.[localVarOperationServerIndex]?.url;
@@ -917,12 +917,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის ფილიალების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductBranchesDto} setProductBranchesDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerSetBranches(id: string, setProductBranchesDto: SetProductBranchesDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerSetBranches(id: number, setProductBranchesDto: SetProductBranchesDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerSetBranches(id, setProductBranchesDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerSetBranches']?.[localVarOperationServerIndex]?.url;
@@ -931,12 +931,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის ფერების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductColorsDto} setProductColorsDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerSetColors(id: string, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerSetColors(id: number, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerSetColors(id, setProductColorsDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerSetColors']?.[localVarOperationServerIndex]?.url;
@@ -945,12 +945,12 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateProductDto} updateProductDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductResponseDto>> {
+        async productsControllerUpdate(id: number, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProductResponseDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerUpdate(id, updateProductDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerUpdate']?.[localVarOperationServerIndex]?.url;
@@ -959,13 +959,13 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {string} infoId 
          * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async productsControllerUpdateAdditionalInfo(id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async productsControllerUpdateAdditionalInfo(id: number, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerUpdateAdditionalInfo(id, infoId, updateProductAdditionalInfoDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerUpdateAdditionalInfo']?.[localVarOperationServerIndex]?.url;
@@ -983,12 +983,12 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerAddAdditionalInfo(id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerAddAdditionalInfo(id: number, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerAddAdditionalInfo(id, createProductAdditionalInfoDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -1025,139 +1025,139 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerFindOne(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerFindOne(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
-         * @param {string} id 
+         * @param {number} id 
          * @param {any} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerFindSimilar(id: string, limit?: any, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerFindSimilar(id: number, limit?: any, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerFindSimilar(id, limit, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetAdditionalInfo(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerGetAdditionalInfo(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerGetAdditionalInfo(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის attribute value-ების სია
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetAttributeValues(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerGetAttributeValues(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerGetAttributeValues(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტზე მიბმული ფილიალების სია (stock-ითურთ)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetBranches(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerGetBranches(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerGetBranches(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტზე მიბმული ფერების სია (stock-ითურთ)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerGetColors(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerGetColors(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerGetColors(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerRemove(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerRemove(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {string} infoId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerRemoveAdditionalInfo(id: string, infoId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerRemoveAdditionalInfo(id: number, infoId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerRemoveAdditionalInfo(id, infoId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის attribute value-ების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductAttributeValuesDto} setProductAttributeValuesDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerSetAttributeValues(id: string, setProductAttributeValuesDto: SetProductAttributeValuesDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerSetAttributeValues(id: number, setProductAttributeValuesDto: SetProductAttributeValuesDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerSetAttributeValues(id, setProductAttributeValuesDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის ფილიალების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductBranchesDto} setProductBranchesDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerSetBranches(id: string, setProductBranchesDto: SetProductBranchesDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerSetBranches(id: number, setProductBranchesDto: SetProductBranchesDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerSetBranches(id, setProductBranchesDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის ფერების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-         * @param {string} id 
+         * @param {number} id 
          * @param {SetProductColorsDto} setProductColorsDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerSetColors(id: string, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerSetColors(id: number, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerSetColors(id, setProductColorsDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateProductDto} updateProductDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductResponseDto> {
+        productsControllerUpdate(id: number, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig): AxiosPromise<ProductResponseDto> {
             return localVarFp.productsControllerUpdate(id, updateProductDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {string} infoId 
          * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        productsControllerUpdateAdditionalInfo(id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        productsControllerUpdateAdditionalInfo(id: number, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerUpdateAdditionalInfo(id, infoId, updateProductAdditionalInfoDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -1170,12 +1170,12 @@ export class ProductsApi extends BaseAPI {
     /**
      * 
      * @summary პროდუქტს დამატებითი ინფორმაციის ახალი ბლოკის დამატება (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {CreateProductAdditionalInfoDto} createProductAdditionalInfoDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerAddAdditionalInfo(id: string, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig) {
+    public productsControllerAddAdditionalInfo(id: number, createProductAdditionalInfoDto: CreateProductAdditionalInfoDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerAddAdditionalInfo(id, createProductAdditionalInfoDto, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -1215,151 +1215,151 @@ export class ProductsApi extends BaseAPI {
     /**
      * 
      * @summary კონკრეტული პროდუქტის მიღება — non-ADMIN-ისთვის (ან ტოკენის გარეშე) დეაქტივირებული პროდუქტი 404-ს აბრუნებს, findAll-ის იგივე isActive პატერნი
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+    public productsControllerFindOne(id: number, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary მსგავსი პროდუქტების სია (პროდუქტის გვერდის სლაიდერისთვის) — იმავე კატეგორიის აქტიური პროდუქტები, საწყისის გამოკლებით
-     * @param {string} id 
+     * @param {number} id 
      * @param {any} [limit] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerFindSimilar(id: string, limit?: any, options?: RawAxiosRequestConfig) {
+    public productsControllerFindSimilar(id: number, limit?: any, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerFindSimilar(id, limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკების სია
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerGetAdditionalInfo(id: string, options?: RawAxiosRequestConfig) {
+    public productsControllerGetAdditionalInfo(id: number, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerGetAdditionalInfo(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის attribute value-ების სია
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerGetAttributeValues(id: string, options?: RawAxiosRequestConfig) {
+    public productsControllerGetAttributeValues(id: number, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerGetAttributeValues(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტზე მიბმული ფილიალების სია (stock-ითურთ)
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerGetBranches(id: string, options?: RawAxiosRequestConfig) {
+    public productsControllerGetBranches(id: number, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerGetBranches(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტზე მიბმული ფერების სია (stock-ითურთ)
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerGetColors(id: string, options?: RawAxiosRequestConfig) {
+    public productsControllerGetColors(id: number, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerGetColors(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის წაშლა (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+    public productsControllerRemove(id: number, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის წაშლა (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {string} infoId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerRemoveAdditionalInfo(id: string, infoId: string, options?: RawAxiosRequestConfig) {
+    public productsControllerRemoveAdditionalInfo(id: number, infoId: string, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerRemoveAdditionalInfo(id, infoId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის attribute value-ების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-     * @param {string} id 
+     * @param {number} id 
      * @param {SetProductAttributeValuesDto} setProductAttributeValuesDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerSetAttributeValues(id: string, setProductAttributeValuesDto: SetProductAttributeValuesDto, options?: RawAxiosRequestConfig) {
+    public productsControllerSetAttributeValues(id: number, setProductAttributeValuesDto: SetProductAttributeValuesDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerSetAttributeValues(id, setProductAttributeValuesDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის ფილიალების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-     * @param {string} id 
+     * @param {number} id 
      * @param {SetProductBranchesDto} setProductBranchesDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerSetBranches(id: string, setProductBranchesDto: SetProductBranchesDto, options?: RawAxiosRequestConfig) {
+    public productsControllerSetBranches(id: number, setProductBranchesDto: SetProductBranchesDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerSetBranches(id, setProductBranchesDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის ფერების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
-     * @param {string} id 
+     * @param {number} id 
      * @param {SetProductColorsDto} setProductColorsDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerSetColors(id: string, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig) {
+    public productsControllerSetColors(id: number, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerSetColors(id, setProductColorsDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის განახლება (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {UpdateProductDto} updateProductDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerUpdate(id: string, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig) {
+    public productsControllerUpdate(id: number, updateProductDto: UpdateProductDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerUpdate(id, updateProductDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary პროდუქტის დამატებითი ინფორმაციის ბლოკის განახლება (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {string} infoId 
      * @param {UpdateProductAdditionalInfoDto} updateProductAdditionalInfoDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public productsControllerUpdateAdditionalInfo(id: string, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig) {
+    public productsControllerUpdateAdditionalInfo(id: number, infoId: string, updateProductAdditionalInfoDto: UpdateProductAdditionalInfoDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerUpdateAdditionalInfo(id, infoId, updateProductAdditionalInfoDto, options).then((request) => request(this.axios, this.basePath));
     }
 }

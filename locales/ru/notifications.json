@@ -1,0 +1,12 @@
+{
+  "bell-aria-label": "Уведомления",
+  "dropdown-title": "Уведомления",
+  "mark-all-read": "Отметить все как прочитанные",
+  "empty-list": "Уведомлений нет",
+  "loading": "Загрузка...",
+  "load-more": "Показать ещё",
+  "toast-list-load-error": "Не удалось загрузить уведомления",
+  "toast-detail-load-error": "Не удалось загрузить уведомление",
+  "toast-mark-all-success": "Все уведомления отмечены как прочитанные",
+  "toast-mark-all-error": "Действие не выполнено"
+}

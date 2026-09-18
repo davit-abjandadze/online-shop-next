@@ -2,7 +2,7 @@
   "locales": ["default", "ka", "en", "ru"],
   "defaultLocale": "default",
   "pages": {
-    "*": ["common", "header", "footer"],
+    "*": ["common", "header", "footer", "notifications"],
     "/": ["catalog", "home"],
     "rgx:^/products": ["product", "catalog"],
     "rgx:^/categories": ["catalog"],

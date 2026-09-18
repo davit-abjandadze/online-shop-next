@@ -246,11 +246,11 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary ფილიალის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        branchesControllerRemove: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('branchesControllerRemove', 'id', id)
             const localVarPath = `/branches/{id}`
@@ -283,12 +283,12 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary ფილიალის რედაქტირება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateBranchDto} updateBranchDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerUpdate: async (id: string, updateBranchDto: UpdateBranchDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        branchesControllerUpdate: async (id: number, updateBranchDto: UpdateBranchDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('branchesControllerUpdate', 'id', id)
             // verify required parameter 'updateBranchDto' is not null or undefined
@@ -406,11 +406,11 @@ export const BranchesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary ფილიალის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async branchesControllerRemove(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerRemove(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerRemove']?.[localVarOperationServerIndex]?.url;
@@ -419,12 +419,12 @@ export const BranchesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary ფილიალის რედაქტირება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateBranchDto} updateBranchDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerUpdate(id: string, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async branchesControllerUpdate(id: number, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerUpdate(id, updateBranchDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerUpdate']?.[localVarOperationServerIndex]?.url;
@@ -499,22 +499,22 @@ export const BranchesApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary ფილიალის წაშლა (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        branchesControllerRemove(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.branchesControllerRemove(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary ფილიალის რედაქტირება (ADMIN)
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateBranchDto} updateBranchDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerUpdate(id: string, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        branchesControllerUpdate(id: number, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.branchesControllerUpdate(id, updateBranchDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -589,23 +589,23 @@ export class BranchesApi extends BaseAPI {
     /**
      * 
      * @summary ფილიალის წაშლა (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+    public branchesControllerRemove(id: number, options?: RawAxiosRequestConfig) {
         return BranchesApiFp(this.configuration).branchesControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary ფილიალის რედაქტირება (ADMIN)
-     * @param {string} id 
+     * @param {number} id 
      * @param {UpdateBranchDto} updateBranchDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerUpdate(id: string, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig) {
+    public branchesControllerUpdate(id: number, updateBranchDto: UpdateBranchDto, options?: RawAxiosRequestConfig) {
         return BranchesApiFp(this.configuration).branchesControllerUpdate(id, updateBranchDto, options).then((request) => request(this.axios, this.basePath));
     }
 }

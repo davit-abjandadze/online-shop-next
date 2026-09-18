@@ -137,11 +137,11 @@ export const CartApiAxiosParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary ჩანაწერის წაშლა კალათიდან
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cartControllerRemoveItem: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        cartControllerRemoveItem: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('cartControllerRemoveItem', 'id', id)
             const localVarPath = `/cart/items/{id}`
@@ -174,12 +174,12 @@ export const CartApiAxiosParamCreator = function (configuration?: Configuration)
         /**
          * 
          * @summary კალათის ჩანაწერის რაოდენობის განახლება
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateCartItemDto} updateCartItemDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cartControllerUpdateItem: async (id: string, updateCartItemDto: UpdateCartItemDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        cartControllerUpdateItem: async (id: number, updateCartItemDto: UpdateCartItemDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('cartControllerUpdateItem', 'id', id)
             // verify required parameter 'updateCartItemDto' is not null or undefined
@@ -262,11 +262,11 @@ export const CartApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary ჩანაწერის წაშლა კალათიდან
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async cartControllerRemoveItem(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async cartControllerRemoveItem(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerRemoveItem(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerRemoveItem']?.[localVarOperationServerIndex]?.url;
@@ -275,12 +275,12 @@ export const CartApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary კალათის ჩანაწერის რაოდენობის განახლება
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateCartItemDto} updateCartItemDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async cartControllerUpdateItem(id: string, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async cartControllerUpdateItem(id: number, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cartControllerUpdateItem(id, updateCartItemDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['CartApi.cartControllerUpdateItem']?.[localVarOperationServerIndex]?.url;
@@ -326,22 +326,22 @@ export const CartApiFactory = function (configuration?: Configuration, basePath?
         /**
          * 
          * @summary ჩანაწერის წაშლა კალათიდან
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cartControllerRemoveItem(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        cartControllerRemoveItem(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.cartControllerRemoveItem(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary კალათის ჩანაწერის რაოდენობის განახლება
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateCartItemDto} updateCartItemDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cartControllerUpdateItem(id: string, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        cartControllerUpdateItem(id: number, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.cartControllerUpdateItem(id, updateCartItemDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -385,23 +385,23 @@ export class CartApi extends BaseAPI {
     /**
      * 
      * @summary ჩანაწერის წაშლა კალათიდან
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public cartControllerRemoveItem(id: string, options?: RawAxiosRequestConfig) {
+    public cartControllerRemoveItem(id: number, options?: RawAxiosRequestConfig) {
         return CartApiFp(this.configuration).cartControllerRemoveItem(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary კალათის ჩანაწერის რაოდენობის განახლება
-     * @param {string} id 
+     * @param {number} id 
      * @param {UpdateCartItemDto} updateCartItemDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public cartControllerUpdateItem(id: string, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig) {
+    public cartControllerUpdateItem(id: number, updateCartItemDto: UpdateCartItemDto, options?: RawAxiosRequestConfig) {
         return CartApiFp(this.configuration).cartControllerUpdateItem(id, updateCartItemDto, options).then((request) => request(this.axios, this.basePath));
     }
 }

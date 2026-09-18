@@ -70,10 +70,14 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {UsersControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerFindAll: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        usersControllerFindAll: async (page?: number, limit?: number, sortBy?: string, order?: UsersControllerFindAllOrderEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/users`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -90,7 +94,22 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
-            localVarHeaderParameter['Accept'] = 'application/json';
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (sortBy !== undefined) {
+                localVarQueryParameter['sortBy'] = sortBy;
+            }
+
+            if (order !== undefined) {
+                localVarQueryParameter['order'] = order;
+            }
+
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
@@ -103,11 +122,11 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerFindOne: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        usersControllerFindOne: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('usersControllerFindOne', 'id', id)
             const localVarPath = `/users/{id}`
@@ -136,11 +155,11 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        usersControllerRemove: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('usersControllerRemove', 'id', id)
             const localVarPath = `/users/{id}`
@@ -236,12 +255,12 @@ export const UsersApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateUserDto} updateUserDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerUpdate: async (id: string, updateUserDto: UpdateUserDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        usersControllerUpdate: async (id: number, updateUserDto: UpdateUserDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('usersControllerUpdate', 'id', id)
             // verify required parameter 'updateUserDto' is not null or undefined
@@ -295,22 +314,26 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {UsersControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async usersControllerFindAll(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerFindAll(options);
+        async usersControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: UsersControllerFindAllOrderEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerFindAll(page, limit, sortBy, order, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerFindAll']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async usersControllerFindOne(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+        async usersControllerFindOne(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerFindOne(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerFindOne']?.[localVarOperationServerIndex]?.url;
@@ -318,11 +341,11 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async usersControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+        async usersControllerRemove(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerRemove(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerRemove']?.[localVarOperationServerIndex]?.url;
@@ -348,12 +371,12 @@ export const UsersApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateUserDto} updateUserDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
+        async usersControllerUpdate(id: number, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.usersControllerUpdate(id, updateUserDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['UsersApi.usersControllerUpdate']?.[localVarOperationServerIndex]?.url;
@@ -379,28 +402,32 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
+         * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+         * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+         * @param {string} [sortBy] დალაგების ველი
+         * @param {UsersControllerFindAllOrderEnum} [order] დალაგების მიმართულება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerFindAll(options?: RawAxiosRequestConfig): AxiosPromise<Array<object>> {
-            return localVarFp.usersControllerFindAll(options).then((request) => request(axios, basePath));
+        usersControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: UsersControllerFindAllOrderEnum, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.usersControllerFindAll(page, limit, sortBy, order, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerFindOne(id: string, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+        usersControllerFindOne(id: number, options?: RawAxiosRequestConfig): AxiosPromise<object> {
             return localVarFp.usersControllerFindOne(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+        usersControllerRemove(id: number, options?: RawAxiosRequestConfig): AxiosPromise<object> {
             return localVarFp.usersControllerRemove(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -420,12 +447,12 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         },
         /**
          * 
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateUserDto} updateUserDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): AxiosPromise<object> {
+        usersControllerUpdate(id: number, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig): AxiosPromise<object> {
             return localVarFp.usersControllerUpdate(id, updateUserDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -447,30 +474,34 @@ export class UsersApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} [page] გვერდის ნომერი (იწყება 1-დან)
+     * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
+     * @param {string} [sortBy] დალაგების ველი
+     * @param {UsersControllerFindAllOrderEnum} [order] დალაგების მიმართულება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public usersControllerFindAll(options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).usersControllerFindAll(options).then((request) => request(this.axios, this.basePath));
+    public usersControllerFindAll(page?: number, limit?: number, sortBy?: string, order?: UsersControllerFindAllOrderEnum, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).usersControllerFindAll(page, limit, sortBy, order, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public usersControllerFindOne(id: string, options?: RawAxiosRequestConfig) {
+    public usersControllerFindOne(id: number, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).usersControllerFindOne(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public usersControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+    public usersControllerRemove(id: number, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).usersControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -492,16 +523,21 @@ export class UsersApi extends BaseAPI {
 
     /**
      * 
-     * @param {string} id 
+     * @param {number} id 
      * @param {UpdateUserDto} updateUserDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public usersControllerUpdate(id: string, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig) {
+    public usersControllerUpdate(id: number, updateUserDto: UpdateUserDto, options?: RawAxiosRequestConfig) {
         return UsersApiFp(this.configuration).usersControllerUpdate(id, updateUserDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
+export const UsersControllerFindAllOrderEnum = {
+    Asc: 'ASC',
+    Desc: 'DESC',
+} as const;
+export type UsersControllerFindAllOrderEnum = typeof UsersControllerFindAllOrderEnum[keyof typeof UsersControllerFindAllOrderEnum];
 export const UsersControllerSearchOrderEnum = {
     Asc: 'ASC',
     Desc: 'DESC',

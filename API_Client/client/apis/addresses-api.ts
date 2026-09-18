@@ -104,11 +104,11 @@ export const AddressesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 
          * @summary მისამართის წაშლა
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addressesControllerRemove: async (id: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        addressesControllerRemove: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('addressesControllerRemove', 'id', id)
             const localVarPath = `/addresses/{id}`
@@ -141,12 +141,12 @@ export const AddressesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 
          * @summary მისამართის რედაქტირება
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateAddressDto} updateAddressDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addressesControllerUpdate: async (id: string, updateAddressDto: UpdateAddressDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        addressesControllerUpdate: async (id: number, updateAddressDto: UpdateAddressDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('addressesControllerUpdate', 'id', id)
             // verify required parameter 'updateAddressDto' is not null or undefined
@@ -217,11 +217,11 @@ export const AddressesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary მისამართის წაშლა
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async addressesControllerRemove(id: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async addressesControllerRemove(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.addressesControllerRemove(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AddressesApi.addressesControllerRemove']?.[localVarOperationServerIndex]?.url;
@@ -230,12 +230,12 @@ export const AddressesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary მისამართის რედაქტირება
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateAddressDto} updateAddressDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async addressesControllerUpdate(id: string, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async addressesControllerUpdate(id: number, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.addressesControllerUpdate(id, updateAddressDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AddressesApi.addressesControllerUpdate']?.[localVarOperationServerIndex]?.url;
@@ -272,22 +272,22 @@ export const AddressesApiFactory = function (configuration?: Configuration, base
         /**
          * 
          * @summary მისამართის წაშლა
-         * @param {string} id 
+         * @param {number} id 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addressesControllerRemove(id: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        addressesControllerRemove(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.addressesControllerRemove(id, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary მისამართის რედაქტირება
-         * @param {string} id 
+         * @param {number} id 
          * @param {UpdateAddressDto} updateAddressDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addressesControllerUpdate(id: string, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        addressesControllerUpdate(id: number, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.addressesControllerUpdate(id, updateAddressDto, options).then((request) => request(axios, basePath));
         },
     };
@@ -321,23 +321,23 @@ export class AddressesApi extends BaseAPI {
     /**
      * 
      * @summary მისამართის წაშლა
-     * @param {string} id 
+     * @param {number} id 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public addressesControllerRemove(id: string, options?: RawAxiosRequestConfig) {
+    public addressesControllerRemove(id: number, options?: RawAxiosRequestConfig) {
         return AddressesApiFp(this.configuration).addressesControllerRemove(id, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @summary მისამართის რედაქტირება
-     * @param {string} id 
+     * @param {number} id 
      * @param {UpdateAddressDto} updateAddressDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public addressesControllerUpdate(id: string, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig) {
+    public addressesControllerUpdate(id: number, updateAddressDto: UpdateAddressDto, options?: RawAxiosRequestConfig) {
         return AddressesApiFp(this.configuration).addressesControllerUpdate(id, updateAddressDto, options).then((request) => request(this.axios, this.basePath));
     }
 }

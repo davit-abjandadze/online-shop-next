@@ -57,6 +57,10 @@ export const MainImage = styled("div")<{ clickable?: boolean }>`
     height: 100%;
     border: none;
   }
+
+  @media (max-width: 768px) {
+   height: 300px;
+  }
 `;
 
 // ვიდეო-thumbnail-ის შუაში play-ღილაკის ხატულა.
@@ -134,7 +138,7 @@ export const LightboxNav = styled("button")<{ side: "left" | "right" }>`
 export const LightboxContent = styled("div")`
   max-width: 1000px;
   width: 100%;
-  max-height: 80vh;
+  height: 80vh;
   aspect-ratio: 1 / 1;
   display: flex;
   align-items: center;
