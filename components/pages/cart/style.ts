@@ -52,6 +52,9 @@ export const Item = styled("div")`
 
   @media (max-width: 560px) {
     flex-wrap: wrap;
+    row-gap: 12px;
+    column-gap: 12px;
+    align-items: flex-start;
   }
 `;
 
@@ -79,6 +82,14 @@ export const ItemInfo = styled("div")`
   display: flex;
   flex-direction: column;
   gap: 4px;
+
+  // მობილურზე სვეტი აღარ იკუმშება 0-მდე — პირიქით, ითხოვს მინიმალურ სიგანეს,
+  // რის გამოც სტეპერი/ფასი/მოქმედებები ცალკე ხაზზე გადადის flex-wrap-ის წყალობით,
+  // სახელის ტექსტის ჩაჭყლეტის ნაცვლად.
+  @media (max-width: 560px) {
+    flex-basis: 160px;
+    min-width: 160px;
+  }
 `;
 
 export const ItemName = styled("a")`
@@ -104,6 +115,7 @@ export const ItemDescription = styled("p")`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-word;
 `;
 
 export const ItemColor = styled("span")`
@@ -207,6 +219,12 @@ export const ItemPrice = styled("div")`
   font-weight: 800;
   color: var(--ref-text-primary);
   flex-shrink: 0;
+
+  // სტეპერს და ფას+მოქმედებების ბლოკს შორის სივრცის გასანაწილებლად, ისე რომ
+  // სტეპერი მარცხნივ დარჩეს, ხოლო ფასი და heart/trash ღილაკები — მარჯვნივ.
+  @media (max-width: 560px) {
+    margin-left: auto;
+  }
 `;
 
 export const ItemActions = styled("div")`
