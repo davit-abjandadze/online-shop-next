@@ -69,7 +69,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
           gender: data.gender as any,
         }
       );
-      toast.success(t("complete-profile-success"));
+      toast.success(t("complete-profile-success") as string);
       onCompleted();
     } catch (err: any) {
       setError(err?.response?.data?.message || t("complete-profile-error-generic"));

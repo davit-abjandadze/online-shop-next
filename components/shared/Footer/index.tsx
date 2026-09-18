@@ -106,6 +106,9 @@ export const Footer: React.FC = () => {
               <Link href="/terms" passHref legacyBehavior>
                 <S.FooterLink>{t("footer-link-terms")}</S.FooterLink>
               </Link>
+              <Link href="/privacy-policy" passHref legacyBehavior>
+                <S.FooterLink>{t("footer-link-privacy")}</S.FooterLink>
+              </Link>
             </S.LinkColumn>
           </S.LinksGroup>
         </S.Top>

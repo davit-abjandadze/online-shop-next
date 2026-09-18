@@ -83,7 +83,14 @@ export const authOptions: NextAuthOptions = {
     signIn: "/login",
   },
 
-  secret: process.env.NEXTAUTH_SECRET || "your-super-secret-key",
+  secret: (() => {
+    if (!process.env.NEXTAUTH_SECRET) {
+      throw new Error(
+        "NEXTAUTH_SECRET გარემოს ცვლადი არ არის დაყენებული — JWT სესიების ხელმოწერისთვის აუცილებელია, hardcoded fallback-ი უსაფრთხოების რისკს ქმნის."
+      );
+    }
+    return process.env.NEXTAUTH_SECRET;
+  })(),
 
   callbacks: {
 
