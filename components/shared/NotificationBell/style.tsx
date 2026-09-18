@@ -26,6 +26,16 @@ export const BellButton = styled.button`
     border-color: var(--ref-primary);
     color: var(--ref-primary);
   }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 `;
 
 export const Badge = styled.span`
@@ -42,6 +52,13 @@ export const Badge = styled.span`
   font-weight: 700;
   line-height: 16px;
   text-align: center;
+
+  @media (max-width: 480px) {
+    min-width: 14px;
+    height: 14px;
+    font-size: 9px;
+    line-height: 14px;
+  }
 `;
 
 export const Dropdown = styled.div`

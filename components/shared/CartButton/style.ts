@@ -18,6 +18,16 @@ export const Wrapper = styled("button")`
     background: var(--ref-border-soft);
     border-color: var(--ref-primary);
   }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 `;
 
 export const Badge = styled("span")`
@@ -36,4 +46,12 @@ export const Badge = styled("span")`
   align-items: center;
   justify-content: center;
   line-height: 1;
+
+  @media (max-width: 480px) {
+    min-width: 15px;
+    height: 15px;
+    font-size: 9px;
+    top: -3px;
+    right: -3px;
+  }
 `;

@@ -96,6 +96,13 @@ export const Actions = styled.div`
   position: relative;
   flex-shrink: 0;
   margin-left: auto;
+
+  /* ვიწრო ეკრანებზე heart/bell/cart/profile/burger ერთ მწკრივში აღარ ეტევა —
+     30px-იან წრიულ ღილაკებზე ვამცირებთ (იხ. WishlistButton/BellButton/
+     CartButton Wrapper/MobileMenuButton), რომ ყველა ხატულა დაეტიოს. */
+  @media (max-width: 480px) {
+    gap: 6px;
+  }
 `;
 
 export const SearchWrapper = styled.div`
@@ -262,6 +269,16 @@ export const WishlistButton = styled.button`
     border-color: var(--ref-primary);
     color: var(--ref-primary);
   }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
 `;
 
 export const WishlistBadge = styled.span`
@@ -278,6 +295,13 @@ export const WishlistBadge = styled.span`
   font-weight: 700;
   line-height: 16px;
   text-align: center;
+
+  @media (max-width: 480px) {
+    min-width: 14px;
+    height: 14px;
+    font-size: 9px;
+    line-height: 14px;
+  }
 `;
 
 export const LoginBtn = styled.button`
@@ -323,6 +347,17 @@ export const ProfileTrigger = styled.button`
     background: var(--ref-border-soft);
     border-color: var(--ref-primary);
   }
+
+  @media (max-width: 480px) {
+    padding: 2px;
+    gap: 0;
+
+    /* ჩევრონი (გახსნის ისარი) ვიწრო ეკრანზე იმალება — ავატარს მარტო
+       30px-იან წრიულ ღილაკებთან გასათანაბრებლად ვტოვებთ. */
+    svg {
+      display: none;
+    }
+  }
 `;
 
 export const AvatarCircle = styled.div`
@@ -342,6 +377,12 @@ export const AvatarCircle = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
   }
 `;
 
@@ -416,6 +457,16 @@ export const MobileMenuButton = styled.button<{ open?: boolean }>`
 
   @media (max-width: 960px) {
     display: flex;
+  }
+
+  @media (max-width: 480px) {
+    width: 30px;
+    height: 30px;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
   }
 `;
 
