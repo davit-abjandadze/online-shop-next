@@ -252,8 +252,13 @@ export const NotificationsPage: React.FC = () => {
       toast.success("შეტყობინება წარმატებით გაიგზავნა!");
       setIsCreateOpen(false);
       form.reset(emptyForm);
-      setPage(1);
-      fetchNotifications();
+      // page-ის ცვლილება useEffect-ს გაუშვებს fetchNotifications()-ზე;
+      // თუ უკვე 1-ინ გვერდზეა, page არ იცვლება და fetch ხელით უნდა გავუშვათ
+      if (page === 1) {
+        fetchNotifications();
+      } else {
+        setPage(1);
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "შეტყობინების გაგზავნა ვერ მოხერხდა");
     } finally {
@@ -335,7 +340,14 @@ export const NotificationsPage: React.FC = () => {
       );
       toast.success("შეტყობინება წარმატებით წაიშალა!");
       setDeleteTarget(null);
-      fetchNotifications();
+      // თუ ეს გვერდის ერთადერთი item იყო და page > 1, ეს გვერდი წაშლის
+      // შემდეგ აღარ არსებობს — წინა გვერდზე დაბრუნება, თუარა ცარიელი
+      // სია გამოჩნდება. useEffect (page-ის ცვლაზე) გაუშვებს fetch-ს.
+      if (notifications.length === 1 && page > 1) {
+        setPage((p) => p - 1);
+      } else {
+        fetchNotifications();
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "შეტყობინების წაშლა ვერ მოხერხდა");
     } finally {
