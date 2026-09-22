@@ -211,12 +211,12 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
-         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-         * @param {string} [productIds] 
+         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა კალათის item ერთდროულად ხელმისაწვდომია
+         * @param {string} [items] JSON მასივი: [{\&quot;productId\&quot;:1,\&quot;variantId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:2,\&quot;colorId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:3}]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAvailable: async (productIds?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        branchesControllerFindAvailable: async (items?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/branches/available`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -229,8 +229,8 @@ export const BranchesApiAxiosParamCreator = function (configuration?: Configurat
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
 
-            if (productIds !== undefined) {
-                localVarQueryParameter['productIds'] = productIds;
+            if (items !== undefined) {
+                localVarQueryParameter['items'] = items;
             }
 
 
@@ -392,13 +392,13 @@ export const BranchesApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
-         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-         * @param {string} [productIds] 
+         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა კალათის item ერთდროულად ხელმისაწვდომია
+         * @param {string} [items] JSON მასივი: [{\&quot;productId\&quot;:1,\&quot;variantId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:2,\&quot;colorId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:3}]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async branchesControllerFindAvailable(productIds?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAvailable(productIds, options);
+        async branchesControllerFindAvailable(items?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.branchesControllerFindAvailable(items, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['BranchesApi.branchesControllerFindAvailable']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -488,13 +488,13 @@ export const BranchesApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
-         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-         * @param {string} [productIds] 
+         * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა კალათის item ერთდროულად ხელმისაწვდომია
+         * @param {string} [items] JSON მასივი: [{\&quot;productId\&quot;:1,\&quot;variantId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:2,\&quot;colorId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:3}]
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        branchesControllerFindAvailable(productIds?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.branchesControllerFindAvailable(productIds, options).then((request) => request(axios, basePath));
+        branchesControllerFindAvailable(items?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.branchesControllerFindAvailable(items, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -577,13 +577,13 @@ export class BranchesApi extends BaseAPI {
 
     /**
      * 
-     * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა პროდუქტი ერთდროულად ხელმისაწვდომია
-     * @param {string} [productIds] 
+     * @summary checkout-ისთვის — აქტიური ფილიალები, სადაც მოცემული ყველა კალათის item ერთდროულად ხელმისაწვდომია
+     * @param {string} [items] JSON მასივი: [{\&quot;productId\&quot;:1,\&quot;variantId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:2,\&quot;colorId\&quot;:\&quot;uuid\&quot;},{\&quot;productId\&quot;:3}]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public branchesControllerFindAvailable(productIds?: string, options?: RawAxiosRequestConfig) {
-        return BranchesApiFp(this.configuration).branchesControllerFindAvailable(productIds, options).then((request) => request(this.axios, this.basePath));
+    public branchesControllerFindAvailable(items?: string, options?: RawAxiosRequestConfig) {
+        return BranchesApiFp(this.configuration).branchesControllerFindAvailable(items, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -324,15 +324,23 @@ export const CheckoutComponent: React.FC = () => {
   }, [status, session?.accessToken]);
 
   // ფილიალების სია საჯარო endpoint-ია — ავტორიზაცია არ სჭირდება. `/branches/available`
-  // მხოლოდ იმ (აქტიურ) ფილიალებს აბრუნებს, სადაც კალათის ყველა პროდუქტი ერთდროულადაა
+  // მხოლოდ იმ (აქტიურ) ფილიალებს აბრუნებს, სადაც კალათის ყველა item ერთდროულადაა
   // მარაგში — pickup-ის არჩევისას ისეთი ფილიალის შერჩევა, სადაც ნაწილი პროდუქტი
-  // საერთოდ არ იყიდება, წინასწარვე გამორიცხულია (checkout-ის stock-შემოწმებას იმეორებს UI-ზე).
-  const productIds = (cart?.items || []).map((item) => item.product.id).join(",");
+  // (ან კონკრეტული ვარიანტი/ფერი) საერთოდ არ იყიდება, წინასწარვე გამორიცხულია
+  // (checkout-ის stock-შემოწმებას იმეორებს UI-ზე). თითო item-ს თან ატანს
+  // საკუთარ variantId/colorId-საც (თუ აქვს) — ფლეთ (ვარიანტების/ფერების
+  // გარეშე) პროდუქტისთვის მხოლოდ productId იგზავნება.
+  const branchQueryItems = (cart?.items || []).map((item) => ({
+    productId: item.product.id,
+    ...(item.variantId ? { variantId: item.variantId } : {}),
+    ...(item.colorId ? { colorId: item.colorId } : {}),
+  }));
+  const branchQueryKey = JSON.stringify(branchQueryItems);
 
-  const fetchBranches = async (ids: string) => {
+  const fetchBranches = async (items: string) => {
     setBranchesLoading(true);
     try {
-      const res = await BranchesAPI(router.locale || "ka", "").branchesControllerFindAvailable(ids);
+      const res = await BranchesAPI(router.locale || "ka", "").branchesControllerFindAvailable(items);
       const list = (res.data as unknown as Branch[]) || [];
       setBranches(list);
       // ⚠️ განზრახ არ ავირჩევთ ავტომატურად პირველ ფილიალს — მომხმარებელმა ყოველ
@@ -347,10 +355,10 @@ export const CheckoutComponent: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!productIds) return;
-    fetchBranches(productIds);
+    if (branchQueryItems.length === 0) return;
+    fetchBranches(branchQueryKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.locale, productIds]);
+  }, [router.locale, branchQueryKey]);
 
   const openAddAddressModal = () => {
     setEditingAddressId(null);

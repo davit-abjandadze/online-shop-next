@@ -413,6 +413,11 @@ export interface ProductBranch {
   productId: number;
   branchId: number;
   branch?: Branch;
+  // ვარიანტი/ფერი, რომელსაც ეს ფილიალის stock ეკუთვნის — ორივე ცარიელია
+  // ძველი, ვარიანტების/ფერების გარეშე ბრტყელი პროდუქტისთვის (იხ.
+  // ProductBranchItemDto-ს იგივე კომენტარი).
+  variantId?: string | null;
+  colorId?: string | null;
   stock: number;
   createdAt: string;
   updatedAt: string;

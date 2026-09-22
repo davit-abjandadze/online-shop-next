@@ -20,7 +20,15 @@ export interface ProductBranchItemDto {
      */
     'branchId': number;
     /**
-     * ამ ფილიალის მარაგი ამ პროდუქტისთვის (ცალი)
+     * ProductVariant-ის ID — თუ პროდუქტს ვარიანტები აქვს, სავალდებულოა და colorId-სთან ერთად არ დაიშვება
+     */
+    'variantId'?: string;
+    /**
+     * Color-ის ID — ძველი ფლეთი ფერიანი პროდუქტისთვის, variantId-სთან ერთად არ დაიშვება
+     */
+    'colorId'?: string;
+    /**
+     * ამ ფილიალის მარაგი ამ პროდუქტისთვის/ვარიანტისთვის (ცალი)
      */
     'stock': number;
 }
