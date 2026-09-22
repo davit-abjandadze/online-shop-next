@@ -9,6 +9,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import PurchaseSteps from "@/components/shared/PurchaseSteps";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
+import { useCartItemVariants } from "@/hooks/useCartItemVariants";
 import { ProductsAPI } from "@/API_Client";
 import { Color, ProductColor } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
@@ -38,6 +39,7 @@ export const CartComponent: React.FC = () => {
   // /products/:id/colors-იდან მოგვაქვს — იხ. CartItem.colorId კომენტარი
   // API_Client/types.ts-ში.
   const [colorsByProductId, setColorsByProductId] = useState<Record<number, ProductColor[]>>({});
+  const { getItemPriceSource, getItemVariant } = useCartItemVariants(cart?.items || [], router.locale);
 
   useEffect(() => {
     const items = cart?.items || [];
@@ -93,9 +95,10 @@ export const CartComponent: React.FC = () => {
   }
 
   const items = cart?.items || [];
+
   const { subtotal, total, itemsCount } = items.reduce(
     (acc, item) => {
-      const { price, originalPrice } = getDiscountedPrice(item.product);
+      const { price, originalPrice } = getDiscountedPrice(getItemPriceSource(item));
       return {
         subtotal: acc.subtotal + (originalPrice ?? price) * item.quantity,
         total: acc.total + price * item.quantity,
@@ -142,11 +145,14 @@ export const CartComponent: React.FC = () => {
                   const image = resolveImage(item.product.images?.[0]);
                   const disabled = pendingItemId === item.id;
                   const atStockLimit = item.quantity >= item.product.stock;
-                  const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(item.product);
-                  const saved = isSaved(item.product.id);
                   const itemColor: Color | undefined = item.colorId
                     ? colorsByProductId[item.product.id]?.find((pc) => pc.colorId === item.colorId)?.color
                     : undefined;
+                  const itemVariant = getItemVariant(item);
+                  const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(
+                    getItemPriceSource(item)
+                  );
+                  const saved = isSaved(item.product.id);
 
                   const productName = getCategoryName(item.product, router.locale);
                   const productDescription = getLocalizedDescription(item.product, router.locale);
@@ -164,6 +170,19 @@ export const CartComponent: React.FC = () => {
                           <S.ItemColor>
                             <S.ItemColorDot style={{ backgroundColor: itemColor.hexCode || "#ccc" }} />
                             {getCategoryName(itemColor, router.locale)}
+                          </S.ItemColor>
+                        )}
+                        {itemVariant && (
+                          <S.ItemColor>
+                            {itemVariant.color && (
+                              <S.ItemColorDot style={{ backgroundColor: itemVariant.color.hexCode || "#ccc" }} />
+                            )}
+                            {[
+                              itemVariant.color ? getCategoryName(itemVariant.color, router.locale) : null,
+                              itemVariant.size ? getCategoryName(itemVariant.size, router.locale) : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" / ")}
                           </S.ItemColor>
                         )}
                         {atStockLimit && <S.ItemStockWarning>{t("stock-limit-reached")}</S.ItemStockWarning>}

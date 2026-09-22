@@ -102,6 +102,9 @@ export interface CartItem {
   // ცალკე GET /products/:id/colors-ის მიხედვით უნდა მოიძებნოს (იხ. cart-ის
   // გვერდზე).
   colorId?: string | null;
+  // ახალი ვარიანტების სისტემა (ფერი+ზომა) — იგივე მიზეზით `variant` relation
+  // ცოცხლად არ ჩნდება, GET /products/:id/variants-იდან უნდა მოიძებნოს variantId-ით.
+  variantId?: string | null;
 }
 
 export interface Cart {
@@ -135,6 +138,11 @@ export interface OrderItem {
   productName: string;
   unitPrice: string;
   quantity: number;
+  // ვარიანტების სისტემის (ფერი+ზომა) სნეფშოტი — ისტორიული ჩანაწერისთვის,
+  // შეკვეთის შექმნის მომენტში დაფიქსირებული resolved string-ები, არა ცოცხალი
+  // მონაცემი (productName-ის იგივე მიზეზით).
+  colorName?: string | null;
+  sizeName?: string | null;
 }
 
 // ბექენდი findOneForUser/findAllPaginated-ში user-ის მხოლოდ ამ ველებს
@@ -356,6 +364,37 @@ export interface ProductColor {
   colorId: string;
   color?: Color;
   stock: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ზომების ბიბლიოთეკა — Color-ის ზუსტი ანალოგი (SizesController-ის იგივე
+// მიზეზით OpenAPI-ში ცხადი პასუხის ტიპი არ აქვს), hexCode-ის მაგივრად `code`
+// (მაგ. "2S", "3XL").
+export interface Size {
+  id: string;
+  translations: NameTranslationsDto;
+  code: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// GET/PUT /products/:id/variants row — ProductColor-ის ანალოგი, ორგანზომილებიანი
+// (ფერი+ზომა) ვარიანტი საკუთარი stock+price-ით. ეს ახალი, დამატებითი სისტემაა —
+// ძველი ProductColor-ის გვერდით არსებობს, ერთდროულად ორივე ერთსა და იმავე
+// პროდუქტზე არაა მოსალოდნელი (იხ. ProductVariantsForm.tsx-ის კომენტარი).
+// `resolvedPrice` (`price ?? product.price`) გამოსაყენებელია ჩვენებისთვის,
+// არა `price` პირდაპირ.
+export interface ProductVariant {
+  id: string;
+  productId: number;
+  colorId?: string | null;
+  sizeId?: string | null;
+  color?: Color;
+  size?: Size;
+  stock: number;
+  price?: string | null;
+  resolvedPrice: string;
   createdAt: string;
   updatedAt: string;
 }

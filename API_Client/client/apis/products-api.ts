@@ -34,6 +34,8 @@ import type { SetProductBranchesDto } from '../models';
 // @ts-ignore
 import type { SetProductColorsDto } from '../models';
 // @ts-ignore
+import type { SetProductVariantsDto } from '../models';
+// @ts-ignore
 import type { UpdateProductAdditionalInfoDto } from '../models';
 // @ts-ignore
 import type { UpdateProductDto } from '../models';
@@ -443,6 +445,43 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
         },
         /**
          * 
+         * @summary პროდუქტზე მიბმული ვარიანტების სია (stock/price-ითურთ)
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerGetVariants: async (id: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsControllerGetVariants', 'id', id)
+            const localVarPath = `/products/{id}/variants`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
          * @summary პროდუქტის წაშლა (ADMIN)
          * @param {number} id 
          * @param {*} [options] Override http request option.
@@ -639,6 +678,48 @@ export const ProductsApiAxiosParamCreator = function (configuration?: Configurat
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(setProductColorsDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary პროდუქტის ვარიანტების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
+         * @param {number} id 
+         * @param {SetProductVariantsDto} setProductVariantsDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerSetVariants: async (id: number, setProductVariantsDto: SetProductVariantsDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'id' is not null or undefined
+            assertParamExists('productsControllerSetVariants', 'id', id)
+            // verify required parameter 'setProductVariantsDto' is not null or undefined
+            assertParamExists('productsControllerSetVariants', 'setProductVariantsDto', setProductVariantsDto)
+            const localVarPath = `/products/{id}/variants`
+                .replace('{id}', encodeURIComponent(String(id)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(setProductVariantsDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -875,6 +956,19 @@ export const ProductsApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @summary პროდუქტზე მიბმული ვარიანტების სია (stock/price-ითურთ)
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsControllerGetVariants(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerGetVariants(id, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerGetVariants']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @summary პროდუქტის წაშლა (ADMIN)
          * @param {number} id 
          * @param {*} [options] Override http request option.
@@ -940,6 +1034,20 @@ export const ProductsApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerSetColors(id, setProductColorsDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerSetColors']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary პროდუქტის ვარიანტების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
+         * @param {number} id 
+         * @param {SetProductVariantsDto} setProductVariantsDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async productsControllerSetVariants(id: number, setProductVariantsDto: SetProductVariantsDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.productsControllerSetVariants(id, setProductVariantsDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProductsApi.productsControllerSetVariants']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -1085,6 +1193,16 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
         },
         /**
          * 
+         * @summary პროდუქტზე მიბმული ვარიანტების სია (stock/price-ითურთ)
+         * @param {number} id 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerGetVariants(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerGetVariants(id, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @summary პროდუქტის წაშლა (ADMIN)
          * @param {number} id 
          * @param {*} [options] Override http request option.
@@ -1136,6 +1254,17 @@ export const ProductsApiFactory = function (configuration?: Configuration, baseP
          */
         productsControllerSetColors(id: number, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.productsControllerSetColors(id, setProductColorsDto, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary პროდუქტის ვარიანტების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
+         * @param {number} id 
+         * @param {SetProductVariantsDto} setProductVariantsDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        productsControllerSetVariants(id: number, setProductVariantsDto: SetProductVariantsDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.productsControllerSetVariants(id, setProductVariantsDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -1281,6 +1410,17 @@ export class ProductsApi extends BaseAPI {
 
     /**
      * 
+     * @summary პროდუქტზე მიბმული ვარიანტების სია (stock/price-ითურთ)
+     * @param {number} id 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productsControllerGetVariants(id: number, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerGetVariants(id, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
      * @summary პროდუქტის წაშლა (ADMIN)
      * @param {number} id 
      * @param {*} [options] Override http request option.
@@ -1336,6 +1476,18 @@ export class ProductsApi extends BaseAPI {
      */
     public productsControllerSetColors(id: number, setProductColorsDto: SetProductColorsDto, options?: RawAxiosRequestConfig) {
         return ProductsApiFp(this.configuration).productsControllerSetColors(id, setProductColorsDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary პროდუქტის ვარიანტების bulk set (ADMIN) — მთლიანად ანაცვლებს არსებულს
+     * @param {number} id 
+     * @param {SetProductVariantsDto} setProductVariantsDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public productsControllerSetVariants(id: number, setProductVariantsDto: SetProductVariantsDto, options?: RawAxiosRequestConfig) {
+        return ProductsApiFp(this.configuration).productsControllerSetVariants(id, setProductVariantsDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

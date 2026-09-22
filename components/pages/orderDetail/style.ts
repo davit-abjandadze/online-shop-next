@@ -149,6 +149,14 @@ export const ItemMeta = styled("div")`
   color: var(--ref-text-secondary);
 `;
 
+// შეკვეთის დროს დაფიქსირებული ფერი/ზომის სნეფშოტი (colorName/sizeName) —
+// ისტორიული ჩანაწერი, არა ცოცხალი მონაცემი.
+export const ItemVariant = styled("div")`
+  font-size: 12.5px;
+  color: var(--ref-text-secondary);
+  margin-top: 2px;
+`;
+
 // ფასდაკლებამდე ერთეულის ფასი — ხაზგადასმული, unitPrice-ის გვერდით.
 export const ItemOriginalPrice = styled("span")`
   text-decoration: line-through;

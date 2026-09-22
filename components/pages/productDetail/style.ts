@@ -384,6 +384,38 @@ export const ColorOption = styled("button")<{ active?: boolean }>`
   }
 `;
 
+export const SizeOptions = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const SizeOption = styled("button")<{ active?: boolean; disabled?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid ${({ active }) => (active ? "var(--ref-primary)" : "var(--ref-border-soft)")};
+  background: ${({ active }) => (active ? "var(--ref-primary-soft)" : "var(--ref-bg-elevated)")};
+  color: var(--ref-text-primary);
+  font-size: 13.5px;
+  text-align: left;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    border-color: ${({ disabled }) => (disabled ? undefined : "var(--ref-primary)")};
+  }
+`;
+
+export const SizeOptionPrice = styled("span")`
+  font-weight: 600;
+  white-space: nowrap;
+`;
+
 export const AddToCartButton = styled("button")`
   align-self: flex-start;
   display: inline-flex;

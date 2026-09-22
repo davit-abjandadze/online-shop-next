@@ -7,7 +7,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import ShareModal from "@/components/shared/ShareModal";
 import SimilarProductsSlider from "@/components/shared/SimilarProductsSlider";
 import { ProductsAPI } from "@/API_Client";
-import { Product, ProductAdditionalInfo, ProductAttributeValue, ProductBranch, ProductColor } from "@/API_Client/types";
+import { Product, ProductAdditionalInfo, ProductAttributeValue, ProductBranch, ProductColor, ProductVariant } from "@/API_Client/types";
 import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon, ShareIcon } from "@/components/ui/RefIcons";
 import { BASEPATH, CDN_URL } from "@/constants";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
@@ -61,6 +61,9 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
   const [additionalInfo, setAdditionalInfo] = useState<ProductAdditionalInfo[]>([]);
   const [productColors, setProductColors] = useState<ProductColor[]>([]);
   const [selectedColorId, setSelectedColorId] = useState<string | undefined>(undefined);
+  const [productVariants, setProductVariants] = useState<ProductVariant[]>([]);
+  const [selectedVariantColorId, setSelectedVariantColorId] = useState<string | undefined>(undefined);
+  const [selectedVariantSizeId, setSelectedVariantSizeId] = useState<string | undefined>(undefined);
   const thumbsTrackRef = useRef<HTMLDivElement>(null);
 
   const productName = getCategoryName(product, router.locale);
@@ -85,10 +88,15 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
     setLightboxOpen(false);
   }, [product.id]);
 
+  // ახალი ვარიანტების სისტემა (ფერი+ზომა) — თუ პროდუქტს variants აქვს მიბმული,
+  // მას პრიორიტეტი აქვს ძველი, მხოლოდ-ფერის (ProductColor) ბლოკზე (ორივე
+  // ერთდროულად ერთ პროდუქტზე არაა მოსალოდნელი).
+  const hasVariants = productVariants.length > 0;
+
   // მარაგში მხოლოდ ის ფერები ჩნდება, რომლებსაც stock > 0 აქვთ.
   const availableColors = React.useMemo(
-    () => productColors.filter((pc) => pc.stock > 0),
-    [productColors]
+    () => (hasVariants ? [] : productColors.filter((pc) => pc.stock > 0)),
+    [productColors, hasVariants]
   );
   const selectedColor = availableColors.find((pc) => pc.colorId === selectedColorId);
 
@@ -100,9 +108,69 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productColors]);
 
+  // variants-ის ფერების უნიკალური სია (მხოლოდ ისეთი ვარიანტებიდან, სადაც colorId
+  // მითითებულია) — dedupe colorId-ის მიხედვით.
+  const variantColors = React.useMemo(() => {
+    const seen = new Set<string>();
+    const list: NonNullable<ProductVariant["color"]>[] = [];
+    productVariants.forEach((v) => {
+      if (v.colorId && v.color && !seen.has(v.colorId)) {
+        seen.add(v.colorId);
+        list.push(v.color);
+      }
+    });
+    return list;
+  }, [productVariants]);
+
+  // არჩეული ფერისთვის ხელმისაწვდომი ზომის ვარიანტები (ან, ფერის გარეშე
+  // ვარიანტებისთვის, ყველა ვარიანტი).
+  const variantsForSelectedColor = React.useMemo(() => {
+    if (variantColors.length === 0) return productVariants;
+    return productVariants.filter((v) => !v.colorId || v.colorId === selectedVariantColorId);
+  }, [productVariants, variantColors.length, selectedVariantColorId]);
+
+  const selectedVariant = variantsForSelectedColor.find((v) => v.sizeId === selectedVariantSizeId) || (
+    variantsForSelectedColor.length === 1 && !variantsForSelectedColor[0].sizeId ? variantsForSelectedColor[0] : undefined
+  );
+
+  // პირველი ხელმისაწვდომი ფერი/ზომა ავტომატურად აირჩევა.
+  useEffect(() => {
+    if (variantColors.length > 0 && !selectedVariantColorId) {
+      setSelectedVariantColorId(variantColors[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variantColors]);
+
+  useEffect(() => {
+    if (variantsForSelectedColor.length > 0 && variantsForSelectedColor.some((v) => v.sizeId)) {
+      setSelectedVariantSizeId(undefined);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedVariantColorId]);
+
+  const colorSelectionRequiredForVariant = variantColors.length > 0 && !selectedVariantColorId;
+  const sizeSelectionRequiredForVariant =
+    !colorSelectionRequiredForVariant &&
+    variantsForSelectedColor.some((v) => v.sizeId) &&
+    !selectedVariantSizeId;
+
   // თუ პროდუქტს ფერები აქვს მიბმული, მარაგი კონკრეტული არჩეული ფერის
   // stock-ის მიხედვით დგინდება — არჩევამდე კი დამატება არ დაიშვება.
-  const outOfStock = availableColors.length > 0 ? !selectedColor || selectedColor.stock <= 0 : product.stock <= 0;
+  const outOfStock = hasVariants
+    ? !selectedVariant || selectedVariant.stock <= 0
+    : availableColors.length > 0
+    ? !selectedColor || selectedColor.stock <= 0
+    : product.stock <= 0;
+
+  // საერთო მარაგის სტატუსი (ინფორმაციული "მარაგშია"/"ამოწურულია" წარწერისთვის) —
+  // დამოკიდებული არჩეულ ვარიანტზე კი არა, არსებობს თუ არა საერთოდ მარაგში მყოფი
+  // ვარიანტი/ფერი. სანამ მომხმარებელს ზომა/ფერი არჩეული არა აქვს, არასწორია
+  // დაეწეროს "ამოწურულია", თუ სხვა ზომებს მარაგი მაინც აქვთ.
+  const hasStock = hasVariants
+    ? productVariants.some((v) => v.stock > 0)
+    : availableColors.length > 0
+    ? true
+    : product.stock > 0;
 
   useEffect(() => {
     ProductsAPI(router.locale || "ka", "")
@@ -124,6 +192,13 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       .then((res) => setProductColors((res.data as unknown as ProductColor[]) || []))
       .catch(() => {
         // ფერების ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
+      });
+
+    ProductsAPI(router.locale || "ka", "")
+      .productsControllerGetVariants(product.id)
+      .then((res) => setProductVariants((res.data as unknown as ProductVariant[]) || []))
+      .catch(() => {
+        // ვარიანტების ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
       });
 
     ProductsAPI(router.locale || "ka", "")
@@ -186,16 +261,44 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
     return rows;
   }, [attrValues, router.locale, product.weight, product.length, product.width, t]);
 
-  // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
-  const cartItem = cart?.items?.find((item) => item.product.id === product.id);
+  // თუ ზუსტად ეს კომბინაცია (პროდუქტი + არჩეული ფერი/ვარიანტი) უკვე
+  // კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ. მხოლოდ
+  // product.id-ით შედარება არასწორი იქნებოდა: სხვა ფერის/ზომის
+  // არჩევისას ღილაკი მაინც "წაშლას" აჩვენებდა და დაჭერისას კალათაში
+  // უკვე მყოფ (სხვა ვარიანტის) ჩანაწერს შლიდა, არჩეულის ნაცვლად.
+  const cartItem = cart?.items?.find((item) => {
+    if (item.product.id !== product.id) return false;
+    if (hasVariants) return (item.variantId ?? undefined) === selectedVariant?.id;
+    return (item.colorId ?? undefined) === selectedColorId;
+  });
   const isInCart = Boolean(cartItem);
 
   // ფერის არჩევა სავალდებულოა, თუ პროდუქტს მარაგში მყოფი ფერები აქვს მიბმული.
-  const colorSelectionRequired = availableColors.length > 0 && !selectedColorId;
+  const colorSelectionRequired = hasVariants
+    ? colorSelectionRequiredForVariant
+    : availableColors.length > 0 && !selectedColorId;
+  const sizeSelectionRequired = hasVariants && sizeSelectionRequiredForVariant;
+
+  // ვარიანტების არჩევამდე ბარათის ანალოგიურად ყველაზე იაფი ვარიანტის ფასი
+  // ჩანს "დან" სუფიქსით — იხ. ProductCard.tsx-ის იგივე ლოგიკა.
+  const cheapestVariantPrice = hasVariants
+    ? (() => {
+        const inStockPrices = productVariants.filter((v) => v.stock > 0).map((v) => Number(v.resolvedPrice));
+        return inStockPrices.length > 0
+          ? Math.min(...inStockPrices)
+          : Math.min(...productVariants.map((v) => Number(v.resolvedPrice)));
+      })()
+    : undefined;
+  const displayPrice = hasVariants
+    ? Number(selectedVariant?.resolvedPrice ?? cheapestVariantPrice)
+    : Number(product.price);
+  const showFromPrice = hasVariants && !selectedVariant;
 
   const handleAddToCart = () => {
     if (cartItem) {
       removeItem(cartItem.id);
+    } else if (hasVariants) {
+      addItem(product.id, 1, undefined, selectedVariant?.id);
     } else {
       addItem(product.id, 1, selectedColorId);
     }
@@ -282,43 +385,84 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                 <ShareIcon size={17} />
               </S.ShareButton>
             </S.TitleRow>
-            <S.Price>{Number(product.price).toFixed(2)} ₾</S.Price>
-            <S.StockLine out={outOfStock && availableColors.length === 0}>
-              {availableColors.length > 0 ? (
+            <S.Price>
+              {showFromPrice ? t("from-price", { price: displayPrice.toFixed(2) }) : `${displayPrice.toFixed(2)} ₾`}
+            </S.Price>
+            <S.StockLine out={!hasStock}>
+              {hasStock ? (
                   <>
                     <CheckCircleIcon size={16} /> {t("in-stock")}
-                  </>
-              ) : outOfStock ? (
-                 <>
-                    <CloseIcon className="close-icon" size={16} /> {t("out-of-stock")}
                   </>
               ) : (
                   <>
-                    <CheckCircleIcon size={16} /> {t("in-stock")}
+                    <CloseIcon className="close-icon" size={16} /> {t("out-of-stock")}
                   </>
               )}
             </S.StockLine>
             {productDescription && <S.Description>{productDescription}</S.Description>}
-            {availableColors.length > 0 && (
-              <S.ColorSection>
-                <S.ColorSectionLabel>{t("color-label")}</S.ColorSectionLabel>
-                <S.ColorOptions>
-                  {availableColors.map((pc) => (
-                    <S.ColorOption
-                      key={pc.colorId}
-                      type="button"
-                      active={pc.colorId === selectedColorId}
-                      title={pc.color ? getCategoryName(pc.color, router.locale) : undefined}
-                      style={{ backgroundColor: pc.color?.hexCode || "#ccc" }}
-                      onClick={() => setSelectedColorId(pc.colorId)}
-                    />
-                  ))}
-                </S.ColorOptions>
-              </S.ColorSection>
+            {hasVariants ? (
+              <>
+                {variantColors.length > 0 && (
+                  <S.ColorSection>
+                    <S.ColorSectionLabel>{t("color-label")}</S.ColorSectionLabel>
+                    <S.ColorOptions>
+                      {variantColors.map((color) => (
+                        <S.ColorOption
+                          key={color.id}
+                          type="button"
+                          active={color.id === selectedVariantColorId}
+                          title={getCategoryName(color, router.locale)}
+                          style={{ backgroundColor: color.hexCode || "#ccc" }}
+                          onClick={() => setSelectedVariantColorId(color.id)}
+                        />
+                      ))}
+                    </S.ColorOptions>
+                  </S.ColorSection>
+                )}
+                {variantsForSelectedColor.some((v) => v.sizeId) && (
+                  <S.ColorSection>
+                    <S.ColorSectionLabel>{t("size-label")}</S.ColorSectionLabel>
+                    <S.SizeOptions>
+                      {variantsForSelectedColor
+                        .filter((v) => v.sizeId && v.size)
+                        .map((v) => (
+                          <S.SizeOption
+                            key={v.id}
+                            type="button"
+                            active={v.sizeId === selectedVariantSizeId}
+                            disabled={v.stock <= 0}
+                            onClick={() => v.stock > 0 && setSelectedVariantSizeId(v.sizeId || undefined)}
+                          >
+                            <span>{getCategoryName(v.size!, router.locale)}</span>
+                            <S.SizeOptionPrice>{Number(v.resolvedPrice).toFixed(2)} ₾</S.SizeOptionPrice>
+                          </S.SizeOption>
+                        ))}
+                    </S.SizeOptions>
+                  </S.ColorSection>
+                )}
+              </>
+            ) : (
+              availableColors.length > 0 && (
+                <S.ColorSection>
+                  <S.ColorSectionLabel>{t("color-label")}</S.ColorSectionLabel>
+                  <S.ColorOptions>
+                    {availableColors.map((pc) => (
+                      <S.ColorOption
+                        key={pc.colorId}
+                        type="button"
+                        active={pc.colorId === selectedColorId}
+                        title={pc.color ? getCategoryName(pc.color, router.locale) : undefined}
+                        style={{ backgroundColor: pc.color?.hexCode || "#ccc" }}
+                        onClick={() => setSelectedColorId(pc.colorId)}
+                      />
+                    ))}
+                  </S.ColorOptions>
+                </S.ColorSection>
+              )
             )}
              <S.AddToCartButton
               type="button"
-              disabled={(outOfStock || colorSelectionRequired) && !isInCart}
+              disabled={(outOfStock || colorSelectionRequired || sizeSelectionRequired) && !isInCart}
               onClick={handleAddToCart}
             >
               <CartIcon size={18} />{" "}
@@ -326,6 +470,8 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                 ? t("remove-from-cart")
                 : colorSelectionRequired
                 ? t("select-color")
+                : sizeSelectionRequired
+                ? t("select-size")
                 : outOfStock
                 ? t("out-of-stock")
                 : t("add-to-cart")}

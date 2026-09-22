@@ -20,6 +20,7 @@ import { ListSkeleton } from "./Skeletons";
 import DynamicAttributeForm from "./DynamicAttributeForm";
 import AdditionalInfoForm from "./AdditionalInfoForm";
 import ProductColorsForm from "./ProductColorsForm";
+import ProductVariantsForm from "./ProductVariantsForm";
 import ProductBranchesForm from "./ProductBranchesForm";
 import { ProductFormValues, buildProductTranslationsDto, productFormSchema, readProductTranslations } from "./schemas";
 import * as S from "./style";
@@ -997,6 +998,19 @@ export const ProductsPage: React.FC = () => {
               </S.Label>
               {session?.accessToken && (
                 <ProductColorsForm
+                  productId={editingProduct.id}
+                  accessToken={session.accessToken}
+                  locale={router.locale || "ka"}
+                />
+              )}
+            </div>
+
+            <div style={{ marginTop: "20px", borderTop: "1px solid var(--ref-border)", paddingTop: "16px" }}>
+              <S.Label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: "12px" }}>
+                <GridTwoIcon size={16} /> ვარიანტები (ფერი + ზომა)
+              </S.Label>
+              {session?.accessToken && (
+                <ProductVariantsForm
                   productId={editingProduct.id}
                   accessToken={session.accessToken}
                   locale={router.locale || "ka"}

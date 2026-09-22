@@ -29,6 +29,7 @@
   "add-to-cart-aria": "Добавить в корзину",
   "remove-label": "Удалить",
   "colors-stock-aria": "Наличие по цветам",
+  "from-price": "от {{price}} ₾",
   "wishlist-title": "Избранные товары",
   "wishlist-subtitle": "Товары, сохранённые вами",
   "wishlist-empty-title": "Список избранного пуст",

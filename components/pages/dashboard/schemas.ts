@@ -334,6 +334,15 @@ export const colorFormSchema = z.object({
 
 export type ColorFormValues = z.infer<typeof colorFormSchema>;
 
+/** ზომის (ბიბლიოთეკის) შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა — colorFormSchema-ს
+ * ანალოგი, hexCode-ის მაგივრად სავალდებულო `code` (მაგ: "2S", "3XL"). */
+export const sizeFormSchema = z.object({
+  translations: nameTranslationsSchema("ზომის სახელი"),
+  code: z.string().trim().min(1, "გთხოვთ შეავსოთ კოდი"),
+});
+
+export type SizeFormValues = z.infer<typeof sizeFormSchema>;
+
 /** კომპანიის შექმნა/რედაქტირების ფორმის ვალიდაციის სქემა — ColorsPage-ის იგივე
  * ბრტყელი (ჩადგმული ველების გარეშე) სქემის სტილით. */
 export const companyFormSchema = z.object({

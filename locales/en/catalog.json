@@ -29,6 +29,7 @@
   "add-to-cart-aria": "Add to cart",
   "remove-label": "Remove",
   "colors-stock-aria": "Stock by color",
+  "from-price": "from {{price}} ₾",
   "wishlist-title": "Favorite products",
   "wishlist-subtitle": "Products you saved",
   "wishlist-empty-title": "Your wishlist is empty",

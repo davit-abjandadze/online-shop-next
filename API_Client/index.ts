@@ -17,6 +17,7 @@ import {
   PaymentsApi,
   ProductsApi,
   ProductSlidersApi,
+  SizesApi,
   StatsApi,
   UsersApi,
 } from "./client";
@@ -213,6 +214,11 @@ export const BranchesAPI = (acceptLanguage: string, accessToken: string) => {
 export const ColorsAPI = (acceptLanguage: string, accessToken: string) => {
   const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
   return new ColorsApi(ApiConfig, API_URL, axiosInstance);
+};
+
+export const SizesAPI = (acceptLanguage: string, accessToken: string) => {
+  const axiosInstance = createAxiosInstance(acceptLanguage, accessToken);
+  return new SizesApi(ApiConfig, API_URL, axiosInstance);
 };
 
 export const CompaniesAPI = (acceptLanguage: string, accessToken: string) => {

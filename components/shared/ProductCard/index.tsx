@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { ProductsAPI } from "@/API_Client";
-import { Product, ProductColor } from "@/API_Client/types";
+import { Product, ProductColor, ProductVariant } from "@/API_Client/types";
 import { CartIcon, HeartIcon, ShareIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons";
 import ShareModal from "@/components/shared/ShareModal";
 import { BASEPATH, CDN_URL } from "@/constants";
@@ -48,7 +48,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const productDescription = getLocalizedDescription(product, router.locale);
   const image = product.images?.[0];
   const imageSrc = image ? (image.startsWith("http") ? image : `${CDN_URL}${image}`) : undefined;
-  const outOfStock = product.stock <= 0;
   const saved = isSaved(product.id);
   const { rating, reviews } = getDisplayStats(product);
   const { price: displayPrice, originalPrice: oldPrice, discountPercent } = getDiscountedPrice(product);
@@ -57,8 +56,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // დამატების" ავტომატური ფერის შერჩევისთვის ორივესთვის ერთი და იგივე
   // მოთხოვნა გვჭირდება, ამიტომ ერთხელ, mount-ზე ვტვირთავთ.
   const [productColors, setProductColors] = useState<ProductColor[]>([]);
+  const [productVariants, setProductVariants] = useState<ProductVariant[]>([]);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const colorsInStock = productColors.filter((pc) => pc.stock > 0);
+  const hasVariants = productVariants.length > 0;
+  const outOfStock = hasVariants ? !productVariants.some((v) => v.stock > 0) : product.stock <= 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -70,10 +72,29 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       .catch(() => {
         // ფერების წამოღება ვერ მოხერხდა — ბეიჯი უბრალოდ არ გამოჩნდება
       });
+    ProductsAPI(router.locale || "ka", "")
+      .productsControllerGetVariants(product.id)
+      .then((res) => {
+        if (!cancelled) setProductVariants((res.data as unknown as ProductVariant[]) || []);
+      })
+      .catch(() => {
+        // ვარიანტების წამოღება ვერ მოხერხდა — "დან" ფასი უბრალოდ არ გამოჩნდება
+      });
     return () => {
       cancelled = true;
     };
   }, [product.id, router.locale]);
+
+  // თუ პროდუქტს ვარიანტები (ფერი+ზომა) აქვს მიბმული, ბარათზე ყველაზე იაფი
+  // ვარიანტის ფასი ჩანს "დან" პრეფიქსით — spec-ის მოთხოვნით.
+  const cheapestVariantPrice = hasVariants
+    ? (() => {
+        const inStockPrices = productVariants.filter((v) => v.stock > 0).map((v) => Number(v.resolvedPrice));
+        return inStockPrices.length > 0
+          ? Math.min(...inStockPrices)
+          : Math.min(...productVariants.map((v) => Number(v.resolvedPrice)));
+      })()
+    : undefined;
 
   // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
@@ -87,9 +108,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       return;
     }
 
-    // თუ პროდუქტს ფერები აქვს მიბმული, ბექენდი ფერის მითითებას ითხოვს —
-    // ბარათიდან პირდაპირი დამატებისას მასივში პირველი ხელმისაწვდომი ფერი
-    // ავტომატურად იგულისხმება მონიშნულად.
+    // თუ პროდუქტს ვარიანტები (ფერი+ზომა) აქვს მიბმული, ბექენდი variantId-ს
+    // ითხოვს — ბარათიდან პირდაპირი დამატებისას პირველი მარაგში მყოფი
+    // ვარიანტი ავტომატურად იგულისხმება. თუ პროდუქტს მხოლოდ ძველი
+    // (მხოლოდ-ფერის) სისტემა აქვს, პირველი ხელმისაწვდომი ფერი გამოიყენება.
+    if (hasVariants) {
+      const firstInStockVariant = productVariants.find((v) => v.stock > 0);
+      addItem(product.id, 1, undefined, firstInStockVariant?.id);
+      return;
+    }
     addItem(product.id, 1, colorsInStock[0]?.colorId);
   };
 
@@ -148,8 +175,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <S.Footer>
             <S.PriceGroup>
-              <S.Price>{displayPrice.toFixed(2)} ₾</S.Price>
-              {oldPrice && <S.OldPrice>{oldPrice.toFixed(2)} ₾</S.OldPrice>}
+              <S.Price>
+                {cheapestVariantPrice !== undefined
+                  ? t("from-price", { price: cheapestVariantPrice.toFixed(2) })
+                  : `${displayPrice.toFixed(2)} ₾`}
+              </S.Price>
+              {cheapestVariantPrice === undefined && oldPrice && <S.OldPrice>{oldPrice.toFixed(2)} ₾</S.OldPrice>}
             </S.PriceGroup>
             <S.AddButton
               type="button"

@@ -31,6 +31,7 @@ export * from './apis/otp-api';
 export * from './apis/payments-api';
 export * from './apis/product-sliders-api';
 export * from './apis/products-api';
+export * from './apis/sizes-api';
 export * from './apis/stats-api';
 export * from './apis/users-api';
 

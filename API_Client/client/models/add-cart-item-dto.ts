@@ -24,6 +24,10 @@ export interface AddCartItemDto {
      */
     'colorId'?: string;
     /**
+     * არჩეული ვარიანტის (ფერი+ზომა) ID — სავალდებულოა, თუ პროდუქტს ვარიანტები აქვს მითითებული (იხ. GET /products/:id/variants)
+     */
+    'variantId'?: string;
+    /**
      * რაოდენობა
      */
     'quantity': number;

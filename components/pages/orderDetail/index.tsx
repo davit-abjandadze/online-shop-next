@@ -293,6 +293,11 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
                       ) : (
                         <S.ItemName as="span">{item.productName}</S.ItemName>
                       )}
+                      {(item.colorName || item.sizeName) && (
+                        <S.ItemVariant>
+                          {[item.colorName, item.sizeName].filter(Boolean).join(" / ")}
+                        </S.ItemVariant>
+                      )}
                       <S.ItemMeta>
                         {item.quantity} x{" "}
                         {originalUnitPrice !== null && (

@@ -10,6 +10,7 @@ import AuthModal from "@/components/shared/AuthModal";
 import PurchaseSteps, { PurchaseStep } from "@/components/shared/PurchaseSteps";
 import { useCart } from "@/context/Cart";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
+import { useCartItemVariants } from "@/hooks/useCartItemVariants";
 import { AddressesAPI, BranchesAPI, OrdersAPI, OtpAPI, PaymentsAPI, UserAPI } from "@/API_Client";
 import { Address, Branch, Order, PaymentInitiateResponse, User } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
@@ -161,6 +162,7 @@ export const CheckoutComponent: React.FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { cart, loading, refresh } = useCart();
+  const { getItemPriceSource } = useCartItemVariants(cart?.items || [], router.locale);
 
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -697,9 +699,10 @@ export const CheckoutComponent: React.FC = () => {
   }
 
   const items = cart?.items || [];
+
   const { subtotal, total, itemsCount } = items.reduce(
     (acc, item) => {
-      const { price, originalPrice } = getDiscountedPrice(item.product);
+      const { price, originalPrice } = getDiscountedPrice(getItemPriceSource(item));
       return {
         subtotal: acc.subtotal + (originalPrice ?? price) * item.quantity,
         total: acc.total + price * item.quantity,
@@ -1274,7 +1277,9 @@ export const CheckoutComponent: React.FC = () => {
                   <S.OrderItemsList>
                     {items.map((item) => {
                       const image = resolveImage(item.product.images?.[0]);
-                      const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(item.product);
+                      const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(
+                        getItemPriceSource(item)
+                      );
                       const productName = getCategoryName(item.product, router.locale);
                       const productDescription = getLocalizedDescription(item.product, router.locale);
                       return (
