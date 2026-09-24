@@ -77,7 +77,10 @@ const toDto = (data: ProductFormValues) => {
     discountPercent: data.discountPercent?.trim() ? Number(data.discountPercent) : undefined,
     categoryId: data.categoryId || undefined,
     companyId: data.companyId,
-    images: images.length ? images : undefined,
+    // length-ის მიუხედავად ყოველთვის ცხრილს ვაგზავნით (და არა undefined-ს),
+    // რომ ბოლო სურათის წაშლისას images: [] რეალურად ჩავიდეს ბექენდში —
+    // undefined JSON.stringify-ის მიერ იშლება და ბექენდი ძველ სურათებს ინარჩუნებს.
+    images,
     videoUrl: data.videoUrl?.trim() || undefined,
     weight: data.weight?.trim() ? Number(data.weight) : undefined,
     length: data.length?.trim() ? Number(data.length) : undefined,
@@ -311,7 +314,7 @@ export const ProductsPage: React.FC = () => {
     Promise.all(
       products.map((p) =>
         ProductsAPI(router.locale || "ka", session.accessToken!)
-          .productsControllerGetColors(String(p.id))
+          .productsControllerGetColors(p.id)
           .then((res) => [String(p.id), (res.data as unknown as ProductColor[]) || []] as const)
           .catch(() => [String(p.id), [] as ProductColor[]] as const)
       )
@@ -336,7 +339,7 @@ export const ProductsPage: React.FC = () => {
     if (!session?.accessToken) return;
     try {
       const res = await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerGetAttributeValues(
-        String(productId)
+        Number(productId)
       );
       setEditAttrValues((res.data as unknown as ProductAttributeValue[]) || []);
     } catch {
@@ -365,7 +368,7 @@ export const ProductsPage: React.FC = () => {
     setAttrsSaving(true);
     try {
       await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerSetAttributeValues(
-        String(editingProduct.id),
+        editingProduct.id,
         { values: items }
       );
       toast.success("მახასიათებლები წარმატებით შეინახა!");
@@ -386,15 +389,19 @@ export const ProductsPage: React.FC = () => {
     if (!session?.accessToken) return;
     setCreateSubmitting(true);
     try {
-      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerCreate(
+      const { data: created } = await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerCreate(
         // TODO: generated CreateProductDto not yet regenerated for translations — remove cast after yarn generate:api
         toDto(data) as unknown as CreateProductDto
       );
-      toast.success("პროდუქტი წარმატებით დაემატა!");
+      toast.success("პროდუქტი წარმატებით დაემატა! ახლა შეგიძლიათ დაამატოთ ფერები, ვარიანტები, ფილიალები და სხვა დამატებითი ინფორმაცია.");
       setIsCreateOpen(false);
       createForm.reset(emptyProductForm);
       setPage(1);
       fetchProducts();
+      // შექმნის შემდეგ პირდაპირ რედაქტირების მოდალში გადავდივართ, რადგან
+      // ფერები/ვარიანტები/ფილიალები/მახასიათებლები productId-ს საჭიროებენ,
+      // რომელიც მხოლოდ პროდუქტის შექმნის შემდეგ არსებობს.
+      handleOpenEdit(created as unknown as Product);
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროდუქტის დამატება ვერ მოხერხდა");
     } finally {
@@ -414,7 +421,7 @@ export const ProductsPage: React.FC = () => {
     setEditSubmitting(true);
     try {
       await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerUpdate(
-        String(editingProduct.id),
+        editingProduct.id,
         // TODO: generated UpdateProductDto not yet regenerated for translations — remove cast after yarn generate:api
         toDto(data) as unknown as UpdateProductDto
       );
@@ -432,10 +439,16 @@ export const ProductsPage: React.FC = () => {
     if (!deleteTarget || !session?.accessToken) return;
     setDeleteSubmitting(true);
     try {
-      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerRemove(String(deleteTarget.id));
+      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerRemove(deleteTarget.id);
       toast.success("პროდუქტი წარმატებით წაიშალა!");
       setDeleteTarget(null);
-      fetchProducts();
+      // თუ წაშლილი იყო მიმდინარე გვერდის ერთადერთი ჩანაწერი, წინა გვერდზე
+      // გადავდივართ — თორემ fetchProducts ცარიელ (არარსებულ) გვერდს დააბრუნებს.
+      if (products.length === 1 && page > 1) {
+        setPage((p) => p - 1);
+      } else {
+        fetchProducts();
+      }
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროდუქტის წაშლა ვერ მოხერხდა");
     } finally {
@@ -449,7 +462,7 @@ export const ProductsPage: React.FC = () => {
     if (!session?.accessToken || togglingId) return;
     setTogglingId(String(product.id));
     try {
-      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerUpdate(String(product.id), {
+      await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerUpdate(product.id, {
         isActive: !product.isActive,
       });
       toast.success(!product.isActive ? "პროდუქტი გააქტიურდა" : "პროდუქტი დეაქტივირდა");
@@ -851,24 +864,24 @@ export const ProductsPage: React.FC = () => {
              
                 <S.CardHeader>
                   <div style={{display:"flex", gap: "20px"}}>
-                     {!!product.images?.length && (
-                  <S.ProductImagesRow>
-                     <Link href={`/products/${product.id}`} passHref legacyBehavior>
-                      <S.QuestionText
-                        as="a"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-                      >
-                        <BoxIcon size={18} /> {getCategoryName(product, router.locale)}
-                      </S.QuestionText>
-                    </Link>
-                    <S.ProductImageThumb>
-                      <img src={resolveImage(product.images[0])} alt={getCategoryName(product, router.locale)} />
-                    </S.ProductImageThumb>
-                  </S.ProductImagesRow>
-                )}
-                   
+                    <S.ProductImagesRow>
+                      <Link href={`/products/${product.id}`} passHref legacyBehavior>
+                        <S.QuestionText
+                          as="a"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
+                        >
+                          <BoxIcon size={18} /> {getCategoryName(product, router.locale)}
+                        </S.QuestionText>
+                      </Link>
+                      {!!product.images?.length && (
+                        <S.ProductImageThumb>
+                          <img src={resolveImage(product.images[0])} alt={getCategoryName(product, router.locale)} />
+                        </S.ProductImageThumb>
+                      )}
+                    </S.ProductImagesRow>
+
                     <S.BadgeGroup>
                       <S.Badge variant={product.isActive ? "active" : "inactive"}>
                         {product.isActive ? "აქტიური" : "არააქტიური"}
