@@ -539,45 +539,49 @@ export const ProductsPage: React.FC = () => {
     context: "create" | "edit"
   ) => (
     <form onSubmit={onSubmit} noValidate>
-      <S.FormGroup>
-        <S.Label>დასახელება (ქართულად)</S.Label>
-        <S.Input
-          type="text"
-          placeholder="მაგ: უსადენო ყურსასმენი"
-          {...form.register("translations.ka.name")}
-        />
-        {form.formState.errors.translations?.ka?.name && (
-          <S.FieldError>{form.formState.errors.translations.ka.name.message}</S.FieldError>
-        )}
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>აღწერა ქართულად (არასავალდებულო)</S.Label>
-        <S.Textarea rows={3} {...form.register("translations.ka.description")} />
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>დასახელება (ინგლისურად, არასავალდებულო)</S.Label>
-        <S.Input
-          type="text"
-          placeholder="e.g. Wireless Headphones"
-          {...form.register("translations.en.name")}
-        />
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>აღწერა ინგლისურად (არასავალდებულო)</S.Label>
-        <S.Textarea rows={3} {...form.register("translations.en.description")} />
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>დასახელება (რუსულად, არასავალდებულო)</S.Label>
-        <S.Input
-          type="text"
-          placeholder="напр. Беспроводные наушники"
-          {...form.register("translations.ru.name")}
-        />
-      </S.FormGroup>
-      <S.FormGroup>
-        <S.Label>აღწერა რუსულად (არასავალდებულო)</S.Label>
-        <S.Textarea rows={3} {...form.register("translations.ru.description")} />
-      </S.FormGroup>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>დასახელება (ქართულად)</S.Label>
+          <S.Input
+            type="text"
+            placeholder="მაგ: უსადენო ყურსასმენი"
+            {...form.register("translations.ka.name")}
+          />
+          {form.formState.errors.translations?.ka?.name && (
+            <S.FieldError>{form.formState.errors.translations.ka.name.message}</S.FieldError>
+          )}
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>დასახელება (ინგლისურად, არასავალდებულო)</S.Label>
+          <S.Input
+            type="text"
+            placeholder="e.g. Wireless Headphones"
+            {...form.register("translations.en.name")}
+          />
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>დასახელება (რუსულად, არასავალდებულო)</S.Label>
+          <S.Input
+            type="text"
+            placeholder="напр. Беспроводные наушники"
+            {...form.register("translations.ru.name")}
+          />
+        </S.FormGroup>
+      </S.FormRow>
+      <S.FormRow>
+        <S.FormGroup>
+          <S.Label>აღწერა ქართულად (არასავალდებულო)</S.Label>
+          <S.Textarea rows={3} {...form.register("translations.ka.description")} />
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>აღწერა ინგლისურად (არასავალდებულო)</S.Label>
+          <S.Textarea rows={3} {...form.register("translations.en.description")} />
+        </S.FormGroup>
+        <S.FormGroup>
+          <S.Label>აღწერა რუსულად (არასავალდებულო)</S.Label>
+          <S.Textarea rows={3} {...form.register("translations.ru.description")} />
+        </S.FormGroup>
+      </S.FormRow>
       <S.FormRow>
         <S.FormGroup>
           <S.Label>ფასი</S.Label>
@@ -589,8 +593,6 @@ export const ProductsPage: React.FC = () => {
           <S.Input type="text" inputMode="numeric" placeholder="მაგ: 25" {...form.register("stock")} />
           {form.formState.errors.stock && <S.FieldError>{form.formState.errors.stock.message}</S.FieldError>}
         </S.FormGroup>
-      </S.FormRow>
-      <S.FormRow>
         <S.FormGroup>
           <S.Label>ფასდაკლება % (არასავალდებულო)</S.Label>
           <S.Input type="text" inputMode="decimal" placeholder="მაგ: 15" {...form.register("discountPercent")} />
