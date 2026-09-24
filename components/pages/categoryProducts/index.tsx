@@ -200,14 +200,12 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
           {category?.parent ? (
             <C.CategoryOption active={false} onClick={() => router.push(`/categories/${category.parent!.slug}`)}>
               <C.CategoryOptionLabel>
-                <TagIcon size={16} />
                 {t("all")}
               </C.CategoryOptionLabel>
             </C.CategoryOption>
           ) : (
             <C.CategoryOption active={!subcategory} onClick={() => setSubcategory(null)}>
               <C.CategoryOptionLabel>
-                <TagIcon size={16} />
                 {t("all")}
               </C.CategoryOptionLabel>
             </C.CategoryOption>
@@ -219,7 +217,6 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
               onClick={() => router.push(`/categories/${child.slug}`)}
             >
               <C.CategoryOptionLabel>
-                <TagIcon size={16} />
                 {getCategoryName(child, router.locale)}
               </C.CategoryOptionLabel>
             </C.CategoryOption>

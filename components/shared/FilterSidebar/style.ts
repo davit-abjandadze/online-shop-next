@@ -286,14 +286,33 @@ export const PriceBoundsLabel = styled("div")`
 // ბოლოში სულ ჩანს (position: sticky), რომ ცვლილებების გამოყენება
 // ყოველი input-ის შეხებაზე გვერდის refresh-ის/URL-ის ცვლილების გარეშე
 // ერთი დაჭერით მოხდეს.
+// ზოლს გვერდის ფონის (--ref-bg) მყარი ფონი აქვს და ზემოთ ::before-ით
+// გრადიენტული "ჩაქრობა", რომ ქვეშ გასქროლილი ფილტრის ბარათები ღილაკების
+// უკან არ ჩანდეს და ზოლში რბილად "ჩაიმალოს". bottom: 0 + ქვედა padding
+// (bottom: 16px-ის ნაცვლად) — რომ ღილაკის ქვემოთაც არ დარჩეს გამჭვირვალე
+// ღრეჩო, საიდანაც კონტენტი გამოჩანს. ჰორიზონტალური უარყოფითი margin
+// ბარათების ჩრდილსაც ფარავს.
 export const ApplyBar = styled("div")`
   position: sticky;
-  bottom: 16px;
+  bottom: 0;
   z-index: 5;
-  padding-top: 4px;
+  margin: 0 -8px;
+  padding: 10px 8px 16px;
   display: flex;
   align-items: stretch;
   gap: 8px;
+  background: var(--ref-bg);
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 32px;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, var(--ref-bg));
+  }
 `;
 
 // ფილტრების გასუფთავების ღილაკი — "გაფილტვრა" ღილაკის გვერდით, მხოლოდ
