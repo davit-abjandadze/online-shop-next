@@ -15,6 +15,8 @@ interface ProductVariantsFormProps {
 
 // "ყველას შენახვა" ღილაკისთვის — orchestrator (ProductsPage) ამ handle-ით
 // იძახებს handleSave-ს ისე, თუ საკუთარი footer ღილაკი დაწკაპუნებულა.
+// handle-ის save() "ჩუმია" (success toast-ის გარეშე) — საერთო შედეგს ერთი
+// toast-ით ორქესტრატორი აცნობებს, რომ ერთ დაწკაპუნებაზე 4 toast არ ამოვარდეს.
 export type ProductVariantsFormHandle = { save: () => Promise<boolean> };
 
 type VariantRowState = {
@@ -96,7 +98,7 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
 
   const addRow = () => setRows((prev) => [...prev, emptyRow()]);
 
-  const handleSave = async (): Promise<boolean> => {
+  const handleSave = async (silent = false): Promise<boolean> => {
     for (const row of rows) {
       if (!row.colorId && !row.sizeId) {
         toast.error("თითოეულ ვარიანტს უნდა ჰქონდეს მინიმუმ ფერი ან ზომა არჩეული");
@@ -122,7 +124,7 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
     setSaving(true);
     try {
       await ProductsAPI(locale, accessToken).productsControllerSetVariants(Number(productId), { variants: items });
-      toast.success("პროდუქტის ვარიანტები წარმატებით შეინახა!");
+      if (!silent) toast.success("პროდუქტის ვარიანტები წარმატებით შეინახა!");
       await fetchData();
       return true;
     } catch (err: any) {
@@ -133,7 +135,7 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
     }
   };
 
-  useImperativeHandle(ref, () => ({ save: handleSave }));
+  useImperativeHandle(ref, () => ({ save: () => handleSave(true) }));
 
   if (loading) {
     return <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>;
@@ -218,7 +220,7 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
         <S.ActionButton type="button" variant="outline" onClick={addRow}>
           + ვარიანტის დამატება
         </S.ActionButton>
-        <S.ActionButton type="button" variant="secondary" onClick={handleSave} disabled={saving}>
+        <S.ActionButton type="button" variant="secondary" onClick={() => handleSave()} disabled={saving}>
           {saving ? "ინახება..." : "ვარიანტების შენახვა"}
         </S.ActionButton>
       </S.ModalFooter>

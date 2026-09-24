@@ -14,6 +14,8 @@ interface ProductColorsFormProps {
 
 // "ყველას შენახვა" ღილაკისთვის — orchestrator (ProductsPage) ამ handle-ით
 // იძახებს handleSave-ს ისე, თუ საკუთარი footer ღილაკი დაწკაპუნებულა.
+// handle-ის save() "ჩუმია" (success toast-ის გარეშე) — საერთო შედეგს ერთი
+// toast-ით ორქესტრატორი აცნობებს, რომ ერთ დაწკაპუნებაზე 4 toast არ ამოვარდეს.
 export type ProductColorsFormHandle = { save: () => Promise<boolean> };
 
 type ColorRowState = { checked: boolean; stock: string };
@@ -69,7 +71,7 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
   const updateStock = (colorId: string, stock: string) =>
     setRows((prev) => ({ ...prev, [colorId]: { ...prev[colorId], stock } }));
 
-  const handleSave = async (): Promise<boolean> => {
+  const handleSave = async (silent = false): Promise<boolean> => {
     const checkedEntries = Object.entries(rows).filter(([, state]) => state.checked);
 
     for (const [, state] of checkedEntries) {
@@ -87,7 +89,7 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
     setSaving(true);
     try {
       await ProductsAPI(locale, accessToken).productsControllerSetColors(String(productId), { colors: items });
-      toast.success("პროდუქტის ფერები წარმატებით შეინახა!");
+      if (!silent) toast.success("პროდუქტის ფერები წარმატებით შეინახა!");
       await fetchData();
       return true;
     } catch (err: any) {
@@ -98,7 +100,7 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
     }
   };
 
-  useImperativeHandle(ref, () => ({ save: handleSave }));
+  useImperativeHandle(ref, () => ({ save: () => handleSave(true) }));
 
   if (loading) {
     return <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>;
@@ -137,7 +139,7 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
         })}
       </S.CategoryCheckboxGrid>
       <S.ModalFooter>
-        <S.ActionButton type="button" variant="secondary" onClick={handleSave} disabled={saving}>
+        <S.ActionButton type="button" variant="secondary" onClick={() => handleSave()} disabled={saving}>
           {saving ? "ინახება..." : "ფერების შენახვა"}
         </S.ActionButton>
       </S.ModalFooter>

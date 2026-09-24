@@ -14,7 +14,6 @@ export default function RegisterPage() {
         <title>{`${t("register-page-title")} - ${t("default-page-title")}`}</title>
         <meta name="description" content={t("register-page-description") as string} />
         <meta name="robots" content="noindex, nofollow" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <Header onOpenAuth={() => setModalOpen(true)} />
       <AuthModal

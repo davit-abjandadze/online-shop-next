@@ -43,8 +43,9 @@ export default class MyDocument extends Document {
     return (
       <Html lang={locale}>
         <Head>
-          <link rel="icon" href="/favicon.ico" sizes="any" />
-          <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+          {/* public/-ში მხოლოდ favicon.png არსებობს — /favicon.ico-ზე ბმული
+              locale-redirect-ით /ka/favicon.ico-ზე გადადიოდა და ყოველ გვერდზე 404-ს იძლეოდა. */}
+          <link rel="icon" type="image/png" href="/favicon.png" />
           <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
           {/* Noto Sans / Noto Serif — მთელი საიტის ძირითადი შრიფტები. Google Fonts-ზე
               Noto ოჯახი სცრიპტების მიხედვითაა დაყოფილი, ამიტომ ცალკე ვტვირთავთ

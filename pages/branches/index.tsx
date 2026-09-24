@@ -11,7 +11,6 @@ export default function BranchesPage() {
       <Head>
         <title>{`${tBranches("page-title")} | ${t("default-page-title")}`}</title>
         <meta name="description" content={tBranches("page-subtitle")} />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <BranchesComponent />

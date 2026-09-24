@@ -10,10 +10,15 @@ interface ProductBranchesFormProps {
   productId: number | string;
   accessToken: string;
   locale: string;
+  // პროდუქტის მფლობელი კომპანია — სიაში მხოლოდ მისი ფილიალები ჩანს
+  // (სხვა კომპანიის ფილიალში ამ პროდუქტის გატანა აზრს მოკლებულია).
+  companyId?: string;
 }
 
 // "ყველას შენახვა" ღილაკისთვის — orchestrator (ProductsPage) ჯერ `refresh`-ს
 // იძახებს (რომ ახლად შენახული ვარიანტები/ფერები დიმებში ჩაითვალოს), მერე `save`-ს.
+// handle-ის save() "ჩუმია" (success toast-ის გარეშე) — საერთო შედეგს ერთი
+// toast-ით ორქესტრატორი აცნობებს, რომ ერთ დაწკაპუნებაზე 4 toast არ ამოვარდეს.
 export type ProductBranchesFormHandle = { save: () => Promise<boolean>; refresh: () => Promise<void> };
 
 type BranchRowState = { checked: boolean; stock: string };
@@ -44,7 +49,7 @@ type Dim = {
  * ანაცვლებს). ეს stock, ProductColor-ისგან განსხვავებით, product.stock-ში
  * არ სინქრონდება — checkout-ის pickup-ნაკადი ცალკე ამოწმებს არჩეულ ფილიალზე.
  */
-export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, ProductBranchesFormProps>(({ productId, accessToken, locale }, ref) => {
+export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, ProductBranchesFormProps>(({ productId, accessToken, locale, companyId }, ref) => {
   const [allBranches, setAllBranches] = useState<Branch[]>([]);
   const [dims, setDims] = useState<Dim[]>([{ key: BASE_DIM_KEY, label: "", capStock: null }]);
   const [rows, setRows] = useState<Record<string, Record<number, BranchRowState>>>({});
@@ -157,7 +162,7 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
       .filter((s) => s.checked)
       .reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
 
-  const handleSave = async (): Promise<boolean> => {
+  const handleSave = async (silent = false): Promise<boolean> => {
     const items: ProductBranchItemDto[] = [];
 
     for (const dim of dims) {
@@ -192,7 +197,7 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
     setSaving(true);
     try {
       await ProductsAPI(locale, accessToken).productsControllerSetBranches(Number(productId), { branches: items });
-      toast.success("პროდუქტის ფილიალები წარმატებით შეინახა!");
+      if (!silent) toast.success("პროდუქტის ფილიალები წარმატებით შეინახა!");
       await fetchData();
       return true;
     } catch (err: any) {
@@ -203,25 +208,37 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
     }
   };
 
-  useImperativeHandle(ref, () => ({ save: handleSave, refresh: () => fetchData(true) }));
+  useImperativeHandle(ref, () => ({ save: () => handleSave(true), refresh: () => fetchData(true) }));
 
   const isFlat = dims.length === 1 && dims[0].key === BASE_DIM_KEY;
+
+  // კომპანიის ფილიალები + ისეთი "უცხო" ფილიალები, რომლებზეც პროდუქტი უკვე
+  // მიბმულია (მაგ. კომპანიის შეცვლამდე) — რომ მომხმარებელმა დაინახოს და
+  // საჭიროებისამებრ მოხსნას, და არა ჩუმად დარჩეს დამალული მიბმა.
+  const visibleBranches = allBranches.filter(
+    (branch) =>
+      !companyId ||
+      branch.companyId === companyId ||
+      Object.values(rows).some((dimRow) => dimRow[branch.id]?.checked)
+  );
 
   if (loading) {
     return <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>;
   }
 
-  if (allBranches.length === 0) {
+  if (visibleBranches.length === 0) {
     return (
       <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>
-        ფილიალი არ არის — ჯერ დაამატეთ ფილიალი „ფილიალები“ ჩანართიდან.
+        {allBranches.length === 0
+          ? "ფილიალი არ არის — ჯერ დაამატეთ ფილიალი „ფილიალები“ ჩანართიდან."
+          : "ამ პროდუქტის კომპანიას ფილიალი არ აქვს — დაამატეთ ფილიალი „ფილიალები“ ჩანართიდან."}
       </p>
     );
   }
 
   const renderBranchGrid = (dimKey: string) => (
     <S.CategoryCheckboxGrid>
-      {allBranches.map((branch) => {
+      {visibleBranches.map((branch) => {
         const state = rows[dimKey]?.[branch.id] || { checked: false, stock: "0" };
         return (
           <S.CategoryCheckboxItem key={branch.id} checked={state.checked} style={{ alignItems: "center", gap: 8 }}>
@@ -278,7 +295,7 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
         </div>
       )}
       <S.ModalFooter>
-        <S.ActionButton type="button" variant="secondary" onClick={handleSave} disabled={saving}>
+        <S.ActionButton type="button" variant="secondary" onClick={() => handleSave()} disabled={saving}>
           {saving ? "ინახება..." : "ფილიალების შენახვა"}
         </S.ActionButton>
       </S.ModalFooter>

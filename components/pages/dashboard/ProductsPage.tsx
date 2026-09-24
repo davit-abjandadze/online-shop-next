@@ -1072,6 +1072,7 @@ export const ProductsPage: React.FC = () => {
                 <ProductBranchesForm
                   ref={branchesFormRef}
                   productId={editingProduct.id}
+                  companyId={editForm.watch("companyId") || undefined}
                   accessToken={session.accessToken}
                   locale={router.locale || "ka"}
                 />

@@ -246,7 +246,7 @@ export const CategoriesPage: React.FC = () => {
   return (
     <DashboardLayout
       title="ადმინ დეშბორდი"
-      subtitle="მართეთ რეფერენდუმის კითხვები, კატეგორიები და სავარაუდო პასუხები"
+      subtitle="მართეთ პროდუქტების კატეგორიები, ქვეკატეგორიები და მათი მახასიათებლები"
       headerAction={
         <S.ActionButton variant="primary" onClick={handleOpenCreate}>
           <PlusIcon size={16} /> ახალი კატეგორია
@@ -259,7 +259,7 @@ export const CategoriesPage: React.FC = () => {
         <S.EmptyState>
           <TagIcon size={48} />
           <S.EmptyTitle>კატეგორიები არ არის</S.EmptyTitle>
-          <S.EmptyText>დაამატეთ პირველი კატეგორია კითხვების გასაჯგუფებლად.</S.EmptyText>
+          <S.EmptyText>დაამატეთ პირველი კატეგორია პროდუქტების დასაჯგუფებლად.</S.EmptyText>
           <S.ActionButton variant="primary" onClick={handleOpenCreate}>
             <PlusIcon size={16} /> კატეგორიის დამატება
           </S.ActionButton>

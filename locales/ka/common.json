@@ -165,5 +165,7 @@
   "share-copy-success": "დაკოპირდა!",
   "share-facebook": "Facebook",
   "share-messenger": "Messenger",
-  "share-close-aria": "დახურვა"
+  "share-close-aria": "დახურვა",
+  "toast-added-to-cart": "პროდუქტი დაემატა კალათაში",
+  "toast-removed-from-cart": "პროდუქტი წაიშალა კალათიდან"
 }

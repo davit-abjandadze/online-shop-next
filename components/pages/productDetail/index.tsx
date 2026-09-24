@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import { toast } from "react-toastify";
 import Header from "@/components/shared/Header";
 import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
@@ -13,6 +14,7 @@ import { BASEPATH, CDN_URL } from "@/constants";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useCart } from "@/context/Cart";
 import { getCategoryName, getLocalizedDescription, getLocalizedValue } from "@/utils/getCategoryName";
+import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import * as S from "./style";
 
 const formatAttributeValue = (
@@ -128,6 +130,8 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
     if (variantColors.length === 0) return productVariants;
     return productVariants.filter((v) => !v.colorId || v.colorId === selectedVariantColorId);
   }, [productVariants, variantColors.length, selectedVariantColorId]);
+
+  const selectedVariantColor = variantColors.find((c) => c.id === selectedVariantColorId);
 
   const selectedVariant = variantsForSelectedColor.find((v) => v.sizeId === selectedVariantSizeId) || (
     variantsForSelectedColor.length === 1 && !variantsForSelectedColor[0].sizeId ? variantsForSelectedColor[0] : undefined
@@ -289,19 +293,26 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
           : Math.min(...productVariants.map((v) => Number(v.resolvedPrice)));
       })()
     : undefined;
-  const displayPrice = hasVariants
+  const basePrice = hasVariants
     ? Number(selectedVariant?.resolvedPrice ?? cheapestVariantPrice)
     : Number(product.price);
+  // product.discountPercent ვარიანტის ფასზეც ვრცელდება — კალათისა
+  // (useCartItemVariants) და ბექენდის (createFromCart) იგივე ლოგიკით.
+  const withDiscount = (price: number | string) =>
+    getDiscountedPrice({ price, discountPercent: product.discountPercent });
+  const { price: displayPrice, originalPrice: oldPrice, discountPercent } = withDiscount(basePrice);
   const showFromPrice = hasVariants && !selectedVariant;
 
-  const handleAddToCart = () => {
+  // შეცდომის toast-ს useCart-ის withErrorToast თავად აჩვენებს — აქ მხოლოდ წარმატებისას.
+  const handleAddToCart = async () => {
     if (cartItem) {
-      removeItem(cartItem.id);
-    } else if (hasVariants) {
-      addItem(product.id, 1, undefined, selectedVariant?.id);
-    } else {
-      addItem(product.id, 1, selectedColorId);
+      if (await removeItem(cartItem.id)) toast.info(String(tc("toast-removed-from-cart")));
+      return;
     }
+    const added = hasVariants
+      ? await addItem(product.id, 1, undefined, selectedVariant?.id)
+      : await addItem(product.id, 1, selectedColorId);
+    if (added) toast.success(String(tc("toast-added-to-cart")));
   };
 
   return (
@@ -385,9 +396,17 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                 <ShareIcon size={17} />
               </S.ShareButton>
             </S.TitleRow>
-            <S.Price>
-              {showFromPrice ? t("from-price", { price: displayPrice.toFixed(2) }) : `${displayPrice.toFixed(2)} ₾`}
-            </S.Price>
+            <S.PriceRow>
+              <S.Price>
+                {showFromPrice ? t("from-price", { price: displayPrice.toFixed(2) }) : `${displayPrice.toFixed(2)} ₾`}
+              </S.Price>
+              {oldPrice && (
+                <>
+                  <S.OldPrice>{oldPrice.toFixed(2)} ₾</S.OldPrice>
+                  <S.DiscountBadge>-{discountPercent}%</S.DiscountBadge>
+                </>
+              )}
+            </S.PriceRow>
             <S.StockLine out={!hasStock}>
               {hasStock ? (
                   <>
@@ -404,7 +423,12 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
               <>
                 {variantColors.length > 0 && (
                   <S.ColorSection>
-                    <S.ColorSectionLabel>{t("color-label")}</S.ColorSectionLabel>
+                    <S.ColorSectionLabel>
+                      {t("color-label")}
+                      {selectedVariantColor && (
+                        <S.SelectedColorName>: {getCategoryName(selectedVariantColor, router.locale)}</S.SelectedColorName>
+                      )}
+                    </S.ColorSectionLabel>
                     <S.ColorOptions>
                       {variantColors.map((color) => (
                         <S.ColorOption
@@ -434,7 +458,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
                             onClick={() => v.stock > 0 && setSelectedVariantSizeId(v.sizeId || undefined)}
                           >
                             <span>{getCategoryName(v.size!, router.locale)}</span>
-                            <S.SizeOptionPrice>{Number(v.resolvedPrice).toFixed(2)} ₾</S.SizeOptionPrice>
+                            <S.SizeOptionPrice>{withDiscount(v.resolvedPrice).price.toFixed(2)} ₾</S.SizeOptionPrice>
                           </S.SizeOption>
                         ))}
                     </S.SizeOptions>
@@ -444,7 +468,12 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
             ) : (
               availableColors.length > 0 && (
                 <S.ColorSection>
-                  <S.ColorSectionLabel>{t("color-label")}</S.ColorSectionLabel>
+                  <S.ColorSectionLabel>
+                    {t("color-label")}
+                    {selectedColor?.color && (
+                      <S.SelectedColorName>: {getCategoryName(selectedColor.color, router.locale)}</S.SelectedColorName>
+                    )}
+                  </S.ColorSectionLabel>
                   <S.ColorOptions>
                     {availableColors.map((pc) => (
                       <S.ColorOption
@@ -589,7 +618,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
         onClose={() => setShareModalOpen(false)}
         url={`${BASEPATH}/${router.locale && router.locale !== "default" ? router.locale : "ka"}/products/${product.id}`}
         title={productName}
-        price={`${Number(product.price).toFixed(2)} ₾`}
+        price={`${withDiscount(product.price).price.toFixed(2)} ₾`}
         imageSrc={resolveImage(product.images?.[0])}
         description={productDescription}
         address={branches[0]?.branch?.address}

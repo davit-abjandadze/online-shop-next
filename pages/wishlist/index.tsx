@@ -10,7 +10,6 @@ export default function WishlistPage() {
       <Head>
         <title>{t("default-page-title")}</title>
         <meta name="description" content={t("page-description")} />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
         <WishlistComponent />

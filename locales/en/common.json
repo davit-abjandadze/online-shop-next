@@ -165,5 +165,7 @@
   "share-copy-success": "Copied!",
   "share-facebook": "Facebook",
   "share-messenger": "Messenger",
-  "share-close-aria": "Close"
+  "share-close-aria": "Close",
+  "toast-added-to-cart": "Product added to cart",
+  "toast-removed-from-cart": "Product removed from cart"
 }

@@ -23,7 +23,11 @@ export const getDiscountedPrice = (product: DiscountablePriceSource): Discounted
     return { price: basePrice, originalPrice: null, discountPercent: null };
   }
 
-  const discounted = basePrice * (1 - percent / 100);
+  // ბექენდის (orders.service createFromCart) იგივე დამრგვალება: unitPrice
+  // ჯერ 2 ათწილადამდე მრგვალდება და მერე მრავლდება რაოდენობაზე. ამის
+  // გარეშე toFixed(2) float-ის ცდომილებას ქვემოთ ჭრიდა (74.50 × 0.85 =
+  // 63.324999… → "63.32"), შეკვეთაში კი 63.33 ფიქსირდებოდა.
+  const discounted = Math.round(basePrice * (1 - percent / 100) * 100) / 100;
   return { price: discounted, originalPrice: basePrice, discountPercent: percent };
 };
 

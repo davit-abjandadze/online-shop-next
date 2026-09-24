@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
+import { toast } from "react-toastify";
 import { ProductsAPI } from "@/API_Client";
 import { Product, ProductColor, ProductVariant } from "@/API_Client/types";
 import { CartIcon, HeartIcon, ShareIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons";
@@ -100,11 +101,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const cartItem = cart?.items?.find((item) => item.product.id === product.id);
   const isInCart = Boolean(cartItem);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (cartItem) {
-      removeItem(cartItem.id);
+      if (await removeItem(cartItem.id)) toast.info(String(tc("toast-removed-from-cart")));
       return;
     }
 
@@ -112,12 +113,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     // ითხოვს — ბარათიდან პირდაპირი დამატებისას პირველი მარაგში მყოფი
     // ვარიანტი ავტომატურად იგულისხმება. თუ პროდუქტს მხოლოდ ძველი
     // (მხოლოდ-ფერის) სისტემა აქვს, პირველი ხელმისაწვდომი ფერი გამოიყენება.
-    if (hasVariants) {
-      const firstInStockVariant = productVariants.find((v) => v.stock > 0);
-      addItem(product.id, 1, undefined, firstInStockVariant?.id);
-      return;
-    }
-    addItem(product.id, 1, colorsInStock[0]?.colorId);
+    const added = hasVariants
+      ? await addItem(product.id, 1, undefined, productVariants.find((v) => v.stock > 0)?.id)
+      : await addItem(product.id, 1, colorsInStock[0]?.colorId);
+    if (added) toast.success(String(tc("toast-added-to-cart")));
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {

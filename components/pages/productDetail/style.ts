@@ -299,6 +299,30 @@ export const Price = styled("div")`
   color: var(--ref-primary);
 `;
 
+export const PriceRow = styled("div")`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
+// ფასდაკლებამდე ფასი — ProductCard-ის OldPrice-ის იგივე სტილი, დიდი ზომით.
+export const OldPrice = styled("span")`
+  font-size: 18px;
+  color: var(--ref-text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: red;
+`;
+
+export const DiscountBadge = styled("span")`
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--ref-danger);
+`;
+
 export const StockLine = styled("div")<{ out?: boolean }>`
   display: flex;
   align-items: center;
@@ -360,6 +384,11 @@ export const ColorSectionLabel = styled("div")`
   font-size: 13px;
   font-weight: 600;
   color: var(--ref-text-secondary);
+`;
+
+export const SelectedColorName = styled("span")`
+  font-weight: 500;
+  color: var(--ref-text-primary);
 `;
 
 export const ColorOptions = styled("div")`

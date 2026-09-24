@@ -165,5 +165,7 @@
   "share-copy-success": "Скопировано!",
   "share-facebook": "Facebook",
   "share-messenger": "Messenger",
-  "share-close-aria": "Закрыть"
+  "share-close-aria": "Закрыть",
+  "toast-added-to-cart": "Товар добавлен в корзину",
+  "toast-removed-from-cart": "Товар удалён из корзины"
 }
