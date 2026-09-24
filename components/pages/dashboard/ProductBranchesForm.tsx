@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { toast } from "react-toastify";
 import { BranchesAPI, ProductsAPI } from "@/API_Client";
 import { ProductBranchItemDto } from "@/API_Client/client/models";
@@ -11,6 +11,10 @@ interface ProductBranchesFormProps {
   accessToken: string;
   locale: string;
 }
+
+// "ყველას შენახვა" ღილაკისთვის — orchestrator (ProductsPage) ჯერ `refresh`-ს
+// იძახებს (რომ ახლად შენახული ვარიანტები/ფერები დიმებში ჩაითვალოს), მერე `save`-ს.
+export type ProductBranchesFormHandle = { save: () => Promise<boolean>; refresh: () => Promise<void> };
 
 type BranchRowState = { checked: boolean; stock: string };
 
@@ -40,7 +44,7 @@ type Dim = {
  * ანაცვლებს). ეს stock, ProductColor-ისგან განსხვავებით, product.stock-ში
  * არ სინქრონდება — checkout-ის pickup-ნაკადი ცალკე ამოწმებს არჩეულ ფილიალზე.
  */
-export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ productId, accessToken, locale }) => {
+export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, ProductBranchesFormProps>(({ productId, accessToken, locale }, ref) => {
   const [allBranches, setAllBranches] = useState<Branch[]>([]);
   const [dims, setDims] = useState<Dim[]>([{ key: BASE_DIM_KEY, label: "", capStock: null }]);
   const [rows, setRows] = useState<Record<string, Record<number, BranchRowState>>>({});
@@ -48,7 +52,11 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
 
-  const fetchData = async () => {
+  // preserveEdits: true მაშინ, როცა refresh() ეხმარება ორქესტრირებულ "ყველას
+  // შენახვას" — მხოლოდ ახალი dim-ები (ახლად შენახული ვარიანტი/ფერი) ემატება,
+  // უკვე არსებული dim-ების checked/stock მდგომარეობა კი ხელუხლებელი რჩება,
+  // რომ save()-მდე არ წაიშალოს მომხმარებლის ჯერ არშენახული ცვლილება.
+  const fetchData = async (preserveEdits = false) => {
     setLoading(true);
     try {
       const [branchesRes, productBranchesRes, variantsResult, colorsResult] = await Promise.all([
@@ -89,24 +97,32 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
         nextDims = [{ key: BASE_DIM_KEY, label: "", capStock: null }];
       }
       setDims(nextDims);
-      setExpanded(nextDims.length === 1 ? { [nextDims[0].key]: true } : {});
+      setExpanded((prevExpanded) =>
+        preserveEdits ? prevExpanded : nextDims.length === 1 ? { [nextDims[0].key]: true } : {}
+      );
 
-      const nextRows: Record<string, Record<number, BranchRowState>> = {};
-      nextDims.forEach((dim) => {
-        const dimRow: Record<number, BranchRowState> = {};
-        branches.forEach((branch) => {
-          const existing = productBranches.find(
-            (pb) =>
-              pb.branchId === branch.id &&
-              (dim.variantId ? pb.variantId === dim.variantId : dim.colorId ? pb.colorId === dim.colorId : !pb.variantId && !pb.colorId)
-          );
-          dimRow[branch.id] = existing
-            ? { checked: true, stock: String(existing.stock) }
-            : { checked: false, stock: "0" };
+      setRows((prevRows) => {
+        const nextRows: Record<string, Record<number, BranchRowState>> = {};
+        nextDims.forEach((dim) => {
+          if (preserveEdits && prevRows[dim.key]) {
+            nextRows[dim.key] = prevRows[dim.key];
+            return;
+          }
+          const dimRow: Record<number, BranchRowState> = {};
+          branches.forEach((branch) => {
+            const existing = productBranches.find(
+              (pb) =>
+                pb.branchId === branch.id &&
+                (dim.variantId ? pb.variantId === dim.variantId : dim.colorId ? pb.colorId === dim.colorId : !pb.variantId && !pb.colorId)
+            );
+            dimRow[branch.id] = existing
+              ? { checked: true, stock: String(existing.stock) }
+              : { checked: false, stock: "0" };
+          });
+          nextRows[dim.key] = dimRow;
         });
-        nextRows[dim.key] = dimRow;
+        return nextRows;
       });
-      setRows(nextRows);
     } catch {
       toast.error("პროდუქტის ფილიალების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -141,7 +157,7 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
       .filter((s) => s.checked)
       .reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     const items: ProductBranchItemDto[] = [];
 
     for (const dim of dims) {
@@ -151,7 +167,7 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
       for (const [, state] of checkedEntries) {
         if (state.stock.trim() === "" || isNaN(Number(state.stock)) || !Number.isInteger(Number(state.stock)) || Number(state.stock) < 0) {
           toast.error("მარაგი უნდა იყოს დადებითი მთელი რიცხვი ყველა მონიშნულ ფილიალზე");
-          return;
+          return false;
         }
       }
 
@@ -160,7 +176,7 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
         toast.error(
           `„${dim.label}“-ის ფილიალებზე გადანაწილებული ჯამი (${total}) აღემატება ვარიანტის საერთო მარაგს (${dim.capStock})`
         );
-        return;
+        return false;
       }
 
       checkedEntries.forEach(([branchId, state]) => {
@@ -177,13 +193,17 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
     try {
       await ProductsAPI(locale, accessToken).productsControllerSetBranches(Number(productId), { branches: items });
       toast.success("პროდუქტის ფილიალები წარმატებით შეინახა!");
-      fetchData();
+      await fetchData();
+      return true;
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროდუქტის ფილიალების შენახვა ვერ მოხერხდა");
+      return false;
     } finally {
       setSaving(false);
     }
   };
+
+  useImperativeHandle(ref, () => ({ save: handleSave, refresh: () => fetchData(true) }));
 
   const isFlat = dims.length === 1 && dims[0].key === BASE_DIM_KEY;
 
@@ -264,6 +284,8 @@ export const ProductBranchesForm: React.FC<ProductBranchesFormProps> = ({ produc
       </S.ModalFooter>
     </div>
   );
-};
+});
+
+ProductBranchesForm.displayName = "ProductBranchesForm";
 
 export default ProductBranchesForm;

@@ -25,16 +25,28 @@ const formatBucketLabel = (date: string, groupBy: StatsGroupBy) => {
   return d.toLocaleDateString("ka-GE", { day: "2-digit", month: "2-digit" });
 };
 
+const AVERAGE_LABEL: Record<StatsGroupBy, string> = {
+  day: "საშუალოდ დღეში",
+  week: "საშუალოდ კვირაში",
+  month: "საშუალოდ თვეში",
+};
+
 interface RevenueChartProps {
   data: RevenueOverTimeDto;
   groupBy: StatsGroupBy;
 }
 
 // F3 ფაზა — შემოსავლის time-series გრაფიკი + წინა პერიოდთან შედარების ინდიკატორი.
+// კომპანიის ფილტრი გვერდის ზედა FilterBar-შია (StatsPage) და მთელ გვერდზე
+// ვრცელდება — აქ მხოლოდ უკვე გაფილტრული მონაცემი მოდის.
 export const RevenueChart: React.FC<RevenueChartProps> = ({ data, groupBy }) => {
   const direction: "up" | "down" | "flat" =
     data.changePercent === null || data.changePercent === 0 ? "flat" : data.changePercent > 0 ? "up" : "down";
   const arrow = direction === "up" ? "▲" : direction === "down" ? "▼" : "—";
+  // ჯამი პერიოდზეა დამოკიდებული და დაჯგუფებისგან დამოუკიდებელია — დაჯგუფება
+  // მხოლოდ გრაფიკის სიზუსტეს და bucket-ზე საშუალოს ცვლის (backend ცარიელ
+  // bucket-ებსაც 0-ით აბრუნებს, ამიტომ buckets.length სწორი მნიშვნელია).
+  const average = data.buckets.length > 0 ? data.totalRevenue / data.buckets.length : 0;
 
   const chartData = {
     labels: data.buckets.map((b) => formatBucketLabel(b.date, groupBy)),
@@ -61,11 +73,18 @@ export const RevenueChart: React.FC<RevenueChartProps> = ({ data, groupBy }) => 
       </S.ChartCardTitle>
 
       <S.ChartSummaryRow>
+        <S.ChartSummaryHint>პერიოდის ჯამი:</S.ChartSummaryHint>
         <S.ChartSummaryValue>{formatCurrency(data.totalRevenue)}</S.ChartSummaryValue>
         <S.TrendBadge direction={direction}>
           {arrow} {data.changePercent === null ? "—" : `${Math.abs(data.changePercent).toFixed(1)}%`}
         </S.TrendBadge>
         <S.ChartSummaryHint>წინა პერიოდი: {formatCurrency(data.previousPeriodRevenue)}</S.ChartSummaryHint>
+      </S.ChartSummaryRow>
+
+      <S.ChartSummaryRow>
+        <S.ChartSummaryHint>
+          {AVERAGE_LABEL[groupBy]}: <strong>{formatCurrency(average)}</strong>
+        </S.ChartSummaryHint>
       </S.ChartSummaryRow>
 
       <S.ChartCanvasWrapper role="img" aria-label="შემოსავლის დროში ცვლილების გრაფიკი">

@@ -51,10 +51,11 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
          * @summary ფილიალების გაყიდვები (მხოლოდ ფილიალიდან თვითგატანით შესრულებული შეკვეთები)
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetBranchSales: async (from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetBranchSales: async (from?: string, to?: string, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/branches/sales`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -79,6 +80,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['to'] = to;
             }
 
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
+
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -95,10 +100,11 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
          * @summary მომხმარებელთა ლოიალობა — განმეორებითი vs ერთჯერადი მყიდველები
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetCustomerLoyalty: async (from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetCustomerLoyalty: async (from?: string, to?: string, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/users/loyalty`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -123,6 +129,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['to'] = to;
             }
 
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
+
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -141,11 +151,12 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
          * @param {StatsControllerGetLowStockProductsOrderEnum} [order] დალაგების მიმართულება
-         * @param {number} [threshold] stock-ის ზღვარი — ამაზე ან ტოლი/დაბალი მარაგის მქონე აქტიური პროდუქტები ჩაითვლება (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+         * @param {number} [threshold] stock-ის ზღვარი — აქტიური პროდუქტი ჩაითვლება, თუ მისი ჯამური მარაგი, ან რომელიმე ფერის/ვარიანტის (ფერი+ზომა) მარაგი ამაზე ნაკლები ან ტოლია (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის პროდუქტებით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის პროდუქტი ჩანს
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetLowStockProducts: async (page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetLowStockProducts: async (page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/products/low-stock`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -182,6 +193,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['threshold'] = threshold;
             }
 
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
+
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -198,10 +213,11 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
          * @summary შეკვეთების განაწილება სტატუსების მიხედვით
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetOrderStatusBreakdown: async (from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetOrderStatusBreakdown: async (from?: string, to?: string, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/orders/status-breakdown`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -226,6 +242,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['to'] = to;
             }
 
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
+
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -239,11 +259,12 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები
+         * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მაჩვენებლები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetOverview: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetOverview: async (companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/overview`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -259,6 +280,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
             // authentication bearer required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
 
             localVarHeaderParameter['Accept'] = 'application/json';
 
@@ -276,10 +301,11 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
          * @summary გადახდების განაწილება სტატუსების მიხედვით + success rate
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetPaymentStats: async (from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetPaymentStats: async (from?: string, to?: string, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/payments`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -304,6 +330,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['to'] = to;
             }
 
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
+
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -317,14 +347,15 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
         },
         /**
          * 
-         * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით
+         * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
          * @param {StatsControllerGetRevenueGroupByEnum} [groupBy] დაჯგუფების ინტერვალი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის შემოსავალი ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetRevenue: async (from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetRevenue: async (from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/revenue`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -353,6 +384,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['groupBy'] = groupBy;
             }
 
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
+
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -369,10 +404,11 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
          * @summary შეკვეთის სტატუს-გადასვლების საშუალო ხანგრძლივობა
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetStatusTransitionTimes: async (from?: string, to?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetStatusTransitionTimes: async (from?: string, to?: string, companyId?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/orders/transition-times`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -397,6 +433,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
                 localVarQueryParameter['to'] = to;
             }
 
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
+            }
+
             localVarHeaderParameter['Accept'] = 'application/json';
 
             setSearchParams(localVarUrlObj, localVarQueryParameter);
@@ -413,13 +453,14 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
          * @summary ტოპ-გაყიდვადი პროდუქტები (flat სია, შემოსავლით ან რაოდენობით)
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {StatsControllerGetTopSellingProductsSortByEnum} [sortBy] დალაგების საზომი
          * @param {StatsControllerGetTopSellingProductsOrderEnum} [order] დალაგების მიმართულება
          * @param {number} [limit] პროდუქტების რაოდენობა
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetTopSellingProducts: async (from?: string, to?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        statsControllerGetTopSellingProducts: async (from?: string, to?: string, companyId?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/stats/products/top-selling`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -442,6 +483,10 @@ export const StatsApiAxiosParamCreator = function (configuration?: Configuration
 
             if (to !== undefined) {
                 localVarQueryParameter['to'] = to;
+            }
+
+            if (companyId !== undefined) {
+                localVarQueryParameter['companyId'] = companyId;
             }
 
             if (sortBy !== undefined) {
@@ -530,11 +575,12 @@ export const StatsApiFp = function(configuration?: Configuration) {
          * @summary ფილიალების გაყიდვები (მხოლოდ ფილიალიდან თვითგატანით შესრულებული შეკვეთები)
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetBranchSales(from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BranchSalesDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetBranchSales(from, to, options);
+        async statsControllerGetBranchSales(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BranchSalesDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetBranchSales(from, to, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetBranchSales']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -544,11 +590,12 @@ export const StatsApiFp = function(configuration?: Configuration) {
          * @summary მომხმარებელთა ლოიალობა — განმეორებითი vs ერთჯერადი მყიდველები
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetCustomerLoyalty(from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerLoyaltyDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetCustomerLoyalty(from, to, options);
+        async statsControllerGetCustomerLoyalty(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CustomerLoyaltyDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetCustomerLoyalty(from, to, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetCustomerLoyalty']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -560,12 +607,13 @@ export const StatsApiFp = function(configuration?: Configuration) {
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
          * @param {StatsControllerGetLowStockProductsOrderEnum} [order] დალაგების მიმართულება
-         * @param {number} [threshold] stock-ის ზღვარი — ამაზე ან ტოლი/დაბალი მარაგის მქონე აქტიური პროდუქტები ჩაითვლება (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+         * @param {number} [threshold] stock-ის ზღვარი — აქტიური პროდუქტი ჩაითვლება, თუ მისი ჯამური მარაგი, ან რომელიმე ფერის/ვარიანტის (ფერი+ზომა) მარაგი ამაზე ნაკლები ან ტოლია (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის პროდუქტებით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის პროდუქტი ჩანს
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetLowStockProducts(page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetLowStockProducts(page, limit, sortBy, order, threshold, options);
+        async statsControllerGetLowStockProducts(page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetLowStockProducts(page, limit, sortBy, order, threshold, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetLowStockProducts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -575,23 +623,25 @@ export const StatsApiFp = function(configuration?: Configuration) {
          * @summary შეკვეთების განაწილება სტატუსების მიხედვით
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetOrderStatusBreakdown(from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderStatusBreakdownDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetOrderStatusBreakdown(from, to, options);
+        async statsControllerGetOrderStatusBreakdown(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<OrderStatusBreakdownDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetOrderStatusBreakdown(from, to, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetOrderStatusBreakdown']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები
+         * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მაჩვენებლები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetOverview(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DashboardOverviewDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetOverview(options);
+        async statsControllerGetOverview(companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<DashboardOverviewDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetOverview(companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetOverview']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -601,26 +651,28 @@ export const StatsApiFp = function(configuration?: Configuration) {
          * @summary გადახდების განაწილება სტატუსების მიხედვით + success rate
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetPaymentStats(from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaymentStatsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetPaymentStats(from, to, options);
+        async statsControllerGetPaymentStats(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaymentStatsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetPaymentStats(from, to, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetPaymentStats']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
          * 
-         * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით
+         * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
          * @param {StatsControllerGetRevenueGroupByEnum} [groupBy] დაჯგუფების ინტერვალი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის შემოსავალი ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetRevenue(from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RevenueOverTimeDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetRevenue(from, to, groupBy, options);
+        async statsControllerGetRevenue(from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<RevenueOverTimeDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetRevenue(from, to, groupBy, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetRevenue']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -630,11 +682,12 @@ export const StatsApiFp = function(configuration?: Configuration) {
          * @summary შეკვეთის სტატუს-გადასვლების საშუალო ხანგრძლივობა
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetStatusTransitionTimes(from?: string, to?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StatusTransitionAvgDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetStatusTransitionTimes(from, to, options);
+        async statsControllerGetStatusTransitionTimes(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StatusTransitionAvgDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetStatusTransitionTimes(from, to, companyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetStatusTransitionTimes']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -644,14 +697,15 @@ export const StatsApiFp = function(configuration?: Configuration) {
          * @summary ტოპ-გაყიდვადი პროდუქტები (flat სია, შემოსავლით ან რაოდენობით)
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {StatsControllerGetTopSellingProductsSortByEnum} [sortBy] დალაგების საზომი
          * @param {StatsControllerGetTopSellingProductsOrderEnum} [order] დალაგების მიმართულება
          * @param {number} [limit] პროდუქტების რაოდენობა
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async statsControllerGetTopSellingProducts(from?: string, to?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ProductStatDto>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetTopSellingProducts(from, to, sortBy, order, limit, options);
+        async statsControllerGetTopSellingProducts(from?: string, to?: string, companyId?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<ProductStatDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.statsControllerGetTopSellingProducts(from, to, companyId, sortBy, order, limit, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['StatsApi.statsControllerGetTopSellingProducts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -685,22 +739,24 @@ export const StatsApiFactory = function (configuration?: Configuration, basePath
          * @summary ფილიალების გაყიდვები (მხოლოდ ფილიალიდან თვითგატანით შესრულებული შეკვეთები)
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetBranchSales(from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<BranchSalesDto> {
-            return localVarFp.statsControllerGetBranchSales(from, to, options).then((request) => request(axios, basePath));
+        statsControllerGetBranchSales(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<BranchSalesDto> {
+            return localVarFp.statsControllerGetBranchSales(from, to, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary მომხმარებელთა ლოიალობა — განმეორებითი vs ერთჯერადი მყიდველები
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetCustomerLoyalty(from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerLoyaltyDto> {
-            return localVarFp.statsControllerGetCustomerLoyalty(from, to, options).then((request) => request(axios, basePath));
+        statsControllerGetCustomerLoyalty(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<CustomerLoyaltyDto> {
+            return localVarFp.statsControllerGetCustomerLoyalty(from, to, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -709,80 +765,87 @@ export const StatsApiFactory = function (configuration?: Configuration, basePath
          * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
          * @param {string} [sortBy] დალაგების ველი
          * @param {StatsControllerGetLowStockProductsOrderEnum} [order] დალაგების მიმართულება
-         * @param {number} [threshold] stock-ის ზღვარი — ამაზე ან ტოლი/დაბალი მარაგის მქონე აქტიური პროდუქტები ჩაითვლება (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+         * @param {number} [threshold] stock-ის ზღვარი — აქტიური პროდუქტი ჩაითვლება, თუ მისი ჯამური მარაგი, ან რომელიმე ფერის/ვარიანტის (ფერი+ზომა) მარაგი ამაზე ნაკლები ან ტოლია (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის პროდუქტებით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის პროდუქტი ჩანს
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetLowStockProducts(page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedResponseDto> {
-            return localVarFp.statsControllerGetLowStockProducts(page, limit, sortBy, order, threshold, options).then((request) => request(axios, basePath));
+        statsControllerGetLowStockProducts(page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedResponseDto> {
+            return localVarFp.statsControllerGetLowStockProducts(page, limit, sortBy, order, threshold, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary შეკვეთების განაწილება სტატუსების მიხედვით
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetOrderStatusBreakdown(from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<OrderStatusBreakdownDto> {
-            return localVarFp.statsControllerGetOrderStatusBreakdown(from, to, options).then((request) => request(axios, basePath));
+        statsControllerGetOrderStatusBreakdown(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<OrderStatusBreakdownDto> {
+            return localVarFp.statsControllerGetOrderStatusBreakdown(from, to, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები
+         * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მაჩვენებლები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetOverview(options?: RawAxiosRequestConfig): AxiosPromise<DashboardOverviewDto> {
-            return localVarFp.statsControllerGetOverview(options).then((request) => request(axios, basePath));
+        statsControllerGetOverview(companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<DashboardOverviewDto> {
+            return localVarFp.statsControllerGetOverview(companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary გადახდების განაწილება სტატუსების მიხედვით + success rate
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetPaymentStats(from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<PaymentStatsDto> {
-            return localVarFp.statsControllerGetPaymentStats(from, to, options).then((request) => request(axios, basePath));
+        statsControllerGetPaymentStats(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<PaymentStatsDto> {
+            return localVarFp.statsControllerGetPaymentStats(from, to, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
-         * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით
+         * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
          * @param {StatsControllerGetRevenueGroupByEnum} [groupBy] დაჯგუფების ინტერვალი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის შემოსავალი ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetRevenue(from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, options?: RawAxiosRequestConfig): AxiosPromise<RevenueOverTimeDto> {
-            return localVarFp.statsControllerGetRevenue(from, to, groupBy, options).then((request) => request(axios, basePath));
+        statsControllerGetRevenue(from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<RevenueOverTimeDto> {
+            return localVarFp.statsControllerGetRevenue(from, to, groupBy, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * პერიოდის ფილტრი ეხება მხოლოდ თითოეული გადასვლის დასრულების მომენტს (არა დასაწყისს) — თუ გადასვლის წინა სტატუსი პერიოდის გარეთ მოხდა, ხოლო შემდეგი სტატუსი პერიოდში, ის მაინც ითვლება.
          * @summary შეკვეთის სტატუს-გადასვლების საშუალო ხანგრძლივობა
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetStatusTransitionTimes(from?: string, to?: string, options?: RawAxiosRequestConfig): AxiosPromise<StatusTransitionAvgDto> {
-            return localVarFp.statsControllerGetStatusTransitionTimes(from, to, options).then((request) => request(axios, basePath));
+        statsControllerGetStatusTransitionTimes(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig): AxiosPromise<StatusTransitionAvgDto> {
+            return localVarFp.statsControllerGetStatusTransitionTimes(from, to, companyId, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @summary ტოპ-გაყიდვადი პროდუქტები (flat სია, შემოსავლით ან რაოდენობით)
          * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
          * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+         * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
          * @param {StatsControllerGetTopSellingProductsSortByEnum} [sortBy] დალაგების საზომი
          * @param {StatsControllerGetTopSellingProductsOrderEnum} [order] დალაგების მიმართულება
          * @param {number} [limit] პროდუქტების რაოდენობა
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        statsControllerGetTopSellingProducts(from?: string, to?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProductStatDto>> {
-            return localVarFp.statsControllerGetTopSellingProducts(from, to, sortBy, order, limit, options).then((request) => request(axios, basePath));
+        statsControllerGetTopSellingProducts(from?: string, to?: string, companyId?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProductStatDto>> {
+            return localVarFp.statsControllerGetTopSellingProducts(from, to, companyId, sortBy, order, limit, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -808,11 +871,12 @@ export class StatsApi extends BaseAPI {
      * @summary ფილიალების გაყიდვები (მხოლოდ ფილიალიდან თვითგატანით შესრულებული შეკვეთები)
      * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
      * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetBranchSales(from?: string, to?: string, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetBranchSales(from, to, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetBranchSales(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetBranchSales(from, to, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -820,11 +884,12 @@ export class StatsApi extends BaseAPI {
      * @summary მომხმარებელთა ლოიალობა — განმეორებითი vs ერთჯერადი მყიდველები
      * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
      * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetCustomerLoyalty(from?: string, to?: string, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetCustomerLoyalty(from, to, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetCustomerLoyalty(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetCustomerLoyalty(from, to, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -834,12 +899,13 @@ export class StatsApi extends BaseAPI {
      * @param {number} [limit] ჩანაწერების რაოდენობა თითო გვერდზე
      * @param {string} [sortBy] დალაგების ველი
      * @param {StatsControllerGetLowStockProductsOrderEnum} [order] დალაგების მიმართულება
-     * @param {number} [threshold] stock-ის ზღვარი — ამაზე ან ტოლი/დაბალი მარაგის მქონე აქტიური პროდუქტები ჩაითვლება (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+     * @param {number} [threshold] stock-ის ზღვარი — აქტიური პროდუქტი ჩაითვლება, თუ მისი ჯამური მარაგი, ან რომელიმე ფერის/ვარიანტის (ფერი+ზომა) მარაგი ამაზე ნაკლები ან ტოლია (default იგივეა, რაც /stats/overview-ის lowStockCount-ს იყენებს — 5)
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის პროდუქტებით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის პროდუქტი ჩანს
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetLowStockProducts(page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetLowStockProducts(page, limit, sortBy, order, threshold, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetLowStockProducts(page?: number, limit?: number, sortBy?: string, order?: StatsControllerGetLowStockProductsOrderEnum, threshold?: number, companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetLowStockProducts(page, limit, sortBy, order, threshold, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -847,21 +913,23 @@ export class StatsApi extends BaseAPI {
      * @summary შეკვეთების განაწილება სტატუსების მიხედვით
      * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
      * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetOrderStatusBreakdown(from?: string, to?: string, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetOrderStatusBreakdown(from, to, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetOrderStatusBreakdown(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetOrderStatusBreakdown(from, to, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები
+     * @summary ადმინის დეშბორდის მთავარი მაჩვენებლები — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მაჩვენებლები ჯამდება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetOverview(options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetOverview(options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetOverview(companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetOverview(companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -869,24 +937,26 @@ export class StatsApi extends BaseAPI {
      * @summary გადახდების განაწილება სტატუსების მიხედვით + success rate
      * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
      * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetPaymentStats(from?: string, to?: string, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetPaymentStats(from, to, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetPaymentStats(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetPaymentStats(from, to, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
-     * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით
+     * @summary შემოსავალი დროში (bucketed), წინა პერიოდთან შედარებით — ოფციონალურად companyId-ით კონკრეტული კომპანიის მიხედვით
      * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
      * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
      * @param {StatsControllerGetRevenueGroupByEnum} [groupBy] დაჯგუფების ინტერვალი
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის შემოსავალი ჯამდება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetRevenue(from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetRevenue(from, to, groupBy, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetRevenue(from?: string, to?: string, groupBy?: StatsControllerGetRevenueGroupByEnum, companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetRevenue(from, to, groupBy, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -894,11 +964,12 @@ export class StatsApi extends BaseAPI {
      * @summary შეკვეთის სტატუს-გადასვლების საშუალო ხანგრძლივობა
      * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
      * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetStatusTransitionTimes(from?: string, to?: string, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetStatusTransitionTimes(from, to, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetStatusTransitionTimes(from?: string, to?: string, companyId?: string, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetStatusTransitionTimes(from, to, companyId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -906,14 +977,15 @@ export class StatsApi extends BaseAPI {
      * @summary ტოპ-გაყიდვადი პროდუქტები (flat სია, შემოსავლით ან რაოდენობით)
      * @param {string} [from] პერიოდის დასაწყისი (ISO 8601), ნაგულისხმევი — 30 დღით ადრე
      * @param {string} [to] პერიოდის დასასრული (ISO 8601), ნაგულისხმევი — ახლანდელი მომენტი
+     * @param {string} [companyId] გაფილტვრა კონკრეტული კომპანიის მიხედვით (Company.id) — თუ არ არის მითითებული, ყველა კომპანიის მონაცემები ჯამდება
      * @param {StatsControllerGetTopSellingProductsSortByEnum} [sortBy] დალაგების საზომი
      * @param {StatsControllerGetTopSellingProductsOrderEnum} [order] დალაგების მიმართულება
      * @param {number} [limit] პროდუქტების რაოდენობა
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public statsControllerGetTopSellingProducts(from?: string, to?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options?: RawAxiosRequestConfig) {
-        return StatsApiFp(this.configuration).statsControllerGetTopSellingProducts(from, to, sortBy, order, limit, options).then((request) => request(this.axios, this.basePath));
+    public statsControllerGetTopSellingProducts(from?: string, to?: string, companyId?: string, sortBy?: StatsControllerGetTopSellingProductsSortByEnum, order?: StatsControllerGetTopSellingProductsOrderEnum, limit?: number, options?: RawAxiosRequestConfig) {
+        return StatsApiFp(this.configuration).statsControllerGetTopSellingProducts(from, to, companyId, sortBy, order, limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

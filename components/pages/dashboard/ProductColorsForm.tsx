@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { toast } from "react-toastify";
 import { ColorsAPI, ProductsAPI } from "@/API_Client";
 import { ProductColorItemDto } from "@/API_Client/client/models";
@@ -12,6 +12,10 @@ interface ProductColorsFormProps {
   locale: string;
 }
 
+// "ყველას შენახვა" ღილაკისთვის — orchestrator (ProductsPage) ამ handle-ით
+// იძახებს handleSave-ს ისე, თუ საკუთარი footer ღილაკი დაწკაპუნებულა.
+export type ProductColorsFormHandle = { save: () => Promise<boolean> };
+
 type ColorRowState = { checked: boolean; stock: string };
 
 /**
@@ -22,7 +26,7 @@ type ColorRowState = { checked: boolean; stock: string };
  * მონიშნული ფერები იგზავნება `PUT /products/:id/colors`-ზე (ცარიელი
  * მასივი — ყველა ფერის მოხსნა).
  */
-export const ProductColorsForm: React.FC<ProductColorsFormProps> = ({ productId, accessToken, locale }) => {
+export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColorsFormProps>(({ productId, accessToken, locale }, ref) => {
   const [allColors, setAllColors] = useState<Color[]>([]);
   const [rows, setRows] = useState<Record<string, ColorRowState>>({});
   const [loading, setLoading] = useState<boolean>(true);
@@ -65,13 +69,13 @@ export const ProductColorsForm: React.FC<ProductColorsFormProps> = ({ productId,
   const updateStock = (colorId: string, stock: string) =>
     setRows((prev) => ({ ...prev, [colorId]: { ...prev[colorId], stock } }));
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     const checkedEntries = Object.entries(rows).filter(([, state]) => state.checked);
 
     for (const [, state] of checkedEntries) {
       if (state.stock.trim() === "" || isNaN(Number(state.stock)) || !Number.isInteger(Number(state.stock)) || Number(state.stock) < 0) {
         toast.error("მარაგი უნდა იყოს დადებითი მთელი რიცხვი ყველა მონიშნულ ფერზე");
-        return;
+        return false;
       }
     }
 
@@ -84,13 +88,17 @@ export const ProductColorsForm: React.FC<ProductColorsFormProps> = ({ productId,
     try {
       await ProductsAPI(locale, accessToken).productsControllerSetColors(String(productId), { colors: items });
       toast.success("პროდუქტის ფერები წარმატებით შეინახა!");
-      fetchData();
+      await fetchData();
+      return true;
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროდუქტის ფერების შენახვა ვერ მოხერხდა");
+      return false;
     } finally {
       setSaving(false);
     }
   };
+
+  useImperativeHandle(ref, () => ({ save: handleSave }));
 
   if (loading) {
     return <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>;
@@ -135,6 +143,8 @@ export const ProductColorsForm: React.FC<ProductColorsFormProps> = ({ productId,
       </S.ModalFooter>
     </div>
   );
-};
+});
+
+ProductColorsForm.displayName = "ProductColorsForm";
 
 export default ProductColorsForm;

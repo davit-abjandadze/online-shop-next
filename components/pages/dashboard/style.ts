@@ -740,9 +740,11 @@ export const ModalContent = styled("div")`
   overflow-y: auto;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   padding: 20px;
+  padding-bottom: 0;
 
   @media (max-width: 480px) {
     padding: 14px;
+    padding-bottom: 0;
   }
 `;
 
@@ -1272,6 +1274,8 @@ export const ModalFooter = styled("div")`
   margin-top: 18px;
   padding-top: 14px;
   border-top: 1px solid var(--ref-border-soft);
+    padding-bottom: 16px;
+  
 
   @media (max-width: 480px) {
     flex-direction: column-reverse;
@@ -1281,6 +1285,16 @@ export const ModalFooter = styled("div")`
       justify-content: center;
     }
   }
+`;
+
+// მოდალის მთავარი "გაუქმება"/"შენახვა" ღილაკებისთვის — ModalContent
+// (overflow-y: auto) სქროლის ბოლომდე არ იმალება, sticky-ით ეკვრება ბოლოში.
+export const StickyModalFooter = styled(ModalFooter)`
+  position: sticky;
+  bottom: 0;
+  background: var(--ref-bg-elevated);
+  z-index: 5;
+  padding-bottom: 14px;
 `;
 
 export const ChartsGrid = styled("div")`
@@ -1358,6 +1372,33 @@ export const TrendBadge = styled("div")<{ direction: "up" | "down" | "flat" }>`
 export const ChartSummaryHint = styled("div")`
   font-size: 12px;
   color: var(--ref-text-secondary);
+`;
+
+// დაბალი მარაგის ცხრილში პროდუქტის ქვეშ — კონკრეტული ამოწურვადი ფერები/ზომები.
+export const LowStockItemList = styled("div")`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+`;
+
+export const LowStockItemTag = styled("span")<{ $empty?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: ${({ $empty }) => ($empty ? "var(--ref-danger)" : "var(--ref-text-secondary)")};
+  background: ${({ $empty }) => ($empty ? "var(--ref-danger-soft)" : "var(--ref-warning-soft)")};
+`;
+
+export const LowStockColorDot = styled("span")`
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--ref-border);
+  flex-shrink: 0;
 `;
 
 export const PeriodSelector = styled("div")`

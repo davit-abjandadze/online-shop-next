@@ -24,7 +24,7 @@ export interface DashboardOverviewDto {
      */
     'monthRevenue': number;
     /**
-     * აქტიური შეკვეთების რაოდენობა (PENDING + PROCESSING)
+     * აქტიური შეკვეთების რაოდენობა (PENDING + PAID + PROCESSING)
      */
     'activeOrdersCount': number;
     /**
@@ -32,7 +32,7 @@ export interface DashboardOverviewDto {
      */
     'newUsersToday': number;
     /**
-     * დაბალი მარაგის მქონე აქტიური პროდუქტების რაოდენობა
+     * დაბალი მარაგის მქონე აქტიური პროდუქტების რაოდენობა (ჯამური, ფერის ან ვარიანტის მარაგით)
      */
     'lowStockCount': number;
 }

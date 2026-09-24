@@ -14,8 +14,26 @@ const SORT_OPTIONS: { value: string; label: string }[] = [
   { value: "createdAt", label: "დამატების თარიღი" },
 ];
 
+// `GET /stats/products/low-stock`-ის თითოეულ პროდუქტს ერთვის ის ფერები /
+// ვარიანტები (ფერი+ზომა), რომელთა მარაგიც ზღვარზე ნაკლები ან ტოლია —
+// PaginatedResponseDto-ის data generic-ია, ამიტომ ტიპი აქვე აღვწერეთ.
+export interface LowStockItem {
+  type: "color" | "variant";
+  id: string;
+  color: { id: string; translations?: unknown; hexCode?: string } | null;
+  size: { id: string; translations?: unknown; code: string } | null;
+  stock: number;
+}
+
+export type LowStockProduct = Product & { lowStockItems?: LowStockItem[] };
+
+const formatItemLabel = (item: LowStockItem, locale?: string) =>
+  [item.color && getCategoryName(item.color, locale), item.size && (getCategoryName(item.size, locale) || item.size.code)]
+    .filter(Boolean)
+    .join(" / ") || "—";
+
 interface LowStockProductsTableProps {
-  products: Product[];
+  products: LowStockProduct[];
   totalPages: number;
   page: number;
   onPageChange: (page: number) => void;
@@ -102,6 +120,16 @@ export const LowStockProductsTable: React.FC<LowStockProductsTableProps> = ({
                       <Link href={`/products/${product.id}`} target="_blank" rel="noopener noreferrer">
                         {getCategoryName(product, locale)}
                       </Link>
+                      {!!product.lowStockItems?.length && (
+                        <S.LowStockItemList>
+                          {product.lowStockItems.map((item) => (
+                            <S.LowStockItemTag key={item.id} $empty={item.stock <= 0}>
+                              {item.color?.hexCode && <S.LowStockColorDot style={{ background: item.color.hexCode }} />}
+                              {formatItemLabel(item, locale)}: <strong>{item.stock}</strong>
+                            </S.LowStockItemTag>
+                          ))}
+                        </S.LowStockItemList>
+                      )}
                     </S.Td>
                     <S.Td>{product.stock}</S.Td>
                     <S.Td>{Number(product.price).toFixed(2)} ₾</S.Td>

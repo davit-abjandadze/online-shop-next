@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
@@ -19,9 +19,9 @@ import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import DynamicAttributeForm from "./DynamicAttributeForm";
 import AdditionalInfoForm from "./AdditionalInfoForm";
-import ProductColorsForm from "./ProductColorsForm";
-import ProductVariantsForm from "./ProductVariantsForm";
-import ProductBranchesForm from "./ProductBranchesForm";
+import ProductColorsForm, { ProductColorsFormHandle } from "./ProductColorsForm";
+import ProductVariantsForm, { ProductVariantsFormHandle } from "./ProductVariantsForm";
+import ProductBranchesForm, { ProductBranchesFormHandle } from "./ProductBranchesForm";
 import { ProductFormValues, buildProductTranslationsDto, productFormSchema, readProductTranslations } from "./schemas";
 import * as S from "./style";
 
@@ -196,6 +196,13 @@ export const ProductsPage: React.FC = () => {
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editSubmitting, setEditSubmitting] = useState<boolean>(false);
+
+  // "ყველას შენახვა" ღილაკი — ფერების/ვარიანტების/ფილიალების ქვეფორმებს
+  // ref-ებით ვმართავთ და თანმიმდევრობით ვიძახებთ, რადგან ფილიალების ფორმას
+  // ვარიანტების/ფერების უკვე შენახული (სერვერზე არსებული) id/stock სჭირდება.
+  const colorsFormRef = useRef<ProductColorsFormHandle>(null);
+  const variantsFormRef = useRef<ProductVariantsFormHandle>(null);
+  const branchesFormRef = useRef<ProductBranchesFormHandle>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
@@ -416,6 +423,11 @@ export const ProductsPage: React.FC = () => {
     fetchEditAttrValues(product.id);
   };
 
+  // "ცვლილებების შენახვა" ერთი ღილაკია, მაგრამ ინახავს ყველაფერს: ძირითად
+  // ფორმას და ქვემოთ მდებარე ფერების/ვარიანტების/ფილიალების ქვეფორმებს
+  // (ref-ებით, თანმიმდევრობით — იხ. colorsFormRef/variantsFormRef/branchesFormRef).
+  // თუ რომელიმე ეტაპი ჩავარდება, მოდალი არ იხურება, რომ მომხმარებელმა
+  // კონკრეტული სექციის შეცდომა დაინახოს და გაასწოროს.
   const handleEditSubmit = editForm.handleSubmit(async (data) => {
     if (!editingProduct || !session?.accessToken) return;
     setEditSubmitting(true);
@@ -425,8 +437,20 @@ export const ProductsPage: React.FC = () => {
         // TODO: generated UpdateProductDto not yet regenerated for translations — remove cast after yarn generate:api
         toDto(data) as unknown as UpdateProductDto
       );
+
+      const colorsOk = await colorsFormRef.current?.save();
+      if (colorsOk === false) return;
+
+      const variantsOk = await variantsFormRef.current?.save();
+      if (variantsOk === false) return;
+
+      await branchesFormRef.current?.refresh();
+      const branchesOk = await branchesFormRef.current?.save();
+      if (branchesOk === false) return;
+
       toast.success("პროდუქტი წარმატებით განახლდა!");
-      setEditingProduct(null);
+      // მოდალი ღიად რჩება შენახვის შემდეგ — მომხმარებელს შეუძლია განაგრძოს
+      // რედაქტირება (ფერები/ვარიანტები/ფილიალები) მისი ხელახლა გახსნის გარეშე.
       fetchProducts();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროდუქტის განახლება ვერ მოხერხდა");
@@ -668,14 +692,19 @@ export const ProductsPage: React.FC = () => {
       <S.CategoryCheckboxItem checked={form.watch("isActive")}>
         <input type="checkbox" {...form.register("isActive")} /> აქტიურია (გამოჩნდება კატალოგში)
       </S.CategoryCheckboxItem>
-      <S.ModalFooter>
-        <S.ActionButton type="button" variant="secondary" onClick={() => { setIsCreateOpen(false); setEditingProduct(null); }}>
-          გაუქმება
-        </S.ActionButton>
-        <S.ActionButton type="submit" variant="primary" disabled={submitting}>
-          {submitting ? "ინახება..." : submitLabel}
-        </S.ActionButton>
-      </S.ModalFooter>
+      {/* редакт-modal-ში ეს ღილაკები ცალკე, ყველა სექციის (ფერები/ვარიანტები/
+          ფილიალები/დამატებითი ინფო) ბოლოს, sticky ზოლადაა გატანილი — რომ
+          სქროლის დროს არ დაიმალოს. create-modal-ში აქ, ფორმის ბოლოშივე რჩება. */}
+      {context === "create" && (
+        <S.StickyModalFooter>
+          <S.ActionButton type="button" variant="secondary" onClick={() => { setIsCreateOpen(false); setEditingProduct(null); }}>
+            გაუქმება
+          </S.ActionButton>
+          <S.ActionButton type="submit" variant="primary" disabled={submitting}>
+            {submitting ? "ინახება..." : submitLabel}
+          </S.ActionButton>
+        </S.StickyModalFooter>
+      )}
     </form>
   );
 
@@ -1013,6 +1042,7 @@ export const ProductsPage: React.FC = () => {
               </S.Label>
               {session?.accessToken && (
                 <ProductColorsForm
+                  ref={colorsFormRef}
                   productId={editingProduct.id}
                   accessToken={session.accessToken}
                   locale={router.locale || "ka"}
@@ -1026,6 +1056,7 @@ export const ProductsPage: React.FC = () => {
               </S.Label>
               {session?.accessToken && (
                 <ProductVariantsForm
+                  ref={variantsFormRef}
                   productId={editingProduct.id}
                   accessToken={session.accessToken}
                   locale={router.locale || "ka"}
@@ -1039,6 +1070,7 @@ export const ProductsPage: React.FC = () => {
               </S.Label>
               {session?.accessToken && (
                 <ProductBranchesForm
+                  ref={branchesFormRef}
                   productId={editingProduct.id}
                   accessToken={session.accessToken}
                   locale={router.locale || "ka"}
@@ -1058,6 +1090,15 @@ export const ProductsPage: React.FC = () => {
                 />
               )}
             </div>
+
+            <S.StickyModalFooter>
+              <S.ActionButton type="button" variant="secondary" onClick={() => setEditingProduct(null)}>
+                გაუქმება
+              </S.ActionButton>
+              <S.ActionButton type="button" variant="primary" onClick={() => handleEditSubmit()} disabled={editSubmitting}>
+                {editSubmitting ? "ინახება..." : "ცვლილებების შენახვა"}
+              </S.ActionButton>
+            </S.StickyModalFooter>
           </S.ModalContent>
         </S.ModalOverlay>
       )}

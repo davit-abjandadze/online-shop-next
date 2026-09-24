@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { toast } from "react-toastify";
 import { ColorsAPI, ProductsAPI, SizesAPI } from "@/API_Client";
 import { ProductVariantItemDto } from "@/API_Client/client/models";
@@ -12,6 +12,10 @@ interface ProductVariantsFormProps {
   accessToken: string;
   locale: string;
 }
+
+// "ყველას შენახვა" ღილაკისთვის — orchestrator (ProductsPage) ამ handle-ით
+// იძახებს handleSave-ს ისე, თუ საკუთარი footer ღილაკი დაწკაპუნებულა.
+export type ProductVariantsFormHandle = { save: () => Promise<boolean> };
 
 type VariantRowState = {
   key: string;
@@ -33,7 +37,7 @@ const emptyRow = (): VariantRowState => ({ key: nextRowKey(), colorId: "", sizeI
  * უნდა ჰქონდეს — ორივე ველი ცალ-ცალკე optional-ია). შენახვისას მთლიანად
  * ანაცვლებს არსებულ ვარიანტებს (`PUT /products/:id/variants`).
  */
-export const ProductVariantsForm: React.FC<ProductVariantsFormProps> = ({ productId, accessToken, locale }) => {
+export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, ProductVariantsFormProps>(({ productId, accessToken, locale }, ref) => {
   const [allColors, setAllColors] = useState<Color[]>([]);
   const [allSizes, setAllSizes] = useState<Size[]>([]);
   const [rows, setRows] = useState<VariantRowState[]>([]);
@@ -92,19 +96,19 @@ export const ProductVariantsForm: React.FC<ProductVariantsFormProps> = ({ produc
 
   const addRow = () => setRows((prev) => [...prev, emptyRow()]);
 
-  const handleSave = async () => {
+  const handleSave = async (): Promise<boolean> => {
     for (const row of rows) {
       if (!row.colorId && !row.sizeId) {
         toast.error("თითოეულ ვარიანტს უნდა ჰქონდეს მინიმუმ ფერი ან ზომა არჩეული");
-        return;
+        return false;
       }
       if (row.stock.trim() === "" || isNaN(Number(row.stock)) || !Number.isInteger(Number(row.stock)) || Number(row.stock) < 0) {
         toast.error("მარაგი უნდა იყოს დადებითი მთელი რიცხვი ყველა ვარიანტზე");
-        return;
+        return false;
       }
       if (row.price.trim() !== "" && (isNaN(Number(row.price)) || Number(row.price) < 0)) {
         toast.error("ფასი უნდა იყოს ვალიდური დადებითი რიცხვი, თუ მითითებულია");
-        return;
+        return false;
       }
     }
 
@@ -119,13 +123,17 @@ export const ProductVariantsForm: React.FC<ProductVariantsFormProps> = ({ produc
     try {
       await ProductsAPI(locale, accessToken).productsControllerSetVariants(Number(productId), { variants: items });
       toast.success("პროდუქტის ვარიანტები წარმატებით შეინახა!");
-      fetchData();
+      await fetchData();
+      return true;
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროდუქტის ვარიანტების შენახვა ვერ მოხერხდა");
+      return false;
     } finally {
       setSaving(false);
     }
   };
+
+  useImperativeHandle(ref, () => ({ save: handleSave }));
 
   if (loading) {
     return <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>;
@@ -216,6 +224,8 @@ export const ProductVariantsForm: React.FC<ProductVariantsFormProps> = ({ produc
       </S.ModalFooter>
     </div>
   );
-};
+});
+
+ProductVariantsForm.displayName = "ProductVariantsForm";
 
 export default ProductVariantsForm;
