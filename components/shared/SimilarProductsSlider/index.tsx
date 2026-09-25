@@ -41,7 +41,7 @@ export const SimilarProductsSlider: React.FC<SimilarProductsSliderProps> = ({ pr
     let cancelled = false;
     setLoading(true);
     ProductsAPI(router.locale || "ka", "")
-      .productsControllerFindSimilar(String(productId), { limit: 8 })
+      .productsControllerFindSimilar(Number(productId), { limit: 8 })
       .then((res) => {
         if (!cancelled) setProducts((res.data as unknown as Product[]) || []);
       })

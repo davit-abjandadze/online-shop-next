@@ -39,7 +39,7 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
     try {
       const [colorsRes, productColorsRes] = await Promise.all([
         ColorsAPI(locale, accessToken).colorsControllerFindAll(),
-        ProductsAPI(locale, accessToken).productsControllerGetColors(String(productId)),
+        ProductsAPI(locale, accessToken).productsControllerGetColors(Number(productId)),
       ]);
       const colors = (colorsRes.data as unknown as Color[]) || [];
       const productColors = (productColorsRes.data as unknown as ProductColor[]) || [];
@@ -88,7 +88,7 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
 
     setSaving(true);
     try {
-      await ProductsAPI(locale, accessToken).productsControllerSetColors(String(productId), { colors: items });
+      await ProductsAPI(locale, accessToken).productsControllerSetColors(Number(productId), { colors: items });
       if (!silent) toast.success("პროდუქტის ფერები წარმატებით შეინახა!");
       await fetchData();
       return true;

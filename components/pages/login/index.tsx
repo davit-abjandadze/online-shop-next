@@ -69,7 +69,9 @@ const LoginForm: React.FC = () => {
       });
 
       if (result?.error) {
-        setServerError(t("login-error-invalid"));
+        setServerError(
+          result.error === "TOO_MANY_ATTEMPTS" ? t("login-error-too-many-attempts") : t("login-error-invalid")
+        );
         return;
       }
 

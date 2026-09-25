@@ -185,7 +185,7 @@ export const ProfileComponent: React.FC = () => {
     if (!session?.accessToken || !session?.user?.id) return;
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
-        session.user.id,
+        Number(session.user.id),
         {
           phoneNumber: toE164(phoneValue),
           phoneOtpRequestId: requestId,
@@ -242,7 +242,7 @@ export const ProfileComponent: React.FC = () => {
 
     setOtpSending(true);
     try {
-      const resp = await OtpAPI(router.locale || "ka", "").otpControllerSendEmailOtp({
+      const resp = await OtpAPI(router.locale || "ka", session?.accessToken ?? "").otpControllerSendEmailOtp({
         email: email.trim(),
       });
       // იხ. handleSendPhoneOtp-ის კომენტარი — requestId-ის გარეშე "გაგზავნილად" არ ვთვლით
@@ -267,7 +267,7 @@ export const ProfileComponent: React.FC = () => {
     if (!session?.accessToken || !session?.user?.id) return;
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
-        session.user.id,
+        Number(session.user.id),
         {
           email: emailValue,
           otpRequestId: requestId,
@@ -301,7 +301,7 @@ export const ProfileComponent: React.FC = () => {
     try {
       const requestId = otpRequestId;
       const code = otpCodeInput.trim();
-      await OtpAPI(router.locale || "ka", "").otpControllerVerifyEmailOtp({
+      await OtpAPI(router.locale || "ka", session?.accessToken ?? "").otpControllerVerifyEmailOtp({
         requestId,
         code,
       });
@@ -319,7 +319,7 @@ export const ProfileComponent: React.FC = () => {
     if (!session?.accessToken || !session?.user?.id) return;
     setLoadingUser(true);
     try {
-      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(session.user.id);
+      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(Number(session.user.id));
       const u = res.data as User;
       const localPhoneNumber = u.phoneNumber ? fromE164(u.phoneNumber) : "";
       setUser(u);
@@ -433,7 +433,7 @@ export const ProfileComponent: React.FC = () => {
 
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
-        session.user.id,
+        Number(session.user.id),
         {
           firstName: data.firstName.trim(),
           lastName: data.lastName.trim(),

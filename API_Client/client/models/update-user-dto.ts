@@ -34,7 +34,6 @@ export interface UpdateUserDto {
     'phoneNumber'?: string;
     'firstName'?: string;
     'lastName'?: string;
-    'password'?: string;
     'email'?: string;
     /**
      * ახალი ელფოსტის დადასტურების requestId (საჭირო email ველის შეცვლისას)

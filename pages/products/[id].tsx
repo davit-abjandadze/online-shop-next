@@ -73,7 +73,7 @@ export const getServerSideProps: GetServerSideProps<ProductDetailPageProps> = as
   const id = params?.id as string;
 
   try {
-    const res = await ProductsAPI(locale || "ka", "").productsControllerFindOne(id);
+    const res = await ProductsAPI(locale || "ka", "").productsControllerFindOne(Number(id));
     return { props: { product: res.data as unknown as Product } };
   } catch (err: any) {
     if (err?.response?.status === 404) {

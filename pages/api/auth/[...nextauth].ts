@@ -2,6 +2,8 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// login გვერდი ამ კოდს result.error-ში ამოიცნობს (იხ. components/pages/login)
+export const TOO_MANY_ATTEMPTS_ERROR = "TOO_MANY_ATTEMPTS";
 import GoogleProvider from "next-auth/providers/google"; // ← ეს
 // import FacebookProvider from "next-auth/providers/facebook"; // ⚠️ დროებით გამორთულია (Facebook App ჯერ Development/Unpublished რეჟიმშია)
 
@@ -53,6 +55,14 @@ export const authOptions: NextAuthOptions = {
 
           const data = response.data;
 
+          // ბექენდი ერთ ელფოსტაზე 10 წარუმატებელი ცდის შემდეგ 15 წუთით ბლოკავს
+          // (429). NextAuth-ში authorize-იდან ნასროლი Error-ის message
+          // signIn()-ის result.error-ში მოდის — login გვერდი ცალკე ტექსტს
+          // აჩვენებს "არასწორი პაროლის" ნაცვლად.
+          if (response.status === 429) {
+            throw new Error(TOO_MANY_ATTEMPTS_ERROR);
+          }
+
           if (response.status !== 200 || !data || !data.access_token || !data.user) {
             return null;
           }
@@ -67,6 +77,9 @@ export const authOptions: NextAuthOptions = {
             role: data.user.role,
           };
         } catch (error: any) {
+          if (error?.message === TOO_MANY_ATTEMPTS_ERROR) {
+            throw error;
+          }
           console.error("NextAuth Authorize Error:", error);
           return null;
         }

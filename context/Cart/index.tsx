@@ -97,7 +97,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateItemQuantity = (itemId: number, quantity: number) =>
     withErrorToast(async () => {
       const res = await CartAPI(router.locale || "ka", accessToken as string).cartControllerUpdateItem(
-        String(itemId),
+        Number(itemId),
         { quantity }
       );
       return res.data as unknown as Cart;
@@ -106,7 +106,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const removeItem = (itemId: number) =>
     withErrorToast(async () => {
       const res = await CartAPI(router.locale || "ka", accessToken as string).cartControllerRemoveItem(
-        String(itemId)
+        Number(itemId)
       );
       return res.data as unknown as Cart;
     });

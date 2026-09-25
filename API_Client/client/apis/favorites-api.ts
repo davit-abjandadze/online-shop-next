@@ -29,11 +29,11 @@ export const FavoritesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 
          * @summary პროდუქტის დამატება ფავორიტებში
-         * @param {string} productId 
+         * @param {number} productId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        favoritesControllerAddFavorite: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        favoritesControllerAddFavorite: async (productId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'productId' is not null or undefined
             assertParamExists('favoritesControllerAddFavorite', 'productId', productId)
             const localVarPath = `/favorites/{productId}`
@@ -99,11 +99,11 @@ export const FavoritesApiAxiosParamCreator = function (configuration?: Configura
         /**
          * 
          * @summary პროდუქტის ამოშლა ფავორიტებიდან
-         * @param {string} productId 
+         * @param {number} productId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        favoritesControllerRemoveFavorite: async (productId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        favoritesControllerRemoveFavorite: async (productId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'productId' is not null or undefined
             assertParamExists('favoritesControllerRemoveFavorite', 'productId', productId)
             const localVarPath = `/favorites/{productId}`
@@ -145,11 +145,11 @@ export const FavoritesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის დამატება ფავორიტებში
-         * @param {string} productId 
+         * @param {number} productId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async favoritesControllerAddFavorite(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async favoritesControllerAddFavorite(productId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.favoritesControllerAddFavorite(productId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FavoritesApi.favoritesControllerAddFavorite']?.[localVarOperationServerIndex]?.url;
@@ -170,11 +170,11 @@ export const FavoritesApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary პროდუქტის ამოშლა ფავორიტებიდან
-         * @param {string} productId 
+         * @param {number} productId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async favoritesControllerRemoveFavorite(productId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async favoritesControllerRemoveFavorite(productId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.favoritesControllerRemoveFavorite(productId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['FavoritesApi.favoritesControllerRemoveFavorite']?.[localVarOperationServerIndex]?.url;
@@ -192,11 +192,11 @@ export const FavoritesApiFactory = function (configuration?: Configuration, base
         /**
          * 
          * @summary პროდუქტის დამატება ფავორიტებში
-         * @param {string} productId 
+         * @param {number} productId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        favoritesControllerAddFavorite(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        favoritesControllerAddFavorite(productId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.favoritesControllerAddFavorite(productId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -211,11 +211,11 @@ export const FavoritesApiFactory = function (configuration?: Configuration, base
         /**
          * 
          * @summary პროდუქტის ამოშლა ფავორიტებიდან
-         * @param {string} productId 
+         * @param {number} productId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        favoritesControllerRemoveFavorite(productId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        favoritesControllerRemoveFavorite(productId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.favoritesControllerRemoveFavorite(productId, options).then((request) => request(axios, basePath));
         },
     };
@@ -228,11 +228,11 @@ export class FavoritesApi extends BaseAPI {
     /**
      * 
      * @summary პროდუქტის დამატება ფავორიტებში
-     * @param {string} productId 
+     * @param {number} productId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public favoritesControllerAddFavorite(productId: string, options?: RawAxiosRequestConfig) {
+    public favoritesControllerAddFavorite(productId: number, options?: RawAxiosRequestConfig) {
         return FavoritesApiFp(this.configuration).favoritesControllerAddFavorite(productId, options).then((request) => request(this.axios, this.basePath));
     }
 
@@ -249,11 +249,11 @@ export class FavoritesApi extends BaseAPI {
     /**
      * 
      * @summary პროდუქტის ამოშლა ფავორიტებიდან
-     * @param {string} productId 
+     * @param {number} productId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public favoritesControllerRemoveFavorite(productId: string, options?: RawAxiosRequestConfig) {
+    public favoritesControllerRemoveFavorite(productId: number, options?: RawAxiosRequestConfig) {
         return FavoritesApiFp(this.configuration).favoritesControllerRemoveFavorite(productId, options).then((request) => request(this.axios, this.basePath));
     }
 }

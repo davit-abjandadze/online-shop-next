@@ -28,6 +28,9 @@ import {
   TagIcon,
   UserIcon,
 } from "@/components/ui/RefIcons";
+
+// ბექენდი 100 სიმბოლოზე გრძელ search-ს 400-ით უარყოფს (იხ. SearchProductDto)
+const SEARCH_MAX_LENGTH = 100;
 import * as S from "./style";
 
 // სერჩის საძებნო მოთხოვნების debounce ინტერვალი — ტაიპისას ყოველ
@@ -262,6 +265,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                   type="text"
                   placeholder={t("search-placeholder")}
                   value={searchValue}
+                  maxLength={SEARCH_MAX_LENGTH}
                   onChange={(e) => setSearchValue(e.target.value)}
                   onFocus={() => setSuggestionsOpen(true)}
                 />
@@ -447,6 +451,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                         type="text"
                         placeholder={t("search-placeholder")}
                         value={searchValue}
+                        maxLength={SEARCH_MAX_LENGTH}
                         onChange={(e) => setSearchValue(e.target.value)}
                         onFocus={() => setSuggestionsOpen(true)}
                       />

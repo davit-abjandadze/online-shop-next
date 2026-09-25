@@ -183,7 +183,7 @@ export const UsersPage: React.FC = () => {
     if (!editingUser || !session?.accessToken) return;
     setEditSubmitting(true);
     try {
-      await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(String(editingUser.id), {
+      await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(Number(editingUser.id), {
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
         email: data.email.trim(),
@@ -205,7 +205,7 @@ export const UsersPage: React.FC = () => {
     if (!deleteTarget || !session?.accessToken) return;
     setDeleteSubmitting(true);
     try {
-      await UserAPI(router.locale || "ka", session.accessToken).usersControllerRemove(String(deleteTarget.id));
+      await UserAPI(router.locale || "ka", session.accessToken).usersControllerRemove(Number(deleteTarget.id));
       toast.success("მომხმარებელი წარმატებით წაიშალა!");
       setDeleteTarget(null);
       fetchUsers();

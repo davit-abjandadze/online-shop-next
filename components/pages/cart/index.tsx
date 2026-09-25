@@ -50,7 +50,7 @@ export const CartComponent: React.FC = () => {
 
     productIds.forEach((productId) => {
       ProductsAPI(router.locale || "ka", "")
-        .productsControllerGetColors(String(productId))
+        .productsControllerGetColors(Number(productId))
         .then((res) => {
           const colors = (res.data as unknown as ProductColor[]) || [];
           setColorsByProductId((prev) => ({ ...prev, [productId]: colors }));

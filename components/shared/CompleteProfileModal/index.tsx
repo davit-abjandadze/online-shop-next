@@ -63,7 +63,7 @@ export const CompleteProfileModal: React.FC<CompleteProfileModalProps> = ({
 
     try {
       await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
-        session.user.id,
+        Number(session.user.id),
         {
           age: Number(data.age),
           gender: data.gender as any,

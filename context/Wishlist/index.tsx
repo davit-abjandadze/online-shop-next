@@ -80,10 +80,10 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       try {
         if (existing) {
-          await api.favoritesControllerRemoveFavorite(String(productId));
+          await api.favoritesControllerRemoveFavorite(Number(productId));
           setFavorites((prev) => prev.filter((f) => f.product?.id !== productId));
         } else {
-          const res = await api.favoritesControllerAddFavorite(String(productId));
+          const res = await api.favoritesControllerAddFavorite(Number(productId));
           const added = res.data as unknown as Favorite;
           setFavorites((prev) => [added, ...prev]);
         }

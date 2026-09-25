@@ -130,7 +130,7 @@ export const AddressesComponent: React.FC = () => {
         comment: parsed.data.comment || undefined,
       };
       if (editingId) {
-        await api.addressesControllerUpdate(String(editingId), payload);
+        await api.addressesControllerUpdate(Number(editingId), payload);
       } else {
         await api.addressesControllerCreate(payload);
       }
@@ -149,7 +149,7 @@ export const AddressesComponent: React.FC = () => {
     setDeletingId(id);
     try {
       const api = AddressesAPI(router.locale || "ka", session.accessToken);
-      await api.addressesControllerRemove(String(id));
+      await api.addressesControllerRemove(Number(id));
       await fetchAddresses();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || t("toast-address-delete-failed"));

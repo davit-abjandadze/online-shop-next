@@ -170,7 +170,7 @@ export const BranchesPage: React.FC = () => {
     setEditSubmitting(true);
     try {
       await BranchesAPI(router.locale || "ka", session.accessToken).branchesControllerUpdate(
-        String(editingBranch.id),
+        Number(editingBranch.id),
         {
           companyId: data.companyId,
           title: data.title.trim(),
@@ -197,7 +197,7 @@ export const BranchesPage: React.FC = () => {
     if (!deleteTarget || !session?.accessToken) return;
     setDeleteSubmitting(true);
     try {
-      await BranchesAPI(router.locale || "ka", session.accessToken).branchesControllerRemove(String(deleteTarget.id));
+      await BranchesAPI(router.locale || "ka", session.accessToken).branchesControllerRemove(Number(deleteTarget.id));
       toast.success("ფილიალი წარმატებით წაიშალა!");
       setDeleteTarget(null);
       fetchBranches();

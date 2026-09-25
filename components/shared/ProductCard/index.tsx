@@ -66,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   useEffect(() => {
     let cancelled = false;
     ProductsAPI(router.locale || "ka", "")
-      .productsControllerGetColors(String(product.id))
+      .productsControllerGetColors(Number(product.id))
       .then((res) => {
         if (!cancelled) setProductColors((res.data as unknown as ProductColor[]) || []);
       })

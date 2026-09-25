@@ -98,11 +98,11 @@ export const PaymentsApiAxiosParamCreator = function (configuration?: Configurat
         /**
          * 
          * @summary BOG გადახდის დაწყება კონკრეტული შეკვეთისთვის
-         * @param {string} orderId 
+         * @param {number} orderId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        paymentsControllerInitiate: async (orderId: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        paymentsControllerInitiate: async (orderId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'orderId' is not null or undefined
             assertParamExists('paymentsControllerInitiate', 'orderId', orderId)
             const localVarPath = `/payments/{orderId}/initiate`
@@ -170,11 +170,11 @@ export const PaymentsApiFp = function(configuration?: Configuration) {
         /**
          * 
          * @summary BOG გადახდის დაწყება კონკრეტული შეკვეთისთვის
-         * @param {string} orderId 
+         * @param {number} orderId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async paymentsControllerInitiate(orderId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async paymentsControllerInitiate(orderId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.paymentsControllerInitiate(orderId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentsApi.paymentsControllerInitiate']?.[localVarOperationServerIndex]?.url;
@@ -212,11 +212,11 @@ export const PaymentsApiFactory = function (configuration?: Configuration, baseP
         /**
          * 
          * @summary BOG გადახდის დაწყება კონკრეტული შეკვეთისთვის
-         * @param {string} orderId 
+         * @param {number} orderId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        paymentsControllerInitiate(orderId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        paymentsControllerInitiate(orderId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.paymentsControllerInitiate(orderId, options).then((request) => request(axios, basePath));
         },
     };
@@ -251,11 +251,11 @@ export class PaymentsApi extends BaseAPI {
     /**
      * 
      * @summary BOG გადახდის დაწყება კონკრეტული შეკვეთისთვის
-     * @param {string} orderId 
+     * @param {number} orderId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public paymentsControllerInitiate(orderId: string, options?: RawAxiosRequestConfig) {
+    public paymentsControllerInitiate(orderId: number, options?: RawAxiosRequestConfig) {
         return PaymentsApiFp(this.configuration).paymentsControllerInitiate(orderId, options).then((request) => request(this.axios, this.basePath));
     }
 }

@@ -73,7 +73,7 @@ export const OrdersPage: React.FC = () => {
     if (!session?.accessToken) return;
     try {
       const res = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerFindOne(
-        String(order.id)
+        Number(order.id)
       );
       setDetailsOrder(res.data as unknown as Order);
     } catch {
@@ -124,7 +124,7 @@ export const OrdersPage: React.FC = () => {
     if (!next || next === order.status || !session?.accessToken) return;
     setSavingId(order.id);
     try {
-      await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerUpdateStatus(String(order.id), {
+      await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerUpdateStatus(Number(order.id), {
         status: next as any,
       });
       toast.success("სტატუსი წარმატებით განახლდა!");

@@ -56,7 +56,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
     setNotFound(false);
     setForbidden(false);
     try {
-      const res = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerFindOne(orderId);
+      const res = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerFindOne(Number(orderId));
       const fetched = res.data as unknown as Order;
       setOrder(fetched);
       return fetched;
@@ -130,7 +130,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
     setPaying(true);
     try {
       const res = await PaymentsAPI(router.locale || "ka", session.accessToken).paymentsControllerInitiate(
-        String(order.id)
+        Number(order.id)
       );
       const { redirectUrl } = res.data as unknown as PaymentInitiateResponse;
       window.location.href = redirectUrl;

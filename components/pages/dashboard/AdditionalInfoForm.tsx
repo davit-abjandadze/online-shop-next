@@ -56,7 +56,7 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
   const fetchItems = async () => {
     setLoading(true);
     try {
-      const res = await ProductsAPI(locale, accessToken).productsControllerGetAdditionalInfo(String(productId));
+      const res = await ProductsAPI(locale, accessToken).productsControllerGetAdditionalInfo(Number(productId));
       const data = (res.data as unknown as ProductAdditionalInfo[]) || [];
       setItems(Array.isArray(data) ? data : []);
     } catch {
@@ -84,7 +84,7 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
     }
     setAddSubmitting(true);
     try {
-      await ProductsAPI(locale, accessToken).productsControllerAddAdditionalInfo(String(productId), {
+      await ProductsAPI(locale, accessToken).productsControllerAddAdditionalInfo(Number(productId), {
         title: addForm.title.trim(),
         description: sanitizeHtml(addForm.description),
         sortOrder: addForm.sortOrder.trim() ? Number(addForm.sortOrder) : undefined,
@@ -114,7 +114,7 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
     }
     setEditSubmitting(true);
     try {
-      await ProductsAPI(locale, accessToken).productsControllerUpdateAdditionalInfo(String(productId), editingId, {
+      await ProductsAPI(locale, accessToken).productsControllerUpdateAdditionalInfo(Number(productId), editingId, {
         title: editForm.title.trim(),
         description: sanitizeHtml(editForm.description),
         sortOrder: editForm.sortOrder.trim() ? Number(editForm.sortOrder) : undefined,
@@ -134,7 +134,7 @@ export const AdditionalInfoForm: React.FC<AdditionalInfoFormProps> = ({ productI
     const infoId = deleteTargetId;
     setDeleteSubmittingId(infoId);
     try {
-      await ProductsAPI(locale, accessToken).productsControllerRemoveAdditionalInfo(String(productId), infoId);
+      await ProductsAPI(locale, accessToken).productsControllerRemoveAdditionalInfo(Number(productId), infoId);
       toast.success("ბლოკი წარმატებით წაიშალა!");
       if (editingId === infoId) setEditingId(null);
       setDeleteTargetId(null);

@@ -178,21 +178,21 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
 
   useEffect(() => {
     ProductsAPI(router.locale || "ka", "")
-      .productsControllerGetAttributeValues(String(product.id))
+      .productsControllerGetAttributeValues(Number(product.id))
       .then((res) => setAttrValues((res.data as unknown as ProductAttributeValue[]) || []))
       .catch(() => {
         // spec-ცხრილი დამატებითია — ჩუმად ვტოვებთ, ძირითადი გვერდი მაინც ჩაირთვება
       });
 
     ProductsAPI(router.locale || "ka", "")
-      .productsControllerGetAdditionalInfo(String(product.id))
+      .productsControllerGetAdditionalInfo(Number(product.id))
       .then((res) => setAdditionalInfo((res.data as unknown as ProductAdditionalInfo[]) || []))
       .catch(() => {
         // დამატებითი ინფორმაციის ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
       });
 
     ProductsAPI(router.locale || "ka", "")
-      .productsControllerGetColors(String(product.id))
+      .productsControllerGetColors(Number(product.id))
       .then((res) => setProductColors((res.data as unknown as ProductColor[]) || []))
       .catch(() => {
         // ფერების ბლოკიც არასავალდებულოა — ჩუმად ვტოვებთ
@@ -206,7 +206,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       });
 
     ProductsAPI(router.locale || "ka", "")
-      .productsControllerGetBranches(String(product.id))
+      .productsControllerGetBranches(Number(product.id))
       .then((res) => setBranches((res.data as unknown as ProductBranch[]) || []))
       .catch(() => {
         // ფილიალების სია გაზიარების პოპაპისთვისაა საჭირო — არასავალდებულოა

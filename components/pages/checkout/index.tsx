@@ -410,7 +410,7 @@ export const CheckoutComponent: React.FC = () => {
         comment: parsed.data.comment || undefined,
       };
       const res = editingAddressId
-        ? await api.addressesControllerUpdate(String(editingAddressId), payload)
+        ? await api.addressesControllerUpdate(Number(editingAddressId), payload)
         : await api.addressesControllerCreate(payload);
       const saved = res.data as unknown as Address;
 
@@ -433,7 +433,7 @@ export const CheckoutComponent: React.FC = () => {
     setAddressDeletingId(id);
     try {
       const api = AddressesAPI(router.locale || "ka", session.accessToken);
-      await api.addressesControllerRemove(String(id));
+      await api.addressesControllerRemove(Number(id));
       const listRes = await api.addressesControllerFindAll();
       const list = (listRes.data as unknown as Address[]) || [];
       setAddresses(list);
@@ -451,7 +451,7 @@ export const CheckoutComponent: React.FC = () => {
       setLoadingUser(true);
       try {
         const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(
-          session.user.id
+          Number(session.user.id)
         );
         const u = res.data as User;
         const localPhoneNumber = u.phoneNumber ? fromE164(u.phoneNumber) : "";
@@ -485,7 +485,7 @@ export const CheckoutComponent: React.FC = () => {
     }
     setOtpSending(true);
     try {
-      const resp = await OtpAPI(router.locale || "ka", "").otpControllerSendEmailOtp({ email: parsed.data });
+      const resp = await OtpAPI(router.locale || "ka", session?.accessToken ?? "").otpControllerSendEmailOtp({ email: parsed.data });
       // backend/verify.ge-ს პასუხს ხანდახან requestId არ ჩართავს (undefined) — ამის
       // შემთხვევაში "გაგზავნილად" არ ჩავთვალოთ, თორემ /otp/verify-ზე ცარიელი
       // requestId წავა და backend-ის validation-ი 400-ს დააბრუნებს
@@ -516,7 +516,7 @@ export const CheckoutComponent: React.FC = () => {
     }
     setOtpVerifying(true);
     try {
-      await OtpAPI(router.locale || "ka", "").otpControllerVerifyEmailOtp({
+      await OtpAPI(router.locale || "ka", session?.accessToken ?? "").otpControllerVerifyEmailOtp({
         requestId: otpRequestId,
         code: otpCodeInput.trim(),
       });
@@ -564,7 +564,7 @@ export const CheckoutComponent: React.FC = () => {
     if (!session?.accessToken || !session?.user?.id) return;
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
-        session.user.id,
+        Number(session.user.id),
         {
           phoneNumber: toE164(phoneValue),
           phoneOtpRequestId: requestId,
@@ -639,7 +639,7 @@ export const CheckoutComponent: React.FC = () => {
     setSavingInfo(true);
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerUpdate(
-        session.user.id,
+        Number(session.user.id),
         {
           email: newEmail,
           phoneNumber: newPhoneNumber ? toE164(newPhoneNumber) : undefined,
@@ -807,7 +807,7 @@ export const CheckoutComponent: React.FC = () => {
     // დეტალების გვერდზე გადავამისამართებთ, სადაც "ხელახლა გადახდის" ღილაკია.
     try {
       const paymentRes = await PaymentsAPI(router.locale || "ka", session.accessToken).paymentsControllerInitiate(
-        String(order.id)
+        Number(order.id)
       );
       const { redirectUrl } = paymentRes.data as unknown as PaymentInitiateResponse;
       // BOG-ის hosted გვერდზე გადასვლა — გარე დომეინია, next/router-ის push
