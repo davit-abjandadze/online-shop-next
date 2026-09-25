@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
@@ -71,7 +72,8 @@ export default function ResetPasswordPage() {
 
       // 3 წამის შემდეგ ლოგინის გვერდზე გადასვლა
       setTimeout(() => {
-        router.push("/ka/login");
+        // next/router მიმდინარე ლოკალს თავად ამატებს — "/ka/..." en/ru-ს ქართულზე გადაიყვანდა
+        router.push("/login");
       }, 3000);
     } catch (error) {
       toast.error(t("reset-password-error-network") as string);
@@ -86,9 +88,14 @@ export default function ResetPasswordPage() {
           <WarningIcon size={40} />
           <h2 style={{ color: "var(--ref-danger)", margin: "16px 0 8px 0", fontSize: "20px" }}>{t("reset-password-invalid-link-title")}</h2>
           <p style={{ color: "var(--ref-text-secondary)", fontSize: "14px" }}>{t("reset-password-invalid-link-description")}</p>
-          <a href="/ka/forgot-password" style={{ color: "var(--ref-primary)", fontWeight: 600, fontSize: "14px" }}>
+          {/* ცალკე /forgot-password გვერდი არ არსებობს (404 იყო) — login გვერდი
+              AuthModal-ს პირდაპირ პაროლის აღდგენის რეჟიმში ხსნის */}
+          <Link
+            href={{ pathname: "/login", query: { mode: "forgot" } }}
+            style={{ color: "var(--ref-primary)", fontWeight: 600, fontSize: "14px" }}
+          >
             {t("reset-password-invalid-link-cta")}
-          </a>
+          </Link>
         </div>
       </div>
     );

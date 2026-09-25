@@ -110,7 +110,7 @@ export const SizesPage: React.FC = () => {
     setEditSubmitting(true);
     try {
       await SizesAPI(router.locale || "ka", session.accessToken).sizesControllerUpdate(String(editingSize.id), {
-        translations: buildNameTranslationsDto(data.translations),
+        translations: buildNameTranslationsDto(data.translations, { isUpdate: true }),
         code: data.code.trim(),
       } as unknown as UpdateSizeDto);
       toast.success("ზომა წარმატებით განახლდა!");

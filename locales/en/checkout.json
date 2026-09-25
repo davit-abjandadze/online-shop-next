@@ -140,5 +140,9 @@
   "city-borjomi": "Borjomi",
   "city-gurjaani": "Gurjaani",
   "city-akhalkalaki": "Akhalkalaki",
-  "city-tskaltubo": "Tskaltubo"
+  "city-tskaltubo": "Tskaltubo",
+  "shipping-phone-label": "Phone",
+  "shipping-comment-label": "Comment",
+  "error-variants-load": "Couldn't load the product variant price.",
+  "retry": "Retry"
 }

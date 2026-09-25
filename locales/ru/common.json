@@ -168,5 +168,12 @@
   "share-messenger": "Messenger",
   "share-close-aria": "Закрыть",
   "toast-added-to-cart": "Товар добавлен в корзину",
-  "toast-removed-from-cart": "Товар удалён из корзины"
+  "toast-removed-from-cart": "Товар удалён из корзины",
+  "validation-password-strength": "Пароль должен содержать хотя бы одну заглавную букву, одну строчную букву и одну цифру",
+  "auth-modal-otp-sent": "Код подтверждения отправлен на ваш телефон — введите его ниже.",
+  "auth-modal-label-otp": "SMS-код",
+  "auth-modal-otp-placeholder": "Введите код",
+  "auth-modal-otp-resend": "Отправить снова",
+  "auth-modal-otp-required": "Введите код из SMS",
+  "auth-modal-otp-send-failed": "Не удалось отправить код, попробуйте снова"
 }

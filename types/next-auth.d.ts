@@ -13,6 +13,8 @@ declare module "next-auth" {
 
   interface Session {
     accessToken?: string;
+    // "BackendTokenExpired" — ბექენდის access_token-ის ვადა გავიდა/გაუქმდა
+    error?: string;
     user: {
       id?: string; // ← ეს უნდა იყოს!
       name?: string | null;
@@ -28,5 +30,7 @@ declare module "next-auth/jwt" {
     id?: string; // ← ეს დაამატე!
     role?: string;
     roleCheckedAt?: number; // ← role-ის ბოლო გადამოწმების დროის ნიშნული (ბექენდიდან)
+    accessTokenExpires?: number; // ← ბექენდის access_token-ის exp (ms), JWT payload-იდან
+    error?: string;
   }
 }

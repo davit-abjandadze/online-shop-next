@@ -490,7 +490,7 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
                     type="text"
                     inputMode="decimal"
                     placeholder={facet.min != null ? String(facet.min) : t("filter-range-from-placeholder")}
-                    defaultValue={draft[`${attribute.code}_min`] || ""}
+                    value={draft[`${attribute.code}_min`] || ""}
                     onChange={(e) => handleChange(`${attribute.code}_min`, e.target.value || undefined)}
                   />
                   <span style={{ color: "var(--ref-text-secondary)", fontSize: 12 }}>—</span>
@@ -498,7 +498,7 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
                     type="text"
                     inputMode="decimal"
                     placeholder={facet.max != null ? String(facet.max) : t("filter-range-to-placeholder")}
-                    defaultValue={draft[`${attribute.code}_max`] || ""}
+                    value={draft[`${attribute.code}_max`] || ""}
                     onChange={(e) => handleChange(`${attribute.code}_max`, e.target.value || undefined)}
                   />
                 </S.RangeRow>
@@ -536,7 +536,7 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
                 <S.TextInput
                   type="text"
                   placeholder={t("filter-text-search-placeholder")}
-                  defaultValue={draft[attribute.code] || ""}
+                  value={draft[attribute.code] || ""}
                   onChange={(e) => handleChange(attribute.code, e.target.value || undefined)}
                 />
               )}

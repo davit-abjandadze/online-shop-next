@@ -168,5 +168,12 @@
   "share-messenger": "Messenger",
   "share-close-aria": "დახურვა",
   "toast-added-to-cart": "პროდუქტი დაემატა კალათაში",
-  "toast-removed-from-cart": "პროდუქტი წაიშალა კალათიდან"
+  "toast-removed-from-cart": "პროდუქტი წაიშალა კალათიდან",
+  "validation-password-strength": "პაროლი უნდა შეიცავდეს მინიმუმ ერთ დიდ ასოს, ერთ პატარა ასოს და ერთ ციფრს",
+  "auth-modal-otp-sent": "დადასტურების კოდი გამოგზავნილია თქვენს მობილურზე — შეიყვანეთ ის ქვემოთ.",
+  "auth-modal-label-otp": "SMS კოდი",
+  "auth-modal-otp-placeholder": "შეიყვანეთ კოდი",
+  "auth-modal-otp-resend": "თავიდან გაგზავნა",
+  "auth-modal-otp-required": "შეიყვანეთ SMS-ით მიღებული კოდი",
+  "auth-modal-otp-send-failed": "კოდის გაგზავნა ვერ მოხერხდა, სცადეთ თავიდან"
 }

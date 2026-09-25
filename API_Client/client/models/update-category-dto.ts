@@ -23,9 +23,9 @@ export interface UpdateCategoryDto {
      */
     'slug'?: string;
     /**
-     * მშობელი კატეგორიის ID (ცარიელი — root კატეგორია)
+     * მშობელი კატეგორიის ID (ცარიელი — root კატეგორია; რედაქტირებისას null — root-ზე გადატანა)
      */
-    'parentId'?: string;
+    'parentId'?: string | null;
     /**
      * აქტიურია თუ არა კატეგორია
      */

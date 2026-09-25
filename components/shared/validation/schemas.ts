@@ -22,7 +22,11 @@ export type Gender = (typeof GENDER_VALUES)[number];
 
 export type TFunction = (key: string, query?: Record<string, unknown>) => string;
 
-export const PASSWORD_MIN_LENGTH = 6;
+// ბექენდის @IsStrongPassword-ის იგივე წესი (is-strong-password.decorator.ts):
+// მინიმუმ 8 სიმბოლო, დიდი ასო, პატარა ასო და ციფრი — ადრე აქ მხოლოდ 6
+// სიმბოლო მოწმდებოდა და "abcdef" ბექენდზე მხოლოდ ქართული შეცდომით ეცემოდა.
+export const PASSWORD_MIN_LENGTH = 8;
+export const STRONG_PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d\W_]{8,}$/;
 export const NAME_MIN_LENGTH = 2;
 export const AGE_MIN = 14;
 export const AGE_MAX = 120;
@@ -35,9 +39,9 @@ export const emailField = (t: TFunction) =>
     .min(1, t("validation-email-required"))
     .email(t("validation-email-invalid"));
 
-/** ერთი წყარო პაროლის ვალიდაციისთვის — required + მინიმალური სიგრძე. */
+/** ერთი წყარო პაროლის ვალიდაციისთვის — მინიმალური სიგრძე + სირთულე (ბექენდის წესი). */
 export const passwordField = (t: TFunction, message = t("validation-password-min", { min: PASSWORD_MIN_LENGTH })) =>
-  z.string().min(PASSWORD_MIN_LENGTH, message);
+  z.string().min(PASSWORD_MIN_LENGTH, message).regex(STRONG_PASSWORD_REGEX, t("validation-password-strength"));
 
 /** სახელი/გვარი — required + მინიმალური სიგრძე. */
 export const nameField = (t: TFunction, label: string) =>

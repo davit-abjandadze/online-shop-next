@@ -132,10 +132,19 @@ const BranchMap: React.FC<BranchMapProps> = ({ branches, selectedId, onSelectBra
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branches]);
 
+  // პირველი (ავტომატური) არჩევა — გვერდი პირველ ფილიალს წინასწარ ირჩევს; მის
+  // flyTo-ს fitBounds-ის საერთო ხედი მაშინვე გადაეფარებოდა, ამიტომ ვტოვებთ.
+  const isInitialSelectionRef = useRef(true);
+
   useEffect(() => {
     markersRef.current.forEach(({ el }, id) => {
       setMarkerActive(el, id === selectedId);
     });
+
+    if (isInitialSelectionRef.current) {
+      isInitialSelectionRef.current = false;
+      return;
+    }
 
     const map = mapRef.current;
     const branch = branches.find((b) => b.id === selectedId);

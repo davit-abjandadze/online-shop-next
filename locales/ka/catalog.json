@@ -7,6 +7,7 @@
   "all-categories": "ყველა კატეგორია",
   "breadcrumb-home": "მთავარი",
   "shop": "მაღაზია",
+  "search-results-title": "ძიების შედეგები: „{{query}}“",
   "page-subtitle": "დაათვალიერეთ ჩვენი პროდუქტების კატალოგი",
   "results-count": "{{count}} პროდუქტი",
   "categories-title": "კატეგორიები",
@@ -49,5 +50,8 @@
   "filter-text-search-placeholder": "ძებნა...",
   "filter-apply": "გაფილტვრა",
   "filter-clear-aria": "ფილტრების გასუფთავება",
-  "filter-modal-close-aria": "ფილტრის დახურვა"
+  "filter-modal-close-aria": "ფილტრის დახურვა",
+  "wishlist-auth-required-title": "საჭიროა ავტორიზაცია",
+  "wishlist-auth-required-text": "სასურველი სიის სანახავად გთხოვთ გაიაროთ ავტორიზაცია.",
+  "wishlist-login-button": "შესვლა"
 }

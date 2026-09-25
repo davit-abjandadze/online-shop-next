@@ -140,5 +140,9 @@
   "city-borjomi": "Боржоми",
   "city-gurjaani": "Гурджаани",
   "city-akhalkalaki": "Ахалкалаки",
-  "city-tskaltubo": "Цхалтубо"
+  "city-tskaltubo": "Цхалтубо",
+  "shipping-phone-label": "Тел",
+  "shipping-comment-label": "Комментарий",
+  "error-variants-load": "Не удалось загрузить цену варианта товара.",
+  "retry": "Повторить"
 }

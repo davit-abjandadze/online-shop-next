@@ -43,6 +43,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
   const [forbidden, setForbidden] = useState<boolean>(false);
+  const [loadError, setLoadError] = useState<boolean>(false);
   const [paying, setPaying] = useState<boolean>(false);
   const [confirmingPayment, setConfirmingPayment] = useState<boolean>(false);
   const [confirmTimedOut, setConfirmTimedOut] = useState<boolean>(false);
@@ -50,11 +51,22 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
 
   const paymentQuery = router.query.payment as string | undefined;
 
-  const fetchOrder = async (): Promise<Order | undefined> => {
+  // silent: გადახდის დადასტურების polling-ისთვის — სრულეკრანიან loader-ს არ
+  // აჩვენებს (თორემ გვერდი ყოველ მცდელობაზე ციმციმებდა და ბანერი იმალებოდა).
+  const fetchOrder = async (silent = false): Promise<Order | undefined> => {
     if (!session?.accessToken || !orderId) return undefined;
-    setLoading(true);
-    setNotFound(false);
-    setForbidden(false);
+    // არარიცხვითი id-ით (/orders/abc) ბექენდი 400-ს აბრუნებს — პირდაპირ "ვერ მოიძებნა"
+    if (!/^\d+$/.test(orderId)) {
+      setNotFound(true);
+      setLoading(false);
+      return undefined;
+    }
+    if (!silent) {
+      setLoading(true);
+      setNotFound(false);
+      setForbidden(false);
+      setLoadError(false);
+    }
     try {
       const res = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerFindOne(Number(orderId));
       const fetched = res.data as unknown as Order;
@@ -65,12 +77,13 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
         setNotFound(true);
       } else if (err?.response?.status === 403) {
         setForbidden(true);
-      } else {
+      } else if (!silent) {
         toast.error(t("toast-order-load-failed") as string);
+        setLoadError(true);
       }
       return undefined;
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -102,7 +115,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
       const delay = CONFIRM_POLL_DELAYS_MS[attempt];
       attempt += 1;
       confirmTimerRef.current = setTimeout(async () => {
-        const fetched = await fetchOrder();
+        const fetched = await fetchOrder(true);
         if (fetched && fetched.status !== "pending") {
           setConfirmingPayment(false);
         } else {
@@ -196,18 +209,45 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
   }
 
   if (!order) {
-    return null;
+    // ქსელის/5xx შეცდომისას ცარიელი გვერდის ნაცვლად — ხელახლა ცდა
+    return (
+      <>
+        <Header />
+        <S.PageBackground>
+          <S.Container>
+            <S.EmptyState>
+              <ClipboardIcon size={48} />
+              <S.EmptyStateTitle>{t("toast-order-load-failed")}</S.EmptyStateTitle>
+              {loadError && (
+                <S.PrimaryButton type="button" onClick={() => fetchOrder()}>
+                  {t("retry")}
+                </S.PrimaryButton>
+              )}
+              <S.PrimaryButton type="button" onClick={() => router.push("/orders")}>
+                {t("back-to-orders")}
+              </S.PrimaryButton>
+            </S.EmptyState>
+          </S.Container>
+        </S.PageBackground>
+        <Footer />
+      </>
+    );
   }
 
   const items = order.items || [];
 
-  // unitPrice ბექენდზე შენახული ფასდაკლებული ფასის სნეპშოტია — ორიგინალ
-  // (ფასდაკლებამდე) ფასს OrderItem არ ინახავს, ამიტომ ვიღებთ პროდუქტის
-  // ცოცხალი discountPercent/price-იდან (გამოჩნდება მხოლოდ მოქმედი
-  // ფასდაკლების შემთხვევაში — თუ პროდუქტი წაშლილია/discountPercent 0-ია,
-  // ორიგინალი ფასი არ გამოჩნდება).
+  // unitPrice ფასდაკლებული ფასის სნეპშოტია, originalUnitPrice კი ფასდაკლებამდელის
+  // (ბექენდი შეკვეთის მომენტში ინახავს). ამ ველის დამატებამდე შექმნილ ძველ
+  // შეკვეთებზე ის არ არის — იქ პროდუქტის ცოცხალი ფასიდან ვითვლით, მაგრამ
+  // მხოლოდ მაშინ, თუ ცოცხალი ფასდაკლებული ფასი ზუსტად ემთხვევა გადახდილს
+  // (თორემ ვარიანტის ან შემდგომი ცვლილების შემთხვევაში "ფასდაკლება" მოგონილი იქნებოდა).
   const itemsWithPricing = items.map((item) => {
-    const originalUnitPrice = item.product ? getDiscountedPrice(item.product).originalPrice : null;
+    if (item.originalUnitPrice != null) {
+      return { item, originalUnitPrice: Number(item.originalUnitPrice) };
+    }
+    const live = item.product ? getDiscountedPrice(item.product) : null;
+    const matchesPaid = live !== null && live.price === Number(item.unitPrice);
+    const originalUnitPrice = matchesPaid ? live.originalPrice : null;
     return { item, originalUnitPrice };
   });
   const totalOriginalAmount = itemsWithPricing.reduce(

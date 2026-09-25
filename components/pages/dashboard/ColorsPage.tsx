@@ -111,8 +111,9 @@ export const ColorsPage: React.FC = () => {
     setEditSubmitting(true);
     try {
       await ColorsAPI(router.locale || "ka", session.accessToken).colorsControllerUpdate(String(editingColor.id), {
-        translations: buildNameTranslationsDto(data.translations),
-        hexCode: data.hexCode?.trim() || undefined,
+        translations: buildNameTranslationsDto(data.translations, { isUpdate: true }),
+        // რედაქტირებისას გასუფთავებული ველი null-ით — undefined-ს ბექენდი იგნორს უკეთებს
+        hexCode: data.hexCode?.trim() || (null as unknown as undefined),
         // TODO: generated UpdateColorDto not yet regenerated for translations — remove cast after yarn generate:api
       } as unknown as UpdateColorDto);
       toast.success("ფერი წარმატებით განახლდა!");

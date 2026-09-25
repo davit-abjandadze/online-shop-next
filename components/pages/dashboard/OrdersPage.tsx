@@ -75,7 +75,10 @@ export const OrdersPage: React.FC = () => {
       const res = await OrdersAPI(router.locale || "ka", session.accessToken).ordersControllerFindOne(
         Number(order.id)
       );
-      setDetailsOrder(res.data as unknown as Order);
+      // მხოლოდ თუ მოდალი ჯერ კიდევ ამავე შეკვეთაზეა ღია — თორემ დახურულ
+      // მოდალს თავიდან გახსნიდა, ან სხვა შეკვეთის მოდალში ამას ჩაწერდა.
+      const full = res.data as unknown as Order;
+      setDetailsOrder((prev) => (prev && prev.id === order.id ? full : prev));
     } catch {
       // მოდალი უკვე ღიაა სიის ობიექტით — statusHistory-ის გარეშე დარჩენა
       // საკმარისია, ვერხოტვას აქ არ ვაჩვენებთ.

@@ -22,7 +22,7 @@ import {
   UsersApi,
 } from "./client";
 import axios from "axios";
-import { API_URL, SSR } from "../constants";
+import { API_URL, SSR, SUPPORTED_LOCALES } from "../constants";
 import * as cache from "memory-cache";
 import { getCookie } from "cookies-next";
 import http from "http";
@@ -91,7 +91,18 @@ export const handleUnauthorizedResponse = (error: any) => {
     (path) => requestUrl.includes(path)
   );
 
-  if (isExcludedEndpoint || isLoggingOutDueToExpiredSession) {
+  if (isExcludedEndpoint) {
+    return;
+  }
+
+  logoutDueToExpiredSession();
+};
+
+// signOut + login-ზე გადამისამართება ?sessionExpired=1-ით. 401 interceptor-ის
+// გარდა _app-ის SessionErrorWatcher-იც იძახებს, როცა NextAuth-ის jwt() ბექენდის
+// ტოკენის ვადის გასვლას აღმოაჩენს (session.error === "BackendTokenExpired").
+export const logoutDueToExpiredSession = () => {
+  if (SSR || typeof window === "undefined" || isLoggingOutDueToExpiredSession) {
     return;
   }
 
@@ -100,8 +111,14 @@ export const handleUnauthorizedResponse = (error: any) => {
   // toast-ს აქ არ ვაჩვენებთ — window.location.replace მაშინვე ცვლის
   // გვერდს, ამიტომ toast არ ასწრებს გამოჩენას; login გვერდი
   // `sessionExpired` query-ს დანახვისას თავად აჩვენებს შეტყობინებას.
+  // მიმდინარე URL-ის ენის პრეფიქსს ვინარჩუნებთ — უპრეფიქსო "/login" next.config-ის
+  // default→ka redirect-ით en/ru მომხმარებელს ქართულ გვერდზე გადაიყვანდა.
+  const localeSegment = window.location.pathname?.split("/")[1];
+  const localePrefix = SUPPORTED_LOCALES.includes(localeSegment as (typeof SUPPORTED_LOCALES)[number])
+    ? `/${localeSegment}`
+    : "";
   signOut({ redirect: false }).finally(() => {
-    window.location.replace("/login?sessionExpired=1");
+    window.location.replace(`${localePrefix}/login?sessionExpired=1`);
   });
 };
 

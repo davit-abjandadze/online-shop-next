@@ -13,5 +13,13 @@
   "closed-today": "Closed today",
   "always-closed": "Always closed",
   "show-on-map": "Show on map",
-  "get-directions": "Get directions"
+  "get-directions": "Get directions",
+  "day-mon": "Monday",
+  "day-tue": "Tuesday",
+  "day-wed": "Wednesday",
+  "day-thu": "Thursday",
+  "day-fri": "Friday",
+  "day-sat": "Saturday",
+  "day-sun": "Sunday",
+  "day-closed": "Closed"
 }

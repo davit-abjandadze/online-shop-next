@@ -1,10 +1,11 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { BranchesAPI, ProductsAPI } from "@/API_Client";
 import { ProductBranchItemDto } from "@/API_Client/client/models";
-import { Branch, PaginatedResponseDto, ProductBranch, ProductColor, ProductVariant } from "@/API_Client/types";
+import { Branch, ProductBranch, ProductColor, ProductVariant } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 interface ProductBranchesFormProps {
   productId: number | string;
@@ -56,6 +57,29 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+  // dims/rows-ის სინქრონული სარკე: orchestrator `await refresh()`-ის შემდეგ
+  // მაშინვე იძახებს save()-ს, როცა React-ს ჯერ ხელახლა არ დაურენდერებია —
+  // state-ის closure მოძველებული იქნებოდა (უკვე წაშლილი ვარიანტის variantId
+  // გაიგზავნებოდა), ამიტომ save() ყოველთვის ref-ებიდან კითხულობს.
+  const dimsRef = useRef<Dim[]>(dims);
+  const rowsRef = useRef<Record<string, Record<number, BranchRowState>>>(rows);
+  // PUT მთლიანად ანაცვლებს ფილიალების მიბმებს — ჩაუტვირთავი ან უცვლელი
+  // ფორმით "ყველას შენახვა" save()-ს skip-ავს, რომ მიბმები ჩუმად არ წაიშალოს.
+  const loadedRef = useRef(false);
+  const dirtyRef = useRef(false);
+
+  const applyDims = (next: Dim[]) => {
+    dimsRef.current = next;
+    setDims(next);
+  };
+
+  const applyRows = (
+    updater: (prev: Record<string, Record<number, BranchRowState>>) => Record<string, Record<number, BranchRowState>>
+  ) => {
+    const next = updater(rowsRef.current);
+    rowsRef.current = next;
+    setRows(next);
+  };
 
   // preserveEdits: true მაშინ, როცა refresh() ეხმარება ორქესტრირებულ "ყველას
   // შენახვას" — მხოლოდ ახალი dim-ები (ახლად შენახული ვარიანტი/ფერი) ემატება,
@@ -63,9 +87,10 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
   // რომ save()-მდე არ წაიშალოს მომხმარებლის ჯერ არშენახული ცვლილება.
   const fetchData = async (preserveEdits = false) => {
     setLoading(true);
+    if (!preserveEdits) loadedRef.current = false;
     try {
       const [branchesRes, productBranchesRes, variantsResult, colorsResult] = await Promise.all([
-        BranchesAPI(locale, accessToken).branchesControllerFindAllAdmin(),
+        fetchAllPages<Branch>((page, limit) => BranchesAPI(locale, accessToken).branchesControllerFindAllAdmin(page, limit)),
         ProductsAPI(locale, accessToken).productsControllerGetBranches(Number(productId)),
         ProductsAPI(locale, accessToken)
           .productsControllerGetVariants(Number(productId))
@@ -74,8 +99,7 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
           .productsControllerGetColors(Number(productId))
           .catch(() => ({ data: [] })),
       ]);
-      const branchesData = branchesRes.data as unknown as PaginatedResponseDto<Branch>;
-      const branches = Array.isArray(branchesData?.data) ? branchesData.data : [];
+      const branches = branchesRes;
       const productBranches = (productBranchesRes.data as unknown as ProductBranch[]) || [];
       const variants = (variantsResult.data as unknown as ProductVariant[]) || [];
       const colors = (colorsResult.data as unknown as ProductColor[]) || [];
@@ -101,12 +125,12 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
       } else {
         nextDims = [{ key: BASE_DIM_KEY, label: "", capStock: null }];
       }
-      setDims(nextDims);
+      applyDims(nextDims);
       setExpanded((prevExpanded) =>
         preserveEdits ? prevExpanded : nextDims.length === 1 ? { [nextDims[0].key]: true } : {}
       );
 
-      setRows((prevRows) => {
+      applyRows((prevRows) => {
         const nextRows: Record<string, Record<number, BranchRowState>> = {};
         nextDims.forEach((dim) => {
           if (preserveEdits && prevRows[dim.key]) {
@@ -128,6 +152,8 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
         });
         return nextRows;
       });
+      loadedRef.current = true;
+      if (!preserveEdits) dirtyRef.current = false;
     } catch {
       toast.error("პროდუქტის ფილიალების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -142,20 +168,24 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
 
   const toggleExpanded = (dimKey: string) => setExpanded((prev) => ({ ...prev, [dimKey]: !prev[dimKey] }));
 
-  const toggleBranch = (dimKey: string, branchId: number) =>
-    setRows((prev) => ({
+  const toggleBranch = (dimKey: string, branchId: number) => {
+    dirtyRef.current = true;
+    applyRows((prev) => ({
       ...prev,
       [dimKey]: {
         ...prev[dimKey],
         [branchId]: { ...prev[dimKey]?.[branchId], checked: !prev[dimKey]?.[branchId]?.checked },
       },
     }));
+  };
 
-  const updateStock = (dimKey: string, branchId: number, stock: string) =>
-    setRows((prev) => ({
+  const updateStock = (dimKey: string, branchId: number, stock: string) => {
+    dirtyRef.current = true;
+    applyRows((prev) => ({
       ...prev,
       [dimKey]: { ...prev[dimKey], [branchId]: { ...prev[dimKey]?.[branchId], stock } },
     }));
+  };
 
   const dimTotal = (dimKey: string) =>
     Object.values(rows[dimKey] || {})
@@ -163,10 +193,14 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
       .reduce((sum, s) => sum + (Number(s.stock) || 0), 0);
 
   const handleSave = async (silent = false): Promise<boolean> => {
+    if (!loadedRef.current) {
+      toast.error("პროდუქტის ფილიალები ვერ ჩაიტვირთა — გადატვირთეთ გვერდი და სცადეთ ხელახლა");
+      return false;
+    }
     const items: ProductBranchItemDto[] = [];
 
-    for (const dim of dims) {
-      const dimRows = rows[dim.key] || {};
+    for (const dim of dimsRef.current) {
+      const dimRows = rowsRef.current[dim.key] || {};
       const checkedEntries = Object.entries(dimRows).filter(([, state]) => state.checked);
 
       for (const [, state] of checkedEntries) {
@@ -208,7 +242,10 @@ export const ProductBranchesForm = forwardRef<ProductBranchesFormHandle, Product
     }
   };
 
-  useImperativeHandle(ref, () => ({ save: () => handleSave(true), refresh: () => fetchData(true) }));
+  useImperativeHandle(ref, () => ({
+    save: async () => (dirtyRef.current ? handleSave(true) : true),
+    refresh: () => fetchData(true),
+  }));
 
   const isFlat = dims.length === 1 && dims[0].key === BASE_DIM_KEY;
 

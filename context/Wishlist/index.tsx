@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
@@ -34,13 +34,17 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const router = useRouter();
 
   const [favorites, setFavorites] = useState<Favorite[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  // true პირველ ჩატვირთვამდე — თორემ wishlist გვერდზე ჯერ "ცარიელია" ციმციმებდა
+  const [loading, setLoading] = useState<boolean>(true);
+  // ერთსა და იმავე პროდუქტზე მიმდინარე toggle — ორმაგი კლიკი ორ POST-ს აგზავნიდა
+  const pendingProductIdsRef = useRef<Set<number>>(new Set());
 
   const accessToken = session?.accessToken as string | undefined;
 
   const refresh = useCallback(async () => {
     if (!accessToken) {
       setFavorites([]);
+      setLoading(false);
       return;
     }
     setLoading(true);
@@ -59,6 +63,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       refresh();
     } else if (status === "unauthenticated") {
       setFavorites([]);
+      setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, accessToken]);
@@ -74,6 +79,9 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         toast.info("სასურველებში დასამატებლად გთხოვთ გაიაროთ ავტორიზაცია");
         return false;
       }
+
+      if (pendingProductIdsRef.current.has(productId)) return false;
+      pendingProductIdsRef.current.add(productId);
 
       const api = FavoritesAPI(router.locale || "ka", accessToken);
       const existing = favorites.find((f) => f.product?.id === productId);
@@ -91,6 +99,8 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       } catch (err: any) {
         toast.error(err?.response?.data?.message || "მოქმედება ვერ შესრულდა");
         return false;
+      } finally {
+        pendingProductIdsRef.current.delete(productId);
       }
     },
     [accessToken, favorites, router.locale]

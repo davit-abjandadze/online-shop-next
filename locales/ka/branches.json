@@ -13,5 +13,13 @@
   "closed-today": "დღეს დახურულია",
   "always-closed": "ყოველთვის დახურული",
   "show-on-map": "რუკაზე ჩვენება",
-  "get-directions": "მარშრუტი"
+  "get-directions": "მარშრუტი",
+  "day-mon": "ორშაბათი",
+  "day-tue": "სამშაბათი",
+  "day-wed": "ოთხშაბათი",
+  "day-thu": "ხუთშაბათი",
+  "day-fri": "პარასკევი",
+  "day-sat": "შაბათი",
+  "day-sun": "კვირა",
+  "day-closed": "დახურული"
 }

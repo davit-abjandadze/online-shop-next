@@ -69,8 +69,8 @@ export const ProductSlidersPage: React.FC = () => {
     defaultValues: emptyProductSliderForm,
   });
 
-  const fetchSliders = async () => {
-    if (!session?.accessToken) return;
+  const fetchSliders = async (): Promise<ProductSlider[] | undefined> => {
+    if (!session?.accessToken) return undefined;
     setLoadingSliders(true);
     try {
       const res = await ProductSlidersAPI(
@@ -78,9 +78,12 @@ export const ProductSlidersPage: React.FC = () => {
         session.accessToken
       ).productSlidersControllerFindAllPaginated(1, 100, "sortOrder", "ASC" as any);
       const data = res.data as unknown as PaginatedResponseDto<ProductSlider>;
-      setSliders(Array.isArray(data?.data) ? data.data : []);
+      const list = Array.isArray(data?.data) ? data.data : [];
+      setSliders(list);
+      return list;
     } catch {
       toast.error("ბლოკების ჩატვირთვა ვერ მოხერხდა");
+      return undefined;
     } finally {
       setLoadingSliders(false);
     }
@@ -117,10 +120,12 @@ export const ProductSlidersPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
 
-  const toDto = (data: ProductSliderFormValues) => ({
+  // isUpdate: ცარიელი en/ru/viewAllText/viewAllLink რედაქტირებისას ცხადად
+  // იგზავნება (null/""), თორემ ბექენდი ძველ მნიშვნელობას ინარჩუნებდა.
+  const toDto = (data: ProductSliderFormValues, isUpdate = false) => ({
     key: data.key.trim(),
-    translations: buildProductSliderTranslationsDto(data.translations),
-    viewAllLink: data.viewAllLink?.trim() || undefined,
+    translations: buildProductSliderTranslationsDto(data.translations, { isUpdate }),
+    viewAllLink: data.viewAllLink?.trim() || (isUpdate ? (null as unknown as undefined) : undefined),
     isActive: data.isActive,
     sortOrder: data.sortOrder?.trim() ? Number(data.sortOrder) : undefined,
   });
@@ -164,7 +169,7 @@ export const ProductSlidersPage: React.FC = () => {
     try {
       await ProductSlidersAPI(router.locale || "ka", session.accessToken).productSlidersControllerUpdate(
         editingSlider.id,
-        toDto(data) as UpdateProductSliderDto
+        toDto(data, true) as UpdateProductSliderDto
       );
       toast.success("ბლოკი წარმატებით განახლდა!");
       setEditingSlider(null);
@@ -370,6 +375,11 @@ export const ProductSlidersPage: React.FC = () => {
                 locale={router.locale || "ka"}
                 initialItems={editingSlider.items || []}
                 allProducts={products}
+                onSaved={async () => {
+                  const list = await fetchSliders();
+                  const updated = list?.find((s) => s.id === editingSlider.id);
+                  if (updated) setEditingSlider((prev) => (prev && prev.id === updated.id ? updated : prev));
+                }}
               />
             )}
           </S.ModalContent>

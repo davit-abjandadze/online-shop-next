@@ -73,6 +73,9 @@ interface ProductSliderItemsFormProps {
   locale: string;
   initialItems: ProductSliderItem[];
   allProducts: Product[];
+  // შენახვის შემდეგ მშობელი სიას/editingSlider-ს განაახლებს — თორემ მოდალის
+  // ხელახლა გახსნისას ძველი რიგი ჩანდა და მეორე შენახვა მას დააბრუნებდა.
+  onSaved?: () => void;
 }
 
 /**
@@ -88,6 +91,7 @@ export const ProductSliderItemsForm: React.FC<ProductSliderItemsFormProps> = ({
   locale,
   initialItems,
   allProducts,
+  onSaved,
 }) => {
   const [orderedIds, setOrderedIds] = useState<number[]>(() =>
     [...initialItems].sort((a, b) => a.sortOrder - b.sortOrder).map((item) => item.product.id)
@@ -139,6 +143,7 @@ export const ProductSliderItemsForm: React.FC<ProductSliderItemsFormProps> = ({
         productIds: Array.from(new Set(orderedIds)) as unknown as Set<number>,
       });
       toast.success("ბლოკის პროდუქტები წარმატებით შეინახა!");
+      onSaved?.();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "პროდუქტების შენახვა ვერ მოხერხდა");
     } finally {

@@ -39,7 +39,8 @@ export const CartComponent: React.FC = () => {
   // /products/:id/colors-იდან მოგვაქვს — იხ. CartItem.colorId კომენტარი
   // API_Client/types.ts-ში.
   const [colorsByProductId, setColorsByProductId] = useState<Record<number, ProductColor[]>>({});
-  const { getItemPriceSource, getItemVariant } = useCartItemVariants(cart?.items || [], router.locale);
+  const { getItemPriceSource, getItemVariant, variantsPending } = useCartItemVariants(cart?.items || [], router.locale);
+  const formatTotal = (value: number) => (variantsPending ? "…" : `${value.toFixed(2)} ₾`);
 
   useEffect(() => {
     const items = cart?.items || [];
@@ -144,11 +145,15 @@ export const CartComponent: React.FC = () => {
                 {items.map((item) => {
                   const image = resolveImage(item.product.images?.[0]);
                   const disabled = pendingItemId === item.id;
-                  const atStockLimit = item.quantity >= item.product.stock;
-                  const itemColor: Color | undefined = item.colorId
-                    ? colorsByProductId[item.product.id]?.find((pc) => pc.colorId === item.colorId)?.color
+                  const itemProductColor = item.colorId
+                    ? colorsByProductId[item.product.id]?.find((pc) => pc.colorId === item.colorId)
                     : undefined;
+                  const itemColor: Color | undefined = itemProductColor?.color;
                   const itemVariant = getItemVariant(item);
+                  // ვარიანტიან/ფერიან პროდუქტზე product.stock ყველა ვარიანტის/ფერის
+                  // ჯამია — backend კონკრეტული ვარიანტის/ფერის მარაგს ამოწმებს.
+                  const availableStock = itemVariant?.stock ?? itemProductColor?.stock ?? item.product.stock;
+                  const atStockLimit = item.quantity >= availableStock;
                   const { price: unitPrice, originalPrice, discountPercent } = getDiscountedPrice(
                     getItemPriceSource(item)
                   );
@@ -234,17 +239,17 @@ export const CartComponent: React.FC = () => {
                 <S.SummaryTitle>{t("summary-title")}</S.SummaryTitle>
                 <S.SummaryRow>
                   <span>{t("summary-products", { count: itemsCount })}</span>
-                  <span>{subtotal.toFixed(2)} ₾</span>
+                  <span>{formatTotal(subtotal)}</span>
                 </S.SummaryRow>
                 {discount > 0 && (
                   <S.SummaryRow discount>
                     <span>{t("summary-discount")}</span>
-                    <span>-{discount.toFixed(2)} ₾</span>
+                    <span>-{formatTotal(discount)}</span>
                   </S.SummaryRow>
                 )}
                 <S.TotalRow>
                   {t("total-row")}
-                  <S.TotalValue>{total.toFixed(2)} ₾</S.TotalValue>
+                  <S.TotalValue>{formatTotal(total)}</S.TotalValue>
                 </S.TotalRow>
                 <S.CheckoutButton type="button" disabled={items.length === 0} onClick={() => router.push("/checkout")}>
                   {t("continue-to-checkout")}

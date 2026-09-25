@@ -24,6 +24,7 @@ import ProductVariantsForm, { ProductVariantsFormHandle } from "./ProductVariant
 import ProductBranchesForm, { ProductBranchesFormHandle } from "./ProductBranchesForm";
 import { ProductFormValues, buildProductTranslationsDto, productFormSchema, readProductTranslations } from "./schemas";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 const PAGE_SIZE = 10;
 
@@ -66,25 +67,28 @@ const toFormValues = (p: Product): ProductFormValues => ({
 
 // ფორმის მნიშვნელობებს ბექენდის Create/UpdateProductDto-ს ფორმაში გარდაქმნის —
 // ცარიელი/გაწმენდილი images მწკრივები ცარიელდება, ცარიელი categoryId/images/videoUrl კი undefined-ში.
-const toDto = (data: ProductFormValues) => {
+// isUpdate: რედაქტირებისას undefined ველს ბექენდი უბრალოდ ტოვებს (ძველი
+// მნიშვნელობა რჩება), ამიტომ გასუფთავებული ველისთვის ცხადი "ცარიელი" იგზავნება
+// (discountPercent: 0, description: "", en/ru თარგმანი/videoUrl/categoryId/ზომები: null).
+const toDto = (data: ProductFormValues, isUpdate = false) => {
   const images = (data.images || []).map((url) => url.trim()).filter(Boolean);
   return {
     // ცარიელი en/ru ველები buildProductTranslationsDto-ს მიერ უბრალოდ არ
     // ჩაერთვება (dto.en/dto.ru undefined რჩება).
-    translations: buildProductTranslationsDto(data.translations),
+    translations: buildProductTranslationsDto(data.translations, { keepEmptyDescriptions: isUpdate }),
     price: Number(data.price),
     stock: Number(data.stock),
-    discountPercent: data.discountPercent?.trim() ? Number(data.discountPercent) : undefined,
-    categoryId: data.categoryId || undefined,
+    discountPercent: data.discountPercent?.trim() ? Number(data.discountPercent) : isUpdate ? 0 : undefined,
+    categoryId: data.categoryId || (isUpdate ? null : undefined),
     companyId: data.companyId,
     // length-ის მიუხედავად ყოველთვის ცხრილს ვაგზავნით (და არა undefined-ს),
     // რომ ბოლო სურათის წაშლისას images: [] რეალურად ჩავიდეს ბექენდში —
     // undefined JSON.stringify-ის მიერ იშლება და ბექენდი ძველ სურათებს ინარჩუნებს.
     images,
-    videoUrl: data.videoUrl?.trim() || undefined,
-    weight: data.weight?.trim() ? Number(data.weight) : undefined,
-    length: data.length?.trim() ? Number(data.length) : undefined,
-    width: data.width?.trim() ? Number(data.width) : undefined,
+    videoUrl: data.videoUrl?.trim() || (isUpdate ? null : undefined),
+    weight: data.weight?.trim() ? Number(data.weight) : isUpdate ? null : undefined,
+    length: data.length?.trim() ? Number(data.length) : isUpdate ? null : undefined,
+    width: data.width?.trim() ? Number(data.width) : isUpdate ? null : undefined,
     isActive: data.isActive,
   };
 };
@@ -233,8 +237,14 @@ export const ProductsPage: React.FC = () => {
     defaultValues: emptyProductForm,
   });
 
+  // ფილტრის ცვლილება ორ fetch-ს იწვევს (ძველი page-ით და setPage(1)-ის შემდეგ) —
+  // მხოლოდ ბოლო მოთხოვნის პასუხი ჩაიწერება, თორემ გვიან დაბრუნებული ძველი
+  // გვერდი სიას გადაფარავდა (StatsPage-ის beginRequest-ის იგივე პრინციპი).
+  const productsRequestIdRef = useRef(0);
+
   const fetchProducts = async () => {
     if (!session?.accessToken) return;
+    const requestId = ++productsRequestIdRef.current;
     setLoading(true);
     try {
       const res = await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerFindAll(
@@ -251,22 +261,23 @@ export const ProductsPage: React.FC = () => {
         filterHasDiscount === "" ? undefined : filterHasDiscount === "true",
         debouncedDiscountPercent === "" ? undefined : Number(debouncedDiscountPercent)
       );
+      if (requestId !== productsRequestIdRef.current) return;
       const data = res.data as unknown as PaginatedResponseDto<Product>;
       setProducts(Array.isArray(data?.data) ? data.data : []);
       setTotalPages(data?.meta?.totalPages || 1);
     } catch {
-      toast.error("პროდუქტების ჩატვირთვა ვერ მოხერხდა");
+      if (requestId === productsRequestIdRef.current) toast.error("პროდუქტების ჩატვირთვა ვერ მოხერხდა");
     } finally {
-      setLoading(false);
+      if (requestId === productsRequestIdRef.current) setLoading(false);
     }
   };
 
   const fetchCategories = async () => {
     if (!session?.accessToken) return;
     try {
-      const res = await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerFindAll(1, 100);
-      const data = res.data as unknown as PaginatedResponseDto<Category>;
-      setCategories(Array.isArray(data?.data) ? data.data : []);
+      // limit მაქსიმუმ 100-ია — ყველა გვერდს ვიღებთ, რომ 100-ზე მეტი ჩანაწერიც არჩევადი იყოს
+      const api = CategoriesAPI(router.locale || "ka", session.accessToken);
+      setCategories(await fetchAllPages<Category>((page, limit) => api.categoryControllerFindAll(page, limit)));
     } catch {
       // კატეგორიები არასავალდებულოა ფორმისთვის (categoryId ველი optional-ია)
     }
@@ -275,9 +286,8 @@ export const ProductsPage: React.FC = () => {
   const fetchCompanies = async () => {
     if (!session?.accessToken) return;
     try {
-      const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
-      const data = res.data as unknown as PaginatedResponseDto<Company>;
-      setCompanies(Array.isArray(data?.data) ? data.data : []);
+      const api = CompaniesAPI(router.locale || "ka", session.accessToken);
+      setCompanies(await fetchAllPages<Company>((page, limit) => api.companiesControllerFindAllAdmin(page, limit)));
     } catch {
       toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
     }
@@ -343,15 +353,26 @@ export const ProductsPage: React.FC = () => {
   // ─── Product ↔ Attribute values ────────────────────────────────────────────
   const editCategoryId = editForm.watch("categoryId");
 
+  // ამჟამად ღია პროდუქტის id — ნელ ქსელზე A-ს გვიან დაბრუნებული პასუხი
+  // (A დაიხურა, B გაიხსნა) B-ს ფორმაში აღარ ჩაიწეროს და შენახვისას B-ზე
+  // A-ს მახასიათებლები არ გადაიწეროს.
+  const editingProductIdRef = useRef<number | string | null>(null);
+  useEffect(() => {
+    editingProductIdRef.current = editingProduct?.id ?? null;
+  }, [editingProduct?.id]);
+
   const fetchEditAttrValues = async (productId: number | string) => {
     if (!session?.accessToken) return;
     try {
       const res = await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerGetAttributeValues(
         Number(productId)
       );
+      if (String(editingProductIdRef.current) !== String(productId)) return;
       setEditAttrValues((res.data as unknown as ProductAttributeValue[]) || []);
     } catch {
-      toast.error("პროდუქტის მახასიათებლების ჩატვირთვა ვერ მოხერხდა");
+      if (String(editingProductIdRef.current) === String(productId)) {
+        toast.error("პროდუქტის მახასიათებლების ჩატვირთვა ვერ მოხერხდა");
+      }
     }
   };
 
@@ -362,12 +383,22 @@ export const ProductsPage: React.FC = () => {
       setEditCategoryAttrs([]);
       return;
     }
+    let active = true;
     setAttrsLoading(true);
     CategoriesAPI(router.locale || "ka", session.accessToken)
       .categoryControllerFindAttributes(editCategoryId)
-      .then((res) => setEditCategoryAttrs((res.data as unknown as CategoryAttribute[]) || []))
-      .catch(() => toast.error("კატეგორიის მახასიათებლების ჩატვირთვა ვერ მოხერხდა"))
-      .finally(() => setAttrsLoading(false));
+      .then((res) => {
+        if (active) setEditCategoryAttrs((res.data as unknown as CategoryAttribute[]) || []);
+      })
+      .catch(() => {
+        if (active) toast.error("კატეგორიის მახასიათებლების ჩატვირთვა ვერ მოხერხდა");
+      })
+      .finally(() => {
+        if (active) setAttrsLoading(false);
+      });
+    return () => {
+      active = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingProduct?.id, editCategoryId, session?.accessToken]);
 
@@ -406,8 +437,10 @@ export const ProductsPage: React.FC = () => {
       toast.success("პროდუქტი წარმატებით დაემატა! ახლა შეგიძლიათ დაამატოთ ფერები, ვარიანტები, ფილიალები და სხვა დამატებითი ინფორმაცია.");
       setIsCreateOpen(false);
       createForm.reset(emptyProductForm);
-      setPage(1);
-      fetchProducts();
+      // page უკვე 1-ზე თუა, effect აღარ გაეშვება — პირდაპირ ვითხოვთ; სხვაგვარად
+      // setPage(1)-ის effect წამოიღებს (fetchProducts აქ ძველ page-ს დაინახავდა).
+      if (page === 1) fetchProducts();
+      else setPage(1);
       // შექმნის შემდეგ პირდაპირ რედაქტირების მოდალში გადავდივართ, რადგან
       // ფერები/ვარიანტები/ფილიალები/მახასიათებლები productId-ს საჭიროებენ,
       // რომელიც მხოლოდ პროდუქტის შექმნის შემდეგ არსებობს.
@@ -420,6 +453,7 @@ export const ProductsPage: React.FC = () => {
   });
 
   const handleOpenEdit = (product: Product) => {
+    editingProductIdRef.current = product.id;
     setEditingProduct(product);
     editForm.reset(toFormValues(product));
     setEditAttrValues([]);
@@ -438,7 +472,7 @@ export const ProductsPage: React.FC = () => {
       await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerUpdate(
         editingProduct.id,
         // TODO: generated UpdateProductDto not yet regenerated for translations — remove cast after yarn generate:api
-        toDto(data) as unknown as UpdateProductDto
+        toDto(data, true) as unknown as UpdateProductDto
       );
 
       const attrItems = attrsFormRef.current?.getItems();

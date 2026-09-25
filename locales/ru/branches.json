@@ -13,5 +13,13 @@
   "closed-today": "Сегодня закрыто",
   "always-closed": "Всегда закрыто",
   "show-on-map": "Показать на карте",
-  "get-directions": "Маршрут"
+  "get-directions": "Маршрут",
+  "day-mon": "Понедельник",
+  "day-tue": "Вторник",
+  "day-wed": "Среда",
+  "day-thu": "Четверг",
+  "day-fri": "Пятница",
+  "day-sat": "Суббота",
+  "day-sun": "Воскресенье",
+  "day-closed": "Закрыто"
 }

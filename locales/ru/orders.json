@@ -35,5 +35,6 @@
   "timeline-auto-created": "Заказ создан",
   "timeline-auto-paid": "Оплачено автоматически",
   "timeline-auto-expired": "Истёк автоматически",
-  "timeline-auto-generic": "Изменено автоматически"
+  "timeline-auto-generic": "Изменено автоматически",
+  "retry": "Повторить"
 }

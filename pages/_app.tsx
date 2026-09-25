@@ -5,9 +5,11 @@ import "@/styles/iconFont.css";
 import "swiper/swiper-bundle.min.css";
 
 import { ssTheme } from "@/theme";
+import { useEffect } from "react";
 import type { AppProps } from "next/app";
 import { ThemeProvider } from "styled-components";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
+import { logoutDueToExpiredSession } from "@/API_Client";
 import { ScreenClassProvider, setConfiguration } from "react-grid-system";
 import { ToastContainer, cssTransition } from "react-toastify";
 import Icon from "@/components/ui/Icon";
@@ -56,6 +58,17 @@ const ToastAnimation = cssTransition({
 // და JSON-LD-ში ერთნაირად გამოსაყენებლად
 const SEO_LOCALES = SUPPORTED_LOCALES;
 const OG_LOCALE_MAP: Record<string, string> = { ka: "ka_GE", en: "en_US", ru: "ru_RU" };
+
+// NextAuth-ის jwt() ბექენდის ტოკენის ვადის გასვლისას session.error-ს აყენებს —
+// აქედან ვიძახებთ იგივე signOut + /login?sessionExpired=1 ნაკადს, რასაც 401
+// interceptor (სხვაგვარად UI "შესულად" რჩებოდა მკვდარი ტოკენით).
+const SessionErrorWatcher = () => {
+  const { data: session } = useSession();
+  useEffect(() => {
+    if (session?.error === "BackendTokenExpired") logoutDueToExpiredSession();
+  }, [session?.error]);
+  return null;
+};
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const { lang, t } = useTranslation("common");
@@ -160,6 +173,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
             refetchOnWindowFocus={false}
           >
             {/* <GlobalProvider> */}
+              <SessionErrorWatcher />
               <CartProvider>
                 <WishlistProvider>
                   <NotificationsProvider>

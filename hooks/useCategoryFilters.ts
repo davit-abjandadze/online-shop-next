@@ -36,17 +36,21 @@ export const useCategoryFilters = () => {
       if (!RESERVED_KEYS.has(key)) filters[key] = q[key];
     });
     const page = parseInt(q.page, 10);
-    setState({
+    const next: CategoryFiltersState = {
       filters,
       subcategory: q.subcategory || null,
       page: !isNaN(page) && page > 0 ? page : 1,
       sortBy: q.sortBy,
       order: q.order,
-    });
-    // slug ცვლილებაზე (სხვა კატეგორიაზე გადასვლა) state-ი ხელახლა
-    // router.query-იდან ივსება — ახალი კატეგორია ძველი ფილტრებით არ იხსნება.
+    };
+    // იგივე მნიშვნელობისას ძველ ობიექტს ვტოვებთ — ჩვენივე shallow push-ის
+    // შემდეგ (state უკვე განახლებულია) ზედმეტი refetch რომ არ გამოიწვიოს.
+    setState((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
+    // URL სიმართლის წყაროა: asPath-ის ყოველ ცვლილებაზე (slug-ის შეცვლა, ბრაუზერის
+    // Back/Forward) state ხელახლა router.query-იდან ივსება — ადრე მხოლოდ slug-ზე
+    // ხდებოდა, ამიტომ Back-ის შემდეგ URL და გაფილტრული სია ერთმანეთს არ ემთხვეოდა.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady, router.query.slug]);
+  }, [router.isReady, router.asPath]);
 
   const pushQuery = (patch: Record<string, string | undefined>, opts: { keepPage?: boolean } = {}) => {
     const query: Record<string, string> = { ...(router.query as Record<string, string>) };

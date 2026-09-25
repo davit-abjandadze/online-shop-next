@@ -7,6 +7,7 @@
   "all-categories": "Все категории",
   "breadcrumb-home": "Главная",
   "shop": "Магазин",
+  "search-results-title": "Результаты поиска: «{{query}}»",
   "page-subtitle": "Просмотрите каталог наших товаров",
   "results-count": "{{count}} товаров",
   "categories-title": "Категории",
@@ -49,5 +50,8 @@
   "filter-text-search-placeholder": "Поиск...",
   "filter-apply": "Применить",
   "filter-clear-aria": "Очистить фильтры",
-  "filter-modal-close-aria": "Закрыть фильтры"
+  "filter-modal-close-aria": "Закрыть фильтры",
+  "wishlist-auth-required-title": "Требуется авторизация",
+  "wishlist-auth-required-text": "Пожалуйста, войдите, чтобы просмотреть список избранного.",
+  "wishlist-login-button": "Войти"
 }

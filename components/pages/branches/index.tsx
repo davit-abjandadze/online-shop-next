@@ -7,7 +7,7 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import { BranchesAPI } from "@/API_Client";
 import { Branch, BranchWorkingHours } from "@/API_Client/types";
-import { BRANCH_DAY_KEYS, BRANCH_DAY_LABELS, BranchDayKey } from "@/components/pages/dashboard/schemas";
+import { BRANCH_DAY_KEYS, BranchDayKey } from "@/components/pages/dashboard/schemas";
 import { MapPinIcon } from "@/components/ui/RefIcons";
 import * as S from "./style";
 
@@ -16,9 +16,11 @@ const BranchMap = dynamic(() => import("./BranchMap"), { ssr: false });
 
 const jsDayToWeekDayKey = (jsDay: number): BranchDayKey => BRANCH_DAY_KEYS[(jsDay + 6) % 7];
 
-const formatDayHours = (workingHours: BranchWorkingHours, day: BranchDayKey): string => {
+// დღეების სახელები/„დახურული“ branches namespace-იდან — dashboard-ის
+// BRANCH_DAY_LABELS მხოლოდ ქართულია და en/ru ვერსიაზეც ქართულად ჩანდა.
+const formatDayHours = (workingHours: BranchWorkingHours, day: BranchDayKey, closedLabel: string): string => {
   const hours = workingHours[day];
-  return hours ? `${hours.open} - ${hours.close}` : "დახურული";
+  return hours ? `${hours.open} - ${hours.close}` : closedLabel;
 };
 
 // "ფილიალები" გვერდი — ყველა აქტიური ფილიალი (BranchesAPI.branchesControllerFindAllForMap,
@@ -114,8 +116,8 @@ export const BranchesComponent: React.FC = () => {
                   <S.HoursTable>
                     {BRANCH_DAY_KEYS.map((day) => (
                       <S.WorkingHoursRow key={day} $today={day === todayKey}>
-                        <S.WorkingHoursDay>{BRANCH_DAY_LABELS[day]}</S.WorkingHoursDay>
-                        <S.WorkingHoursHours>{formatDayHours(branch.workingHours, day)}</S.WorkingHoursHours>
+                        <S.WorkingHoursDay>{t(`day-${day}`)}</S.WorkingHoursDay>
+                        <S.WorkingHoursHours>{formatDayHours(branch.workingHours, day, t("day-closed"))}</S.WorkingHoursHours>
                       </S.WorkingHoursRow>
                     ))}
                   </S.HoursTable>

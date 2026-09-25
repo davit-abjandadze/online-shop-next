@@ -15,6 +15,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import RichTextEditor from "./RichTextEditor";
 import { ListSkeleton } from "./Skeletons";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 const NOTIFICATIONS_PAGE_SIZE = 10;
 
@@ -175,9 +176,9 @@ export const NotificationsPage: React.FC = () => {
     if (!session?.accessToken) return;
     try {
       // limit მაქსიმუმ 100-ია ბექენდზე (PaginationDto @Max(100))
-      const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerSearch(1, 100);
-      const data = res.data as unknown as PaginatedResponseDto<User>;
-      setUsers(Array.isArray(data?.data) ? data.data : []);
+      // limit მაქსიმუმ 100-ია — ყველა გვერდს ვიღებთ, რომ 100-ზე მეტი ჩანაწერიც არჩევადი იყოს
+      const api = UserAPI(router.locale || "ka", session.accessToken);
+      setUsers(await fetchAllPages<User>((page, limit) => api.usersControllerSearch(page, limit)));
     } catch {
       toast.error("მომხმარებლების სიის ჩატვირთვა ვერ მოხერხდა");
     }
@@ -317,8 +318,10 @@ export const NotificationsPage: React.FC = () => {
         {
           title: data.title.trim(),
           contentHtml: data.contentHtml,
-          imageUrl: data.imageUrl.trim() || undefined,
-          actions: data.actions.length > 0 ? data.actions.map((a) => ({ ...a, label: a.label.trim() })) : undefined,
+          // რედაქტირებისას undefined-ს ბექენდი იგნორს უკეთებს — სურათის/ყველა
+          // ღილაკის წაშლა მხოლოდ ცხადი null/[]-ით აისახება.
+          imageUrl: data.imageUrl.trim() || (null as unknown as undefined),
+          actions: data.actions.map((a) => ({ ...a, label: a.label.trim() })),
         }
       );
       toast.success("შეტყობინება წარმატებით განახლდა!");

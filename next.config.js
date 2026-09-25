@@ -105,6 +105,9 @@ const nextConfig = {
     // მიუწვდება ავტომატურად — აქ ჩამოთვლილები webpack-ის DefinePlugin-ით
     // ბუილდ-თაიმზე ჩაენაცვლება ყველგან (node_modules/next-auth-შიც), ეს
     // Next.js-ის ოფიციალური მექანიზმია სწორედ ამ პრობლემისთვის.
+    // ⚠️ DefinePlugin მნიშვნელობას ჩასვამს ყველა bundle-ში, სადაც process.env.X
+    // წერია — კლიენტურშიც. *_SECRET ცვლადებს მიმართეთ მხოლოდ server-only კოდიდან
+    // (pages/api/**), არასდროს constants.ts-დან ან კომპონენტებიდან.
     ENVIRONMENT: process.env.ENVIRONMENT,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,

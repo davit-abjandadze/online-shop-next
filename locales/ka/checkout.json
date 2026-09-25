@@ -140,5 +140,9 @@
   "city-borjomi": "ბორჯომი",
   "city-gurjaani": "გურჯაანი",
   "city-akhalkalaki": "ახალქალაქი",
-  "city-tskaltubo": "წყალტუბო"
+  "city-tskaltubo": "წყალტუბო",
+  "shipping-phone-label": "ტელ",
+  "shipping-comment-label": "კომენტარი",
+  "error-variants-load": "პროდუქტის ვარიანტის ფასი ვერ ჩაიტვირთა.",
+  "retry": "ხელახლა ცდა"
 }

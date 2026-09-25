@@ -19,7 +19,7 @@ import type { ValueTranslationDto } from './value-translation-dto';
 
 export interface ValuePartialTranslationsDto {
     'ka'?: ValueTranslationDto;
-    'en'?: ValueTranslationDto;
-    'ru'?: ValueTranslationDto;
+    'en'?: ValueTranslationDto | null;
+    'ru'?: ValueTranslationDto | null;
 }
 

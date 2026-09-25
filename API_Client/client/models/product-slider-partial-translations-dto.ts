@@ -19,7 +19,7 @@ import type { ProductSliderTranslationDto } from './product-slider-translation-d
 
 export interface ProductSliderPartialTranslationsDto {
     'ka'?: ProductSliderTranslationDto;
-    'en'?: ProductSliderTranslationDto;
-    'ru'?: ProductSliderTranslationDto;
+    'en'?: ProductSliderTranslationDto | null;
+    'ru'?: ProductSliderTranslationDto | null;
 }
 

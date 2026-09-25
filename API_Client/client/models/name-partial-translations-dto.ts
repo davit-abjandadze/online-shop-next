@@ -19,7 +19,7 @@ import type { NameTranslationDto } from './name-translation-dto';
 
 export interface NamePartialTranslationsDto {
     'ka'?: NameTranslationDto;
-    'en'?: NameTranslationDto;
-    'ru'?: NameTranslationDto;
+    'en'?: NameTranslationDto | null;
+    'ru'?: NameTranslationDto | null;
 }
 

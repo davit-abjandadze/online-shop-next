@@ -1,5 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 // ImgBB-ს base64 upload ლიმიტი 32MB-ია — request body-ს ცოტა მარჟით ვზღუდავთ.
 export const config = {
@@ -15,6 +17,13 @@ export const config = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
+  }
+
+  // მხოლოდ ადმინს — სხვაგვარად ნებისმიერს შეეძლო მაღაზიის ImgBB ანგარიშზე ატვირთვა.
+  const session = await getServerSession(req, res, authOptions);
+  const role = (session?.user as any)?.role;
+  if (typeof role !== "string" || role.toLowerCase() !== "admin") {
+    return res.status(403).json({ message: "წვდომა აკრძალულია" });
   }
 
   const apiKey = process.env.IMGBB_API_KEY;

@@ -28,11 +28,11 @@ export interface Product {
     'discountPercent'?: number;
     'images'?: Array<string>;
     'videoUrl'?: string;
-    'weight'?: string;
-    'length'?: string;
-    'width'?: string;
+    'weight'?: string | null;
+    'length'?: string | null;
+    'width'?: string | null;
     'isActive': boolean;
-    'category'?: Category;
+    'category'?: Category | null;
     'company'?: Company;
     'createdAt': string;
     'updatedAt': string;

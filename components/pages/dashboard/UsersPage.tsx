@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
@@ -108,8 +108,13 @@ export const UsersPage: React.FC = () => {
     defaultValues: { firstName: "", lastName: "", email: "", role: "user", gender: "", age: "" },
   });
 
+  // ფილტრის ცვლილება ორ fetch-ს იწვევს (ძველი გვერდით და setUsersPage(1)-ის
+  // შემდეგ) — მხოლოდ ბოლო მოთხოვნის პასუხი ჩაიწერება.
+  const usersRequestIdRef = useRef(0);
+
   const fetchUsers = async () => {
     if (!session?.accessToken) return;
+    const requestId = ++usersRequestIdRef.current;
     setLoadingU(true);
     try {
       const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerSearch(
@@ -121,13 +126,14 @@ export const UsersPage: React.FC = () => {
         (filterRole || undefined) as UsersControllerSearchRoleEnum | undefined,
         (filterGender || undefined) as UsersControllerSearchGenderEnum | undefined
       );
+      if (requestId !== usersRequestIdRef.current) return;
       const data = res.data as any;
       setUsers(Array.isArray(data?.data) ? data.data : []);
       setUsersMeta(data?.meta || null);
     } catch {
-      toast.error("მომხმარებლების ჩატვირთვა ვერ მოხერხდა");
+      if (requestId === usersRequestIdRef.current) toast.error("მომხმარებლების ჩატვირთვა ვერ მოხერხდა");
     } finally {
-      setLoadingU(false);
+      if (requestId === usersRequestIdRef.current) setLoadingU(false);
     }
   };
 

@@ -23,6 +23,7 @@ import {
   readHeroSlideTranslations,
 } from "./schemas";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 const emptyHeroSlideForm: HeroSlideFormValues = {
   translations: {
@@ -139,9 +140,9 @@ export const HeroSlidesPage: React.FC = () => {
   const fetchProducts = async () => {
     if (!session?.accessToken) return;
     try {
-      const res = await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerFindAll(1, 100);
-      const data = res.data as unknown as PaginatedResponseDto<Product>;
-      setProducts(Array.isArray(data?.data) ? data.data : []);
+      // limit მაქსიმუმ 100-ია — ყველა გვერდს ვიღებთ, რომ 100-ზე მეტი ჩანაწერიც არჩევადი იყოს
+      const api = ProductsAPI(router.locale || "ka", session.accessToken);
+      setProducts(await fetchAllPages<Product>((page, limit) => api.productsControllerFindAll(page, limit)));
     } catch {
       toast.error("პროდუქტების სიის ჩატვირთვა ვერ მოხერხდა");
     }
@@ -155,11 +156,14 @@ export const HeroSlidesPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
 
-  const toDto = (data: HeroSlideFormValues) => ({
-    translations: buildHeroSlideTranslationsDto(data.translations),
+  // isUpdate: undefined-ს ბექენდი რედაქტირებისას იგნორს უკეთებს (ძველი
+  // მნიშვნელობა რჩება) — გასუფთავებული ლინკი/პროდუქტი null-ით იგზავნება
+  // (hero-slides.service update null-ზე პროდუქტს ხსნის, buttonLink nullable-ია).
+  const toDto = (data: HeroSlideFormValues, isUpdate = false) => ({
+    translations: buildHeroSlideTranslationsDto(data.translations, { isUpdate }),
     image: data.image.trim(),
-    buttonLink: data.buttonLink?.trim() || undefined,
-    productId: data.productId ? Number(data.productId) : undefined,
+    buttonLink: data.buttonLink?.trim() || (isUpdate ? null : undefined),
+    productId: data.productId ? Number(data.productId) : isUpdate ? null : undefined,
     isActive: data.isActive,
     sortOrder: data.sortOrder?.trim() ? Number(data.sortOrder) : undefined,
   });
@@ -204,7 +208,7 @@ export const HeroSlidesPage: React.FC = () => {
     try {
       await HeroSlidesAPI(router.locale || "ka", session.accessToken).heroSlidesControllerUpdate(
         String(editingSlide.id),
-        toDto(data) as UpdateHeroSlideDto
+        toDto(data, true) as unknown as UpdateHeroSlideDto
       );
       toast.success("სლაიდი წარმატებით განახლდა!");
       setEditingSlide(null);

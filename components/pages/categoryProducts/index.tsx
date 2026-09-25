@@ -52,6 +52,10 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
     useCategoryFilters();
 
   const [category, setCategory] = useState<Category | null>(null);
+  // რომელ slug-ს ეკუთვნის ჩატვირთული `category` — slug-ის შეცვლისას იმავე
+  // render-ში ქვედა effect-ები ჯერ კიდევ ძველ category-ს ხედავენ და ახალ slug-ზე
+  // ძველი ფილტრებით გაუშვებდნენ მოთხოვნას; ეს guard მათ ახალ category-მდე აჩერებს.
+  const [categorySlug, setCategorySlug] = useState<string | null>(null);
   const [children, setChildren] = useState<Category[]>([]);
   const [facets, setFacets] = useState<CategoryFiltersResponse>([]);
   const [priceBounds, setPriceBounds] = useState<PriceBounds | null>(null);
@@ -94,12 +98,21 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
   // ქვეკატეგორიების ნავიგაცია არ ქრებოდეს. root კატეგორიაზე კი — თავისივე შვილები.
   useEffect(() => {
     let active = true;
+    // იგივე კომპონენტი რჩება mount-ად სხვა კატეგორიაზე გადასვლისას — წინა
+    // კატეგორიის მონაცემები (და "ვერ მოიძებნა" მდგომარეობა) უნდა გასუფთავდეს.
+    setNotFound(false);
+    setCategory(null);
+    setCategorySlug(null);
+    setChildren([]);
+    setFacets([]);
+    setPriceBounds(null);
     CategoriesAPI(router.locale || "ka", "")
       .categoryControllerFindBySlug(slug)
       .then(async (res) => {
         if (!active) return;
         const cat = res.data as unknown as Category;
         setCategory(cat);
+        setCategorySlug(slug);
         const childrenRes = await CategoriesAPI(router.locale || "ka", "").categoryControllerFindAll(
           1,
           100,
@@ -122,15 +135,21 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
 
   // ფილტრები/facet-ები — activeFilters/subcategory ცვლილებაზე ხელახლა.
   useEffect(() => {
-    if (!category) return;
+    if (!category || categorySlug !== slug) return;
+    let active = true;
     CategoriesAPI(router.locale || "ka", "")
       .categoryControllerGetFilters(slug, { params: { ...filters, ...(subcategory ? { subcategory } : {}) } } as any)
-      .then((res) => setFacets((res.data as unknown as CategoryFiltersResponse) || []))
+      .then((res) => {
+        if (active) setFacets((res.data as unknown as CategoryFiltersResponse) || []);
+      })
       .catch(() => {
         // ფილტრები დამატებითია — ჩუმად ვტოვებთ, პროდუქტების სია მაინც ჩაირთვება
       });
+    return () => {
+      active = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, slug, JSON.stringify(filters), subcategory, router.locale]);
+  }, [category, categorySlug, slug, JSON.stringify(filters), subcategory, router.locale]);
 
   // ფასის დიაპაზონის საზღვრები (სლაიდერისთვის) — ორი მსუბუქი, limit=1,
   // sortBy=price მოთხოვნა (ASC/DESC) იმავე filter/subcategory scope-ში,
@@ -138,7 +157,8 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
   // endpoint-ის `excludeAttributeCode`-ის იმავე პრინციპით), რომ სლაიდერის
   // ბორდერი მიმდინარე ფასის შერჩევის მიხედვით არ ვიწროვდებოდეს.
   useEffect(() => {
-    if (!category) return;
+    if (!category || categorySlug !== slug) return;
+    let active = true;
     const { minPrice, maxPrice, ...restFilters } = filters;
     const baseParams = { ...restFilters, ...(subcategory ? { subcategory } : {}) };
     const api = CategoriesAPI(router.locale || "ka", "");
@@ -151,6 +171,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
       } as any),
     ])
       .then(([minRes, maxRes]) => {
+        if (!active) return;
         const minData = (minRes.data as unknown as PaginatedResponseDto<Product>)?.data;
         const maxData = (maxRes.data as unknown as PaginatedResponseDto<Product>)?.data;
         const minPriceVal = minData?.[0]?.price != null ? Number(minData[0].price) : null;
@@ -161,13 +182,20 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
           setPriceBounds(null);
         }
       })
-      .catch(() => setPriceBounds(null));
+      .catch(() => {
+        if (active) setPriceBounds(null);
+      });
+    return () => {
+      active = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, slug, JSON.stringify(restFiltersForBounds(filters)), subcategory, router.locale]);
+  }, [category, categorySlug, slug, JSON.stringify(restFiltersForBounds(filters)), subcategory, router.locale]);
 
   // პროდუქტების სია — ფილტრები/subcategory/page/sort ცვლილებაზე.
   useEffect(() => {
-    if (!category) return;
+    if (!category || categorySlug !== slug) return;
+    // სწრაფი გვერდის/ფილტრის ცვლილებისას მხოლოდ ბოლო მოთხოვნის პასუხი ჩაიწერება
+    let active = true;
     setLoading(true);
     CategoriesAPI(router.locale || "ka", "")
       .categoryControllerGetProducts(slug, {
@@ -181,14 +209,22 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
         },
       } as any)
       .then((res) => {
+        if (!active) return;
         const data = res.data as unknown as PaginatedResponseDto<Product>;
         setProducts(Array.isArray(data?.data) ? data.data : []);
         setMeta(data?.meta || null);
       })
-      .catch(() => toast.error(t("load-products-error") as string))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (active) toast.error(t("load-products-error") as string);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, slug, JSON.stringify(filters), subcategory, page, sortBy, order, router.locale]);
+  }, [category, categorySlug, slug, JSON.stringify(filters), subcategory, page, sortBy, order, router.locale]);
 
   // ქვეკატეგორიების სია — desktop Sidebar-ში და mobile ფილტრის პანელში
   // ორივეგან იმეორება, ამიტომ ერთხელ ვშლით და ორივეგან ვიყენებთ.
@@ -310,10 +346,9 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
                     facets={facets}
                     filters={filters}
                     locale={router.locale}
-                    onApply={(next) => {
-                      applyFilters(next);
-                      setMobileFilterOpen(false);
-                    }}
+                    // checkbox-ის მონიშვნაც onApply-ს იძახებს (facet-ების live
+                    // შევიწროებისთვის) — popup-ი მხოლოდ ქვედა "გაფილტვრა" ღილაკით იხურება.
+                    onApply={applyFilters}
                     onClear={clearFilters}
                     priceBounds={priceBounds}
                     hideApplyBar
@@ -325,7 +360,10 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
                   <FSStyle.ApplyButton
                     type="button"
                     pending={mobileFilterState.isDirty}
-                    onClick={() => mobileFilterRef.current?.apply()}
+                    onClick={() => {
+                      mobileFilterRef.current?.apply();
+                      setMobileFilterOpen(false);
+                    }}
                   >
                     {t("filter-apply")}
                   </FSStyle.ApplyButton>

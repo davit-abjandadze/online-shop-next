@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BranchesAPI, CompaniesAPI } from "@/API_Client";
 import { Company } from "@/API_Client/client/models";
-import { Branch, BranchWorkingHours, PaginatedResponseDto } from "@/API_Client/types";
+import { Branch, BranchWorkingHours } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PinIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -14,6 +14,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import { BRANCH_DAY_KEYS, BRANCH_DAY_LABELS, BranchFormValues, branchFormSchema } from "./schemas";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 const emptyDayHours = { closed: false, open: "09:30", close: "19:00" };
 
@@ -91,9 +92,8 @@ export const BranchesPage: React.FC = () => {
     if (!session?.accessToken) return;
     setLoadingBranches(true);
     try {
-      const res = await BranchesAPI(router.locale || "ka", session.accessToken).branchesControllerFindAllAdmin();
-      const data = res.data as unknown as PaginatedResponseDto<Branch>;
-      setBranches(Array.isArray(data?.data) ? data.data : []);
+      const api = BranchesAPI(router.locale || "ka", session.accessToken);
+      setBranches(await fetchAllPages<Branch>((page, limit) => api.branchesControllerFindAllAdmin(page, limit)));
     } catch {
       toast.error("ფილიალების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -104,9 +104,8 @@ export const BranchesPage: React.FC = () => {
   const fetchCompanies = async () => {
     if (!session?.accessToken) return;
     try {
-      const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
-      const data = res.data as unknown as PaginatedResponseDto<Company>;
-      setCompanies(Array.isArray(data?.data) ? data.data : []);
+      const api = CompaniesAPI(router.locale || "ka", session.accessToken);
+      setCompanies(await fetchAllPages<Company>((page, limit) => api.companiesControllerFindAllAdmin(page, limit)));
     } catch {
       toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
     }
@@ -176,7 +175,8 @@ export const BranchesPage: React.FC = () => {
           title: data.title.trim(),
           address: data.address.trim(),
           phoneNumber: data.phoneNumber.trim(),
-          email: data.email?.trim() || undefined,
+          // რედაქტირებისას გასუფთავებული ველი null-ით — undefined-ს ბექენდი იგნორს უკეთებს
+          email: data.email?.trim() || (null as unknown as undefined),
           latitude: Number(data.latitude),
           longitude: Number(data.longitude),
           workingHours: toApiWorkingHours(data.workingHours),

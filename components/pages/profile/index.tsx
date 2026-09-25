@@ -448,12 +448,17 @@ export const ProfileComponent: React.FC = () => {
             : {}),
         }
       );
-      setUser(res.data as User);
+      const updatedUser = res.data as User;
+      setUser(updatedUser);
       setSavedEmail(emailToSend);
       setSavedPhoneNumber(phoneToSend);
       if (canPersistEmail) resetEmailOtpState();
       if (canPersistPhone) resetPhoneOtpState();
-      await updateSession({ name: `${data.firstName.trim()} ${data.lastName.trim()}` });
+      // ელფოსტაც ბექენდის პასუხიდან — Header/პროფილი ძველ ელფოსტას ხელახალ login-მდე აჩვენებდა
+      await updateSession({
+        name: `${data.firstName.trim()} ${data.lastName.trim()}`,
+        ...(updatedUser?.email ? { email: updatedUser.email } : {}),
+      });
       if (!canPersistEmail || !canPersistPhone) {
         toast.success(t("toast-partial-info-saved") as string);
       } else {

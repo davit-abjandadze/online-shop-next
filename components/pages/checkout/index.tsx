@@ -162,7 +162,10 @@ export const CheckoutComponent: React.FC = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { cart, loading, refresh } = useCart();
-  const { getItemPriceSource } = useCartItemVariants(cart?.items || [], router.locale);
+  const { getItemPriceSource, variantsPending, variantsFailed, retryVariants } = useCartItemVariants(
+    cart?.items || [],
+    router.locale
+  );
 
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -447,7 +450,10 @@ export const CheckoutComponent: React.FC = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      if (!session?.accessToken || !session?.user?.id) return;
+      if (!session?.accessToken || !session?.user?.id) {
+        setLoadingUser(false);
+        return;
+      }
       setLoadingUser(true);
       try {
         const res = await UserAPI(router.locale || "ka", session.accessToken).usersControllerFindOne(
@@ -720,14 +726,22 @@ export const CheckoutComponent: React.FC = () => {
     { subtotal: 0, total: 0, itemsCount: 0 }
   );
   const discount = subtotal - total;
-  const isEmpty = !loading && items.length === 0;
+  // შეკვეთის შექმნის შემდეგ კალათა backend-ზე უკვე ცარიელია — BOG-ზე
+  // გადამისამართებამდე "კალათა ცარიელია" ეკრანი არ უნდა გამოჩნდეს.
+  const isEmpty = !loading && items.length === 0 && !submitting;
+  const formatTotal = (value: number) => (variantsPending ? "…" : `${value.toFixed(2)} ₾`);
 
   // ყიდვისთვის სავალდებულო მონაცემები — profile-ის იგივე წესი: დაუდასტურებელი
   // ელფოსტა/მობილური ან ცარიელი პირადი ნომერი შეკვეთის გაფორმებას ბლოკავს.
   const emailNotVerified = !user?.isEmailVerified;
   const phoneNotVerified = !user?.isPhoneVerified;
   const personalNumberMissing = !personalNumberInput.trim();
-  const purchaseBlocked = !loadingUser && (emailNotVerified || phoneNotVerified || personalNumberMissing);
+  // backend ამ წესებს არ ამოწმებს, ამიტომ gate მხოლოდ შენახულ (DB) მონაცემებს
+  // ეყრდნობა — input-ში აკრეფილი, მაგრამ შეუნახავი პირადი ნომერი არ ითვლება —
+  // და user-ის ჩატვირთვამდე (ან ჩავარდნისას) ყიდვა დაბლოკილია.
+  const savedPersonalNumberMissing = !user?.personalNumber?.trim();
+  const purchaseBlocked =
+    loadingUser || !user || emailNotVerified || phoneNotVerified || savedPersonalNumberMissing;
 
   // OTP დადასტურების UI (ღილაკი/კოდის ველი) გამოჩნდეს არა მხოლოდ მაშინ, როცა
   // მომხმარებელი ცვლის ელფოსტას/ნომერს, არამედ მაშინაც, როცა ამჟამინდელი (შენახული)
@@ -756,7 +770,7 @@ export const CheckoutComponent: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submittingRef.current) return;
-    if (!session?.accessToken || isEmpty || purchaseBlocked) return;
+    if (!session?.accessToken || isEmpty || purchaseBlocked || variantsPending) return;
 
     if (deliveryMethod === "courier" && !selectedAddress) {
       setAddressError(t("error-select-address"));
@@ -783,14 +797,18 @@ export const CheckoutComponent: React.FC = () => {
           ? { deliveryMethod: "pickup", branchId: selectedBranch!.id }
           : {
               deliveryMethod: "courier",
-              shippingAddress: `${selectedAddress!.title} - ${selectedAddress!.city}, ${selectedAddress!.address}`,
+              // CreateOrderDto-ს მისამართისთვის მხოლოდ ერთი ტექსტური ველი აქვს —
+              // მიმღების ტელეფონი და კომენტარი კურიერისთვის აქვე უნდა ჩაიწეროს.
+              shippingAddress: [
+                `${selectedAddress!.title} - ${selectedAddress!.city}, ${selectedAddress!.address}`,
+                selectedAddress!.phoneNumber ? `${t("shipping-phone-label")}: ${selectedAddress!.phoneNumber}` : null,
+                selectedAddress!.comment?.trim() ? `${t("shipping-comment-label")}: ${selectedAddress!.comment.trim()}` : null,
+              ]
+                .filter(Boolean)
+                .join(" | "),
             }
       );
       order = orderRes.data as unknown as Order;
-
-      // createFromCart-მა კალათა უკვე დაცარიელა backend-ზე — Header-ის
-      // ბეჯის განახლებისთვის client-side cache-საც ვასინქრონებთ.
-      refresh();
     } catch (err: any) {
       toast.error(err?.response?.data?.message || t("toast-order-failed"));
       submittingRef.current = false;
@@ -815,6 +833,9 @@ export const CheckoutComponent: React.FC = () => {
       window.location.href = redirectUrl;
     } catch (err: any) {
       toast.error(err?.response?.data?.message || t("toast-payment-start-failed"));
+      // createFromCart-მა კალათა უკვე დაცარიელა backend-ზე — Header-ის ბეჯისთვის
+      // cache-ს აქ ვასინქრონებთ (წარმატებისას გვერდი მაინც BOG-ზე გადადის).
+      refresh();
       submittingRef.current = false;
       setSubmitting(false);
       router.push(`/orders/${order.id}?payment=fail`);
@@ -1003,7 +1024,7 @@ export const CheckoutComponent: React.FC = () => {
 
 
 
-                  {purchaseBlocked && (
+                  {purchaseBlocked && !loadingUser && (
                     <S.InfoAlert>
                       <WarningIcon size={16} />
                       <span>{t("purchase-blocked-info")}</span>
@@ -1316,7 +1337,7 @@ export const CheckoutComponent: React.FC = () => {
                 <S.SummaryTitle>{t("summary-title")}</S.SummaryTitle>
                 <S.SummaryRow>
                   <span>{t("summary-products", { count: itemsCount })}</span>
-                  <span>{subtotal.toFixed(2)} ₾</span>
+                  <span>{formatTotal(subtotal)}</span>
                 </S.SummaryRow>
                 <S.SummaryRow>
                   <span>{t("summary-delivery-cost")}</span>
@@ -1325,18 +1346,29 @@ export const CheckoutComponent: React.FC = () => {
                 <S.Divider />
                 <S.SummaryRow>
                   <span>{t("summary-total-price")}</span>
-                  <span>{subtotal.toFixed(2)} ₾</span>
+                  <span>{formatTotal(subtotal)}</span>
                 </S.SummaryRow>
                 {discount > 0 && (
                   <S.SummaryRow $discount>
                     <span>{t("summary-discount")}</span>
-                    <span>-{discount.toFixed(2)} ₾</span>
+                    <span>-{formatTotal(discount)}</span>
                   </S.SummaryRow>
                 )}
                 <S.TotalRow>
                   {t("summary-total-payable")}
-                  <S.TotalValue>{total.toFixed(2)} ₾</S.TotalValue>
+                  <S.TotalValue>{formatTotal(total)}</S.TotalValue>
                 </S.TotalRow>
+                {variantsFailed && (
+                  <S.InfoAlert>
+                    <WarningIcon size={16} />
+                    <span>
+                      {t("error-variants-load")}{" "}
+                      <S.SaveInfoButton type="button" onClick={retryVariants}>
+                        {t("retry")}
+                      </S.SaveInfoButton>
+                    </span>
+                  </S.InfoAlert>
+                )}
 
                 <S.DeliveryNotice>
                   {deliveryMethod === "pickup" ? (
@@ -1361,7 +1393,7 @@ export const CheckoutComponent: React.FC = () => {
                   )}
                 </S.DeliveryNotice>
 
-                <S.SubmitButton type="submit" disabled={submitting || purchaseBlocked || !selectedPaymentMethod}>
+                <S.SubmitButton type="submit" disabled={submitting || purchaseBlocked || variantsPending || !selectedPaymentMethod}>
                   <LockIcon size={16} />
                   {submitting ? t("submitting") : t("pay-with-card")}
                 </S.SubmitButton>

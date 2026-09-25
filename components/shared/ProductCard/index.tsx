@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
@@ -59,13 +59,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [productColors, setProductColors] = useState<ProductColor[]>([]);
   const [productVariants, setProductVariants] = useState<ProductVariant[]>([]);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  // ფერები+ვარიანტები ჯერ არ ჩატვირთულა — ამ დროს hasVariants false-ია და
+  // დამატება variantId-ის გარეშე წავიდოდა (ბექენდი 400-ს აბრუნებს).
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  // ორმაგი კლიკისგან დაცვა — პირველი პასუხის მოსვლამდე cartItem ჯერ undefined-ია
+  // და მეორე კლიკიც "დამატებად" ითვლებოდა (რაოდენობა 2 ხდებოდა).
+  const cartPendingRef = useRef(false);
   const colorsInStock = productColors.filter((pc) => pc.stock > 0);
   const hasVariants = productVariants.length > 0;
   const outOfStock = hasVariants ? !productVariants.some((v) => v.stock > 0) : product.stock <= 0;
 
   useEffect(() => {
     let cancelled = false;
-    ProductsAPI(router.locale || "ka", "")
+    setOptionsLoading(true);
+    const colorsRequest = ProductsAPI(router.locale || "ka", "")
       .productsControllerGetColors(Number(product.id))
       .then((res) => {
         if (!cancelled) setProductColors((res.data as unknown as ProductColor[]) || []);
@@ -73,7 +80,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       .catch(() => {
         // ფერების წამოღება ვერ მოხერხდა — ბეიჯი უბრალოდ არ გამოჩნდება
       });
-    ProductsAPI(router.locale || "ka", "")
+    const variantsRequest = ProductsAPI(router.locale || "ka", "")
       .productsControllerGetVariants(product.id)
       .then((res) => {
         if (!cancelled) setProductVariants((res.data as unknown as ProductVariant[]) || []);
@@ -81,20 +88,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       .catch(() => {
         // ვარიანტების წამოღება ვერ მოხერხდა — "დან" ფასი უბრალოდ არ გამოჩნდება
       });
+    Promise.allSettled([colorsRequest, variantsRequest]).then(() => {
+      if (!cancelled) setOptionsLoading(false);
+    });
     return () => {
       cancelled = true;
     };
   }, [product.id, router.locale]);
 
   // თუ პროდუქტს ვარიანტები (ფერი+ზომა) აქვს მიბმული, ბარათზე ყველაზე იაფი
-  // ვარიანტის ფასი ჩანს "დან" პრეფიქსით — spec-ის მოთხოვნით.
-  const cheapestVariantPrice = hasVariants
+  // ვარიანტის ფასი ჩანს "დან" პრეფიქსით — spec-ის მოთხოვნით. ფასდაკლება
+  // ვარიანტის ფასზეც ვრცელდება (დეტალური გვერდის/კალათის/ბექენდის მსგავსად).
+  const cheapestVariant = hasVariants
     ? (() => {
-        const inStockPrices = productVariants.filter((v) => v.stock > 0).map((v) => Number(v.resolvedPrice));
-        return inStockPrices.length > 0
-          ? Math.min(...inStockPrices)
-          : Math.min(...productVariants.map((v) => Number(v.resolvedPrice)));
+        const inStock = productVariants.filter((v) => v.stock > 0);
+        const candidates = inStock.length > 0 ? inStock : productVariants;
+        return candidates.reduce((min, v) => (Number(v.resolvedPrice) < Number(min.resolvedPrice) ? v : min));
       })()
+    : undefined;
+  const cheapestVariantPrice = cheapestVariant
+    ? getDiscountedPrice({ price: cheapestVariant.resolvedPrice, discountPercent: product.discountPercent })
     : undefined;
 
   // თუ პროდუქტი უკვე კალათაშია — ღილაკზე დაჭერით ვშლით, თუ არადა ვამატებთ.
@@ -104,6 +117,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (cartPendingRef.current) return;
+    cartPendingRef.current = true;
+    try {
+      await toggleCart();
+    } finally {
+      cartPendingRef.current = false;
+    }
+  };
+
+  const toggleCart = async () => {
     if (cartItem) {
       if (await removeItem(cartItem.id)) toast.info(String(tc("toast-removed-from-cart")));
       return;
@@ -176,16 +199,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <S.PriceGroup>
               <S.Price>
                 {cheapestVariantPrice !== undefined
-                  ? t("from-price", { price: cheapestVariantPrice.toFixed(2) })
+                  ? t("from-price", { price: cheapestVariantPrice.price.toFixed(2) })
                   : `${displayPrice.toFixed(2)} ₾`}
               </S.Price>
-              {cheapestVariantPrice === undefined && oldPrice && <S.OldPrice>{oldPrice.toFixed(2)} ₾</S.OldPrice>}
+              {cheapestVariantPrice !== undefined
+                ? cheapestVariantPrice.originalPrice && (
+                    <S.OldPrice>{cheapestVariantPrice.originalPrice.toFixed(2)} ₾</S.OldPrice>
+                  )
+                : oldPrice && <S.OldPrice>{oldPrice.toFixed(2)} ₾</S.OldPrice>}
             </S.PriceGroup>
             <S.AddButton
               type="button"
               aria-label={isInCart ? t("remove-from-cart-aria") : t("add-to-cart-aria")}
               active={isInCart}
-              disabled={outOfStock && !isInCart}
+              disabled={!isInCart && (outOfStock || optionsLoading)}
               onClick={handleAddToCart}
             >
               <CartIcon size={16} />

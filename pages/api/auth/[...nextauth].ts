@@ -2,8 +2,38 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-// login გვერდი ამ კოდს result.error-ში ამოიცნობს (იხ. components/pages/login)
+// login გვერდი ამ კოდს result.error-ში ამოიცნობს (იხ. components/shared/AuthModal)
 export const TOO_MANY_ATTEMPTS_ERROR = "TOO_MANY_ATTEMPTS";
+export const BACKEND_TOKEN_EXPIRED_ERROR = "BackendTokenExpired";
+
+// ბექენდის JWT-ის exp (ms) — ხელმოწერას არ ვამოწმებთ (ამას ბექენდი აკეთებს),
+// მხოლოდ ვადას ვკითხულობთ, რომ NextAuth-ის სესია (რომელიც ყოველ refetch-ზე
+// გრძელდება) მკვდარ ტოკენთან ერთად "ავტორიზებულად" არ დარჩეს.
+const decodeJwtExpiry = (jwt?: string): number | undefined => {
+  try {
+    const payload = JSON.parse(Buffer.from(String(jwt).split(".")[1], "base64url").toString("utf8"));
+    return typeof payload?.exp === "number" ? payload.exp * 1000 : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
+// ბექენდის throttler IP-ით ზღუდავს (login 5/წთ) — Next სერვერიდან გაგზავნილ
+// მოთხოვნას კი ყველა მომხმარებლისთვის ერთი (Next სერვერის) IP აქვს და
+// მე-6 ცდა მთელ საიტს ბლოკავდა. კლიენტის ორიგინალ X-Forwarded-For-ს ვაწვდით
+// (ბექენდის TRUST_PROXY-მ უნდა ენდოს Next-ს, იხ. online-shop-nest main.ts).
+const forwardedForHeader = (headers?: Record<string, any>): Record<string, string> => {
+  const value = headers?.["x-forwarded-for"] ?? headers?.["x-real-ip"];
+  const forwardedFor = Array.isArray(value) ? value.join(", ") : value;
+  return typeof forwardedFor === "string" && forwardedFor ? { "X-Forwarded-For": forwardedFor } : {};
+};
+
+// ბექენდის ტოკენი აღარ ვარგა — ვშლით და session.error-ით კლიენტს ვატყობინებთ
+const invalidateBackendToken = (token: Record<string, any>) => {
+  token.access_token = undefined;
+  token.role = undefined;
+  token.error = BACKEND_TOKEN_EXPIRED_ERROR;
+};
 import GoogleProvider from "next-auth/providers/google"; // ← ეს
 // import FacebookProvider from "next-auth/providers/facebook"; // ⚠️ დროებით გამორთულია (Facebook App ჯერ Development/Unpublished რეჟიმშია)
 
@@ -49,6 +79,7 @@ export const authOptions: NextAuthOptions = {
           const response = await axios.post(targetUrl, loginData, {
             headers: {
               "Content-Type": "application/json",
+              ...forwardedForHeader(req?.headers),
             },
             validateStatus: () => true,
           });
@@ -94,6 +125,10 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: "/login",
+    // OAuth-ის signIn callback-ის false (ბექენდმა ტოკენი ვერ გადაამოწმა) NextAuth-ის
+    // ჩაშენებულ ინგლისურ "Access Denied" გვერდზე გადადიოდა — AuthModal ?error-ს
+    // /login-ზე კითხულობს და auth-modal-error-oauth-ს აჩვენებს.
+    error: "/login",
   },
 
   secret: (() => {
@@ -160,12 +195,23 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role;
         token.id = (user as any).id;
         token.roleCheckedAt = Date.now();
+        token.accessTokenExpires = decodeJwtExpiry((user as any).access_token);
+        token.error = undefined;
+      }
+
+      if (token.access_token && token.accessTokenExpires && Date.now() >= token.accessTokenExpires) {
+        invalidateBackendToken(token);
       }
       // პროფილის ფორმიდან useSession().update(...) გამოძახებისას აქ ვანახლებთ
       // token-ს, რომ ჰედერშიც (და ყველგან, სადაც session.user.name გამოიყენება)
       // დაუყოვნებლივ აისახოს ახალი სახელი/გვარი.
       if (trigger === "update" && session?.name) {
         token.name = session.name;
+      }
+      // ელფოსტის შეცვლა პროფილიდან — მხოლოდ ბექენდის წარმატებული განახლების შემდეგ
+      // იგზავნება (role/id აქედან განზრახ არ მიიღება).
+      if (trigger === "update" && typeof session?.email === "string" && session.email.includes("@")) {
+        token.email = session.email;
       }
 
       // ⚠️ FIX: role დემოტირების შემდეგ ადმინის წვდომა 7 დღემდე რჩებოდა, რადგან
@@ -188,8 +234,8 @@ export const authOptions: NextAuthOptions = {
             token.roleCheckedAt = Date.now();
           } else if (response.status === 401 || response.status === 404) {
             // მომხმარებელი წაშლილია ან access_token აღარ არის ვალიდური —
-            // token-ს ვასუფთავებთ, session callback-ში role აღარ ექნება.
-            token.role = undefined;
+            // მკვდარ ტოკენს ვშლით, კლიენტი session.error-ით გამოვა სისტემიდან.
+            invalidateBackendToken(token);
             token.roleCheckedAt = Date.now();
           }
         } catch (error) {
@@ -205,6 +251,7 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (token) {
         session.accessToken = token.access_token as string;
+        session.error = token.error as string | undefined;
         if (session.user) {
           (session.user as any).role = token.role;
           (session.user as any).id = token.id ?? (token.sub as string);

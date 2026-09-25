@@ -35,5 +35,6 @@
   "timeline-auto-created": "Order created",
   "timeline-auto-paid": "Paid automatically",
   "timeline-auto-expired": "Expired automatically",
-  "timeline-auto-generic": "Changed automatically"
+  "timeline-auto-generic": "Changed automatically",
+  "retry": "Retry"
 }

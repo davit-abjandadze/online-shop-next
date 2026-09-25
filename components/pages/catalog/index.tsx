@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { toast } from "react-toastify";
@@ -43,6 +43,8 @@ export const CatalogComponent: React.FC = () => {
 
   const [page, setPage] = useState<number>(1);
   const [sort, setSort] = useState<string>("default");
+  // Header-ის ძებნა `/products?search=...`-ზე გადმოდის — URL-იდან ვკითხულობთ
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
 
   // `page`-ს ვასინქრონებთ URL-ის `?page=` პარამეტრთან, გაზიარებული/დაბუქმარკებული
@@ -60,7 +62,15 @@ export const CatalogComponent: React.FC = () => {
 
     const queryCategory = (router.query.category as string | undefined) ?? null;
     setActiveCategoryId((prev) => (prev !== queryCategory ? queryCategory : prev));
-  }, [router.isReady, router.query.page, router.query.category]);
+
+    const querySearch = typeof router.query.search === "string" ? router.query.search.trim() : "";
+    setSearchTerm((prev) => (prev !== querySearch ? querySearch : prev));
+
+    const querySort = typeof router.query.sort === "string" ? router.query.sort : "default";
+    const nextSort = SORT_OPTIONS.some((option) => option.value === querySort) ? querySort : "default";
+    setSort((prev) => (prev !== nextSort ? nextSort : prev));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, router.query.page, router.query.category, router.query.search, router.query.sort]);
 
   const goToPage = (newPage: number) => {
     setPage(newPage);
@@ -92,7 +102,12 @@ export const CatalogComponent: React.FC = () => {
     router.push(`/categories/${category.slug}`);
   };
 
+  // სწრაფი ცვლილებებისას (გვერდი/ძებნა/დალაგება) მხოლოდ ბოლო მოთხოვნის
+  // პასუხი ჩაიწერება — ძველი, გვიან დაბრუნებული პასუხი სიას აღარ გადაფარავს.
+  const requestIdRef = useRef(0);
+
   const fetchProducts = async () => {
+    const requestId = ++requestIdRef.current;
     setLoading(true);
     try {
       const sortOption = SORT_OPTIONS.find((option) => option.value === sort);
@@ -101,17 +116,19 @@ export const CatalogComponent: React.FC = () => {
         PRODUCTS_PAGE_SIZE,
         sortOption?.sortBy,
         sortOption?.order,
-        undefined,
+        searchTerm || undefined,
         activeCategoryId ?? undefined
       );
+      if (requestId !== requestIdRef.current) return;
       const data = res.data as unknown as PaginatedResponseDto<Product>;
       setProducts(Array.isArray(data?.data) ? data.data : []);
       setMeta(data?.meta || null);
     } catch (err) {
+      if (requestId !== requestIdRef.current) return;
       console.error("Error fetching products:", err);
       toast.error(t("load-products-error") as string);
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) setLoading(false);
     }
   };
 
@@ -127,10 +144,13 @@ export const CatalogComponent: React.FC = () => {
     }
   };
 
+  // router.isReady-მდე query ჯერ ცარიელია — ადრე გაშვებული fetch deep-link-ის
+  // (?page=3 / ?search=...) ნაცვლად პირველ გვერდს წამოიღებდა.
   useEffect(() => {
+    if (!router.isReady) return;
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, activeCategoryId, sort, router.locale]);
+  }, [router.isReady, page, activeCategoryId, searchTerm, sort, router.locale]);
 
   useEffect(() => {
     fetchCategories();
@@ -170,7 +190,13 @@ export const CatalogComponent: React.FC = () => {
 
         <S.PageHeader>
           <div>
-            <S.PageTitle>{activeCategory ? getCategoryName(activeCategory, router.locale) : t("shop")}</S.PageTitle>
+            <S.PageTitle>
+              {searchTerm
+                ? t("search-results-title", { query: searchTerm })
+                : activeCategory
+                ? getCategoryName(activeCategory, router.locale)
+                : t("shop")}
+            </S.PageTitle>
             <S.PageSubtitle>{t("page-subtitle")}</S.PageSubtitle>
           </div>
           {meta && <S.ResultsCount>{t("results-count", { count: meta.total })}</S.ResultsCount>}
@@ -251,6 +277,12 @@ export const CatalogComponent: React.FC = () => {
                   onChange={(val) => {
                     setSort(val);
                     setPage(1);
+                    // დალაგება URL-შიც — refresh/გაზიარება/Back-ზე არ იკარგება,
+                    // და ძველი ?page=N აღარ რჩება ახალ დალაგებასთან.
+                    const query: Record<string, string> = { ...(router.query as Record<string, string>), page: "1" };
+                    if (val === "default") delete query.sort;
+                    else query.sort = val;
+                    router.push({ pathname: router.pathname, query }, undefined, { shallow: true, scroll: false });
                   }}
                   options={SORT_OPTIONS.map(({ value, label }) => ({ value, label }))}
                 />

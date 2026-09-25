@@ -19,7 +19,7 @@ import type { HeroSlideTranslationDto } from './hero-slide-translation-dto';
 
 export interface HeroSlidePartialTranslationsDto {
     'ka'?: HeroSlideTranslationDto;
-    'en'?: HeroSlideTranslationDto;
-    'ru'?: HeroSlideTranslationDto;
+    'en'?: HeroSlideTranslationDto | null;
+    'ru'?: HeroSlideTranslationDto | null;
 }
 

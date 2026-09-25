@@ -16,6 +16,7 @@ jest.mock("next-auth/react", () => ({
 jest.mock("../constants", () => ({
   API_URL: "http://localhost:5000",
   SSR: false,
+  SUPPORTED_LOCALES: ["ka", "en", "ru"],
 }));
 
 describe("handleUnauthorizedResponse", () => {
@@ -47,6 +48,21 @@ describe("handleUnauthorizedResponse", () => {
     expect(window.location.replace).toHaveBeenCalledWith(
       "/login?sessionExpired=1"
     );
+  });
+
+  it("login-ზე გადამისამართებისას მიმდინარე ენის პრეფიქსს ინარჩუნებს", async () => {
+    (window as any).location = { replace: jest.fn(), pathname: "/en/products/5" };
+    const { handleUnauthorizedResponse } = require("./index");
+
+    handleUnauthorizedResponse({
+      config: { url: "/users/profile" },
+      response: { status: 401 },
+    });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(window.location.replace).toHaveBeenCalledWith("/en/login?sessionExpired=1");
   });
 
   it("არ იძახებს signOut-ს /auth/login ენდპოინტზე 401-ის დროს (infinite loop-ის თავიდან ასაცილებლად)", () => {

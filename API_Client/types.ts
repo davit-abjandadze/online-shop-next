@@ -143,6 +143,10 @@ export interface OrderItem {
   // მონაცემი (productName-ის იგივე მიზეზით).
   colorName?: string | null;
   sizeName?: string | null;
+  // ფასდაკლებამდელი ფასი/პროცენტი შეკვეთის მომენტში (null — ფასდაკლების გარეშე,
+  // ან ამ ველების დამატებამდე შექმნილი ძველი შეკვეთა)
+  originalUnitPrice?: string | null;
+  discountPercent?: number | null;
 }
 
 // ბექენდი findOneForUser/findAllPaginated-ში user-ის მხოლოდ ამ ველებს

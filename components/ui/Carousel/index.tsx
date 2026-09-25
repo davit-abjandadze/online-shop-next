@@ -1,13 +1,8 @@
 import React, { useState, useEffect, useRef, ReactNode } from "react";
 import * as S from "./style";
-import { AnimatePresence, useSpring } from "framer-motion";
+import { useSpring } from "framer-motion";
 import Icon from "../Icon";
 import Hidden from "@/components/shared/Hidden";
-
-let immediete = false;
-let startX = 0;
-let startY = 0;
-let lastDelta = 0;
 
 type CarouselProps = {
   children: ReactNode;
@@ -17,175 +12,169 @@ type CarouselProps = {
   showRightArrows?: boolean;
 };
 
-const Carousel = ({
-  children,
-  pageIndex = 0,
-  onChange,
-  showArrows,
-  showRightArrows,
-}: CarouselProps) => {
-  const containerRef: any = useRef(null);
-  const pointerRef: any = useRef(null);
-  const [page, setPage] = useState(0);
-  const [panning, setPanning] = useState(false);
-  const [scrolling, setScrolling] = useState(false);
+// swipe-ის ზღვარი (px) — ამაზე ნაკლები გადაწევა მიმდინარე გვერდზე აბრუნებს
+const SWIPE_THRESHOLD = 70;
+// რამდენი px-ის შემდეგ ვწყვეტთ, ჰორიზონტალური swipe-ია თუ ვერტიკალური scroll
+const GESTURE_LOCK_THRESHOLD = 8;
+
+const Carousel = ({ children, pageIndex = 0, onChange, showArrows, showRightArrows }: CarouselProps) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [page, setPage] = useState(pageIndex);
   const [containerWidth, setContainerWidth] = useState(0);
   const [hovering, setHovering] = useState(false);
-  const dragX = useSpring(0, {
-    stiffness: immediete ? 10000 : 400,
-    damping: immediete ? 500 : 40,
-    mass: immediete ? 0.1 : 1,
-  });
+  const dragX = useSpring(0, { stiffness: 400, damping: 40, mass: 1 });
+
+  const count = React.Children.toArray(children).length;
+
+  // touch-ის მდგომარეობა ref-ებშია — ადრე module-level ცვლადები იყო და
+  // გვერდზე ორი Carousel ერთმანეთის startX/lastDelta-ს გადაწერდა; state-ში
+  // მყოფი panning/scrolling კი listener-ების ყოველ render-ზე ხელახლა მიბმას
+  // იწვევდა (და ძველ closure-ებს).
+  const gestureRef = useRef({ active: false, startX: 0, startY: 0, lastDelta: 0, panning: false, scrolling: false });
+  // listener-ები ერთხელ მიებმება — მიმდინარე მნიშვნელობებს ref-იდან კითხულობენ
+  const latestRef = useRef({ page, containerWidth, count });
+  latestRef.current = { page, containerWidth, count };
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  // კონტეინერის სიგანე ცოცხლად — ადრე მხოლოდ mount-ზე/hover-ზე იზომებოდა და
+  // ფანჯრის ზომის/ორიენტაციის შეცვლის შემდეგ სლაიდები არასწორად იწეოდა.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return undefined;
+    const measure = () => setContainerWidth(el.getBoundingClientRect().width);
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  // გარედან მართული გვერდი
   useEffect(() => {
     setPage(pageIndex);
-    dragX.set(-containerWidth * pageIndex);
   }, [pageIndex]);
-  useEffect(() => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setContainerWidth(rect.width);
-      containerRef.current.addEventListener("touchstart", handleTouchStart);
-      containerRef.current.addEventListener("touchmove", handleTouchMove);
-      containerRef.current.addEventListener("touchend", handleTouchEnd);
-    }
-    return () => {
-      if (containerRef.current) {
-        containerRef.current.removeEventListener(
-          "touchstart",
-          handleTouchStart
-        );
-        containerRef.current.removeEventListener("touchmove", handleTouchMove);
-        containerRef.current.removeEventListener("touchend", handleTouchEnd);
-      }
-    };
-  }, [containerRef.current, panning, scrolling, page]);
 
-  const handleTouchStart = (e: any) => {
-    pointerRef.current = true;
-    startX = e.touches[0].clientX - dragX.get();
-    startY = e.touches[0].clientY;
-    setPanning(false);
-    setScrolling(false);
-  };
-
-  const handleTouchMove = (e: any) => {
-    if (!pointerRef.current) return;
-    const delta = e.touches[0].clientX - startX;
-    const deltaScroll = e.touches[0].clientY - startY;
-    if (!scrolling && Math.abs(delta - dragX.get()) > 8) {
-      setPanning(true);
-      e.preventDefault();
-    } else if (!panning && Math.abs(deltaScroll) > 8) {
-      setScrolling(true);
-    }
-    if (panning && !scrolling) {
-      e.preventDefault();
-      dragX.set(delta);
-    }
-    lastDelta = delta;
-  };
-
-  const handleTouchEnd = (e: any) => {
-    if (!pointerRef.current) return;
-    pointerRef.current = false;
-    const nextDirection = lastDelta - dragX.get() > 0 ? -1 : 1;
-    if (Math.abs(lastDelta + containerWidth * page) > 70 && panning) {
-      let pageToSet = Math.max(page + (nextDirection > 0 ? 1 : -1), 0);
-      pageToSet = Math.min(
-        pageToSet,
-        React.Children.toArray(children).length - 1
-      );
-      setPage(pageToSet);
-      dragX.set(-containerWidth * pageToSet);
-    } else {
-      dragX.set(-containerWidth * page);
-    }
-    setPanning(false);
-    setScrolling(false);
-  };
-
+  // გვერდის ან სიგანის ცვლილებისას პოზიცია ხელახლა ითვლება
   useEffect(() => {
     dragX.set(-containerWidth * page);
-    setPanning(false);
-    setScrolling(false);
-    if (onChange) {
-      onChange(page);
+  }, [page, containerWidth, dragX]);
+
+  const isFirstRenderRef = useRef(true);
+  useEffect(() => {
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      return;
     }
+    onChangeRef.current?.(page);
   }, [page]);
 
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return undefined;
+    const gesture = gestureRef.current;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      gesture.active = true;
+      gesture.startX = e.touches[0].clientX - dragX.get();
+      gesture.startY = e.touches[0].clientY;
+      gesture.lastDelta = dragX.get();
+      gesture.panning = false;
+      gesture.scrolling = false;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!gesture.active) return;
+      const delta = e.touches[0].clientX - gesture.startX;
+      const deltaScroll = e.touches[0].clientY - gesture.startY;
+      if (!gesture.panning && !gesture.scrolling) {
+        if (Math.abs(delta - dragX.get()) > GESTURE_LOCK_THRESHOLD) gesture.panning = true;
+        else if (Math.abs(deltaScroll) > GESTURE_LOCK_THRESHOLD) gesture.scrolling = true;
+      }
+      if (gesture.panning) {
+        e.preventDefault();
+        dragX.set(delta);
+      }
+      gesture.lastDelta = delta;
+    };
+
+    const handleTouchEnd = () => {
+      if (!gesture.active) return;
+      gesture.active = false;
+      const { page: current, containerWidth: width, count: total } = latestRef.current;
+      const offset = gesture.lastDelta + width * current;
+      if (gesture.panning && Math.abs(offset) > SWIPE_THRESHOLD) {
+        const next = Math.min(Math.max(current + (offset < 0 ? 1 : -1), 0), total - 1);
+        setPage(next);
+        dragX.set(-width * next);
+      } else {
+        dragX.set(-width * current);
+      }
+      gesture.panning = false;
+      gesture.scrolling = false;
+    };
+
+    // passive: false — touchmove-ში preventDefault (გვერდის scroll-ის შეჩერება) რომ იმუშაოს
+    el.addEventListener("touchstart", handleTouchStart, { passive: true });
+    el.addEventListener("touchmove", handleTouchMove, { passive: false });
+    el.addEventListener("touchend", handleTouchEnd);
+    el.addEventListener("touchcancel", handleTouchEnd);
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove", handleTouchMove);
+      el.removeEventListener("touchend", handleTouchEnd);
+      el.removeEventListener("touchcancel", handleTouchEnd);
+    };
+  }, [dragX]);
+
   return (
-    <>
-      <S.Container
-        onHoverStart={() => {
-          setHovering(true);
-          const rect = containerRef.current.getBoundingClientRect();
-          setContainerWidth(rect.width);
-        }}
-        onHoverEnd={() => {
-          setHovering(false);
-        }}
-      >
-        {showArrows &&
-          showRightArrows &&
-          React.Children.toArray(children).length > 1 && (
-            <S.ArrowRight
-              className="arrow-btn"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: hovering ? 1 : 0 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setPage((x) =>
-                  x == React.Children.toArray(children).length - 1 ? 0 : x + 1
-                );
-              }}
-            >
-              <Icon name="chevron_right" />
-            </S.ArrowRight>
+    <S.Container onHoverStart={() => setHovering(true)} onHoverEnd={() => setHovering(false)}>
+      {showArrows && showRightArrows && count > 1 && (
+        <S.ArrowRight
+          className="arrow-btn"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: hovering ? 1 : 0 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setPage((x) => (x === count - 1 ? 0 : x + 1));
+          }}
+        >
+          <Icon name="chevron_right" />
+        </S.ArrowRight>
+      )}
+      {showArrows && count > 1 && (
+        <S.ArrowLeft
+          className="arrow-btn"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: hovering ? 1 : 0 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            setPage((x) => (x === 0 ? count - 1 : x - 1));
+          }}
+        >
+          <Icon name="chevron_left" />
+        </S.ArrowLeft>
+      )}
+      <S.Wrapper ref={containerRef}>
+        <S.ItemWrapper style={{ x: dragX }}>{children}</S.ItemWrapper>
+        <Hidden md lg xl xl2 xxl xxxl>
+          {count > 1 && (
+            <S.BulletContainer>
+              {Array.from({ length: count }).map((_, i) => (
+                <S.BulletItem key={`wrapper-${i}`} active={i === page}>
+                  •
+                </S.BulletItem>
+              ))}
+            </S.BulletContainer>
           )}
-        {showArrows && React.Children.toArray(children).length > 1 && (
-          <S.ArrowLeft
-            className="arrow-btn"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: hovering ? 1 : 0 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setPage((x) =>
-                x == 0 ? React.Children.toArray(children).length - 1 : x - 1
-              );
-            }}
-          >
-            <Icon name="chevron_left" />
-          </S.ArrowLeft>
-        )}
-        <S.Wrapper ref={containerRef}>
-          <S.ItemWrapper
-            style={{
-              x: dragX,
-            }}
-          >
-            {children}
-          </S.ItemWrapper>
-          <Hidden md lg xl xl2 xxl xxxl>
-            {React.Children.toArray(children).length > 1 && (
-              <S.BulletContainer>
-                {[...new Array(React.Children.toArray(children).length)].map(
-                  (x, i) => {
-                    let isActive = i === page;
-                    return (
-                      <S.BulletItem key={`wrapper-${i}`} active={isActive}>
-                        •
-                      </S.BulletItem>
-                    );
-                  }
-                )}
-              </S.BulletContainer>
-            )}
-          </Hidden>
-        </S.Wrapper>
-      </S.Container>
-    </>
+        </Hidden>
+      </S.Wrapper>
+    </S.Container>
   );
 };
 

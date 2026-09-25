@@ -168,5 +168,12 @@
   "share-messenger": "Messenger",
   "share-close-aria": "Close",
   "toast-added-to-cart": "Product added to cart",
-  "toast-removed-from-cart": "Product removed from cart"
+  "toast-removed-from-cart": "Product removed from cart",
+  "validation-password-strength": "Password must contain at least one uppercase letter, one lowercase letter and one digit",
+  "auth-modal-otp-sent": "A verification code was sent to your phone — enter it below.",
+  "auth-modal-label-otp": "SMS code",
+  "auth-modal-otp-placeholder": "Enter the code",
+  "auth-modal-otp-resend": "Resend",
+  "auth-modal-otp-required": "Enter the code you received by SMS",
+  "auth-modal-otp-send-failed": "Couldn't send the code, please try again"
 }

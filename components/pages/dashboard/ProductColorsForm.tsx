@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ColorsAPI, ProductsAPI } from "@/API_Client";
 import { ProductColorItemDto } from "@/API_Client/client/models";
@@ -33,9 +33,15 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
   const [rows, setRows] = useState<Record<string, ColorRowState>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+  // "ყველას შენახვა" PUT-ით მთლიანად ანაცვლებს ფერებს — თუ ფორმა ჯერ არ
+  // ჩატვირთულა/ვერ ჩაიტვირთა ან ადმინს არაფერი შეუცვლია, ცარიელი/მოძველებული
+  // state-ის გაგზავნა არსებულ ფერებს წაშლიდა, ამიტომ ასეთ დროს save() skip-დება.
+  const loadedRef = useRef(false);
+  const dirtyRef = useRef(false);
 
   const fetchData = async () => {
     setLoading(true);
+    loadedRef.current = false;
     try {
       const [colorsRes, productColorsRes] = await Promise.all([
         ColorsAPI(locale, accessToken).colorsControllerFindAll(),
@@ -53,6 +59,8 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
           : { checked: false, stock: "0" };
       });
       setRows(next);
+      loadedRef.current = true;
+      dirtyRef.current = false;
     } catch {
       toast.error("პროდუქტის ფერების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -65,13 +73,21 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
-  const toggleColor = (colorId: string) =>
+  const toggleColor = (colorId: string) => {
+    dirtyRef.current = true;
     setRows((prev) => ({ ...prev, [colorId]: { ...prev[colorId], checked: !prev[colorId]?.checked } }));
+  };
 
-  const updateStock = (colorId: string, stock: string) =>
+  const updateStock = (colorId: string, stock: string) => {
+    dirtyRef.current = true;
     setRows((prev) => ({ ...prev, [colorId]: { ...prev[colorId], stock } }));
+  };
 
   const handleSave = async (silent = false): Promise<boolean> => {
+    if (!loadedRef.current) {
+      toast.error("პროდუქტის ფერები ვერ ჩაიტვირთა — გადატვირთეთ გვერდი და სცადეთ ხელახლა");
+      return false;
+    }
     const checkedEntries = Object.entries(rows).filter(([, state]) => state.checked);
 
     for (const [, state] of checkedEntries) {
@@ -100,7 +116,9 @@ export const ProductColorsForm = forwardRef<ProductColorsFormHandle, ProductColo
     }
   };
 
-  useImperativeHandle(ref, () => ({ save: () => handleSave(true) }));
+  useImperativeHandle(ref, () => ({
+    save: async () => (loadedRef.current && dirtyRef.current ? handleSave(true) : true),
+  }));
 
   if (loading) {
     return <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>;

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { STRONG_PASSWORD_REGEX } from "@/components/shared/validation/schemas";
 
 /** ბექენდის Phase 1-ის ცვლილების შემდეგ Category/Attribute/Color-ს ორი
  * ცალკე (`nameKa`/`nameEn`) ველის ნაცვლად სამენოვანი `translations` obj
@@ -17,62 +18,95 @@ const valueTranslationsSchema = z.object({
   ru: z.object({ value: z.string().trim().optional() }),
 });
 
+/** რედაქტირების რეჟიმი ყველა translations builder-ისთვის. ბექენდის
+ * mergeTranslations per-locale deep-merge-ს აკეთებს, ამიტომ გამოტოვებული
+ * ველი/ენა ძველ მნიშვნელობას ტოვებდა. isUpdate-ისას ცარიელი en/ru — null
+ * (ენის თარგმანის წაშლა), ცარიელი არასავალდებულო ქვე-ველი — "" (მისი წაშლა). */
+export type TranslationsBuildOptions = { isUpdate?: boolean };
+
+// ბექენდის partial translations DTO-ში en/ru nullable-ია, create DTO-ში — არა;
+// builder-ების დაბრუნებული ტიპი create-თან თავსებადი რჩება, null კი მხოლოდ
+// isUpdate-ისას იწერება.
+const CLEARED_LOCALE = null as unknown as undefined;
+
 /** ბექენდზე გასაგზავნ `translations` obj-ს აგებს ფორმის მნიშვნელობებიდან —
  * `ka` ყოველთვის იგზავნება, `en`/`ru` მხოლოდ თუ მომხმარებელმა შეავსო
- * (ცარიელი ველები არ იგზავნება, სქემის optional-ობის შესაბამისად). */
-export const buildNameTranslationsDto = (t: {
-  ka: { name: string };
-  en: { name?: string };
-  ru: { name?: string };
-}) => {
+ * (შექმნისას ცარიელი ველები არ იგზავნება, რედაქტირებისას — null). */
+export const buildNameTranslationsDto = (
+  t: {
+    ka: { name: string };
+    en: { name?: string };
+    ru: { name?: string };
+  },
+  { isUpdate = false }: TranslationsBuildOptions = {}
+) => {
   const dto: { ka: { name: string }; en?: { name: string }; ru?: { name: string } } = {
     ka: { name: t.ka.name.trim() },
   };
   const en = t.en.name?.trim();
   const ru = t.ru.name?.trim();
   if (en) dto.en = { name: en };
+  else if (isUpdate) dto.en = CLEARED_LOCALE;
   if (ru) dto.ru = { name: ru };
+  else if (isUpdate) dto.ru = CLEARED_LOCALE;
   return dto;
 };
 
 /** იგივე `buildNameTranslationsDto`-ს, AttributeOption-ის `value` ველზე. */
-export const buildValueTranslationsDto = (t: {
-  ka: { value: string };
-  en: { value?: string };
-  ru: { value?: string };
-}) => {
+export const buildValueTranslationsDto = (
+  t: {
+    ka: { value: string };
+    en: { value?: string };
+    ru: { value?: string };
+  },
+  { isUpdate = false }: TranslationsBuildOptions = {}
+) => {
   const dto: { ka: { value: string }; en?: { value: string }; ru?: { value: string } } = {
     ka: { value: t.ka.value.trim() },
   };
   const en = t.en.value?.trim();
   const ru = t.ru.value?.trim();
   if (en) dto.en = { value: en };
+  else if (isUpdate) dto.en = CLEARED_LOCALE;
   if (ru) dto.ru = { value: ru };
+  else if (isUpdate) dto.ru = CLEARED_LOCALE;
   return dto;
 };
 
 /** Product-ისთვის იგივე, `name`/`description` წყვილზე. `description`
  * ყოველთვის არასავალდებულოა (ka-შიც). */
-export const buildProductTranslationsDto = (t: {
-  ka: { name: string; description?: string };
-  en: { name?: string; description?: string };
-  ru: { name?: string; description?: string };
-}) => {
+// keepEmptyDescriptions — რედაქტირებისას: ბექენდის mergeTranslations deep-merge-ს
+// აკეთებს, ამიტომ გამოტოვებული description ძველ ტექსტს ტოვებდა; ცარიელი ""
+// გაგზავნით აღწერის წაშლა რეალურად ხდება.
+export const buildProductTranslationsDto = (
+  t: {
+    ka: { name: string; description?: string };
+    en: { name?: string; description?: string };
+    ru: { name?: string; description?: string };
+  },
+  { keepEmptyDescriptions = false }: { keepEmptyDescriptions?: boolean } = {}
+) => {
   const dto: {
     ka: { name: string; description?: string };
-    en?: { name: string; description?: string };
-    ru?: { name: string; description?: string };
+    en?: { name: string; description?: string } | null;
+    ru?: { name: string; description?: string } | null;
   } = { ka: { name: t.ka.name.trim() } };
-  const kaDescription = t.ka.description?.trim();
-  if (kaDescription) dto.ka.description = kaDescription;
+  const descriptionField = (description?: string) => {
+    const trimmed = description?.trim();
+    if (trimmed) return { description: trimmed };
+    return keepEmptyDescriptions ? { description: "" } : {};
+  };
 
+  Object.assign(dto.ka, descriptionField(t.ka.description));
+
+  // რედაქტირებისას ცარიელი en/ru სახელი — null (ბექენდი ამ ენის თარგმანს შლის)
   const enName = t.en.name?.trim();
-  const enDescription = t.en.description?.trim();
-  if (enName) dto.en = { name: enName, ...(enDescription ? { description: enDescription } : {}) };
+  if (enName) dto.en = { name: enName, ...descriptionField(t.en.description) };
+  else if (keepEmptyDescriptions) dto.en = null;
 
   const ruName = t.ru.name?.trim();
-  const ruDescription = t.ru.description?.trim();
-  if (ruName) dto.ru = { name: ruName, ...(ruDescription ? { description: ruDescription } : {}) };
+  if (ruName) dto.ru = { name: ruName, ...descriptionField(t.ru.description) };
+  else if (keepEmptyDescriptions) dto.ru = null;
 
   return dto;
 };
@@ -130,15 +164,29 @@ export const categoryFormSchema = z.object({
 
 export type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
+// ბექენდის @IsInt() @Min(0) — "abc" ადრე Number()-ით NaN-ად (JSON-ში null)
+// იგზავნებოდა და ასაკი ჩუმად იკარგებოდა.
+const optionalAgeField = z
+  .string()
+  .trim()
+  .optional()
+  .refine((v) => !v || /^\d+$/.test(v), "ასაკი უნდა იყოს არაუარყოფითი მთელი რიცხვი");
+
 /** მომხმარებლის შექმნის ფორმის ვალიდაციის სქემა. */
 export const userCreateFormSchema = z.object({
   firstName: z.string().trim().min(1, "გთხოვთ შეავსოთ სახელი"),
   lastName: z.string().trim().min(1, "გთხოვთ შეავსოთ გვარი"),
   email: z.string().trim().min(1, "გთხოვთ შეავსოთ ელ. ფოსტა").email("არასწორი ელ. ფოსტის ფორმატი"),
-  password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
+  // ბექენდის @IsStrongPassword — იგივე წესი, რაც რეგისტრაციაზე (validation/schemas.ts)
+  password: z
+    .string()
+    .regex(
+      STRONG_PASSWORD_REGEX,
+      "პაროლი უნდა შეიცავდეს მინიმუმ 8 სიმბოლოს, ერთ დიდ ასოს, ერთ პატარა ასოს და ერთ ციფრს"
+    ),
   role: z.enum(["admin", "user"]),
   gender: z.enum(["male", "female"]).optional().or(z.literal("")),
-  age: z.string().optional(),
+  age: optionalAgeField,
 });
 
 export type UserCreateFormValues = z.infer<typeof userCreateFormSchema>;
@@ -150,7 +198,7 @@ export const userEditFormSchema = z.object({
   email: z.string().trim().min(1, "გთხოვთ შეავსოთ ელ. ფოსტა").email("არასწორი ელ. ფოსტის ფორმატი"),
   role: z.enum(["admin", "user"]),
   gender: z.enum(["male", "female"]).optional().or(z.literal("")),
-  age: z.string().optional(),
+  age: optionalAgeField,
 });
 
 export type UserEditFormValues = z.infer<typeof userEditFormSchema>;
@@ -186,8 +234,9 @@ export const productFormSchema = z.object({
     .trim()
     .optional()
     .refine(
-      (v) => !v || (!isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100),
-      "ფასდაკლება უნდა იყოს 0-დან 100-მდე რიცხვი"
+      // ბექენდზე @IsInt() — 12.5 ადრე 400-ს იღებდა ზოგადი შეცდომით
+      (v) => !v || (Number.isInteger(Number(v)) && Number(v) >= 0 && Number(v) <= 100),
+      "ფასდაკლება უნდა იყოს 0-დან 100-მდე მთელი რიცხვი"
     ),
   categoryId: z.string().optional(),
   companyId: z.string().trim().min(1, "გთხოვთ აირჩიოთ მფლობელი კომპანია"),
@@ -408,21 +457,24 @@ export type HeroSlideFormValues = z.infer<typeof heroSlideFormSchema>;
 /** ბექენდზე გასაგზავნ `translations` obj-ს აგებს hero-სლაიდის ფორმის
  * მნიშვნელობებიდან — `ka.title` ყოველთვის იგზავნება, დანარჩენი (ka-ს
  * `eyebrow`/`description`/`buttonText`-ის ჩათვლით) მხოლოდ თუ შევსებულია. */
-export const buildHeroSlideTranslationsDto = (t: {
-  ka: { eyebrow?: string; title: string; description?: string; buttonText?: string };
-  en: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
-  ru: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
-}) => {
+export const buildHeroSlideTranslationsDto = (
+  t: {
+    ka: { eyebrow?: string; title: string; description?: string; buttonText?: string };
+    en: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
+    ru: { eyebrow?: string; title?: string; description?: string; buttonText?: string };
+  },
+  { isUpdate = false }: TranslationsBuildOptions = {}
+) => {
   const buildEntry = (e: { eyebrow?: string; title?: string; description?: string; buttonText?: string }) => {
     const entry: { eyebrow?: string; title?: string; description?: string; buttonText?: string } = {};
     const eyebrow = e.eyebrow?.trim();
     const title = e.title?.trim();
     const description = e.description?.trim();
     const buttonText = e.buttonText?.trim();
-    if (eyebrow) entry.eyebrow = eyebrow;
+    if (eyebrow || isUpdate) entry.eyebrow = eyebrow || "";
     if (title) entry.title = title;
-    if (description) entry.description = description;
-    if (buttonText) entry.buttonText = buttonText;
+    if (description || isUpdate) entry.description = description || "";
+    if (buttonText || isUpdate) entry.buttonText = buttonText || "";
     return entry;
   };
 
@@ -434,9 +486,11 @@ export const buildHeroSlideTranslationsDto = (t: {
 
   const en = buildEntry(t.en);
   if (en.title) dto.en = en;
+  else if (isUpdate) dto.en = CLEARED_LOCALE;
 
   const ru = buildEntry(t.ru);
   if (ru.title) dto.ru = ru;
+  else if (isUpdate) dto.ru = CLEARED_LOCALE;
 
   return dto;
 };
@@ -514,17 +568,20 @@ export type ProductSliderFormValues = z.infer<typeof productSliderFormSchema>;
 /** ბექენდზე გასაგზავნ `translations` obj-ს აგებს პროდუქტების სლაიდერის
  * ფორმის მნიშვნელობებიდან — `ka.title` ყოველთვის იგზავნება, დანარჩენი
  * (`viewAllText`-ის და en/ru-ს ჩათვლით) მხოლოდ თუ შევსებულია. */
-export const buildProductSliderTranslationsDto = (t: {
-  ka: { title: string; viewAllText?: string };
-  en: { title?: string; viewAllText?: string };
-  ru: { title?: string; viewAllText?: string };
-}) => {
+export const buildProductSliderTranslationsDto = (
+  t: {
+    ka: { title: string; viewAllText?: string };
+    en: { title?: string; viewAllText?: string };
+    ru: { title?: string; viewAllText?: string };
+  },
+  { isUpdate = false }: TranslationsBuildOptions = {}
+) => {
   const buildEntry = (e: { title?: string; viewAllText?: string }) => {
     const entry: { title?: string; viewAllText?: string } = {};
     const title = e.title?.trim();
     const viewAllText = e.viewAllText?.trim();
     if (title) entry.title = title;
-    if (viewAllText) entry.viewAllText = viewAllText;
+    if (viewAllText || isUpdate) entry.viewAllText = viewAllText || "";
     return entry;
   };
 
@@ -536,9 +593,11 @@ export const buildProductSliderTranslationsDto = (t: {
 
   const en = buildEntry(t.en);
   if (en.title) dto.en = en;
+  else if (isUpdate) dto.en = CLEARED_LOCALE;
 
   const ru = buildEntry(t.ru);
   if (ru.title) dto.ru = ru;
+  else if (isUpdate) dto.ru = CLEARED_LOCALE;
 
   return dto;
 };

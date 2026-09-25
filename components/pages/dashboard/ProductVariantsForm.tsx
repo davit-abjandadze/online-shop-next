@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { ColorsAPI, ProductsAPI, SizesAPI } from "@/API_Client";
 import { ProductVariantItemDto } from "@/API_Client/client/models";
@@ -45,9 +45,15 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
   const [rows, setRows] = useState<VariantRowState[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+  // PUT მთლიანად ანაცვლებს ვარიანტებს (წაშლა cascade-ით შლის კალათის ჩანაწერებს
+  // და ფილიალების მარაგსაც) — ჩაუტვირთავი/ვერჩატვირთული ან უცვლელი state-ით
+  // "ყველას შენახვა" save()-ს skip-ავს, რომ ვარიანტები ჩუმად არ წაიშალოს.
+  const loadedRef = useRef(false);
+  const dirtyRef = useRef(false);
 
   const fetchData = async () => {
     setLoading(true);
+    loadedRef.current = false;
     // ცალ-ცალკე settle-დება, რომ ვარიანტების წამოღების შეცდომამ (მაგ. ჯერ არცერთი
     // ვარიანტი არ არსებობს ამ პროდუქტზე) არ დაბლოკოს ფერების/ზომების სიის ჩვენება
     const [colorsResult, sizesResult, variantsResult] = await Promise.allSettled([
@@ -79,8 +85,11 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
           price: v.price != null ? String(v.price) : "",
         }))
       );
+      loadedRef.current = true;
+      dirtyRef.current = false;
     } else {
       setRows([]);
+      toast.error("პროდუქტის ვარიანტების ჩატვირთვა ვერ მოხერხდა");
     }
 
     setLoading(false);
@@ -91,14 +100,26 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productId]);
 
-  const updateRow = (key: string, patch: Partial<VariantRowState>) =>
+  const updateRow = (key: string, patch: Partial<VariantRowState>) => {
+    dirtyRef.current = true;
     setRows((prev) => prev.map((row) => (row.key === key ? { ...row, ...patch } : row)));
+  };
 
-  const removeRow = (key: string) => setRows((prev) => prev.filter((row) => row.key !== key));
+  const removeRow = (key: string) => {
+    dirtyRef.current = true;
+    setRows((prev) => prev.filter((row) => row.key !== key));
+  };
 
-  const addRow = () => setRows((prev) => [...prev, emptyRow()]);
+  const addRow = () => {
+    dirtyRef.current = true;
+    setRows((prev) => [...prev, emptyRow()]);
+  };
 
   const handleSave = async (silent = false): Promise<boolean> => {
+    if (!loadedRef.current) {
+      toast.error("არსებული ვარიანტები ვერ ჩაიტვირთა — შენახვა წაშლიდა მათ. გადატვირთეთ გვერდი და სცადეთ ხელახლა");
+      return false;
+    }
     for (const row of rows) {
       if (!row.colorId && !row.sizeId) {
         toast.error("თითოეულ ვარიანტს უნდა ჰქონდეს მინიმუმ ფერი ან ზომა არჩეული");
@@ -135,7 +156,9 @@ export const ProductVariantsForm = forwardRef<ProductVariantsFormHandle, Product
     }
   };
 
-  useImperativeHandle(ref, () => ({ save: () => handleSave(true) }));
+  useImperativeHandle(ref, () => ({
+    save: async () => (dirtyRef.current ? handleSave(true) : true),
+  }));
 
   if (loading) {
     return <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>;

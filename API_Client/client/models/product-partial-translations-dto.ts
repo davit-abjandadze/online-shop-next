@@ -19,7 +19,7 @@ import type { NameDescriptionTranslationDto } from './name-description-translati
 
 export interface ProductPartialTranslationsDto {
     'ka'?: NameDescriptionTranslationDto;
-    'en'?: NameDescriptionTranslationDto;
-    'ru'?: NameDescriptionTranslationDto;
+    'en'?: NameDescriptionTranslationDto | null;
+    'ru'?: NameDescriptionTranslationDto | null;
 }
 

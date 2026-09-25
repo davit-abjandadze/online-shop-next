@@ -87,7 +87,9 @@ export const HomeComponent: React.FC = () => {
     const fetchHomeData = async () => {
       setLoading(true);
       try {
-        const [categoriesRes, featuredRes, newArrivalsRes, heroSlidesRes] = await Promise.all([
+        // allSettled — ერთი (მაგ. არასავალდებულო /hero-slides) მოთხოვნის ჩავარდნამ
+        // დანარჩენი, წარმატებული სექციები ცარიელი არ უნდა დატოვოს.
+        const [categoriesRes, featuredRes, newArrivalsRes, heroSlidesRes] = await Promise.allSettled([
           // /categories/tree — root კატეგორიები ნესთებული children-ით, რომ
           // hover-ზე გახსნილ მეგა-მენიუში რეალური ქვეკატეგორიები გამოჩნდეს.
           CategoriesAPI(router.locale || "ka", "").categoryControllerFindTree(),
@@ -121,17 +123,29 @@ export const HomeComponent: React.FC = () => {
           HeroSlidesAPI(router.locale || "ka", "").heroSlidesControllerFindActive(),
         ]);
 
-        const categoriesData = categoriesRes.data as unknown as Category[];
-        setCategories(Array.isArray(categoriesData) ? categoriesData.slice(0, CATEGORIES_LIMIT) : []);
+        if (categoriesRes.status === "fulfilled") {
+          const categoriesData = categoriesRes.value.data as unknown as Category[];
+          setCategories(Array.isArray(categoriesData) ? categoriesData.slice(0, CATEGORIES_LIMIT) : []);
+        }
 
-        const featuredData = featuredRes.data as unknown as PaginatedResponseDto<Product>;
-        setFeatured(Array.isArray(featuredData?.data) ? featuredData.data : []);
+        if (featuredRes.status === "fulfilled") {
+          const featuredData = featuredRes.value.data as unknown as PaginatedResponseDto<Product>;
+          setFeatured(Array.isArray(featuredData?.data) ? featuredData.data : []);
+        }
 
-        const newArrivalsData = newArrivalsRes.data as unknown as PaginatedResponseDto<Product>;
-        setNewArrivals(Array.isArray(newArrivalsData?.data) ? newArrivalsData.data : []);
+        if (newArrivalsRes.status === "fulfilled") {
+          const newArrivalsData = newArrivalsRes.value.data as unknown as PaginatedResponseDto<Product>;
+          setNewArrivals(Array.isArray(newArrivalsData?.data) ? newArrivalsData.data : []);
+        }
 
-        const heroSlidesData = heroSlidesRes.data as unknown as ResolvedHeroSlide[];
-        setHeroSlides(Array.isArray(heroSlidesData) ? heroSlidesData : []);
+        if (heroSlidesRes.status === "fulfilled") {
+          const heroSlidesData = heroSlidesRes.value.data as unknown as ResolvedHeroSlide[];
+          setHeroSlides(Array.isArray(heroSlidesData) ? heroSlidesData : []);
+        }
+
+        [categoriesRes, featuredRes, newArrivalsRes, heroSlidesRes].forEach((result) => {
+          if (result.status === "rejected") console.error("Error fetching home page data:", result.reason);
+        });
       } catch (err) {
         console.error("Error fetching home page data:", err);
       } finally {

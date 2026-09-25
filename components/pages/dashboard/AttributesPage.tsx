@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AttributesAPI } from "@/API_Client";
 import { CreateAttributeDto, CreateAttributeOptionDto, UpdateAttributeDto, UpdateAttributeOptionDto } from "@/API_Client/client/models";
-import { Attribute, AttributeOption, AttributeType, PaginatedResponseDto } from "@/API_Client/types";
+import { Attribute, AttributeOption, AttributeType } from "@/API_Client/types";
 import { CloseIcon, EditIcon, PlusIcon, CheckSquareIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -24,6 +24,7 @@ import {
   readValueTranslations,
 } from "./schemas";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 const emptyAttributeForm: AttributeFormValues = {
   translations: { ka: { name: "" }, en: { name: "" }, ru: { name: "" } },
@@ -95,9 +96,9 @@ export const AttributesPage: React.FC = () => {
     if (!session?.accessToken) return;
     setLoading(true);
     try {
-      const res = await AttributesAPI(router.locale || "ka", session.accessToken).attributeControllerFindAll(1, 100);
-      const data = res.data as unknown as PaginatedResponseDto<Attribute>;
-      setAttributes(Array.isArray(data?.data) ? data.data : []);
+      // limit მაქსიმუმ 100-ია — ყველა გვერდს ვიღებთ, რომ 100-ზე მეტი ჩანაწერიც არჩევადი იყოს
+      const api = AttributesAPI(router.locale || "ka", session.accessToken);
+      setAttributes(await fetchAllPages<Attribute>((page, limit) => api.attributeControllerFindAll(page, limit)));
     } catch {
       toast.error("მახასიათებლების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -112,11 +113,13 @@ export const AttributesPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken]);
 
-  const toDto = (data: AttributeFormValues) => ({
-    translations: buildNameTranslationsDto(data.translations),
+  // isUpdate: "არცერთი" ერთეულის არჩევისას undefined-ს ბექენდი იგნორს
+  // უკეთებს და ძველი unit რჩებოდა — რედაქტირებისას null იგზავნება.
+  const toDto = (data: AttributeFormValues, isUpdate = false) => ({
+    translations: buildNameTranslationsDto(data.translations, { isUpdate }),
     code: data.code.trim(),
     type: data.type,
-    unit: data.unit?.trim() || undefined,
+    unit: data.unit?.trim() || (isUpdate ? (null as unknown as undefined) : undefined),
     isFilterable: data.isFilterable,
     isRequired: data.isRequired,
     sortOrder: data.sortOrder === "" ? undefined : Number(data.sortOrder),
@@ -186,7 +189,7 @@ export const AttributesPage: React.FC = () => {
       await AttributesAPI(router.locale || "ka", session.accessToken).attributeControllerUpdate(
         String(editingAttr.id),
         // TODO: generated UpdateAttributeDto not yet regenerated for translations — remove cast after yarn generate:api
-        toDto(data) as unknown as UpdateAttributeDto
+        toDto(data, true) as unknown as UpdateAttributeDto
       );
       toast.success("მახასიათებელი წარმატებით განახლდა!");
       setEditingAttr(null);
@@ -228,7 +231,8 @@ export const AttributesPage: React.FC = () => {
     if (!editingAttr || !session?.accessToken) return;
     setOptionSubmitting(true);
     const dto = {
-      translations: buildValueTranslationsDto(data.translations),
+      // editingOption — რედაქტირება: ცარიელი en/ru null-ით (ძველი თარგმანის წაშლა)
+      translations: buildValueTranslationsDto(data.translations, { isUpdate: !!editingOption }),
       code: data.code.trim(),
       sortOrder: data.sortOrder === "" ? undefined : Number(data.sortOrder),
     };

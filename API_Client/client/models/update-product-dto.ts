@@ -39,17 +39,17 @@ export interface UpdateProductDto {
      */
     'videoUrl'?: string;
     /**
-     * წონა (კგ)
+     * წონა (კგ); რედაქტირებისას null — გასუფთავება
      */
-    'weight'?: number;
+    'weight'?: number | null;
     /**
-     * სიგრძე (სმ)
+     * სიგრძე (სმ); რედაქტირებისას null — გასუფთავება
      */
-    'length'?: number;
+    'length'?: number | null;
     /**
-     * სიგანე (სმ)
+     * სიგანე (სმ); რედაქტირებისას null — გასუფთავება
      */
-    'width'?: number;
+    'width'?: number | null;
     /**
      * აქტიურია თუ არა პროდუქტი
      */
@@ -57,7 +57,7 @@ export interface UpdateProductDto {
     /**
      * კატეგორიის ID
      */
-    'categoryId'?: string;
+    'categoryId'?: string | null;
     /**
      * მფლობელი კომპანიის ID (წინასწარ /companies-ზე შექმნილი)
      */

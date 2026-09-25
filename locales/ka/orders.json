@@ -35,5 +35,6 @@
   "timeline-auto-created": "შეკვეთა შექმნილია",
   "timeline-auto-paid": "გადახდილია სისტემურად",
   "timeline-auto-expired": "ვადა ამოეწურა ავტომატურად",
-  "timeline-auto-generic": "შეიცვალა ავტომატურად"
+  "timeline-auto-generic": "შეიცვალა ავტომატურად",
+  "retry": "ხელახლა ცდა"
 }

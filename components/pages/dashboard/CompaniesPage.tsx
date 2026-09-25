@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CompaniesAPI } from "@/API_Client";
 import { Company } from "@/API_Client/client/models";
-import { PaginatedResponseDto } from "@/API_Client/types";
 import { BuildingIcon, CloseIcon, EditIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { CDN_URL } from "@/constants";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
@@ -15,6 +14,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import { CompanyFormValues, companyFormSchema } from "./schemas";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 const emptyCompanyForm: CompanyFormValues = {
   name: "",
@@ -63,9 +63,8 @@ export const CompaniesPage: React.FC = () => {
     if (!session?.accessToken) return;
     setLoadingCompanies(true);
     try {
-      const res = await CompaniesAPI(router.locale || "ka", session.accessToken).companiesControllerFindAllAdmin();
-      const data = res.data as unknown as PaginatedResponseDto<Company>;
-      setCompanies(Array.isArray(data?.data) ? data.data : []);
+      const api = CompaniesAPI(router.locale || "ka", session.accessToken);
+      setCompanies(await fetchAllPages<Company>((page, limit) => api.companiesControllerFindAllAdmin(page, limit)));
     } catch {
       toast.error("კომპანიების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -125,8 +124,9 @@ export const CompaniesPage: React.FC = () => {
         String(editingCompany.id),
         {
           name: data.name.trim(),
-          description: data.description?.trim() || undefined,
-          logoUrl: data.logoUrl?.trim() || undefined,
+          // რედაქტირებისას გასუფთავებული ველი null-ით — undefined-ს ბექენდი იგნორს უკეთებს
+          description: data.description?.trim() || (null as unknown as undefined),
+          logoUrl: data.logoUrl?.trim() || (null as unknown as undefined),
           isActive: data.isActive,
           sortOrder: data.sortOrder.trim() ? Number(data.sortOrder) : undefined,
         }

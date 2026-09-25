@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AttributesAPI, CategoriesAPI } from "@/API_Client";
-import { Attribute, Category, CategoryAttribute, PaginatedResponseDto } from "@/API_Client/types";
+import { Attribute, Category, CategoryAttribute } from "@/API_Client/types";
 import { CheckSquareIcon, CloseIcon, EditIcon, PlusIcon, TagIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { useAdminGuard } from "@/hooks/useAdminGuard";
 import { useOverlayCloseHandlers } from "@/hooks/useOverlayClose";
@@ -14,6 +14,7 @@ import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
 import { CategoryFormValues, buildNameTranslationsDto, categoryFormSchema, readNameTranslations } from "./schemas";
 import * as S from "./style";
+import { fetchAllPages } from "@/utils/fetchAllPages";
 
 const emptyCategoryForm: CategoryFormValues = {
   translations: { ka: { name: "" }, en: { name: "" }, ru: { name: "" } },
@@ -61,9 +62,9 @@ export const CategoriesPage: React.FC = () => {
     if (!session?.accessToken) return;
     setLoadingC(true);
     try {
-      const res = await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerFindAll(1, 100);
-      const data = res.data as unknown as PaginatedResponseDto<Category>;
-      setCategories(Array.isArray(data?.data) ? data.data : []);
+      // limit მაქსიმუმ 100-ია — ყველა გვერდს ვიღებთ, რომ 100-ზე მეტი ჩანაწერიც არჩევადი იყოს
+      const api = CategoriesAPI(router.locale || "ka", session.accessToken);
+      setCategories(await fetchAllPages<Category>((page, limit) => api.categoryControllerFindAll(page, limit)));
     } catch {
       toast.error("კატეგორიების ჩატვირთვა ვერ მოხერხდა");
     } finally {
@@ -138,9 +139,11 @@ export const CategoriesPage: React.FC = () => {
       await CategoriesAPI(router.locale || "ka", session.accessToken).categoryControllerUpdate(
         String(editingCat.id),
         {
-          translations: buildNameTranslationsDto(data.translations),
+          translations: buildNameTranslationsDto(data.translations, { isUpdate: true }),
           slug: data.slug.trim(),
-          parentId: data.parentId || undefined,
+          // "— root კატეგორია —" — null-ით ბექენდი კატეგორიას root-ზე გადაიტანს
+          // (undefined-ს იგნორს უკეთებდა და ქვეკატეგორია root-ად ვეღარ იქცეოდა)
+          parentId: data.parentId || (null as unknown as undefined),
           isActive: data.isActive,
         }
       );
@@ -191,9 +194,9 @@ export const CategoriesPage: React.FC = () => {
     fetchCategoryAttrs(String(cat.id));
     if (allAttributes.length === 0 && session?.accessToken) {
       try {
-        const res = await AttributesAPI(router.locale || "ka", session.accessToken).attributeControllerFindAll(1, 100);
-        const data = res.data as unknown as PaginatedResponseDto<Attribute>;
-        setAllAttributes(Array.isArray(data?.data) ? data.data : []);
+        // limit მაქსიმუმ 100-ია — ყველა გვერდს ვიღებთ, რომ 100-ზე მეტი ჩანაწერიც არჩევადი იყოს
+        const api = AttributesAPI(router.locale || "ka", session.accessToken);
+        setAllAttributes(await fetchAllPages<Attribute>((page, limit) => api.attributeControllerFindAll(page, limit)));
       } catch {
         toast.error("მახასიათებლების სიის ჩატვირთვა ვერ მოხერხდა");
       }
