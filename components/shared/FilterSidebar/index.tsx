@@ -282,6 +282,50 @@ const PriceFilter: React.FC<{
   );
 };
 
+const COLLAPSED_MAX_HEIGHT = 220;
+
+/**
+ * facet-ის ბარათის სხეული — თუ შიგთავსი `COLLAPSED_MAX_HEIGHT`-ზე მაღალია,
+ * აკეცილად ჩანს და ქვემოთ "მაჩვენე მეტი"/"მაჩვენე ნაკლები" ღილაკი ემატება.
+ * სიმაღლეს ResizeObserver-ით ვზომავთ (option-ების სია refetch-ზე იცვლება),
+ * ხოლო max-height-ს px-ში ვაძლევთ, რომ ჩამოშლა/აკეცვა smooth იყოს.
+ */
+const CollapsibleBody: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { t } = useTranslation("catalog");
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const el = innerRef.current;
+    if (!el) return;
+    const measure = () => setContentHeight(el.scrollHeight);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const isOverflowing = contentHeight > COLLAPSED_MAX_HEIGHT;
+
+  return (
+    <S.FilterCardBody>
+      <S.CollapseViewport
+        collapsed={isOverflowing && !expanded}
+        style={{ maxHeight: isOverflowing ? (expanded ? contentHeight : COLLAPSED_MAX_HEIGHT) : undefined }}
+      >
+        <S.CollapseInner ref={innerRef}>{children}</S.CollapseInner>
+      </S.CollapseViewport>
+      {isOverflowing && (
+        <S.ShowMoreButton type="button" aria-expanded={expanded} onClick={() => setExpanded((v) => !v)}>
+          {expanded ? t("filter-show-less") : t("filter-show-more")}
+        </S.ShowMoreButton>
+      )}
+    </S.FilterCardBody>
+  );
+};
+
 /**
  * `GET /categories/:slug/filters`-ის facet-ებს (`CategoryFilterEntry[]`)
  * UI-ში გადმოწერს, attribute.type-ის მიხედვით: select/multi_select →
@@ -408,35 +452,35 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
         const selectedCodes = (draft[attribute.code] || "").split(",");
         const visibleOptions = facet.options?.filter((opt) => opt.count > 0 || selectedCodes.includes(opt.code));
 
+        // მახასიათებელს ასარჩევი ვარიანტი საერთოდ არ აქვს — ბარათს არ ვაჩენთ.
+        if (visibleOptions && visibleOptions.length === 0) return null;
+
         return (
           <S.FilterCard key={attribute.id}>
             <S.FilterCardTitle>{label}</S.FilterCardTitle>
-            <S.FilterCardBody>
+            <CollapsibleBody>
               {/* select/multi_select — მოკლე ლეიბლები სივრცის მიხედვით
                   ავტომატურად ორ (ან მეტ) სვეტად ეწყობა, იხ. S.CheckboxGrid */}
               {visibleOptions && (
-                <>
-                  <S.CheckboxGrid>
-                    {visibleOptions.map((opt) => {
-                      const selected = selectedCodes.includes(opt.code);
-                      const optLabel = getLocalizedValue(opt, locale);
-                      return (
-                        <S.CheckboxRow key={opt.id} checked={selected}>
-                          <S.CheckboxLabel>
-                            <input
-                              type="checkbox"
-                              checked={selected}
-                              onChange={() => toggleOption(attribute.code, opt.code)}
-                            />
-                            {optLabel}
-                          </S.CheckboxLabel>
-                          <S.OptionCount>{opt.count}</S.OptionCount>
-                        </S.CheckboxRow>
-                      );
-                    })}
-                  </S.CheckboxGrid>
-                  {visibleOptions.length === 0 && <S.EmptyFacets>{t("filter-no-options")}</S.EmptyFacets>}
-                </>
+                <S.CheckboxGrid>
+                  {visibleOptions.map((opt) => {
+                    const selected = selectedCodes.includes(opt.code);
+                    const optLabel = getLocalizedValue(opt, locale);
+                    return (
+                      <S.CheckboxRow key={opt.id} checked={selected}>
+                        <S.CheckboxLabel>
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => toggleOption(attribute.code, opt.code)}
+                          />
+                          {optLabel}
+                        </S.CheckboxLabel>
+                        <S.OptionCount>{opt.count}</S.OptionCount>
+                      </S.CheckboxRow>
+                    );
+                  })}
+                </S.CheckboxGrid>
               )}
 
               {/* number/range */}
@@ -496,7 +540,7 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
                   onChange={(e) => handleChange(attribute.code, e.target.value || undefined)}
                 />
               )}
-            </S.FilterCardBody>
+            </CollapsibleBody>
           </S.FilterCard>
         );
       })}

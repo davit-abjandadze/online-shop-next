@@ -40,6 +40,8 @@
   "filter-title": "Фильтры",
   "filter-empty-category": "Для этой категории пока нет дополнительных фильтров.",
   "filter-no-options": "Нет доступных вариантов",
+  "filter-show-more": "Показать больше",
+  "filter-show-less": "Показать меньше",
   "filter-range-from-placeholder": "От",
   "filter-range-to-placeholder": "До",
   "filter-boolean-yes": "Да",

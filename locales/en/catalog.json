@@ -40,6 +40,8 @@
   "filter-title": "Filters",
   "filter-empty-category": "No additional filters exist yet for this category.",
   "filter-no-options": "No options available",
+  "filter-show-more": "Show more",
+  "filter-show-less": "Show less",
   "filter-range-from-placeholder": "From",
   "filter-range-to-placeholder": "To",
   "filter-boolean-yes": "Yes",

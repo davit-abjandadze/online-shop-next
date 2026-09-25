@@ -73,6 +73,40 @@ export const FilterCardBody = styled("div")`
   }
 `;
 
+// facet-ის ბარათის შიგთავსი (იხ. index.tsx-ის CollapsibleBody) — თუ
+// 220px-ზე მაღალია, აკეცილ მდგომარეობაში max-height-ით იჭრება, "მაჩვენე
+// მეტი"-ზე კი რეალურ სიმაღლემდე (px-ში, რომ transition იმუშაოს) იშლება.
+export const CollapseViewport = styled("div")<{ collapsed?: boolean }>`
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  ${({ collapsed }) =>
+    collapsed
+      ? `-webkit-mask-image: linear-gradient(to bottom, #000 75%, transparent);
+         mask-image: linear-gradient(to bottom, #000 75%, transparent);`
+      : ""}
+`;
+
+export const CollapseInner = styled("div")`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+export const ShowMoreButton = styled("button")`
+  align-self: flex-start;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  color: var(--ref-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 // select/multi_select ვარიანტების სია — სადაც ადგილი ხელს უწყობს
 // (მოკლე ლეიბლები, ფართო popup), ორ სვეტად თვითონ ეწყობა (auto-fill),
 // ვიწროზე კი ერთ სვეტად ეცემა — ცალკე breakpoint-ის გარეშე.

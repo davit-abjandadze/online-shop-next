@@ -40,6 +40,8 @@
   "filter-title": "ფილტრები",
   "filter-empty-category": "ამ კატეგორიისთვის დამატებითი ფილტრი ჯერ არ არსებობს.",
   "filter-no-options": "ვარიანტები არ არის",
+  "filter-show-more": "მაჩვენე მეტი",
+  "filter-show-less": "მაჩვენე ნაკლები",
   "filter-range-from-placeholder": "დან",
   "filter-range-to-placeholder": "მდე",
   "filter-boolean-yes": "კი",
