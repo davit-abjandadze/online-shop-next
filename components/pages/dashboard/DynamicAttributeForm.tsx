@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { useRouter } from "next/router";
 import { ProductAttributeValueItemDto } from "@/API_Client/client/models";
 import { AttributeOption, CategoryAttribute, ProductAttributeValue } from "@/API_Client/types";
@@ -16,6 +16,11 @@ interface DynamicAttributeFormProps {
   onSave: (items: ProductAttributeValueItemDto[]) => void;
 }
 
+// მშობელი ("ცვლილებების შენახვა") ref-ით იღებს შესანახ ჩანაწერებს. null ნიშნავს,
+// რომ მომხმარებელს არაფერი შეუცვლია — ასეთ დროს მოთხოვნას არ ვაგზავნით, რომ
+// ჯერ ჩაუტვირთავი მნიშვნელობები ცარიელი სიით არ გადაიწეროს.
+export type DynamicAttributeFormHandle = { getItems: () => ProductAttributeValueItemDto[] | null };
+
 type FieldState = {
   attributeOptionId?: string;
   attributeOptionIds?: string[];
@@ -31,14 +36,11 @@ type FieldState = {
  * `boolean`. საწყისი მნიშვნელობები `ProductAttributeValue[]`-იდან
  * (`GET /products/:id/attribute-values`) ივსება.
  */
-export const DynamicAttributeForm: React.FC<DynamicAttributeFormProps> = ({
-  categoryAttrs,
-  values,
-  saving,
-  onSave,
-}) => {
+export const DynamicAttributeForm = forwardRef<DynamicAttributeFormHandle, DynamicAttributeFormProps>(
+  ({ categoryAttrs, values, saving, onSave }, ref) => {
   const router = useRouter();
   const [fields, setFields] = useState<Record<string, FieldState>>({});
+  const [dirty, setDirty] = useState<boolean>(false);
 
   useEffect(() => {
     const next: Record<string, FieldState> = {};
@@ -68,12 +70,15 @@ export const DynamicAttributeForm: React.FC<DynamicAttributeFormProps> = ({
       };
     }
     setFields(next);
+    setDirty(false);
   }, [categoryAttrs, values]);
 
   const isRequired = (ca: CategoryAttribute) => ca.isRequiredOverride ?? ca.attribute.isRequired;
 
-  const updateField = (attributeId: string, patch: Partial<FieldState>) =>
+  const updateField = (attributeId: string, patch: Partial<FieldState>) => {
+    setDirty(true);
     setFields((prev) => ({ ...prev, [attributeId]: { ...prev[attributeId], ...patch } }));
+  };
 
   const toggleMultiOption = (attributeId: string, optionId: string) => {
     const current = fields[attributeId]?.attributeOptionIds || [];
@@ -81,7 +86,7 @@ export const DynamicAttributeForm: React.FC<DynamicAttributeFormProps> = ({
     updateField(attributeId, { attributeOptionIds: next });
   };
 
-  const handleSave = () => {
+  const buildItems = (): ProductAttributeValueItemDto[] => {
     const items: ProductAttributeValueItemDto[] = [];
     for (const ca of categoryAttrs) {
       const state = fields[ca.attributeId];
@@ -109,8 +114,14 @@ export const DynamicAttributeForm: React.FC<DynamicAttributeFormProps> = ({
         if (state.valueBoolean !== undefined) items.push({ attributeId: ca.attributeId, valueBoolean: state.valueBoolean });
       }
     }
-    onSave(items);
+    return items;
   };
+
+  const handleSave = () => onSave(buildItems());
+
+  useImperativeHandle(ref, () => ({
+    getItems: () => (dirty && categoryAttrs.length > 0 ? buildItems() : null),
+  }));
 
   if (categoryAttrs.length === 0) {
     return (
@@ -199,6 +210,9 @@ export const DynamicAttributeForm: React.FC<DynamicAttributeFormProps> = ({
       </S.ModalFooter>
     </div>
   );
-};
+  }
+);
+
+DynamicAttributeForm.displayName = "DynamicAttributeForm";
 
 export default DynamicAttributeForm;

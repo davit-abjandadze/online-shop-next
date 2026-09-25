@@ -464,7 +464,7 @@ export const AttributesPage: React.FC = () => {
                 </S.ImageList>
 
                 <form onSubmit={handleOptionSubmit} noValidate style={{ marginTop: "12px" }}>
-                  <S.ImageRow>
+                  <S.ImageRow  style={{ paddingBottom: "20px" }}>
                     <S.Input placeholder="მნიშვნელობა (ქართულად)" {...optionForm.register("translations.ka.value")} />
                     <S.Input placeholder="Value (English)" {...optionForm.register("translations.en.value")} />
                     <S.Input placeholder="Значение (русский)" {...optionForm.register("translations.ru.value")} />

@@ -330,10 +330,17 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
     });
   };
 
+  // checkbox-ის მონიშვნა მაშინვე ფილტრავს (draft-ში დაგროვილ სხვა ცვლილებებთან
+  // ერთად) — რომ facet-ები დაუყოვნებლივ შევიწროვდეს: მაგ. ბრენდის არჩევისას
+  // სიბლანტე/მოცულობა მხოლოდ იმ ბრენდის არსებულ მნიშვნელობებს აჩვენებს.
   const toggleOption = (code: string, optionCode: string) => {
     const current = (draft[code] || "").split(",").filter(Boolean);
     const next = current.includes(optionCode) ? current.filter((c) => c !== optionCode) : [...current, optionCode];
-    handleChange(code, next.length > 0 ? next.join(",") : undefined);
+    const nextDraft = { ...draft };
+    if (next.length > 0) nextDraft[code] = next.join(",");
+    else delete nextDraft[code];
+    setDraft(nextDraft);
+    onApply(nextDraft);
   };
 
   const handleClear = () => {
@@ -396,6 +403,10 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
       {facets.map((facet) => {
         const { attribute } = facet;
         const label = `${getLabel(attribute, locale)}${attribute.unit ? ` (${attribute.unit})` : ""}`;
+        // count=0 — სხვა არჩეულ ფილტრებთან ერთად ამ option-ს პროდუქტი არ აქვს,
+        // ამიტომ ვმალავთ; უკვე მონიშნული მაინც ჩანს, რომ მოხსნა შეიძლებოდეს.
+        const selectedCodes = (draft[attribute.code] || "").split(",");
+        const visibleOptions = facet.options?.filter((opt) => opt.count > 0 || selectedCodes.includes(opt.code));
 
         return (
           <S.FilterCard key={attribute.id}>
@@ -403,11 +414,11 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
             <S.FilterCardBody>
               {/* select/multi_select — მოკლე ლეიბლები სივრცის მიხედვით
                   ავტომატურად ორ (ან მეტ) სვეტად ეწყობა, იხ. S.CheckboxGrid */}
-              {facet.options && (
+              {visibleOptions && (
                 <>
                   <S.CheckboxGrid>
-                    {facet.options.map((opt) => {
-                      const selected = (draft[attribute.code] || "").split(",").includes(opt.code);
+                    {visibleOptions.map((opt) => {
+                      const selected = selectedCodes.includes(opt.code);
                       const optLabel = getLocalizedValue(opt, locale);
                       return (
                         <S.CheckboxRow key={opt.id} checked={selected}>
@@ -424,7 +435,7 @@ export const FilterSidebar = React.forwardRef<FilterSidebarHandle, FilterSidebar
                       );
                     })}
                   </S.CheckboxGrid>
-                  {facet.options.length === 0 && <S.EmptyFacets>{t("filter-no-options")}</S.EmptyFacets>}
+                  {visibleOptions.length === 0 && <S.EmptyFacets>{t("filter-no-options")}</S.EmptyFacets>}
                 </>
               )}
 

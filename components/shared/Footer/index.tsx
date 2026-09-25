@@ -62,7 +62,7 @@ export const Footer: React.FC = () => {
           <S.BrandColumn>
             <S.Brand>
               <S.BrandBadge>
-                <img src="/icons/logo.svg" alt="" />
+                <img src="/icons/logo.png" alt="" />
               </S.BrandBadge>
             </S.Brand>
             <S.BrandSubtitle>

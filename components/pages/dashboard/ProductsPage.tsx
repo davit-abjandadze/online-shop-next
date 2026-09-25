@@ -17,7 +17,7 @@ import { uploadImageToImgbb } from "@/utils/uploadImageToImgbb";
 import DashboardLayout from "./DashboardLayout";
 import ConfirmDialog from "./ConfirmDialog";
 import { ListSkeleton } from "./Skeletons";
-import DynamicAttributeForm from "./DynamicAttributeForm";
+import DynamicAttributeForm, { DynamicAttributeFormHandle } from "./DynamicAttributeForm";
 import AdditionalInfoForm from "./AdditionalInfoForm";
 import ProductColorsForm, { ProductColorsFormHandle } from "./ProductColorsForm";
 import ProductVariantsForm, { ProductVariantsFormHandle } from "./ProductVariantsForm";
@@ -203,6 +203,7 @@ export const ProductsPage: React.FC = () => {
   const colorsFormRef = useRef<ProductColorsFormHandle>(null);
   const variantsFormRef = useRef<ProductVariantsFormHandle>(null);
   const branchesFormRef = useRef<ProductBranchesFormHandle>(null);
+  const attrsFormRef = useRef<DynamicAttributeFormHandle>(null);
 
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState<boolean>(false);
@@ -370,18 +371,20 @@ export const ProductsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingProduct?.id, editCategoryId, session?.accessToken]);
 
-  const handleSaveAttrValues = async (items: ProductAttributeValueItemDto[]) => {
-    if (!editingProduct || !session?.accessToken) return;
+  const handleSaveAttrValues = async (items: ProductAttributeValueItemDto[], silent = false): Promise<boolean> => {
+    if (!editingProduct || !session?.accessToken) return false;
     setAttrsSaving(true);
     try {
       await ProductsAPI(router.locale || "ka", session.accessToken).productsControllerSetAttributeValues(
         editingProduct.id,
         { values: items }
       );
-      toast.success("მახასიათებლები წარმატებით შეინახა!");
+      if (!silent) toast.success("მახასიათებლები წარმატებით შეინახა!");
       fetchEditAttrValues(editingProduct.id);
+      return true;
     } catch (err: any) {
       toast.error(err?.response?.data?.message || "მახასიათებლების შენახვა ვერ მოხერხდა");
+      return false;
     } finally {
       setAttrsSaving(false);
     }
@@ -424,8 +427,8 @@ export const ProductsPage: React.FC = () => {
   };
 
   // "ცვლილებების შენახვა" ერთი ღილაკია, მაგრამ ინახავს ყველაფერს: ძირითად
-  // ფორმას და ქვემოთ მდებარე ფერების/ვარიანტების/ფილიალების ქვეფორმებს
-  // (ref-ებით, თანმიმდევრობით — იხ. colorsFormRef/variantsFormRef/branchesFormRef).
+  // ფორმას და ქვემოთ მდებარე მახასიათებლების/ფერების/ვარიანტების/ფილიალების ქვეფორმებს
+  // (ref-ებით, თანმიმდევრობით — იხ. attrsFormRef/colorsFormRef/variantsFormRef/branchesFormRef).
   // თუ რომელიმე ეტაპი ჩავარდება, მოდალი არ იხურება, რომ მომხმარებელმა
   // კონკრეტული სექციის შეცდომა დაინახოს და გაასწოროს.
   const handleEditSubmit = editForm.handleSubmit(async (data) => {
@@ -437,6 +440,12 @@ export const ProductsPage: React.FC = () => {
         // TODO: generated UpdateProductDto not yet regenerated for translations — remove cast after yarn generate:api
         toDto(data) as unknown as UpdateProductDto
       );
+
+      const attrItems = attrsFormRef.current?.getItems();
+      if (attrItems) {
+        const attrsOk = await handleSaveAttrValues(attrItems, true);
+        if (!attrsOk) return;
+      }
 
       const colorsOk = await colorsFormRef.current?.save();
       if (colorsOk === false) return;
@@ -1027,6 +1036,7 @@ export const ProductsPage: React.FC = () => {
                   <p style={{ fontSize: "14px", color: "var(--ref-text-secondary)" }}>იტვირთება...</p>
                 ) : (
                   <DynamicAttributeForm
+                    ref={attrsFormRef}
                     categoryAttrs={editCategoryAttrs}
                     values={editAttrValues}
                     saving={attrsSaving}
