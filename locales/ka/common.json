@@ -106,7 +106,7 @@
   "auth-modal-label-phone": "მობილურის ნომერი",
   "auth-modal-label-confirm-password": "გაიმეორეთ პაროლი",
   "auth-modal-placeholder-confirm-password": "გაიმეორეთ პაროლი",
-  "auth-modal-placeholder-password-register": "მინიმუმ 6 სიმბოლო",
+  "auth-modal-placeholder-password-register": "მინიმუმ 8 სიმბოლო",
   "auth-modal-register-submit": "რეგისტრაცია",
   "auth-modal-register-submitting": "მიმდინარეობს რეგისტრაცია...",
   "auth-modal-forgot-description": "შეიყვანეთ ელფოსტა, რომლითაც დარეგისტრირებული ხართ და გამოგიგზავნით პაროლის აღდგენის ინსტრუქციას.",

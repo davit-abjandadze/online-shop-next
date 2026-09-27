@@ -9,6 +9,7 @@ import Footer from "@/components/shared/Footer";
 import AuthModal from "@/components/shared/AuthModal";
 import OrderStatusBadge from "@/components/shared/OrderStatusBadge";
 import OrderStatusTimeline from "@/components/shared/OrderStatusTimeline";
+import InvoiceModal from "./InvoiceModal";
 import { OrdersAPI, PaymentsAPI } from "@/API_Client";
 import { Order, PaymentInitiateResponse } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
@@ -45,6 +46,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
   const [forbidden, setForbidden] = useState<boolean>(false);
   const [loadError, setLoadError] = useState<boolean>(false);
   const [paying, setPaying] = useState<boolean>(false);
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState<boolean>(false);
   const [confirmingPayment, setConfirmingPayment] = useState<boolean>(false);
   const [confirmTimedOut, setConfirmTimedOut] = useState<boolean>(false);
   const confirmTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -297,7 +299,12 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
           <S.Card>
             <S.HeaderRow>
               <S.OrderTitle>{t("order-id", { id: order.id })}</S.OrderTitle>
-              <OrderStatusBadge status={order.status} />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <OrderStatusBadge status={order.status} />
+                <S.PrimaryButton type="button" onClick={() => setInvoiceModalOpen(true)}>
+                  {t("invoice-button")}
+                </S.PrimaryButton>
+              </div>
             </S.HeaderRow>
 
             <S.MetaGrid>
@@ -376,6 +383,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
         </S.Container>
       </S.PageBackground>
       <Footer />
+      {invoiceModalOpen && <InvoiceModal order={order} onClose={() => setInvoiceModalOpen(false)} />}
     </>
   );
 };

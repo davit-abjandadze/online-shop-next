@@ -61,7 +61,7 @@
   "hide-password": "Скрыть",
   "show-password": "Показать",
   "field-new-password": "Новый пароль",
-  "new-password-placeholder": "Минимум 6 символов",
+  "new-password-placeholder": "Минимум 8 символов",
   "field-confirm-password": "Повторите новый пароль",
   "confirm-password-placeholder": "Повторите новый пароль",
   "changing-password": "Смена пароля...",

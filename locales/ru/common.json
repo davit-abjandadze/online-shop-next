@@ -106,7 +106,7 @@
   "auth-modal-label-phone": "Номер мобильного телефона",
   "auth-modal-label-confirm-password": "Повторите пароль",
   "auth-modal-placeholder-confirm-password": "Повторите ваш пароль",
-  "auth-modal-placeholder-password-register": "Минимум 6 символов",
+  "auth-modal-placeholder-password-register": "Минимум 8 символов",
   "auth-modal-register-submit": "Зарегистрироваться",
   "auth-modal-register-submitting": "Регистрация...",
   "auth-modal-forgot-description": "Введите электронную почту, с которой вы зарегистрированы, и мы отправим вам инструкцию по восстановлению пароля.",

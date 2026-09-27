@@ -61,7 +61,7 @@
   "hide-password": "Hide",
   "show-password": "Show",
   "field-new-password": "New password",
-  "new-password-placeholder": "At least 6 characters",
+  "new-password-placeholder": "At least 8 characters",
   "field-confirm-password": "Confirm new password",
   "confirm-password-placeholder": "Confirm your new password",
   "changing-password": "Changing password...",

@@ -468,7 +468,7 @@ export const UsersPage: React.FC = () => {
                 </S.FormGroup>
                 <S.FormGroup>
                   <S.Label>პაროლი</S.Label>
-                  <S.Input type="password" placeholder="მინიმუმ 6 სიმბოლო" {...createForm.register("password")} />
+                  <S.Input type="password" placeholder="მინიმუმ 8 სიმბოლო" {...createForm.register("password")} />
                   {createForm.formState.errors.password && <S.FieldError>{createForm.formState.errors.password.message}</S.FieldError>}
                 </S.FormGroup>
               </S.FormRow>

@@ -106,7 +106,7 @@
   "auth-modal-label-phone": "Mobile Number",
   "auth-modal-label-confirm-password": "Confirm Password",
   "auth-modal-placeholder-confirm-password": "Confirm your password",
-  "auth-modal-placeholder-password-register": "At least 6 characters",
+  "auth-modal-placeholder-password-register": "At least 8 characters",
   "auth-modal-register-submit": "Register",
   "auth-modal-register-submitting": "Registering...",
   "auth-modal-forgot-description": "Enter the email you registered with and we'll send you password reset instructions.",

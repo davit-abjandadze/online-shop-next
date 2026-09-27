@@ -61,7 +61,7 @@
   "hide-password": "დამალვა",
   "show-password": "ჩვენება",
   "field-new-password": "ახალი პაროლი",
-  "new-password-placeholder": "მინიმუმ 6 სიმბოლო",
+  "new-password-placeholder": "მინიმუმ 8 სიმბოლო",
   "field-confirm-password": "გაიმეორეთ ახალი პაროლი",
   "confirm-password-placeholder": "გაიმეორეთ ახალი პაროლი",
   "changing-password": "მიმდინარეობს შეცვლა...",
