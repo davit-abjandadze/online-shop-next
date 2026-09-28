@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Header from '@/components/shared/Header';
 import Footer from '@/components/shared/Footer';
+import Seo from '@/components/shared/Seo';
 
 // --- Styled Components Definition ---
 
@@ -123,6 +124,11 @@ const PageFooter = styled.footer`
 export const TermsAndConditions = () => {
   return (
     <>
+      {/* ტექსტი მხოლოდ ქართულადაა — canonical ყოველთვის /ka-ზე (იხ. KA_ONLY_PATHS, utils/seo.ts) */}
+      <Seo
+        title="წესები და პირობები - ონლაინ მაღაზია"
+        description="ონლაინ მაღაზიის მომსახურების წესები და პირობები: რეგისტრაცია, შეკვეთა, გადახდა, მიწოდება და დაბრუნება."
+      />
       <Header />
       <Container>
       <PageHeader>

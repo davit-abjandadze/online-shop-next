@@ -16,6 +16,25 @@ export interface CategoryFiltersState {
   order?: string;
 }
 
+/** URL query → ფილტრების state (კლიენტზეც და getServerSideProps-შიც). */
+export const parseCategoryFiltersQuery = (q: Record<string, string | string[] | undefined>): CategoryFiltersState => {
+  const filters: Record<string, string> = {};
+  Object.keys(q).forEach((key) => {
+    const value = q[key];
+    if (!RESERVED_KEYS.has(key) && typeof value === "string") filters[key] = value;
+  });
+  const page = parseInt(q.page as string, 10);
+  const result: CategoryFiltersState = {
+    filters,
+    subcategory: (q.subcategory as string) || null,
+    page: !isNaN(page) && page > 0 ? page : 1,
+  };
+  // undefined ველები getServerSideProps-ის props-ში JSON-ად ვერ სერიალიზდება
+  if (typeof q.sortBy === "string") result.sortBy = q.sortBy;
+  if (typeof q.order === "string") result.order = q.order;
+  return result;
+};
+
 /**
  * URL query params ↔ კატეგორიის ფილტრების state-ის სინქრონიზაცია
  * (`catalog/index.tsx`-ის `?page=`/`?category=` URL-sync პატერნის
@@ -25,24 +44,17 @@ export interface CategoryFiltersState {
  */
 export const useCategoryFilters = () => {
   const router = useRouter();
-  const [state, setState] = useState<CategoryFiltersState>({ filters: {}, subcategory: null, page: 1 });
+  // getServerSideProps-იან გვერდზე router.query პირველივე render-ზეა (SSR-ზეც)
+  // ხელმისაწვდომი — state-ს მაშინვე URL-იდან ვავსებთ, რომ სერვერმა და კლიენტის
+  // პირველმა render-მა იგივე (გაფილტრული) სია აჩვენოს.
+  const [state, setState] = useState<CategoryFiltersState>(() =>
+    router.isReady ? parseCategoryFiltersQuery(router.query) : { filters: {}, subcategory: null, page: 1 }
+  );
   const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   useEffect(() => {
     if (!router.isReady) return;
-    const q = router.query as Record<string, string>;
-    const filters: Record<string, string> = {};
-    Object.keys(q).forEach((key) => {
-      if (!RESERVED_KEYS.has(key)) filters[key] = q[key];
-    });
-    const page = parseInt(q.page, 10);
-    const next: CategoryFiltersState = {
-      filters,
-      subcategory: q.subcategory || null,
-      page: !isNaN(page) && page > 0 ? page : 1,
-      sortBy: q.sortBy,
-      order: q.order,
-    };
+    const next = parseCategoryFiltersQuery(router.query);
     // იგივე მნიშვნელობისას ძველ ობიექტს ვტოვებთ — ჩვენივე shallow push-ის
     // შემდეგ (state უკვე განახლებულია) ზედმეტი refetch რომ არ გამოიწვიოს.
     setState((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));

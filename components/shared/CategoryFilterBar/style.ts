@@ -159,6 +159,11 @@ export const FilterDropdownPanel = styled("div")<{ layout?: Layout }>`
       box-shadow: none;
       background: none;
     `}
+
+  /* დახურული პანელი DOM-ში რჩება (SEO), მაგრამ არ ჩანს */
+  &[hidden] {
+    display: none;
+  }
 `;
 
 export const FilterDropdownItem = styled("a")<{ layout?: Layout }>`

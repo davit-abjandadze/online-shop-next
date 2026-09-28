@@ -16,6 +16,9 @@ interface ProductSliderBlockProps {
   keyName: string;
   /** სქელეტონის ბარათების რაოდენობა ჩატვირთვისას (ნაგულისხმევი — 4). */
   skeletonCount?: number;
+  /** getServerSideProps-იდან — `null` ნიშნავს "ბლოკი არ არსებობს"; `undefined`
+   * — კლიენტზე ჩაიტვირთება. მოცემულისას პროდუქტების ბმულები სერვერის HTML-შია (SEO). */
+  initialSlider?: ResolvedProductSlider | null;
 }
 
 /**
@@ -30,10 +33,11 @@ interface ProductSliderBlockProps {
  * ისრები "ყველას ნახვა" ღილაკის გვერდით, სექციის სათაურშივეა (იხ. home.tsx-ის
  * hero სლაიდერის HeroArrow/HeroArrows იგივე ვიზუალური პატერნი, S.SliderNavButton).
  */
-export const ProductSliderBlock: React.FC<ProductSliderBlockProps> = ({ keyName, skeletonCount = 4 }) => {
+export const ProductSliderBlock: React.FC<ProductSliderBlockProps> = ({ keyName, skeletonCount = 4, initialSlider }) => {
   const router = useRouter();
-  const [slider, setSlider] = useState<ResolvedProductSlider | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [slider, setSlider] = useState<ResolvedProductSlider | null>(initialSlider ?? null);
+  const [loading, setLoading] = useState<boolean>(initialSlider === undefined);
+  const skipKeyRef = useRef<string | null>(initialSlider !== undefined ? `${router.locale}|${keyName}` : null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
   const swiperRef = useRef<SwiperType | null>(null);
@@ -41,6 +45,11 @@ export const ProductSliderBlock: React.FC<ProductSliderBlockProps> = ({ keyName,
   const nextRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
+    if (skipKeyRef.current === `${router.locale}|${keyName}`) {
+      skipKeyRef.current = null;
+      return;
+    }
+    skipKeyRef.current = null;
     let cancelled = false;
     setLoading(true);
     ProductSlidersAPI(router.locale || "ka", "")

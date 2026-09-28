@@ -3,25 +3,36 @@ import { GetServerSideProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import useTranslation from "next-translate/useTranslation";
 import { ProductsAPI } from "@/API_Client";
-import { Product } from "@/API_Client/types";
-import { BASEPATH, CDN_URL, DEFAULT_LOCALE } from "@/constants";
+import { Product, ProductVariant } from "@/API_Client/types";
+import { DEFAULT_LOCALE } from "@/constants";
 import ProductDetailComponent from "@/components/pages/productDetail";
+import Seo from "@/components/shared/Seo";
 import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
+import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
+import { getPublicPageProps } from "@/utils/publicPage";
+import {
+  absoluteImage,
+  absoluteUrl,
+  parseProductParam,
+  productPath,
+  resolveLocale,
+  stripHtml,
+  truncate,
+} from "@/utils/seo";
 
 interface ProductDetailPageProps {
   product: Product | null;
+  similarProducts: Product[];
+  // მხოლოდ JSON-LD-ისთვის (ფასების დიაპაზონი/მარაგი) — UI თავად ტვირთავს ვარიანტებს
+  variants: ProductVariant[];
 }
 
-const SEO_LOCALES = ["ka", "en", "ru"] as const;
-
-const truncate = (text: string, max: number) =>
-  text.length > max ? `${text.slice(0, max - 1).trimEnd()}…` : text;
-
-const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product }) => {
+const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product, similarProducts, variants }) => {
   const router = useRouter();
-  const currentLocale = router.locale && router.locale !== "default" ? router.locale : "ka";
+  const currentLocale = resolveLocale(router.locale);
   const { t } = useTranslation("product");
   const { t: tc } = useTranslation("common");
+  const { t: tCatalog } = useTranslation("catalog");
 
   if (!product) {
     return (
@@ -37,61 +48,138 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product }) => {
   }
 
   const productName = getCategoryName(product, currentLocale);
-  const productDescription = getLocalizedDescription(product, currentLocale);
+  const productDescription = stripHtml(getLocalizedDescription(product, currentLocale));
   const title = truncate(`${productName} — ${tc("default-page-title")}`, 95);
   const description = productDescription
     ? truncate(productDescription, 155)
     : t("meta-description-fallback", { name: productName });
-  const url = `${BASEPATH}/${currentLocale}/products/${product.id}`;
-  // სოციალური ქსელები ფარდობით og:image-ს იგნორირებენ — resolveImage-ის
-  // იგივე წესით CDN_URL-ს ვუმატებთ, თუ სრული URL არ არის.
-  const rawImage = product.images?.[0];
-  const image = rawImage ? (rawImage.startsWith("http") ? rawImage : `${CDN_URL}${rawImage}`) : undefined;
+  const url = absoluteUrl(currentLocale, productPath(product));
+  const images = (product.images || []).map((img) => absoluteImage(img)).filter(Boolean) as string[];
+  const { price } = getDiscountedPrice(product);
+
+  // ვარიანტებიან პროდუქტზე ფასი/მარაგი ვარიანტებიდან მოდის (ProductCard-ის "დან"
+  // ფასის იგივე ლოგიკა, ფასდაკლების ჩათვლით) — სხვადასხვა ფასისას AggregateOffer.
+  const buildOffers = () => {
+    const base = { priceCurrency: "GEL", url, itemCondition: "https://schema.org/NewCondition" };
+    if (variants.length === 0) {
+      return {
+        "@type": "Offer",
+        ...base,
+        price: price.toFixed(2),
+        availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      };
+    }
+    const inStock = variants.some((v) => v.stock > 0);
+    const availability = inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock";
+    const candidates = inStock ? variants.filter((v) => v.stock > 0) : variants;
+    const prices = candidates.map(
+      (v) => getDiscountedPrice({ price: v.resolvedPrice, discountPercent: product.discountPercent }).price
+    );
+    const low = Math.min(...prices);
+    const high = Math.max(...prices);
+    if (low === high) return { "@type": "Offer", ...base, price: low.toFixed(2), availability };
+    return {
+      "@type": "AggregateOffer",
+      ...base,
+      lowPrice: low.toFixed(2),
+      highPrice: high.toFixed(2),
+      offerCount: candidates.length,
+      availability,
+    };
+  };
+
+  const category = product.category;
+  const breadcrumbItems = [
+    { name: tCatalog("breadcrumb-home"), url: absoluteUrl(currentLocale, "") },
+    ...(category?.parent
+      ? [{ name: getCategoryName(category.parent, currentLocale), url: absoluteUrl(currentLocale, `/categories/${category.parent.slug}`) }]
+      : []),
+    ...(category ? [{ name: getCategoryName(category, currentLocale), url: absoluteUrl(currentLocale, `/categories/${category.slug}`) }] : []),
+    { name: productName, url },
+  ];
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: productName,
+    description,
+    sku: String(product.id),
+    url,
+    ...(images.length ? { image: images } : {}),
+    ...(product.company?.name ? { brand: { "@type": "Brand", name: product.company.name } } : {}),
+    ...(category ? { category: getCategoryName(category, currentLocale) } : {}),
+    offers: buildOffers(),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbItems.map((item, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
 
   return (
     <>
-      {/* key-ები _app.tsx-ის იგივეა — next/head `property=`-იან meta-ს და
-          <link>-ს key-ის გარეშე არ ადედუპლიკატებს და ორივე ნაკრები ჩანდა. */}
+      <Seo
+        title={title}
+        description={description}
+        image={images[0]}
+        type="product"
+        jsonLd={[productJsonLd, breadcrumbJsonLd]}
+      />
       <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-        <link rel="canonical" href={url} key="canonical" />
-        {SEO_LOCALES.map((locale) => (
-          <link
-            key={`hreflang-${locale}`}
-            rel="alternate"
-            hrefLang={locale}
-            href={`${BASEPATH}/${locale}/products/${product.id}`}
-          />
-        ))}
-        <link
-          rel="alternate"
-          hrefLang="x-default"
-          href={`${BASEPATH}/${DEFAULT_LOCALE}/products/${product.id}`}
-          key="hreflang-x-default"
-        />
-        <meta property="og:title" content={title} key="title" />
-        <meta property="og:description" content={description} key="description" />
-        <meta property="og:url" content={url} key="ogUrl" />
-        <meta name="twitter:title" content={title} key="twitterTitle" />
-        <meta name="twitter:description" content={description} key="twitterDescription" />
-        {image && <meta property="og:image" content={image} key="ogImage" />}
+        <meta property="product:price:amount" content={price.toFixed(2)} key="productPrice" />
+        <meta property="product:price:currency" content="GEL" key="productCurrency" />
       </Head>
-      <ProductDetailComponent key={product.id} product={product} />
+      <ProductDetailComponent key={product.id} product={product} similarProducts={similarProducts} />
     </>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<ProductDetailPageProps> = async ({ params, locale }) => {
-  const id = params?.id as string;
+export const getServerSideProps: GetServerSideProps<ProductDetailPageProps> = async ({ params, locale, resolvedUrl, res: httpRes }) => {
+  const param = params?.id as string;
+  const id = parseProductParam(param);
   // არარიცხვითი id-ით ბექენდი 400-ს აბრუნებს — პირდაპირ ნამდვილი 404
-  if (!/^\d+$/.test(id || "")) {
+  if (id === null) {
     return { notFound: true };
   }
 
   try {
-    const res = await ProductsAPI(locale || "ka", "").productsControllerFindOne(Number(id));
-    return { props: { product: res.data as unknown as Product } };
+    const res = await ProductsAPI(locale || DEFAULT_LOCALE, "").productsControllerFindOne(id);
+    const product = res.data as unknown as Product;
+
+    // `/products/123` ან მოძველებული slug → 301 კანონიკურ `/products/123-name`-ზე,
+    // რომ Google-მა ერთი URL დააინდექსოს და ძველი ბმულების წონა არ დაიკარგოს.
+    const canonical = productPath(product);
+    if (`/products/${param}` !== canonical) {
+      const query = resolvedUrl.includes("?") ? resolvedUrl.slice(resolvedUrl.indexOf("?")) : "";
+      return {
+        redirect: { destination: `/${resolveLocale(locale)}${canonical}${query}`, permanent: true },
+      };
+    }
+
+    // დამატებითი მონაცემები არასავალდებულოა — ჩავარდნისას კლიენტი თავად ტვირთავს
+    const lang = locale || DEFAULT_LOCALE;
+    const [similarRes, variantsRes, common] = await Promise.all([
+      ProductsAPI(lang, "").productsControllerFindSimilar(id, { limit: 8 }).catch(() => null),
+      ProductsAPI(lang, "").productsControllerGetVariants(id).catch(() => null),
+      getPublicPageProps(httpRes, locale),
+    ]);
+    const similarProducts = (similarRes?.data as unknown as Product[]) || [];
+    const variants = (variantsRes?.data as unknown as ProductVariant[]) || [];
+
+    return {
+      props: {
+        product,
+        similarProducts: Array.isArray(similarProducts) ? similarProducts : [],
+        variants: Array.isArray(variants) ? variants : [],
+        ...common,
+      },
+    };
   } catch (err: any) {
     // 404/400 — ნამდვილი HTTP 404 (soft 404-ის ნაცვლად, რომელსაც საძიებო
     // სისტემები ინდექსავდნენ). სხვა შეცდომა (5xx/timeout) "არ არსებობს"-ად არ

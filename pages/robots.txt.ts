@@ -3,6 +3,10 @@ import { BASEPATH, SUPPORTED_LOCALES } from "@/constants";
 
 const PRIVATE_PATHS = [
   "/dashboard",
+  "/cart",
+  "/checkout",
+  "/orders",
+  "/wishlist",
   "/user/",
   "/login",
   "/register",

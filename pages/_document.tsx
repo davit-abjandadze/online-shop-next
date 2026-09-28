@@ -52,11 +52,14 @@ export default class MyDocument extends Document {
               ქართული სცრიპტის ვარიანტებსაც (Noto Sans/Serif Georgian) — ლათინურ/
               რუსულ ტექსტზე მთავარი ოჯახი მუშაობს, ქართულზე კი ავტომატურად
               გადადის Georgian ვარიანტზე font-family fallback-ის მეშვეობით. */}
+          {/* preconnect — შრიფტის სერვერებთან კავშირი CSS-ის ჩამოტვირთვამდე იწყება (LCP) */}
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital@0;1&family=Noto+Serif+Georgian&family=Noto+Sans:wght@400;500;600;700;800&family=Noto+Sans+Georgian:wght@400;500;600;700;800&display=swap"
           />
-          {/* TODO: Add third-party scripts here (Analytics, GTM, etc.) */}
+          {/* ანალიტიკა (GA4/GTM) — components/shared/Analytics, _app.tsx-იდან (next/script) */}
         </Head>
         <body>
           <Main />

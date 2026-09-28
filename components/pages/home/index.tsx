@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
+import React, { useRef, useState } from "react";
 import useTranslation from "next-translate/useTranslation";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -22,27 +21,11 @@ import {
   TagIcon,
   UndoIcon,
 } from "@/components/ui/RefIcons";
-import { CategoriesAPI, HeroSlidesAPI, ProductsAPI } from "@/API_Client";
-import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
-import { Category, HeroSlide, PaginatedResponseDto, Product } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
-import { getCategoryName } from "@/utils/getCategoryName";
+import { productPath } from "@/utils/seo";
+import { HomeData, POPULAR_SLIDER_KEY } from "./data";
 import * as S from "./style";
 
-// `GET /hero-slides` (storefront, საჯარო) locale-ის მიხედვით უკვე resolve-
-// ებულ eyebrow/title/description/buttonText/product.name-ს აბრუნებს
-// (იხ. enrichHeroSlide, online-shop-nest/src/hero-slides/hero-slides.controller.ts)
-// — ამიტომ ესენი `HeroSlide`-ის `translations`-ზე დამატებით ველებადაა საჭირო.
-type ResolvedHeroSlide = HeroSlide & {
-  eyebrow?: string;
-  title?: string;
-  description?: string;
-  buttonText?: string;
-};
-
-const FEATURED_LIMIT = 8;
-const NEW_ARRIVALS_LIMIT = 8;
-const CATEGORIES_LIMIT = 6;
 const HERO_AUTOPLAY_MS = 6000;
 
 // სურათის URL-ს CDN-ის საბაზო მისამართთან აერთებს (თუ უკვე absolute არაა) —
@@ -64,9 +47,16 @@ const BENEFITS_CONFIG = [
   { key: "support", icon: ClipboardIcon },
 ];
 
-export const HomeComponent: React.FC = () => {
-  const router = useRouter();
+interface HomeComponentProps {
+  // getServerSideProps-იდან (pages/index.tsx) — სერვერზე ჩატვირთული, რომ
+  // პროდუქტები/სლაიდები HTML-ში იყოს. ლოკალის შეცვლა ახალ gSSP-ს იწვევს,
+  // ამიტომ კლიენტზე ცალკე ხელახლა ჩატვირთვა აღარ სჭირდება.
+  data: HomeData;
+}
+
+export const HomeComponent: React.FC<HomeComponentProps> = ({ data }) => {
   const { t } = useTranslation("home");
+  const { t: tc } = useTranslation("common");
 
   const BENEFITS = BENEFITS_CONFIG.map(({ key, icon }) => ({
     icon,
@@ -74,92 +64,15 @@ export const HomeComponent: React.FC = () => {
     text: t(`benefit-${key}-text`),
   }));
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [featured, setFeatured] = useState<Product[]>([]);
-  const [newArrivals, setNewArrivals] = useState<Product[]>([]);
-  const [heroSlides, setHeroSlides] = useState<ResolvedHeroSlide[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const { featured, heroSlides, popularSlider } = data;
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [heroIndex, setHeroIndex] = useState(0);
   const heroSwiperRef = useRef<SwiperType | null>(null);
 
-  useEffect(() => {
-    const fetchHomeData = async () => {
-      setLoading(true);
-      try {
-        // allSettled — ერთი (მაგ. არასავალდებულო /hero-slides) მოთხოვნის ჩავარდნამ
-        // დანარჩენი, წარმატებული სექციები ცარიელი არ უნდა დატოვოს.
-        const [categoriesRes, featuredRes, newArrivalsRes, heroSlidesRes] = await Promise.allSettled([
-          // /categories/tree — root კატეგორიები ნესთებული children-ით, რომ
-          // hover-ზე გახსნილ მეგა-მენიუში რეალური ქვეკატეგორიები გამოჩნდეს.
-          CategoriesAPI(router.locale || "ka", "").categoryControllerFindTree(),
-          ProductsAPI(router.locale || "ka", "").productsControllerFindAll(
-            1,
-            FEATURED_LIMIT,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            true
-          ),
-          ProductsAPI(router.locale || "ka", "").productsControllerFindAll(
-            1,
-            NEW_ARRIVALS_LIMIT,
-            "createdAt",
-            ProductsControllerFindAllOrderEnum.Desc,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            true
-          ),
-          // hero სლაიდერისთვის — /hero-slides საჯარო endpoint-ია (findActive),
-          // ადმინ დეშბორდში მართული სლაიდები (/dashboard/hero-slides),
-          // უკვე მხოლოდ აქტიური და sortOrder-ით დალაგებული ბრუნდება.
-          HeroSlidesAPI(router.locale || "ka", "").heroSlidesControllerFindActive(),
-        ]);
-
-        if (categoriesRes.status === "fulfilled") {
-          const categoriesData = categoriesRes.value.data as unknown as Category[];
-          setCategories(Array.isArray(categoriesData) ? categoriesData.slice(0, CATEGORIES_LIMIT) : []);
-        }
-
-        if (featuredRes.status === "fulfilled") {
-          const featuredData = featuredRes.value.data as unknown as PaginatedResponseDto<Product>;
-          setFeatured(Array.isArray(featuredData?.data) ? featuredData.data : []);
-        }
-
-        if (newArrivalsRes.status === "fulfilled") {
-          const newArrivalsData = newArrivalsRes.value.data as unknown as PaginatedResponseDto<Product>;
-          setNewArrivals(Array.isArray(newArrivalsData?.data) ? newArrivalsData.data : []);
-        }
-
-        if (heroSlidesRes.status === "fulfilled") {
-          const heroSlidesData = heroSlidesRes.value.data as unknown as ResolvedHeroSlide[];
-          setHeroSlides(Array.isArray(heroSlidesData) ? heroSlidesData : []);
-        }
-
-        [categoriesRes, featuredRes, newArrivalsRes, heroSlidesRes].forEach((result) => {
-          if (result.status === "rejected") console.error("Error fetching home page data:", result.reason);
-        });
-      } catch (err) {
-        console.error("Error fetching home page data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchHomeData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.locale]);
-
   return (
     <S.PageBackground>
       <Header onOpenAuth={() => setAuthModalOpen(true)} />
+      <S.VisuallyHiddenH1>{`${tc("default-page-title")} — ${tc("page-description")}`}</S.VisuallyHiddenH1>
 
       {/* კატეგორიების დროპდაუნ-ზოლი ჰედერშივეა ჩაშენებული (იხ.
           components/shared/Header) — მთავარ გვერდზე ცალკე აღარ დუბლირდება. */}
@@ -168,7 +81,7 @@ export const HomeComponent: React.FC = () => {
           სლაიდები ადმინ დეშბორდიდან მოდის (/dashboard/hero-slides), საჯარო
           /hero-slides endpoint-იდან (იხ. heroSlides fetch ზემოთ) — თუ სლაიდი
           არცერთი არაა კონფიგურირებული, სექცია საერთოდ არ ჩნდება. */}
-      {(loading || heroSlides.length > 0) && (
+      {heroSlides.length > 0 && (
         <S.Hero>
           <S.HeroRow>
             <S.HeroSliderArea>
@@ -185,7 +98,7 @@ export const HomeComponent: React.FC = () => {
               >
                 {heroSlides.map((slide, idx) => {
                   const gradient = FALLBACK_GRADIENTS[idx % FALLBACK_GRADIENTS.length];
-                  const href = slide.buttonLink || (slide.product ? `/products/${slide.product.id}` : "/products");
+                  const href = slide.buttonLink || (slide.product ? productPath(slide.product) : "/products");
                   return (
                     <SwiperSlide key={slide.id}>
                       <S.HeroSlide>
@@ -252,41 +165,7 @@ export const HomeComponent: React.FC = () => {
       )}
 
       <S.Container>
-        {/* Popular categories */}
-        {/* <S.Section>
-          <S.CategoryHeader>
-            <S.CategoryTitle>{t("popular-categories-title")}</S.CategoryTitle>
-          </S.CategoryHeader>
-
-          {!loading && categories.length === 0 ? (
-            <S.EmptyRow>{t("categories-empty")}</S.EmptyRow>
-          ) : (
-            <S.CategoryGrid>
-              {(loading ? Array.from({ length: CATEGORIES_LIMIT }) : categories).map((category: any, idx) => {
-                const isActive = category && router.query.slug === category.slug;
-                return (
-                  <Link
-                    key={category?.id ?? idx}
-                    href={category ? `/categories/${category.slug}` : "/products"}
-                    passHref
-                    legacyBehavior
-                  >
-                    <S.CategoryCard active={isActive}>
-                      <S.CategoryIconBadge active={isActive}>
-                        <TagIcon size={22} />
-                      </S.CategoryIconBadge>
-                      <S.CategoryName active={isActive}>
-                        {category ? getCategoryName(category, router.locale) : ""}
-                      </S.CategoryName>
-                    </S.CategoryCard>
-                  </Link>
-                );
-              })}
-            </S.CategoryGrid>
-          )}
-        </S.Section> */}
-
-<ProductSliderBlock keyName="popular-slider" />
+        <ProductSliderBlock keyName={POPULAR_SLIDER_KEY} initialSlider={popularSlider} />
 
         {/* Featured products */}
         <S.Section>
@@ -299,21 +178,7 @@ export const HomeComponent: React.FC = () => {
             </Link>
           </S.SectionHeader>
 
-          {loading ? (
-            <S.ProductsGrid>
-              {Array.from({ length: FEATURED_LIMIT }).map((_, idx) => (
-                <S.SkeletonCard key={idx}>
-                  <S.SkeletonBlock height="220px" />
-                  <div style={{ padding: 14 }}>
-                    <S.SkeletonBlock height="14px" />
-                    <div style={{ marginTop: 8 }}>
-                      <S.SkeletonBlock height="18px" />
-                    </div>
-                  </div>
-                </S.SkeletonCard>
-              ))}
-            </S.ProductsGrid>
-          ) : featured.length === 0 ? (
+          {featured.length === 0 ? (
             <S.EmptyRow>{t("products-empty")}</S.EmptyRow>
           ) : (
             <S.ProductsGrid>

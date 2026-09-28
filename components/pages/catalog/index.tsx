@@ -9,43 +9,59 @@ import AuthModal from "@/components/shared/AuthModal";
 import Dropdown from "@/components/shared/Dropdown";
 import ProductCard from "@/components/shared/ProductCard";
 import { SearchIcon, TagIcon } from "@/components/ui/RefIcons";
-import { CategoriesAPI, ProductsAPI } from "@/API_Client";
-import { ProductsControllerFindAllOrderEnum } from "@/API_Client/client/apis/products-api";
 import { Category, PaginatedResponseDto, Product } from "@/API_Client/types";
 import { getCategoryName } from "@/utils/getCategoryName";
 import { scrollToTopSmooth } from "@/utils/scrollToTop";
+import {
+  CatalogInitialData,
+  PRODUCTS_PAGE_SIZE,
+  catalogParamsKey,
+  fetchCatalogCategories,
+  fetchCatalogProducts,
+  parseCatalogQuery,
+} from "./data";
+import PaginationLinks from "./PaginationLinks";
 import * as S from "./style";
 
-const PRODUCTS_PAGE_SIZE = 12;
-
 // დალაგების ხელმისაწვდომი ვარიანტები — Dropdown-ის მნიშვნელობა ორ ველად
-// (sortBy/order) იშლება SORT_OPTIONS-იდან SELECTED-ის მიხედვით.
-const getSortOptions = (
-  t: (key: string) => string
-): { value: string; label: string; sortBy?: string; order?: ProductsControllerFindAllOrderEnum }[] => [
+// (sortBy/order) იშლება SORT_MAP-იდან (./data.ts, სერვერთან საერთო).
+const getSortOptions = (t: (key: string) => string) => [
   { value: "default", label: t("sort-default") },
-  { value: "new", label: t("sort-new"), sortBy: "createdAt", order: ProductsControllerFindAllOrderEnum.Desc },
-  { value: "price_asc", label: t("sort-price-asc"), sortBy: "price", order: ProductsControllerFindAllOrderEnum.Asc },
-  { value: "price_desc", label: t("sort-price-desc"), sortBy: "price", order: ProductsControllerFindAllOrderEnum.Desc },
+  { value: "new", label: t("sort-new") },
+  { value: "price_asc", label: t("sort-price-asc") },
+  { value: "price_desc", label: t("sort-price-desc") },
 ];
 
-export const CatalogComponent: React.FC = () => {
+interface CatalogComponentProps {
+  // getServerSideProps-იდან (pages/products/index.tsx) — პირველი გვერდის
+  // პროდუქტები/კატეგორიები სერვერის HTML-შია; კლიენტი მხოლოდ შემდგომ
+  // (shallow) ფილტრის/გვერდის ცვლილებებზე ითხოვს ხელახლა.
+  initialData?: CatalogInitialData;
+}
+
+export const CatalogComponent: React.FC<CatalogComponentProps> = ({ initialData }) => {
   const router = useRouter();
   const { t } = useTranslation("catalog");
   const SORT_OPTIONS = getSortOptions(t);
+  const [initialParams] = useState(() => parseCatalogQuery(router.query));
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [meta, setMeta] = useState<PaginatedResponseDto<Product>["meta"] | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [products, setProducts] = useState<Product[]>(initialData?.products ?? []);
+  const [meta, setMeta] = useState<PaginatedResponseDto<Product>["meta"] | null>(initialData?.meta ?? null);
+  const [loading, setLoading] = useState<boolean>(!initialData);
 
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>(initialData?.categories ?? []);
+  const [activeCategoryId, setActiveCategoryId] = useState<string | null>(initialParams.category);
 
-  const [page, setPage] = useState<number>(1);
-  const [sort, setSort] = useState<string>("default");
+  const [page, setPage] = useState<number>(initialParams.page);
+  const [sort, setSort] = useState<string>(initialParams.sort);
   // Header-ის ძებნა `/products?search=...`-ზე გადმოდის — URL-იდან ვკითხულობთ
-  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>(initialParams.search);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
+
+  // სერვერზე უკვე ჩატვირთული კომბინაციის (ლოკალი + პარამეტრები) პირველი
+  // კლიენტური fetch-ი ზედმეტია — ერთხელ ვტოვებთ.
+  const skipProductsKeyRef = useRef<string | null>(initialData ? `${router.locale}|${initialData.key}` : null);
+  const skipCategoriesRef = useRef<boolean>(!!initialData);
 
   // `page`-ს ვასინქრონებთ URL-ის `?page=` პარამეტრთან, გაზიარებული/დაბუქმარკებული
   // ბმული იმავე გვერდიდან გახსნას რომ იძლეოდეს. `?category=` კი საშუალებას
@@ -110,19 +126,15 @@ export const CatalogComponent: React.FC = () => {
     const requestId = ++requestIdRef.current;
     setLoading(true);
     try {
-      const sortOption = SORT_OPTIONS.find((option) => option.value === sort);
-      const res = await ProductsAPI(router.locale || "ka", "").productsControllerFindAll(
+      const data = await fetchCatalogProducts(router.locale || "ka", {
         page,
-        PRODUCTS_PAGE_SIZE,
-        sortOption?.sortBy,
-        sortOption?.order,
-        searchTerm || undefined,
-        activeCategoryId ?? undefined
-      );
+        sort,
+        search: searchTerm,
+        category: activeCategoryId,
+      });
       if (requestId !== requestIdRef.current) return;
-      const data = res.data as unknown as PaginatedResponseDto<Product>;
-      setProducts(Array.isArray(data?.data) ? data.data : []);
-      setMeta(data?.meta || null);
+      setProducts(data.products);
+      setMeta(data.meta);
     } catch (err) {
       if (requestId !== requestIdRef.current) return;
       console.error("Error fetching products:", err);
@@ -134,11 +146,7 @@ export const CatalogComponent: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      // categoryControllerFindAll ახლა გვერდიანია (PaginatedResponseDto<Category>) —
-      // ფილტრის სრული სიისთვის დიდი limit-ით ვითხოვთ (იხ. API_Client/types.ts).
-      const res = await CategoriesAPI(router.locale || "ka", "").categoryControllerFindAll(1, 100);
-      const data = res.data as unknown as PaginatedResponseDto<Category>;
-      setCategories(Array.isArray(data?.data) ? data.data : []);
+      setCategories(await fetchCatalogCategories(router.locale || "ka"));
     } catch {
       // კატეგორიების ფილტრი არასავალდებულოა, შეცდომას ჩუმად ვტოვებთ
     }
@@ -148,11 +156,21 @@ export const CatalogComponent: React.FC = () => {
   // (?page=3 / ?search=...) ნაცვლად პირველ გვერდს წამოიღებდა.
   useEffect(() => {
     if (!router.isReady) return;
+    const key = `${router.locale}|${catalogParamsKey({ page, sort, search: searchTerm, category: activeCategoryId })}`;
+    if (skipProductsKeyRef.current === key) {
+      skipProductsKeyRef.current = null;
+      return;
+    }
+    skipProductsKeyRef.current = null;
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, page, activeCategoryId, searchTerm, sort, router.locale]);
 
   useEffect(() => {
+    if (skipCategoriesRef.current) {
+      skipCategoriesRef.current = false;
+      return;
+    }
     fetchCategories();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.locale]);
@@ -209,12 +227,24 @@ export const CatalogComponent: React.FC = () => {
             <S.SidebarCard>
               <S.SidebarCardTitle>{t("categories-title")}</S.SidebarCardTitle>
               <S.SidebarCardBody>
-                <S.CategoryOption active={activeCategoryId === null} onClick={() => handleCategorySelect(null)}>
-                  <S.CategoryOptionLabel>
-                    <TagIcon size={16} />
-                    {t("all-categories")}
-                  </S.CategoryOptionLabel>
-                </S.CategoryOption>
+                {/* კატეგორიები <a href>-ებია (crawl-ირებადი ბმულები, SEO) — "ყველა"
+                    კლიკზე shallow ფილტრის მოხსნად რჩება */}
+                <Link href="/products" passHref legacyBehavior>
+                  <S.CategoryOption
+                    as="a"
+                    active={activeCategoryId === null}
+                    onClick={(e: React.MouseEvent) => {
+                      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                      e.preventDefault();
+                      handleCategorySelect(null);
+                    }}
+                  >
+                    <S.CategoryOptionLabel>
+                      <TagIcon size={16} />
+                      {t("all-categories")}
+                    </S.CategoryOptionLabel>
+                  </S.CategoryOption>
+                </Link>
 
                 {topLevelCategories.length === 0 ? (
                   <S.FilterEmpty>{t("no-categories")}</S.FilterEmpty>
@@ -223,24 +253,21 @@ export const CatalogComponent: React.FC = () => {
                     const children = getChildCategories(category.id);
                     return (
                       <React.Fragment key={category.id}>
-                        <S.CategoryOption
-                          active={activeCategoryId === category.id}
-                          onClick={() => handleCategorySelect(category.id)}
-                        >
-                          <S.CategoryOptionLabel>
-                            <TagIcon size={16} />
-                            {getCategoryName(category, router.locale)}
-                          </S.CategoryOptionLabel>
-                        </S.CategoryOption>
+                        <Link href={`/categories/${category.slug}`} passHref legacyBehavior>
+                          <S.CategoryOption as="a" active={activeCategoryId === category.id}>
+                            <S.CategoryOptionLabel>
+                              <TagIcon size={16} />
+                              {getCategoryName(category, router.locale)}
+                            </S.CategoryOptionLabel>
+                          </S.CategoryOption>
+                        </Link>
 
                         {children.map((child) => (
-                          <S.SubcategoryOption
-                            key={child.id}
-                            active={activeCategoryId === child.id}
-                            onClick={() => handleCategorySelect(child.id)}
-                          >
-                            <S.CategoryOptionLabel>— {getCategoryName(child, router.locale)}</S.CategoryOptionLabel>
-                          </S.SubcategoryOption>
+                          <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
+                            <S.SubcategoryOption as="a" active={activeCategoryId === child.id}>
+                              <S.CategoryOptionLabel>— {getCategoryName(child, router.locale)}</S.CategoryOptionLabel>
+                            </S.SubcategoryOption>
+                          </Link>
                         ))}
                       </React.Fragment>
                     );
@@ -318,23 +345,7 @@ export const CatalogComponent: React.FC = () => {
               </S.ProductsGrid>
             )}
 
-            {meta && meta.totalPages > 1 && (
-              <S.PaginationBar>
-                <S.PageButton onClick={() => goToPage(Math.max(1, meta.page - 1))} disabled={!meta.hasPrevious}>
-                  ←
-                </S.PageButton>
-                <S.PageNumbers>
-                  {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((n) => (
-                    <S.PageNumberButton key={n} active={n === meta.page} onClick={() => goToPage(n)}>
-                      {n}
-                    </S.PageNumberButton>
-                  ))}
-                </S.PageNumbers>
-                <S.PageButton onClick={() => goToPage(meta.page + 1)} disabled={!meta.hasNext}>
-                  →
-                </S.PageButton>
-              </S.PaginationBar>
-            )}
+            {meta && meta.totalPages > 1 && <PaginationLinks meta={meta} onPageChange={goToPage} />}
           </S.Main>
         </S.Layout>
       </S.Container>

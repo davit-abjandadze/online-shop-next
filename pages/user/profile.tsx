@@ -4,12 +4,12 @@ import ProfileComponent from "@/components/pages/profile";
 
 export default function ProfilePage() {
   const { t } = useTranslation("common");
+  const { t: tProfile } = useTranslation("profile");
 
   return (
     <>
       <Head>
-        <title>{`პროფილი - ${t("default-page-title")}`}</title>
-        <meta name="description" content="მომხმარებლის პროფილი და ფავორიტი კითხვები" />
+        <title>{`${tProfile("page-title")} - ${t("default-page-title")}`}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <ProfileComponent />

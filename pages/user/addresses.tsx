@@ -4,12 +4,12 @@ import AddressesComponent from "@/components/pages/profile/Addresses";
 
 export default function AddressesPage() {
   const { t } = useTranslation("common");
+  const { t: tProfile } = useTranslation("profile");
 
   return (
     <>
       <Head>
-        <title>{`მისამართები - ${t("default-page-title")}`}</title>
-        <meta name="description" content="მომხმარებლის შენახული მისამართები" />
+        <title>{`${tProfile("addresses-page-title")} - ${t("default-page-title")}`}</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
       <AddressesComponent />

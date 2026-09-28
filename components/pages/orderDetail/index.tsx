@@ -15,6 +15,7 @@ import { Order, PaymentInitiateResponse } from "@/API_Client/types";
 import { CDN_URL } from "@/constants";
 import { ClipboardIcon, LockIcon } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
+import { productPath } from "@/utils/seo";
 import * as S from "./style";
 
 // BOG-იდან დაბრუნებისას redirect_urls.success/fail ორივე ამ გვერდზე
@@ -334,7 +335,7 @@ export const OrderDetailComponent: React.FC<OrderDetailProps> = ({ orderId }) =>
                     <S.ItemImage>{image && <img src={image} alt={item.productName} />}</S.ItemImage>
                     <S.ItemInfo>
                       {item.product ? (
-                        <Link href={`/products/${item.product.id}`} passHref legacyBehavior>
+                        <Link href={productPath(item.product)} passHref legacyBehavior>
                           <S.ItemName>{item.productName}</S.ItemName>
                         </Link>
                       ) : (

@@ -10,11 +10,12 @@ import SimilarProductsSlider from "@/components/shared/SimilarProductsSlider";
 import { ProductsAPI } from "@/API_Client";
 import { Product, ProductAdditionalInfo, ProductAttributeValue, ProductBranch, ProductColor, ProductVariant } from "@/API_Client/types";
 import { CartIcon, TagIcon, PlayIcon, CloseIcon, CheckCircleIcon, ShareIcon } from "@/components/ui/RefIcons";
-import { BASEPATH, CDN_URL } from "@/constants";
+import { CDN_URL } from "@/constants";
 import { sanitizeHtml } from "@/utils/sanitizeHtml";
 import { useCart } from "@/context/Cart";
 import { getCategoryName, getLocalizedDescription, getLocalizedValue } from "@/utils/getCategoryName";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
+import { absoluteUrl, productPath, resolveLocale } from "@/utils/seo";
 import * as S from "./style";
 
 const formatAttributeValue = (
@@ -32,6 +33,8 @@ const formatAttributeValue = (
 
 interface ProductDetailProps {
   product: Product;
+  // getServerSideProps-იდან — "მსგავსი პროდუქტები" სერვერის HTML-ში (შიდა ბმულები)
+  similarProducts?: Product[];
 }
 
 const resolveImage = (image?: string) =>
@@ -49,7 +52,7 @@ const getYoutubeId = (url?: string): string | undefined => {
 type Slide = { type: "image"; src?: string } | { type: "video"; videoId: string };
 
 // პროდუქტის დეტალური გვერდი.
-export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }) => {
+export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product, similarProducts }) => {
   const router = useRouter();
   const { t } = useTranslation("product");
   const { t: tc } = useTranslation("common");
@@ -534,7 +537,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
               ))}
           </S.AdditionalInfoSection>
         )}
-        <SimilarProductsSlider productId={product.id} />
+        <SimilarProductsSlider productId={product.id} initialProducts={similarProducts} />
       </S.Container>
 
       <Footer />
@@ -616,7 +619,7 @@ export const ProductDetailComponent: React.FC<ProductDetailProps> = ({ product }
       <ShareModal
         isOpen={shareModalOpen}
         onClose={() => setShareModalOpen(false)}
-        url={`${BASEPATH}/${router.locale && router.locale !== "default" ? router.locale : "ka"}/products/${product.id}`}
+        url={absoluteUrl(resolveLocale(router.locale), productPath(product))}
         title={productName}
         price={`${withDiscount(product.price).price.toFixed(2)} ₾`}
         imageSrc={resolveImage(product.images?.[0])}

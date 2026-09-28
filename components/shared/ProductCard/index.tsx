@@ -7,11 +7,12 @@ import { ProductsAPI } from "@/API_Client";
 import { Product, ProductColor, ProductVariant } from "@/API_Client/types";
 import { CartIcon, HeartIcon, ShareIcon, StarIcon, TagIcon } from "@/components/ui/RefIcons";
 import ShareModal from "@/components/shared/ShareModal";
-import { BASEPATH, CDN_URL } from "@/constants";
+import { CDN_URL } from "@/constants";
 import { useCart } from "@/context/Cart";
 import { useWishlist } from "@/context/Wishlist";
 import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
+import { absoluteUrl, productPath, resolveLocale } from "@/utils/seo";
 import * as S from "./style";
 
 export interface ProductCardProps {
@@ -156,7 +157,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <>
-    <Link href={`/products/${product.id}`} passHref legacyBehavior>
+    <Link href={productPath(product)} passHref legacyBehavior>
       <S.Card out={outOfStock}>
         <S.ImageWrap>
           {imageSrc ? <img src={imageSrc} alt={productName} loading="lazy" /> : <TagIcon size={40} />}
@@ -226,7 +227,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <ShareModal
         isOpen={shareModalOpen}
         onClose={() => setShareModalOpen(false)}
-        url={`${BASEPATH}/${router.locale || "ka"}/products/${product.id}`}
+        url={absoluteUrl(resolveLocale(router.locale), productPath(product))}
         title={productName}
         price={`${displayPrice.toFixed(2)} ₾`}
         imageSrc={imageSrc}

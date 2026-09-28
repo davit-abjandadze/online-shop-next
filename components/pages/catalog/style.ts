@@ -181,6 +181,10 @@ export const CategoryOption = styled("button")<{ active?: boolean }>`
   font-size: 13px;
   font-weight: ${({ active }) => (active ? 700 : 500)};
   text-align: left;
+  /* <a>-ადაც რენდერდება (crawl-ირებადი ბმული, SEO) */
+  box-sizing: border-box;
+  font-family: inherit;
+  text-decoration: none;
   cursor: pointer;
   transition: background 0.12s ease, color 0.12s ease;
 
@@ -470,6 +474,15 @@ export const PaginationBar = styled("div")`
 `;
 
 export const PageButton = styled("button")`
+  /* <a>-ადაც რენდერდება (crawl-ირებადი ბმული, SEO) — button-ის იგივე იერით */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 8px;
+  font-family: inherit;
+  font-size: 14px;
+  text-decoration: none;
   min-width: 38px;
   height: 38px;
   border-radius: 12px;
@@ -497,6 +510,15 @@ export const PageNumbers = styled("div")`
 `;
 
 export const PageNumberButton = styled("button")<{ active?: boolean }>`
+  /* <a>-ადაც რენდერდება (crawl-ირებადი ბმული, SEO) — button-ის იგივე იერით */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 0 8px;
+  font-family: inherit;
+  font-size: 14px;
+  text-decoration: none;
   min-width: 38px;
   height: 38px;
   border-radius: 12px;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -7,8 +7,8 @@ import useTranslation from "next-translate/useTranslation";
 import { CartIcon, FacebookGlyphIcon, InstagramIcon, MailIcon, XIcon } from "@/components/ui/RefIcons";
 import AuthModal from "@/components/shared/AuthModal";
 import LanguageSwitcher from "@/components/shared/LanguageSwitcher";
-import { CategoriesAPI } from "@/API_Client";
-import { Category, PaginatedResponseDto } from "@/API_Client/types";
+import { useCategoryTree } from "@/context/CategoryTree";
+import { useCookieConsent } from "@/context/CookieConsent";
 import { getCategoryName } from "@/utils/getCategoryName";
 import * as S from "./style";
 
@@ -16,12 +16,15 @@ const FOOTER_CATEGORIES_LIMIT = 5;
 
 export const Footer: React.FC = () => {
   const { t } = useTranslation("footer");
+  const { t: tc } = useTranslation("common");
   const year = new Date().getFullYear();
   const router = useRouter();
   const { status } = useSession();
+  const { openSettings: openCookieSettings } = useCookieConsent();
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [categories, setCategories] = useState<Category[]>([]);
+  // Header-ის იგივე (სერვერზე ჩატვირთული) ხე — root კატეგორიები, ცალკე მოთხოვნის გარეშე
+  const categories = useCategoryTree().slice(0, FOOTER_CATEGORIES_LIMIT);
   const [newsletterEmail, setNewsletterEmail] = useState("");
 
   // ავტორიზაციის მოთხოვნით დაცული ბმულები — თუ მომხმარებელი შესული არ არის,
@@ -32,18 +35,6 @@ export const Footer: React.FC = () => {
       setAuthModalOpen(true);
     }
   };
-
-  useEffect(() => {
-    CategoriesAPI(router.locale || "ka", "")
-      .categoryControllerFindAll(1, FOOTER_CATEGORIES_LIMIT)
-      .then((res) => {
-        const data = res.data as unknown as PaginatedResponseDto<Category>;
-        if (Array.isArray(data?.data)) setCategories(data.data);
-      })
-      .catch(() => {
-        // კატეგორიების ბმულები არასავალდებულოა Footer-ისთვის — ჩუმად ვტოვებთ
-      });
-  }, [router.locale]);
 
   // Newsletter გამოწერისთვის backend-ს ჯერ არ აქვს endpoint — ამიტომ ნამდვილი
   // გამოწერის ნაცვლად პატიოსნად ვატყობინებთ, რომ ფუნქცია მალე ჩაირთვება,
@@ -62,7 +53,7 @@ export const Footer: React.FC = () => {
           <S.BrandColumn>
             <S.Brand>
               <S.BrandBadge>
-                <img src="/icons/logo.png" alt="" />
+                <img src="/icons/logo.png" alt={tc("default-page-title")} />
               </S.BrandBadge>
             </S.Brand>
             <S.BrandSubtitle>
@@ -82,7 +73,7 @@ export const Footer: React.FC = () => {
               <S.LinkColumn>
                 <S.LinkColumnTitle>{t("footer-categories-heading")}</S.LinkColumnTitle>
                 {categories.map((category) => (
-                  <Link key={category.id} href={`/products?category=${category.id}`} passHref legacyBehavior>
+                  <Link key={category.id} href={`/categories/${category.slug}`} passHref legacyBehavior>
                     <S.FooterLink>{getCategoryName(category, router.locale)}</S.FooterLink>
                   </Link>
                 ))}
@@ -109,6 +100,15 @@ export const Footer: React.FC = () => {
               <Link href="/privacy-policy" passHref legacyBehavior>
                 <S.FooterLink>{t("footer-link-privacy")}</S.FooterLink>
               </Link>
+              {/* თანხმობის შეცვლა/გაუქმება ნებისმიერ დროს (GDPR) */}
+              <S.FooterLink
+                as="button"
+                type="button"
+                onClick={openCookieSettings}
+                style={{ background: "none", border: "none", padding: 0, cursor: "pointer", font: "inherit", textAlign: "left" }}
+              >
+                {tc("cookie-settings-link")}
+              </S.FooterLink>
             </S.LinkColumn>
           </S.LinksGroup>
         </S.Top>

@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Header from '@/components/shared/Header';
 import Footer from '@/components/shared/Footer';
+import Seo from '@/components/shared/Seo';
 
 // --- Styled Components Definition ---
 
@@ -123,6 +124,11 @@ const PageFooter = styled.footer`
 export const PrivacyPolicy = () => {
   return (
     <>
+      {/* ტექსტი მხოლოდ ქართულადაა — canonical ყოველთვის /ka-ზე (იხ. KA_ONLY_PATHS, utils/seo.ts) */}
+      <Seo
+        title="პერსონალურ მონაცემთა დაცვის პოლიტიკა - ონლაინ მაღაზია"
+        description="როგორ აგროვებს, ინახავს და იცავს ონლაინ მაღაზია მომხმარებლის პერსონალურ მონაცემებს."
+      />
       <Header />
       <Container>
         <PageHeader>
@@ -214,6 +220,9 @@ export const PrivacyPolicy = () => {
           <SectionTitle>6. Cookies (ქუქი ფაილები)</SectionTitle>
           <Paragraph>
             პლატფორმა იყენებს ქუქი ფაილებს საიტის სწორად ფუნქციონირებისთვის (მაგ., ავტორიზაციის სესია, ენის არჩევანი) და ანალიტიკური მიზნებისთვის. მომხმარებელს შეუძლია ბრაუზერის პარამეტრებში ნებისმიერ დროს გამორთოს ან წაშალოს ქუქი ფაილები, თუმცა ამან შესაძლოა შეზღუდოს საიტის ზოგიერთი ფუნქციის მუშაობა.
+          </Paragraph>
+          <Paragraph>
+            ანალიტიკური ქუქი ფაილები (Google Analytics) მხოლოდ მომხმარებლის თანხმობის შემდეგ აქტიურდება, რომელიც საიტზე პირველი შესვლისას ჩნდება. თანხმობის შეცვლა ან გაუქმება ნებისმიერ დროს შეიძლება საიტის ქვედა ნაწილში არსებული ბმულით „Cookie-ს პარამეტრები“; გაუქმებისას ანალიტიკური ქუქი ფაილები იშლება. არჩევანი ინახება 180 დღის განმავლობაში.
           </Paragraph>
         </Section>
 

@@ -16,6 +16,7 @@ import { CDN_URL } from "@/constants";
 import { CartIcon, HeartIcon, LockIcon, MinusIcon, PlusIcon, TrashIcon } from "@/components/ui/RefIcons";
 import { getDiscountedPrice } from "@/utils/getDiscountedPrice";
 import { getCategoryName, getLocalizedDescription } from "@/utils/getCategoryName";
+import { productPath } from "@/utils/seo";
 import * as S from "./style";
 
 const resolveImage = (image?: string) =>
@@ -167,7 +168,7 @@ export const CartComponent: React.FC = () => {
                       <S.ItemImage>{image && <img src={image} alt={productName} />}</S.ItemImage>
 
                       <S.ItemInfo>
-                        <Link href={`/products/${item.product.id}`} passHref legacyBehavior>
+                        <Link href={productPath(item.product)} passHref legacyBehavior>
                           <S.ItemName>{productName}</S.ItemName>
                         </Link>
                         {productDescription && <S.ItemDescription>{productDescription}</S.ItemDescription>}

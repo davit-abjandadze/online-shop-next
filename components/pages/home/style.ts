@@ -185,7 +185,7 @@ export const HeroEyebrowBar = styled("span")`
   display: inline-block !important;
 `;
 
-export const HeroTitle = styled("h1")`
+export const HeroTitle = styled("h2")`
   margin: 0 0 14px 0;
   font-weight: 400;
   font-size: 26px;
@@ -598,3 +598,7 @@ export const BenefitText = styled("div")`
   font-size: 12px;
   color: var(--ref-text-secondary);
 `;
+
+// გვერდის ერთადერთი, მუდმივი h1 — hero სლაიდების სათაურები h2-ია, რადგან
+// ყოველ სლაიდზე მეორდება და ადმინის კონტენტზეა დამოკიდებული.
+export { VisuallyHiddenH1 } from "@/components/ui/VisuallyHidden";

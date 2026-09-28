@@ -31,6 +31,7 @@ import {
 
 // ბექენდი 100 სიმბოლოზე გრძელ search-ს 400-ით უარყოფს (იხ. SearchProductDto)
 const SEARCH_MAX_LENGTH = 100;
+import { productPath } from "@/utils/seo";
 import * as S from "./style";
 
 // სერჩის საძებნო მოთხოვნების debounce ინტერვალი — ტაიპისას ყოველ
@@ -45,6 +46,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
   const { t } = useTranslation("header");
+  const { t: tc } = useTranslation("common");
   const { data: session, status } = useSession();
   const router = useRouter();
   const { count: wishlistCount } = useWishlist();
@@ -212,9 +214,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
     router.push(query ? `/products?search=${encodeURIComponent(query)}` : "/products");
   };
 
-  const handleSuggestionClick = (productId: number) => {
+  const handleSuggestionClick = (product: Product) => {
     setSuggestionsOpen(false);
-    router.push(`/products/${productId}`);
+    router.push(productPath(product));
   };
 
   // Get User Initials
@@ -235,7 +237,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
           <Link href="/" passHref legacyBehavior>
             <S.LogoLink>
               <S.LogoBadge>
-                <img src="/icons/logo.png" alt="" />
+                <img src="/icons/logo.png" alt={tc("default-page-title")} />
               </S.LogoBadge>
             </S.LogoLink>
           </Link>
@@ -289,7 +291,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                         <S.SuggestionItem
                           key={product.id}
                           type="button"
-                          onClick={() => handleSuggestionClick(product.id)}
+                          onClick={() => handleSuggestionClick(product)}
                         >
                           <S.SuggestionImage>
                             {imageSrc ? <img src={imageSrc} alt={productName} /> : <TagIcon size={20} />}
@@ -475,7 +477,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAuth }) => {
                               <S.SuggestionItem
                                 key={product.id}
                                 type="button"
-                                onClick={() => handleSuggestionClick(product.id)}
+                                onClick={() => handleSuggestionClick(product)}
                               >
                                 <S.SuggestionImage>
                                   {imageSrc ? <img src={imageSrc} alt={productName} /> : <TagIcon size={20} />}

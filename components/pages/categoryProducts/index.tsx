@@ -23,8 +23,15 @@ import { useCategoryFilters } from "@/hooks/useCategoryFilters";
 // Layout/Sidebar/ProductsGrid/PaginationBar-ის სტილები კატალოგის (`/products`)
 // ჩვეულ ვიზუალურ ენას იმეორებს — reuse, დუბლირების გარეშე.
 import * as C from "@/components/pages/catalog/style";
-
-const PRODUCTS_PAGE_SIZE = 12;
+import { VisuallyHiddenH1 } from "@/components/ui/VisuallyHidden";
+import PaginationLinks from "@/components/pages/catalog/PaginationLinks";
+import {
+  CategoryInitialData,
+  PRODUCTS_PAGE_SIZE,
+  categoryProductsKey,
+  fetchCategoryChildren,
+  fetchCategoryProducts,
+} from "./data";
 
 const getSortOptions = (t: (key: string) => string) => [
   { value: "default", label: t("sort-default") },
@@ -35,6 +42,9 @@ const getSortOptions = (t: (key: string) => string) => [
 
 interface CategoryProductsPageProps {
   slug: string;
+  // getServerSideProps-იდან (pages/categories/[slug].tsx) — კატეგორია,
+  // ქვეკატეგორიები და პირველი გვერდის პროდუქტები სერვერის HTML-შია (SEO).
+  initialData?: CategoryInitialData;
 }
 
 // useEffect dependency-სთვის — ფასის ფილტრები (minPrice/maxPrice) გამორიცხული,
@@ -44,24 +54,30 @@ const restFiltersForBounds = (filters: Record<string, string>) => {
   return rest;
 };
 
-export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug }) => {
+export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug, initialData }) => {
   const router = useRouter();
   const { t } = useTranslation("catalog");
   const SORT_OPTIONS = getSortOptions(t);
   const { filters, subcategory, page, sortBy, order, applyFilters, setSubcategory, setPage, setSort, clearFilters } =
     useCategoryFilters();
 
-  const [category, setCategory] = useState<Category | null>(null);
+  // სერვერის მონაცემები მხოლოდ იმავე slug-ისთვისაა ვალიდური
+  const initial = initialData && initialData.category.slug === slug ? initialData : undefined;
+  const [category, setCategory] = useState<Category | null>(initial?.category ?? null);
   // რომელ slug-ს ეკუთვნის ჩატვირთული `category` — slug-ის შეცვლისას იმავე
   // render-ში ქვედა effect-ები ჯერ კიდევ ძველ category-ს ხედავენ და ახალ slug-ზე
   // ძველი ფილტრებით გაუშვებდნენ მოთხოვნას; ეს guard მათ ახალ category-მდე აჩერებს.
-  const [categorySlug, setCategorySlug] = useState<string | null>(null);
-  const [children, setChildren] = useState<Category[]>([]);
+  const [categorySlug, setCategorySlug] = useState<string | null>(initial ? slug : null);
+  const [children, setChildren] = useState<Category[]>(initial?.children ?? []);
   const [facets, setFacets] = useState<CategoryFiltersResponse>([]);
   const [priceBounds, setPriceBounds] = useState<PriceBounds | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [meta, setMeta] = useState<PaginatedResponseDto<Product>["meta"] | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [products, setProducts] = useState<Product[]>(initial?.products ?? []);
+  const [meta, setMeta] = useState<PaginatedResponseDto<Product>["meta"] | null>(initial?.meta ?? null);
+  const [loading, setLoading] = useState<boolean>(!initial);
+  // სერვერზე უკვე ჩატვირთული კატეგორია/პროდუქტები — პირველი კლიენტური
+  // fetch-ები ზედმეტია (ლოკალის/slug-ის/ფილტრის შეცვლისას კი ჩვეულებრივ მიდის).
+  const skipCategoryRef = useRef<string | null>(initial ? `${router.locale}|${slug}` : null);
+  const skipProductsKeyRef = useRef<string | null>(initial?.key ?? null);
   const [notFound, setNotFound] = useState<boolean>(false);
   const [authModalOpen, setAuthModalOpen] = useState<boolean>(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState<boolean>(false);
@@ -97,6 +113,11 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
   // ("zetis-filtri"-ის მსგავს კატეგორიაზეც, რომელსაც საკუთარი შვილები არ ჰყავს)
   // ქვეკატეგორიების ნავიგაცია არ ქრებოდეს. root კატეგორიაზე კი — თავისივე შვილები.
   useEffect(() => {
+    if (skipCategoryRef.current === `${router.locale}|${slug}`) {
+      skipCategoryRef.current = null;
+      return;
+    }
+    skipCategoryRef.current = null;
     let active = true;
     // იგივე კომპონენტი რჩება mount-ად სხვა კატეგორიაზე გადასვლისას — წინა
     // კატეგორიის მონაცემები (და "ვერ მოიძებნა" მდგომარეობა) უნდა გასუფთავდეს.
@@ -113,16 +134,9 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
         const cat = res.data as unknown as Category;
         setCategory(cat);
         setCategorySlug(slug);
-        const childrenRes = await CategoriesAPI(router.locale || "ka", "").categoryControllerFindAll(
-          1,
-          100,
-          undefined,
-          undefined,
-          String(cat.parent ? cat.parent.id : cat.id)
-        );
+        const childrenData = await fetchCategoryChildren(router.locale || "ka", cat);
         if (!active) return;
-        const childrenData = childrenRes.data as unknown as PaginatedResponseDto<Category>;
-        setChildren(Array.isArray(childrenData?.data) ? childrenData.data : []);
+        setChildren(childrenData);
       })
       .catch(() => {
         if (active) setNotFound(true);
@@ -194,25 +208,20 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
   // პროდუქტების სია — ფილტრები/subcategory/page/sort ცვლილებაზე.
   useEffect(() => {
     if (!category || categorySlug !== slug) return;
+    const filterState = { filters, subcategory, page, sortBy, order };
+    if (skipProductsKeyRef.current === categoryProductsKey(router.locale, slug, filterState)) {
+      skipProductsKeyRef.current = null;
+      return;
+    }
+    skipProductsKeyRef.current = null;
     // სწრაფი გვერდის/ფილტრის ცვლილებისას მხოლოდ ბოლო მოთხოვნის პასუხი ჩაიწერება
     let active = true;
     setLoading(true);
-    CategoriesAPI(router.locale || "ka", "")
-      .categoryControllerGetProducts(slug, {
-        params: {
-          ...filters,
-          ...(subcategory ? { subcategory } : {}),
-          page: String(page),
-          limit: String(PRODUCTS_PAGE_SIZE),
-          ...(sortBy ? { sortBy } : {}),
-          ...(order ? { order } : {}),
-        },
-      } as any)
-      .then((res) => {
+    fetchCategoryProducts(router.locale || "ka", slug, filterState)
+      .then((data) => {
         if (!active) return;
-        const data = res.data as unknown as PaginatedResponseDto<Product>;
-        setProducts(Array.isArray(data?.data) ? data.data : []);
-        setMeta(data?.meta || null);
+        setProducts(data.products);
+        setMeta(data.meta);
       })
       .catch(() => {
         if (active) toast.error(t("load-products-error") as string);
@@ -233,29 +242,37 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
       <C.SidebarCard>
         <C.SidebarCardTitle>{t("subcategories-title")}</C.SidebarCardTitle>
         <C.SidebarCardBody>
+          {/* ქვეკატეგორიები <a href>-ებია (crawl-ირებადი ბმულები, SEO) */}
           {category?.parent ? (
-            <C.CategoryOption active={false} onClick={() => router.push(`/categories/${category.parent!.slug}`)}>
-              <C.CategoryOptionLabel>
-                {t("all")}
-              </C.CategoryOptionLabel>
-            </C.CategoryOption>
+            <Link href={`/categories/${category.parent.slug}`} passHref legacyBehavior>
+              <C.CategoryOption as="a" active={false}>
+                <C.CategoryOptionLabel>{t("all")}</C.CategoryOptionLabel>
+              </C.CategoryOption>
+            </Link>
           ) : (
-            <C.CategoryOption active={!subcategory} onClick={() => setSubcategory(null)}>
-              <C.CategoryOptionLabel>
-                {t("all")}
-              </C.CategoryOptionLabel>
-            </C.CategoryOption>
+            <Link href={`/categories/${slug}`} passHref legacyBehavior>
+              <C.CategoryOption
+                as="a"
+                active={!subcategory}
+                onClick={(e: React.MouseEvent) => {
+                  if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+                  e.preventDefault();
+                  setSubcategory(null);
+                }}
+              >
+                <C.CategoryOptionLabel>{t("all")}</C.CategoryOptionLabel>
+              </C.CategoryOption>
+            </Link>
           )}
           {children.map((child) => (
-            <C.CategoryOption
-              key={child.id}
-              active={category?.parent ? child.slug === category.slug : subcategory === child.slug}
-              onClick={() => router.push(`/categories/${child.slug}`)}
-            >
-              <C.CategoryOptionLabel>
-                {getCategoryName(child, router.locale)}
-              </C.CategoryOptionLabel>
-            </C.CategoryOption>
+            <Link key={child.id} href={`/categories/${child.slug}`} passHref legacyBehavior>
+              <C.CategoryOption
+                as="a"
+                active={category?.parent ? child.slug === category.slug : subcategory === child.slug}
+              >
+                <C.CategoryOptionLabel>{getCategoryName(child, router.locale)}</C.CategoryOptionLabel>
+              </C.CategoryOption>
+            </Link>
           ))}
         </C.SidebarCardBody>
       </C.SidebarCard>
@@ -298,6 +315,9 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
             </>
           )}
         </C.Breadcrumb>
+
+        {/* ხილული სათაური დიზაინიდან ამოღებულია (იხ. ქვემოთ), h1 კი SEO-სთვის საჭიროა */}
+        {category && <VisuallyHiddenH1>{getCategoryName(category, router.locale)}</VisuallyHiddenH1>}
 
         {/* <C.PageHeader>
           <div>
@@ -453,23 +473,7 @@ export const CategoryProductsPage: React.FC<CategoryProductsPageProps> = ({ slug
               </C.ProductsGrid>
             )}
 
-            {meta && meta.totalPages > 1 && (
-              <C.PaginationBar>
-                <C.PageButton onClick={() => setPage(Math.max(1, meta.page - 1))} disabled={!meta.hasPrevious}>
-                  ←
-                </C.PageButton>
-                <C.PageNumbers>
-                  {Array.from({ length: meta.totalPages }, (_, i) => i + 1).map((n) => (
-                    <C.PageNumberButton key={n} active={n === meta.page} onClick={() => setPage(n)}>
-                      {n}
-                    </C.PageNumberButton>
-                  ))}
-                </C.PageNumbers>
-                <C.PageButton onClick={() => setPage(meta.page + 1)} disabled={!meta.hasNext}>
-                  →
-                </C.PageButton>
-              </C.PaginationBar>
-            )}
+            {meta && meta.totalPages > 1 && <PaginationLinks meta={meta} onPageChange={setPage} />}
           </C.Main>
         </C.Layout>
       </C.Container>

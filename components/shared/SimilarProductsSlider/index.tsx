@@ -17,6 +17,9 @@ interface SimilarProductsSliderProps {
   /** მიმდინარე პროდუქტის id — `GET /products/:id/similar`-ისთვის. */
   productId: number | string;
   skeletonCount?: number;
+  /** getServerSideProps-იდან (pages/products/[id].tsx) — თუ მოცემულია, პირველი
+   * კლიენტური მოთხოვნა აღარ იგზავნება და ბმულები სერვერის HTML-შია (SEO). */
+  initialProducts?: Product[];
 }
 
 /**
@@ -26,11 +29,12 @@ interface SimilarProductsSliderProps {
  * თუ პროდუქტს კატეგორია არ აქვს ან მსგავსი პროდუქტი ვერ მოიძებნა — კომპონენტი
  * საერთოდ არაფერს რენდერავს (ProductSliderBlock-ის იგივე "დამალვის" პატერნი).
  */
-export const SimilarProductsSlider: React.FC<SimilarProductsSliderProps> = ({ productId, skeletonCount = 4 }) => {
+export const SimilarProductsSlider: React.FC<SimilarProductsSliderProps> = ({ productId, skeletonCount = 4, initialProducts }) => {
   const router = useRouter();
   const { t } = useTranslation("product");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
+  const [loading, setLoading] = useState<boolean>(!initialProducts);
+  const skipKeyRef = useRef<string | null>(initialProducts ? `${router.locale}|${productId}` : null);
   const [isBeginning, setIsBeginning] = useState(true);
   const [isEnd, setIsEnd] = useState(false);
   const swiperRef = useRef<SwiperType | null>(null);
@@ -38,6 +42,11 @@ export const SimilarProductsSlider: React.FC<SimilarProductsSliderProps> = ({ pr
   const nextRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
+    if (skipKeyRef.current === `${router.locale}|${productId}`) {
+      skipKeyRef.current = null;
+      return;
+    }
+    skipKeyRef.current = null;
     let cancelled = false;
     setLoading(true);
     ProductsAPI(router.locale || "ka", "")

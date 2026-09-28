@@ -49,12 +49,15 @@ const nextConfig = {
         // ჩანდა, გზების/წარწერების გარეშე; იგივე მოუვიდა InvoiceModal-ის
         // public/fonts/*.woff2-ს — @react-pdf/renderer-ის Font.register-ის
         // fetch("/fonts/...") 404-ობდა, რაც PDF-ის გენერაციას ამტვრევდა).
-        source: "/default/:path((?!api|_next|icons|images|maplibre-gl|fonts|favicon.png).*)",
+        // robots.txt/sitemap.xml — crawler-ები მათ ძირზე (/robots.txt) ელიან და
+        // redirect-ის გარეშე 200-ით უნდა დაბრუნდეს.
+        source: "/default/:path((?!api|_next|icons|images|maplibre-gl|fonts|favicon.png|robots.txt|sitemap.xml).*)",
         // constants.ts-ის DEFAULT_LOCALE ვერ import-დება აქ პირდაპირ (next.config.js
         // CommonJS-ია, constants.ts TS module) — მნიშვნელობა (ka) ხელით სინქრონიზებულია
         destination: "/ka/:path*",
         locale: false,
-        permanent: false,
+        // 308 (მუდმივი) — საძიებო სისტემები "/"-ის რეიტინგს /ka-ზე გადაიტანენ
+        permanent: true,
       },
       {
         // root ("/") ცალკეა საჭირო, რადგან მისი internal pathname ზუსტად "/default"-ია
@@ -62,7 +65,8 @@ const nextConfig = {
         source: "/default",
         destination: "/ka",
         locale: false,
-        permanent: false,
+        // 308 (მუდმივი) — საძიებო სისტემები "/"-ის რეიტინგს /ka-ზე გადაიტანენ
+        permanent: true,
       },
     ];
   },
